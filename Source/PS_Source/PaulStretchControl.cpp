@@ -61,8 +61,17 @@ Control::Control(AudioFormatManager* afm) : m_afm(afm), m_bufferingthread("stret
 
 Control::~Control()
 {
-	
-};
+	m_bufferingthread.stopThread(1000);
+}
+void Control::processAudio(AudioBuffer<float>& buf)
+{
+	if (m_buffering_source != nullptr)
+	{
+		AudioSourceChannelInfo aif(buf);
+		m_buffering_source->getNextAudioBlock(aif);
+	}
+}
+
 	
 
 void Control::setStretchAmount(double rate)
@@ -274,7 +283,9 @@ void Control::startplay(bool /*bypass*/, bool /*realtime*/, Range<double> playra
 			m_bufferingthread, false, bufamt, numoutchans, false);
 		m_recreate_buffering_source = false;
 	}
-	
+	if (m_bufferingthread.isThreadRunning() == false)
+		m_bufferingthread.startThread();
+	m_buffering_source->prepareToPlay(1024, 44100.0);
 	m_stretch_source->setNumOutChannels(numoutchans);
 	m_stretch_source->setFFTSize(m_fft_size_to_use);
 	update_process_parameters();
@@ -289,7 +300,7 @@ void Control::startplay(bool /*bypass*/, bool /*realtime*/, Range<double> playra
 void Control::stopplay()
 {
     //m_adm->removeAudioCallback(&m_test_callback);
-    
+	m_bufferingthread.stopThread(1000);
 };
 
 void Control::set_seek_pos(REALTYPE x)

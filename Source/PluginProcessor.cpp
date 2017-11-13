@@ -28,6 +28,11 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_afm = std::make_unique<AudioFormatManager>();
 	m_afm->registerBasicFormats();
 	m_control = std::make_unique<Control>(m_afm.get());
+	m_control->getStretchAudioSource()->setLoopingEnabled(true);
+	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f));
+	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f));
+	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f));
+
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -97,16 +102,27 @@ void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String
 }
 
 //==============================================================================
-void PaulstretchpluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+	m_ready_to_play = false;
+	m_control->set_input_file(File("C:/MusicAudio/sourcesamples/sheila.wav"), [this](String cberr) 
+	{
+		if (cberr.isEmpty())
+		{
+			m_ready_to_play = true;
+			String err;
+			m_control->update_player_stretch();
+			m_control->update_process_parameters();
+			m_control->startplay(false, true, { 0.0,1.0 }, 2, err);
+		}
+		else m_ready_to_play = false;
+	});
+	
 }
 
 void PaulstretchpluginAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+	m_control->stopplay();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -147,15 +163,16 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
     // this code if your algorithm always overwrites all the output channels.
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        float* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+	if (m_ready_to_play == false)
+		return;
+	auto& params = getParameters();
+	AudioParameterFloat* par = (AudioParameterFloat*)params[1];
+	m_control->getStretchAudioSource()->setRate(*par);
+	par = (AudioParameterFloat*)params[2];
+	m_control->ppar.pitch_shift.enabled = true;
+	m_control->ppar.pitch_shift.cents = *par * 100.0;
+	m_control->update_process_parameters();
+	m_control->processAudio(buffer);
 }
 
 //==============================================================================
@@ -166,7 +183,8 @@ bool PaulstretchpluginAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* PaulstretchpluginAudioProcessor::createEditor()
 {
-    return new PaulstretchpluginAudioProcessorEditor (*this);
+	return new GenericAudioProcessorEditor(this);
+	//return new PaulstretchpluginAudioProcessorEditor (*this);
 }
 
 //==============================================================================

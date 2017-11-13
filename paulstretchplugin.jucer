@@ -79,13 +79,13 @@
     <VS2017 targetFolder="Builds/VisualStudio2017" externalLibraries="C:\ProgrammingProjects\gitrepos\fftw-3.3.6\fftw-3.3-libs\x64\Static-Release\libfftwf-3.3.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
                        linkTimeOptimisation="0" isDebug="1" optimisation="1" targetName="paulstretchplugin"
-                       headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+                       headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\Program Files\VSTPlugins"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
-                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
                        linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="paulstretchplugin"
-                       headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+                       headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\Program Files\VSTPlugins"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>

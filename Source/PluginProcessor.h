@@ -59,6 +59,7 @@ public:
 private:
 	std::unique_ptr<Control> m_control;
 	std::unique_ptr<AudioFormatManager> m_afm;
+	bool m_ready_to_play = false;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

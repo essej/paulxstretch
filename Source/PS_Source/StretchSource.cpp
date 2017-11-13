@@ -7,38 +7,18 @@
 #undef max
 #endif
 
-extern std::unique_ptr<PropertiesFile> g_propsfile;
-
 StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManager* afm) : m_afm(afm)
 {
 	m_resampler = std::make_unique<WDL_Resampler>();
 	m_resampler_outbuf.resize(1024*1024);
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	m_specproc_order = { 0,1,2,3,4,5,6,7 };
-	String order = g_propsfile->getValue("spectral_order", "01234567");
-	if (order.isNotEmpty())
-	{
-		std::vector<int> temp;
-		for (int i = 0; i<order.length(); ++i)
-		{
-			int index = order[i] - 48;
-			if (index >= 0 && index<8)
-			{
-				temp.push_back(index);
-				//Logger::writeToLog(temp.back().m_name);
-			}
-		}
-		m_specproc_order = temp;
-	}
 	setNumOutChannels(initialnumoutchans);
 }
 
 StretchAudioSource::~StretchAudioSource()
 {
-	String temp;
-	for (auto& e : m_specproc_order)
-		temp.append(String(e),1);
-	g_propsfile->setValue("spectral_order", temp);
+	
 }
 
 void StretchAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate)
@@ -59,6 +39,7 @@ void StretchAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double s
 
 void StretchAudioSource::releaseResources()
 {
+	
 }
 
 bool StretchAudioSource::isResampling()
@@ -149,7 +130,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		for (auto& e : m_stretchers)
 			e->set_freezing(m_freezing);
 	}
-	double maingain = Decibels::decibelsToGain((double)val_MainVolume.getValue());
+	double maingain = 0.5; // Decibels::decibelsToGain((double)val_MainVolume.getValue());
 	if (m_vol_smoother.getTargetValue() != maingain)
 		m_vol_smoother.setValue(maingain);
 	FloatVectorOperations::disableDenormalisedNumberSupport();
@@ -532,10 +513,7 @@ MultiStretchAudioSource::MultiStretchAudioSource(int initialnumoutchans, AudioFo
 
 MultiStretchAudioSource::~MultiStretchAudioSource()
 {
-	String temp;
-	for (auto& e : getActiveStretchSource()->getSpectrumProcessOrder())
-		temp.append(String(e), 1);
-	g_propsfile->setValue("spectral_order", temp);
+	
 }
 
 void MultiStretchAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleRate)

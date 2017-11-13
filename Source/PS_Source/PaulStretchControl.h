@@ -90,7 +90,8 @@ class Control
 public:
 	Control(AudioFormatManager* afm);
 	~Control();
-    void startplay(bool bypass, bool realtime, Range<double> playrange, int numoutchans, String& err);
+	void processAudio(AudioBuffer<float>& buf);
+	void startplay(bool bypass, bool realtime, Range<double> playrange, int numoutchans, String& err);
 	void stopplay();
 	void set_seek_pos(REALTYPE x);
 	REALTYPE get_seek_pos();

@@ -20,8 +20,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-extern std::unique_ptr<PropertiesFile> g_propsfile;
-
 FFT::FFT(int nsamples_)
 {
     nsamples=nsamples_;
@@ -39,7 +37,7 @@ FFT::FFT(int nsamples_)
 
 
     data.resize(nsamples,true);
-	bool allow_long_planning = g_propsfile->getBoolValue("fftw_allow_long_planning",false);
+	bool allow_long_planning = false; // g_propsfile->getBoolValue("fftw_allow_long_planning", false);
     //double t0 = Time::getMillisecondCounterHiRes();
     if (allow_long_planning)
     {
