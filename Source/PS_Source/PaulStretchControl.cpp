@@ -33,7 +33,7 @@ extern std::unique_ptr<PropertiesFile> g_propsfile;
 
 Control::Control(AudioFormatManager* afm) : m_afm(afm), m_bufferingthread("stretchbufferingthread")
 {
-	m_stretch_source = std::make_unique<MultiStretchAudioSource>(2,m_afm);
+	m_stretch_source = std::make_unique<StretchAudioSource>(2,m_afm);
 	
 	
 	wavinfo.samplerate=44100;
@@ -619,91 +619,3 @@ void Control::update_process_parameters()
 	//if (player) 
 	//	player->set_process_parameters(&ppar,&bbpar);
 };
-
-AudioCallback::AudioCallback() : AudioIODeviceCallback(), 
-	m_writethread("audio_out_record_thread")
-{
-	
-}
-
-void AudioCallback::audioDeviceAboutToStart(AudioIODevice * device) 
-{
-	m_debugcount = 0;
-	m_outpos = 0.0;
-	m_outsr = device->getCurrentSampleRate();
-	if (m_aviscomponent)
-		m_aviscomponent->setNumChannels(m_numoutchans);
-	if (m_bufferingsource)
-	{
-		if (m_prebufferthread->isThreadRunning()==false)
-			m_prebufferthread->startThread(g_propsfile->getIntValue("prebufthreadpriority",5));
-		int bufsize = std::max(512, device->getCurrentBufferSizeSamples());
-		//Logger::writeToLog("Using buffer size " + String(bufsize));
-		m_bufferingsource->prepareToPlay(bufsize, m_outsr);
-	}
-	m_playing = true;
-	//Logger::writeToLog("hw samplerate " + String(m_outsr));
-}
-
-void AudioCallback::audioDeviceStopped() 
-{
-	m_writer = nullptr;
-	if (m_writethread.isThreadRunning() == true)
-	{
-		if (m_writethread.stopThread(1000) == false)
-		{
-			Logger::writeToLog("OUCH, live output recording thread didn't stop cleanly!");
-		}
-	}
-	if (m_bufferingsource)
-	{
-		m_bufferingsource->releaseResources();
-		if (m_prebufferthread->isThreadRunning() == true)
-		{
-			if (m_prebufferthread->stopThread(1000) == false)
-				Logger::writeToLog("OUCH, prebuffering thread did not stop cleanly!");
-		}
-	}
-	m_playing = false;
-}
-
-void AudioCallback::audioDeviceIOCallback(const float ** /*inputChannelData*/, int, float ** outputChannelData, int numOutputChannels, int numSamples)
-{
-	if (m_bufferingsource == nullptr)
-		return;
-	AudioBuffer<float> buf(outputChannelData, numOutputChannels, numSamples);
-	AudioSourceChannelInfo ainfo(buf);
-	m_bufferingsource->getNextAudioBlock(ainfo);
-	if (m_aviscomponent && m_aviscomponent->isVisible())
-	{
-		m_aviscomponent->pushBuffer((const float**)outputChannelData, m_numoutchans, numSamples);
-	}
-	if (m_writer && m_is_recording == true)
-	{
-		m_writer->write((const float**)outputChannelData, numSamples);
-    }
-    m_outpos += (double)numSamples / m_outsr;
-}
-
-String AudioCallback::startRecording(File outfile)
-{
-	WavAudioFormat wavformat;
-	auto outstream = outfile.createOutputStream();
-	if (outstream == nullptr)
-		return "Could not create output stream";
-	auto writer = wavformat.createWriterFor(outstream, m_outsr, m_numoutchans, 32, StringPairArray(), 0);
-	if (writer != nullptr)
-	{
-		if (m_writethread.isThreadRunning()==false)
-			m_writethread.startThread();
-		m_writer = std::make_unique<AudioFormatWriter::ThreadedWriter>(writer, m_writethread, 65536);
-		m_is_recording = true;
-		return String();
-	}
-	return "Could not create audio writer";
-}
-
-void AudioCallback::setNumOutchans(int numchans)
-{
-	m_numoutchans = jlimit(2, g_maxnumoutchans, numchans);
-}

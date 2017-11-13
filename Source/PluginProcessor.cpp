@@ -114,7 +114,17 @@ void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	if (m_using_memory_buffer == true)
-		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), m_recbuffer.getNumSamples());
+	{
+		int len = jlimit(100,m_recbuffer.getNumSamples(), m_rec_pos);
+		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, 
+			getSampleRate(), 
+			len);
+		auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
+		if (ed)
+		{
+			ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len);
+		}
+	}
 	if (m_ready_to_play == false)
 	{
 		m_control->update_player_stretch();
@@ -180,7 +190,8 @@ bool PaulstretchpluginAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-    ScopedNoDenormals noDenormals;
+	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -245,6 +256,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 {
+	std::lock_guard<std::mutex> locker(m_mutex);
 	if (b == true)
 	{
 		m_is_recording = true;
@@ -272,10 +284,11 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
 	m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), lenrecording);
+	m_control->getStretchAudioSource()->setPlayRange({ *getFloatParameter(5),*getFloatParameter(6) }, true);
 	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
 	if (ed)
 	{
-		ed->setAudioBuffer(&m_recbuffer, getSampleRate(), m_rec_pos);
+		ed->setAudioBuffer(&m_recbuffer, getSampleRate(), lenrecording);
 	}
 }
 

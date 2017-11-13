@@ -123,6 +123,8 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 	m_seekpos = 0.0;
 	m_lastinpos = 0.0;
 	m_curfile = File();
+	if (m_playrange.isEmpty())
+		setPlayRange({ 0.0,1.0 }, true);
 }
 
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)

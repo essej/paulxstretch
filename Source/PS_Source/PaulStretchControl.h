@@ -26,36 +26,6 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "../ps3_BufferingAudioSource.h"
 
-class AudioCallback : public AudioIODeviceCallback
-{
-public:
-	AudioCallback();
-	void audioDeviceAboutToStart(AudioIODevice* device) override;
-	void audioDeviceStopped() override;
-    void audioDeviceIOCallback (const float** inputChannelData,
-                                int numInputChannels,
-                                float** outputChannelData,
-                                int numOutputChannels,
-		int numSamples) override;
-	String startRecording(File outfile);
-	
-	std::atomic<bool> m_is_recording{ false };
-	AudioVisualiserComponent* m_aviscomponent = nullptr;
-	std::unique_ptr<AudioFormatWriter::ThreadedWriter> m_writer;
-	TimeSliceThread m_writethread;
-	TimeSliceThread* m_prebufferthread = nullptr;
-	MyBufferingAudioSource* m_bufferingsource = nullptr;
-	MultiStretchAudioSource* m_sas = nullptr;
-	std::atomic<bool> m_playing{false};
-	double m_outpos = 0.0;
-	void setNumOutchans(int numchans);
-private:
-	std::mutex m_mutex;
-	int m_debugcount = 0;
-	int m_outsr = 44100;
-	int m_numoutchans = 2;
-};
-
 class RenderInfo
 {
 public:
@@ -102,7 +72,7 @@ public:
 	void setFFTSize(double size);
 	int getFFTSize() { return m_fft_size_to_use; }
 	void setOnsetDetection(double x);
-	MultiStretchAudioSource* getStretchAudioSource() { return m_stretch_source.get(); }
+	StretchAudioSource* getStretchAudioSource() { return m_stretch_source.get(); }
     void set_input_file(File filename, std::function<void(String)> cb);//return non empty String if the file cannot be opened
 	String get_input_filename();
 	String get_stretch_info(Range<double> playrange);
@@ -169,7 +139,7 @@ private:
     REALTYPE seek_pos;
 	AudioFormatManager* m_afm = nullptr;
     TimeSliceThread m_bufferingthread;
-	std::unique_ptr<MultiStretchAudioSource> m_stretch_source;
+	std::unique_ptr<StretchAudioSource> m_stretch_source;
 	std::unique_ptr<MyBufferingAudioSource> m_buffering_source;
 	int m_prebuffer_amount = 1;
 	bool m_recreate_buffering_source = true;

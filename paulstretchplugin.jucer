@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="fn1Rg8" name="paulstretchplugin" displaySplashScreen="0"
-              reportAppUsage="1" splashScreenColour="Dark" projectType="audioplug"
+              reportAppUsage="0" splashScreenColour="Dark" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.paulstretchplugin"
               includeBinaryInAppConfig="1" cppLanguageStandard="latest" companyCopyright=""
               buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"

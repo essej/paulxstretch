@@ -40,6 +40,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	};
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
+	m_wavecomponent.startTimer(100);
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()

@@ -48,6 +48,7 @@ public:
         PlayRangeEndCallback=[](AInputS*){};
 	}
     ~AInputS() {}
+
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 	{
 		m_afreader = nullptr;
@@ -60,6 +61,7 @@ public:
 		m_loop_enabled = true;
 		m_crossfadebuf.setSize(info.nchannels, m_crossfadebuf.getNumSamples());
 		m_cached_file_range = { 0,len };
+		seek(m_activerange.getStart());
 		updateXFadeCache();
 	}
 	bool openAudioFile(File file) override
