@@ -134,8 +134,9 @@ void Control::set_input_file(File file, std::function<void(String)> cb)
             
         };
     };
-    std::thread th(task);
-    th.detach();
+    //std::thread th(task);
+    //th.detach();
+	task();
 };
 
 String Control::get_input_filename(){
@@ -285,13 +286,12 @@ void Control::startplay(bool /*bypass*/, bool /*realtime*/, Range<double> playra
 	}
 	if (m_bufferingthread.isThreadRunning() == false)
 		m_bufferingthread.startThread();
-	m_buffering_source->prepareToPlay(1024, 44100.0);
 	m_stretch_source->setNumOutChannels(numoutchans);
 	m_stretch_source->setFFTSize(m_fft_size_to_use);
 	update_process_parameters();
 	m_last_outpos_pos = 0.0;
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
-	
+	m_buffering_source->prepareToPlay(1024, 44100.0);
 	
 	
 //	sleep(100);

@@ -37,6 +37,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
+	m_control->stopplay();
 }
 
 //==============================================================================
