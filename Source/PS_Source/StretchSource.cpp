@@ -451,6 +451,8 @@ void StretchAudioSource::setOnsetDetection(double x)
 void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 {
 	std::lock_guard<std::mutex> locker(m_mutex);
+	if (m_playrange.isEmpty()==false && playrange == m_playrange)
+		return;
 	if (playrange.isEmpty())
 		m_playrange = { 0.0,1.0 };
 	else

@@ -59,10 +59,15 @@ public:
 	{
 		return dynamic_cast<AudioParameterFloat*>(getParameters()[index]);
 	}
+	void setRecordingEnabled(bool b);
 private:
 	std::unique_ptr<Control> m_control;
 	std::unique_ptr<AudioFormatManager> m_afm;
 	bool m_ready_to_play = false;
+	AudioBuffer<float> m_recbuffer;
+	double m_max_reclen = 10.0;
+	bool m_is_recording = true;
+	int m_rec_pos = 0;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

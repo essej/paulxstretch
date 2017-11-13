@@ -23,12 +23,23 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 		m_parcomps.back()->setBounds(1, i * 25, 598, 24);
 		addAndMakeVisible(m_parcomps.back().get());
 	}
-	setSize (600, pars.size()*25);
+	addAndMakeVisible(&m_rec_enable);
+	m_rec_enable.setButtonText("Capture");
+	m_rec_enable.addListener(this);
+	setSize (600, pars.size()*25+30);
 	startTimer(1, 100);
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 {
+}
+
+void PaulstretchpluginAudioProcessorEditor::buttonClicked(Button * but)
+{
+	if (but == &m_rec_enable)
+	{
+		processor.setRecordingEnabled(but->getToggleState());
+	}
 }
 
 //==============================================================================
@@ -39,8 +50,8 @@ void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 
 void PaulstretchpluginAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+	m_rec_enable.setBounds(1, getHeight() - 25, 10, 24);
+	m_rec_enable.changeWidthToFitText();
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)

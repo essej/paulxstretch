@@ -36,6 +36,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.6f));
 	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f));
 	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f));
+	addParameter(new AudioParameterFloat("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f));
+	addParameter(new AudioParameterFloat("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f));
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -163,10 +165,27 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
         buffer.clear (i, 0, buffer.getNumSamples());
 	if (m_ready_to_play == false)
 		return;
+	if (m_is_recording == true)
+	{
+		m_rec_pos += buffer.getNumSamples();
+		if (m_rec_pos >= m_max_reclen * getSampleRate())
+		{
+			m_is_recording = false;
+			// Set record buffer as strech source...
+		}
+		return;
+	}
 	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
 	//m_control->setFFTSize(*getFloatParameter(2));
 	m_control->ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
 	m_control->ppar.freq_shift.Hz = *getFloatParameter(4);
+	double t0 = *getFloatParameter(5);
+	double t1 = *getFloatParameter(6);
+	if (t0 > t1)
+		std::swap(t0, t1);
+	if (t1 - t0 < 0.001)
+		t1 = t0 + 0.001;
+	m_control->getStretchAudioSource()->setPlayRange({ t0,t1 }, true);
 	m_control->update_process_parameters();
 	m_control->processAudio(buffer);
 }
@@ -194,6 +213,20 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
+{
+	if (b == true)
+	{
+		m_is_recording = true;
+		m_recbuffer.setSize(2, m_max_reclen*getSampleRate());
+		m_rec_pos = 0;
+	}
+	else
+	{
+		m_is_recording = false;
+	}
 }
 
 //==============================================================================

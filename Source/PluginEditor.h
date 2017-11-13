@@ -71,12 +71,12 @@ private:
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
-	public MultiTimer
+	public MultiTimer, public Button::Listener
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
     ~PaulstretchpluginAudioProcessorEditor();
-
+	void buttonClicked(Button* but) override;
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
@@ -84,5 +84,6 @@ public:
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
+	ToggleButton m_rec_enable;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
