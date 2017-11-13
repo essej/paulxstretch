@@ -57,6 +57,7 @@ public:
 		info.nsamples = len;
 		info.samplerate = samplerate;
 		m_currentsample = 0;
+		m_loop_enabled = true;
 		m_crossfadebuf.setSize(info.nchannels, m_crossfadebuf.getNumSamples());
 		m_cached_file_range = { 0,len };
 		updateXFadeCache();

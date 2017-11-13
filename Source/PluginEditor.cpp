@@ -34,6 +34,10 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 		*processor.getFloatParameter(5) = range.getStart();
 		*processor.getFloatParameter(6) = range.getEnd();
 	};
+	m_wavecomponent.CursorPosCallback = [this]()
+	{
+		return processor.m_control->getLivePlayPosition();
+	};
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
 }

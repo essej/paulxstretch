@@ -25,11 +25,14 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
                        )
 #endif
 {
+	m_recbuffer.setSize(2, 44100);
+	m_recbuffer.clear();
 	m_afm = std::make_unique<AudioFormatManager>();
 	m_afm->registerBasicFormats();
 	m_control = std::make_unique<Control>(m_afm.get());
 	m_control->ppar.pitch_shift.enabled = true;
 	m_control->ppar.freq_shift.enabled = true;
+	m_control->setOnsetDetection(0.0);
 	m_control->getStretchAudioSource()->setLoopingEnabled(true);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f));
 	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f));
@@ -110,10 +113,13 @@ void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	if (m_using_memory_buffer == true)
+		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), m_recbuffer.getNumSamples());
 	if (m_ready_to_play == false)
 	{
 		m_control->update_player_stretch();
 		m_control->update_process_parameters();
+		
 		String err;
 		m_control->startplay(false, true,
 			{ *getFloatParameter(5),*getFloatParameter(6) },
