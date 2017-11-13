@@ -51,7 +51,16 @@ public:
 	}
 	void sliderValueChanged(Slider* slid) override
 	{
-
+		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
+		*floatpar = slid->getValue();
+	}
+	void updateComponent()
+	{
+		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
+		if (m_slider != nullptr && (float)m_slider->getValue() != *floatpar)
+		{
+			m_slider->setValue(*floatpar, dontSendNotification);
+		}
 	}
 private:
 	Label m_label;
@@ -61,7 +70,8 @@ private:
 	std::unique_ptr<ToggleButton> m_togglebut;
 };
 
-class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor
+class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
+	public MultiTimer
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
@@ -70,7 +80,7 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-
+	void timerCallback(int id) override;
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;

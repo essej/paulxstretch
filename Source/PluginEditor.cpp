@@ -24,6 +24,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 		addAndMakeVisible(m_parcomps.back().get());
 	}
 	setSize (600, pars.size()*25);
+	startTimer(1, 100);
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
@@ -40,4 +41,13 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+}
+
+void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
+{
+	if (id == 1)
+	{
+		for (auto& e : m_parcomps)
+			e->updateComponent();
+	}
 }
