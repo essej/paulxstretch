@@ -16,6 +16,7 @@
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+	addAndMakeVisible(&m_info_label);
 	const auto& pars = processor.getParameters();
 	for (int i=0;i<pars.size();++i)
 	{
@@ -52,6 +53,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 {
 	m_rec_enable.setBounds(1, getHeight() - 25, 10, 24);
 	m_rec_enable.changeWidthToFitText();
+	m_info_label.setBounds(m_rec_enable.getRight() + 1, getHeight() - 25, 60, 24);
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
@@ -60,5 +62,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	{
 		for (auto& e : m_parcomps)
 			e->updateComponent();
+		if (processor.isRecordingEnabled() != m_rec_enable.getToggleState())
+			m_rec_enable.setToggleState(processor.isRecordingEnabled(), dontSendNotification);
+		m_info_label.setText(String(processor.getRecordingPositionPercent()*100.0, 1),dontSendNotification);
 	}
 }

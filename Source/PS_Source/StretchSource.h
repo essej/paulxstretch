@@ -90,6 +90,7 @@ public:
 	bool isLoopingEnabled();
 	void setLoopingEnabled(bool b);
 	void setMaxLoops(int64_t numloops) { m_maxloops = numloops; }
+	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
 	AudioBuffer<float> m_file_inbuf;
@@ -187,6 +188,7 @@ public:
 	Value val_XFadeLen;
 	//ValueTree getStateTree();
 	//void setStateTree(ValueTree state);
+	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
 private:
 	std::vector<std::shared_ptr<StretchAudioSource>> m_stretchsources;
 	bool m_is_in_switch{ false };

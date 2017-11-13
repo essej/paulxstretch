@@ -85,5 +85,6 @@ private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
 	ToggleButton m_rec_enable;
+	Label m_info_label;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

@@ -167,11 +167,17 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		return;
 	if (m_is_recording == true)
 	{
+		if (m_rec_pos + buffer.getNumSamples() < m_recbuffer.getNumSamples())
+		{
+			m_recbuffer.copyFrom(0, m_rec_pos, buffer, 0, 0, buffer.getNumSamples());
+			m_recbuffer.copyFrom(1, m_rec_pos, buffer, 1, 0, buffer.getNumSamples());
+		}
 		m_rec_pos += buffer.getNumSamples();
 		if (m_rec_pos >= m_max_reclen * getSampleRate())
 		{
 			m_is_recording = false;
-			// Set record buffer as strech source...
+			m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), 
+				m_max_reclen*getSampleRate());
 		}
 		return;
 	}
@@ -220,13 +226,22 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	if (b == true)
 	{
 		m_is_recording = true;
-		m_recbuffer.setSize(2, m_max_reclen*getSampleRate());
+		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096);
+		m_recbuffer.clear();
 		m_rec_pos = 0;
 	}
 	else
 	{
 		m_is_recording = false;
+		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), m_rec_pos);
 	}
+}
+
+double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
+{
+	if (m_is_recording==false)
+		return 0.0;
+	return 1.0 / m_recbuffer.getNumSamples()*m_rec_pos;
 }
 
 //==============================================================================

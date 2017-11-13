@@ -48,14 +48,27 @@ public:
         PlayRangeEndCallback=[](AInputS*){};
 	}
     ~AInputS() {}
-	
+	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
+	{
+		m_afreader = nullptr;
+		m_using_memory_buffer = true;
+		m_readbuf = *buf;
+		info.nchannels = buf->getNumChannels();
+		info.nsamples = len;
+		info.samplerate = samplerate;
+		m_currentsample = 0;
+		m_crossfadebuf.setSize(info.nchannels, m_crossfadebuf.getNumSamples());
+		m_cached_file_range = { 0,len };
+		updateXFadeCache();
+	}
 	bool openAudioFile(File file) override
     {
 		m_silenceoutputted = 0;
 		AudioFormatReader* reader = m_manager->createReaderFor(file);
         if (reader)
         {
-            m_afreader = std::unique_ptr<AudioFormatReader>(reader);
+			m_using_memory_buffer = false;
+			m_afreader = std::unique_ptr<AudioFormatReader>(reader);
             m_currentsample = 0;
             info.samplerate = (int)m_afreader->sampleRate;
             info.nchannels = m_afreader->numChannels;
@@ -80,9 +93,12 @@ public:
     }
 	int readNextBlock(AudioBuffer<float>& abuf, int nsmps, int numchans) override
 	{
-		if (m_afreader == nullptr)
+		if (m_afreader == nullptr && m_using_memory_buffer == false)
 			return 0;
-		int inchans = m_afreader->numChannels;
+		int inchans = 0;
+		if (m_afreader)
+			inchans = m_afreader->numChannels;
+		else inchans = m_readbuf.getNumChannels();
 		int64_t subsect_t0 = (int64_t)(m_activerange.getStart()*info.nsamples);
 		int64_t subsect_t1 = (int64_t)(m_activerange.getEnd()*info.nsamples);
 		int64_t subsectlen = subsect_t1 - subsect_t0;
@@ -130,7 +146,7 @@ public:
 		for (int i = 0; i < nsmps; ++i)
 		{
 			
-			if (m_afreader->numChannels == 1 && numchans > 0)
+			if (inchans == 1 && numchans > 0)
 			{
 				float sig = getCrossFadedSampleLambda(m_currentsample, 0, subsect_t0, subsect_t1, xfadelen);
 				for (int j = 0; j < numchans; ++j)
@@ -138,7 +154,7 @@ public:
 					smps[j][i] = sig;
 				}
 			}
-			else if (m_afreader->numChannels > 1 && numchans > 1)
+			else if (inchans > 1 && numchans > 1)
 			{
 				for (int j = 0; j < numchans; ++j)
 				{
@@ -172,6 +188,17 @@ public:
 	}
 	void seek(double pos) override //0=start,1.0=end
     {
+		if (m_using_memory_buffer == true)
+		{
+			jassert(m_readbuf.getNumSamples() > 0 && m_afreader==nullptr);
+			m_loopcount = 0;
+			m_silenceoutputted = 0;
+			m_cache_misses = 0;
+			m_currentsample = (int64_t)(pos*m_readbuf.getNumSamples());
+			m_currentsample = jlimit<int64_t>(0, m_readbuf.getNumSamples(), m_currentsample);
+			m_cached_file_range = { 0,m_readbuf.getNumSamples() };
+			return;
+		}
 		if (m_afreader==nullptr)
             return;
 		m_loopcount = 0;
@@ -199,8 +226,11 @@ public:
     {
         if (m_xfadelen>m_crossfadebuf.getNumSamples())
             m_crossfadebuf.setSize(info.nchannels,m_xfadelen);
-        m_afreader->read(&m_crossfadebuf, 0, m_xfadelen, (int64_t)(m_activerange.getStart()*info.nsamples), true, true);
-        m_cached_crossfade_range =
+        if (m_afreader != nullptr && m_using_memory_buffer == false)
+			m_afreader->read(&m_crossfadebuf, 0, m_xfadelen, (int64_t)(m_activerange.getStart()*info.nsamples), true, true);
+		if (m_afreader == nullptr && m_using_memory_buffer == true)
+			m_crossfadebuf.copyFrom(0, 0, m_readbuf, 0, (int64_t)(m_activerange.getStart()*info.nsamples), m_xfadelen);
+		m_cached_crossfade_range =
             Range<int64_t>((int64_t)(m_activerange.getStart()*info.nsamples),(int64_t)(m_activerange.getStart()*info.nsamples+m_xfadelen));
     }
 	void setActiveRange(Range<double> rng) override
@@ -243,6 +273,7 @@ public:
 	}
 	bool isReversed() { return m_reverseplay; }
 	int64_t getLoopCount() { return m_loopcount; }
+	
 private:
 	std::function<void(AInputS*)> PlayRangeEndCallback;
 	std::unique_ptr<AudioFormatReader> m_afreader;
@@ -256,5 +287,6 @@ private:
 	int m_xfadelen = 0;
 	bool m_reverseplay = false;
 	int64_t m_loopcount = 0;
+	bool m_using_memory_buffer = false;
 	AudioFormatManager* m_manager = nullptr;
 };

@@ -116,6 +116,14 @@ void StretchAudioSource::setLoopingEnabled(bool b)
 	}
 }
 
+void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len)
+{
+	std::lock_guard <std::mutex> locker(m_mutex);
+	m_inputfile->setAudioBuffer(buf, sr, len);
+	m_seekpos = 0.0;
+	m_lastinpos = 0.0;
+}
+
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	// for realtime play, this is assumed to be used with BufferingAudioSource, so mutex locking should not be too bad...
@@ -487,6 +495,12 @@ bool StretchAudioSource::hasReachedEnd()
 std::pair<Range<double>, Range<double>> MultiStretchAudioSource::getFileCachedRangesNormalized()
 {
     return getActiveStretchSource()->getFileCachedRangesNormalized();
+}
+
+void MultiStretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len)
+{
+	m_stretchsources[0]->setAudioBufferAsInputSource(buf, sr, len);
+	m_stretchsources[1]->setAudioBufferAsInputSource(buf, sr, len);
 }
 
 StretchAudioSource * MultiStretchAudioSource::getActiveStretchSource() const
