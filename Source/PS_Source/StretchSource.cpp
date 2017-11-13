@@ -675,6 +675,8 @@ void MultiStretchAudioSource::setFFTWindowingType(int windowtype)
 
 void MultiStretchAudioSource::setFFTSize(int size)
 {
+	if (size == getActiveStretchSource()->getFFTSize())
+		return;
 	if (m_is_playing == false)
 	{
 		getActiveStretchSource()->setFFTSize(size);

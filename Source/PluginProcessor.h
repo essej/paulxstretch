@@ -55,7 +55,10 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-
+	AudioParameterFloat* getFloatParameter(int index)
+	{
+		return dynamic_cast<AudioParameterFloat*>(getParameters()[index]);
+	}
 private:
 	std::unique_ptr<Control> m_control;
 	std::unique_ptr<AudioFormatManager> m_afm;

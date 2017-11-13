@@ -16,9 +16,14 @@
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-    setSize (400, 300);
+	const auto& pars = processor.getParameters();
+	for (int i=0;i<pars.size();++i)
+	{
+		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i]));
+		m_parcomps.back()->setBounds(1, i * 25, 598, 24);
+		addAndMakeVisible(m_parcomps.back().get());
+	}
+	setSize (600, pars.size()*25);
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
@@ -28,12 +33,7 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 //==============================================================================
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
-
-    g.setColour (Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
+	g.fillAll(Colours::darkgrey);
 }
 
 void PaulstretchpluginAudioProcessorEditor::resized()

@@ -28,11 +28,14 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_afm = std::make_unique<AudioFormatManager>();
 	m_afm->registerBasicFormats();
 	m_control = std::make_unique<Control>(m_afm.get());
+	m_control->ppar.pitch_shift.enabled = true;
+	m_control->ppar.freq_shift.enabled = true;
 	m_control->getStretchAudioSource()->setLoopingEnabled(true);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f));
 	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f));
+	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.6f));
 	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f));
-
+	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f));
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -156,22 +159,14 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 	if (m_ready_to_play == false)
 		return;
-	auto& params = getParameters();
-	AudioParameterFloat* par = (AudioParameterFloat*)params[1];
-	m_control->getStretchAudioSource()->setRate(*par);
-	par = (AudioParameterFloat*)params[2];
-	m_control->ppar.pitch_shift.enabled = true;
-	m_control->ppar.pitch_shift.cents = *par * 100.0;
+	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
+	//m_control->setFFTSize(*getFloatParameter(2));
+	m_control->ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
+	m_control->ppar.freq_shift.Hz = *getFloatParameter(4);
 	m_control->update_process_parameters();
 	m_control->processAudio(buffer);
 }
@@ -184,8 +179,7 @@ bool PaulstretchpluginAudioProcessor::hasEditor() const
 
 AudioProcessorEditor* PaulstretchpluginAudioProcessor::createEditor()
 {
-	return new GenericAudioProcessorEditor(this);
-	//return new PaulstretchpluginAudioProcessorEditor (*this);
+	return new PaulstretchpluginAudioProcessorEditor (*this);
 }
 
 //==============================================================================
