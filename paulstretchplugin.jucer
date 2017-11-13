@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="fn1Rg8" name="paulstretchplugin" displaySplashScreen="0"
+              reportAppUsage="1" splashScreenColour="Dark" projectType="audioplug"
+              version="1.0.0" bundleIdentifier="com.yourcompany.paulstretchplugin"
+              includeBinaryInAppConfig="1" cppLanguageStandard="latest" companyCopyright=""
+              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="paulstretchplugin"
+              pluginDesc="paulstretchplugin" pluginManufacturer="Xenakios"
+              pluginManufacturerCode="XenS" pluginCode="Fn1r" pluginChannelConfigs="{2,2},{8,8}"
+              pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
+              pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulstretchpluginAU"
+              pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0"
+              headerPath="&#10;&#10;">
+  <MAINGROUP id="nozXHl" name="paulstretchplugin">
+    <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
+      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
+      <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
+        <FILE id="bnWZA4" name="BinauralBeats.cpp" compile="1" resource="0"
+              file="Source/PS_Source/BinauralBeats.cpp"/>
+        <FILE id="qAo4mG" name="FreeEdit.cpp" compile="1" resource="0" file="Source/PS_Source/FreeEdit.cpp"/>
+        <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
+        <FILE id="O0cKQ4" name="Mutex.h" compile="0" resource="0" file="Source/PS_Source/Mutex.h"/>
+        <FILE id="Rl76Ct" name="PaulStretchControl.h" compile="0" resource="0"
+              file="Source/PS_Source/PaulStretchControl.h"/>
+        <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
+              file="Source/PS_Source/ProcessedStretch.h"/>
+        <FILE id="TcGuiz" name="Stretch.h" compile="0" resource="0" file="Source/PS_Source/Stretch.h"/>
+        <FILE id="yz0SM3" name="StretchSource.h" compile="0" resource="0" file="Source/PS_Source/StretchSource.h"/>
+        <FILE id="G6XXRZ" name="AInputS.h" compile="0" resource="0" file="Source/PS_Source/Input/AInputS.h"/>
+        <FILE id="jSSkH5" name="InputS.h" compile="0" resource="0" file="Source/PS_Source/Input/InputS.h"/>
+        <FILE id="iCUwyO" name="PaulStretchControl.cpp" compile="1" resource="0"
+              file="Source/PS_Source/PaulStretchControl.cpp"/>
+        <FILE id="EIKlL1" name="ProcessedStretch.cpp" compile="1" resource="0"
+              file="Source/PS_Source/ProcessedStretch.cpp"/>
+        <FILE id="x1qOMW" name="Stretch.cpp" compile="1" resource="0" file="Source/PS_Source/Stretch.cpp"/>
+        <FILE id="a7ur6I" name="StretchSource.cpp" compile="1" resource="0"
+              file="Source/PS_Source/StretchSource.cpp"/>
+      </GROUP>
+      <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
+            file="Source/ps3_BufferingAudioSource.cpp"/>
+      <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
+            file="Source/ps3_BufferingAudioSource.h"/>
+      <FILE id="jdPS0A" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="pt5tX8" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
+                       linkTimeOptimisation="0" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+        <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
+                       linkTimeOptimisation="1" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+    <VS2017 targetFolder="Builds/VisualStudio2017" externalLibraries="C:\ProgrammingProjects\gitrepos\fftw-3.3.6\fftw-3.3-libs\x64\Static-Release\libfftwf-3.3.lib">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="0" isDebug="1" optimisation="1" targetName="paulstretchplugin"
+                       headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
+                       debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="0"
+                       linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="paulstretchplugin"
+                       headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2017>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" linkTimeOptimisation="0"
+                       targetName="paulstretchplugin"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="3" linkTimeOptimisation="1"
+                       targetName="paulstretchplugin"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+</JUCERPROJECT>
