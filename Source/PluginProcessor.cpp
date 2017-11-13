@@ -110,6 +110,17 @@ void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	if (m_ready_to_play == false)
+	{
+		m_control->update_player_stretch();
+		m_control->update_process_parameters();
+		String err;
+		m_control->startplay(false, true,
+			{ *getFloatParameter(5),*getFloatParameter(6) },
+			2, err);
+		m_ready_to_play = true;
+	}
+	return;
 	m_ready_to_play = false;
 	m_control->set_input_file(File("C:/MusicAudio/sourcesamples/sheila.wav"), [this](String cberr) 
 	{
@@ -120,6 +131,11 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 			m_control->update_player_stretch();
 			m_control->update_process_parameters();
 			m_control->startplay(false, true, { 0.0,1.0 }, 2, err);
+			auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
+			if (ed)
+			{
+				ed->setAudioFile(m_control->getStretchAudioSource()->getAudioFile());
+			}
 		}
 		else m_ready_to_play = false;
 	});
@@ -128,7 +144,8 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 
 void PaulstretchpluginAudioProcessor::releaseResources()
 {
-	m_control->stopplay();
+	//m_control->stopplay();
+	//m_ready_to_play = false;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -175,13 +192,12 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_rec_pos += buffer.getNumSamples();
 		if (m_rec_pos >= m_max_reclen * getSampleRate())
 		{
-			m_is_recording = false;
-			m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), 
-				m_max_reclen*getSampleRate());
+			finishRecording(m_max_reclen*getSampleRate());
 		}
 		return;
 	}
 	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
+	m_control->getStretchAudioSource()->val_XFadeLen = 0.1;
 	//m_control->setFFTSize(*getFloatParameter(2));
 	m_control->ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
 	m_control->ppar.freq_shift.Hz = *getFloatParameter(4);
@@ -232,8 +248,10 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	}
 	else
 	{
-		m_is_recording = false;
-		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), m_rec_pos);
+		if (m_is_recording == true)
+		{
+			finishRecording(m_rec_pos);
+		}
 	}
 }
 
@@ -242,6 +260,17 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 	if (m_is_recording==false)
 		return 0.0;
 	return 1.0 / m_recbuffer.getNumSamples()*m_rec_pos;
+}
+
+void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
+{
+	m_is_recording = false;
+	m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), lenrecording);
+	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
+	if (ed)
+	{
+		ed->setAudioBuffer(&m_recbuffer, getSampleRate(), m_rec_pos);
+	}
 }
 
 //==============================================================================

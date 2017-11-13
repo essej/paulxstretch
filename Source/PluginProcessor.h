@@ -62,14 +62,18 @@ public:
 	void setRecordingEnabled(bool b);
 	bool isRecordingEnabled() { return m_is_recording; }
 	double getRecordingPositionPercent();
+	std::unique_ptr<AudioFormatManager> m_afm;
 private:
 	std::unique_ptr<Control> m_control;
-	std::unique_ptr<AudioFormatManager> m_afm;
+	
 	bool m_ready_to_play = false;
 	AudioBuffer<float> m_recbuffer;
 	double m_max_reclen = 10.0;
 	bool m_is_recording = false;
 	int m_rec_pos = 0;
-    //==============================================================================
+	void finishRecording(int lenrecorded);
+	bool m_using_memory_buffer = true;
+	
+	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

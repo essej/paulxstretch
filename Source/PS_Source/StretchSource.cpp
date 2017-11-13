@@ -122,6 +122,7 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 	m_inputfile->setAudioBuffer(buf, sr, len);
 	m_seekpos = 0.0;
 	m_lastinpos = 0.0;
+	m_curfile = File();
 }
 
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
@@ -702,7 +703,8 @@ void MultiStretchAudioSource::setFFTSize(int size)
 		double curpos = m_stretchsources[0]->getInfilePositionPercent();
 		m_stretchsources[1]->setFFTSize(size);
 		m_stretchsources[1]->setNumOutChannels(m_stretchsources[0]->getNumOutChannels());
-		m_stretchsources[1]->setAudioFile(m_stretchsources[0]->getAudioFile());
+		if (m_stretchsources[0]->getAudioFile()!=File())
+			m_stretchsources[1]->setAudioFile(m_stretchsources[0]->getAudioFile());
 		m_stretchsources[1]->setRate(m_stretchsources[0]->getRate());
 		m_stretchsources[1]->setPlayRange(m_stretchsources[0]->getPlayRange(), m_stretchsources[0]->isLoopEnabled());
 		m_stretchsources[1]->seekPercent(curpos);
