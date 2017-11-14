@@ -91,6 +91,7 @@ public:
 	void setLoopingEnabled(bool b);
 	void setMaxLoops(int64_t numloops) { m_maxloops = numloops; }
 	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
+	int m_param_change_count = 0;
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
 	AudioBuffer<float> m_file_inbuf;

@@ -96,7 +96,10 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			e->updateComponent();
 		if (processor.isRecordingEnabled() != m_rec_enable.getToggleState())
 			m_rec_enable.setToggleState(processor.isRecordingEnabled(), dontSendNotification);
-		m_info_label.setText(String(processor.getRecordingPositionPercent()*100.0, 1),dontSendNotification);
+		if (processor.isRecordingEnabled())
+			m_info_label.setText(String(processor.getRecordingPositionPercent()*100.0, 1),dontSendNotification);
+		else
+			m_info_label.setText(String(processor.m_control->getStretchAudioSource()->m_param_change_count), dontSendNotification);
 	}
 }
 

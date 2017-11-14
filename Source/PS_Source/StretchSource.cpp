@@ -382,6 +382,8 @@ double StretchAudioSource::getInfileLengthSeconds()
 
 void StretchAudioSource::setRate(double rate)
 {
+	if (rate == m_playrate)
+		return;
 	std::lock_guard<std::mutex> locker(m_mutex);
 	//if (rate != m_lastplayrate)
 	{
@@ -394,16 +396,20 @@ void StretchAudioSource::setRate(double rate)
 			m_stretchers[i]->set_rap((float)rate);
 		}
 	}
+	++m_param_change_count;
 }
 
 void StretchAudioSource::setProcessParameters(ProcessParameters * pars)
 {
+	if (memcmp(pars, &m_ppar, sizeof(ProcessParameters)) == 0)
+		return;
 	std::lock_guard<std::mutex> locker(m_mutex);
 	m_ppar = *pars;
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
 		m_stretchers[i]->set_parameters(pars);
 	}
+	++m_param_change_count;
 }
 
 ProcessParameters StretchAudioSource::getProcessParameters()
