@@ -74,6 +74,7 @@ private:
 	int m_rec_pos = 0;
 	void finishRecording(int lenrecorded);
 	bool m_using_memory_buffer = true;
+	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)

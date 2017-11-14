@@ -113,6 +113,8 @@ void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String
 //==============================================================================
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	if (getNumOutputChannels() != m_cur_num_out_chans)
+		m_ready_to_play = false;
 	if (m_using_memory_buffer == true)
 	{
 		int len = jlimit(100,m_recbuffer.getNumSamples(), m_rec_pos);
@@ -134,29 +136,10 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		String err;
 		m_control->startplay(false, true,
 			{ *getFloatParameter(5),*getFloatParameter(6) },
-			2, err);
+		this->getNumOutputChannels(), err);
+		m_cur_num_out_chans = getNumOutputChannels();
 		m_ready_to_play = true;
 	}
-	return;
-	m_ready_to_play = false;
-	m_control->set_input_file(File("C:/MusicAudio/sourcesamples/sheila.wav"), [this](String cberr) 
-	{
-		if (cberr.isEmpty())
-		{
-			m_ready_to_play = true;
-			String err;
-			m_control->update_player_stretch();
-			m_control->update_process_parameters();
-			m_control->startplay(false, true, { 0.0,1.0 }, 2, err);
-			auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
-			if (ed)
-			{
-				ed->setAudioFile(m_control->getStretchAudioSource()->getAudioFile());
-			}
-		}
-		else m_ready_to_play = false;
-	});
-	
 }
 
 void PaulstretchpluginAudioProcessor::releaseResources()
