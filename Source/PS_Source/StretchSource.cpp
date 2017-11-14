@@ -141,7 +141,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		for (auto& e : m_stretchers)
 			e->set_freezing(m_freezing);
 	}
-	double maingain = 0.5; // Decibels::decibelsToGain((double)val_MainVolume.getValue());
+	double maingain = Decibels::decibelsToGain((double)val_MainVolume.getValue());
 	if (m_vol_smoother.getTargetValue() != maingain)
 		m_vol_smoother.setValue(maingain);
 	FloatVectorOperations::disableDenormalisedNumberSupport();

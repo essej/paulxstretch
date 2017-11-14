@@ -30,6 +30,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_afm = std::make_unique<AudioFormatManager>();
 	m_afm->registerBasicFormats();
 	m_control = std::make_unique<Control>(m_afm.get());
+	m_control->setPreBufferAmount(3);
 	m_control->ppar.pitch_shift.enabled = true;
 	m_control->ppar.freq_shift.enabled = true;
 	m_control->setOnsetDetection(0.0);
@@ -121,11 +122,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, 
 			getSampleRate(), 
 			len);
-		auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
-		if (ed)
-		{
-			ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len);
-		}
+		callGUI([this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len); },false);
 	}
 	if (m_ready_to_play == false)
 	{
@@ -136,7 +133,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		String err;
 		m_control->startplay(false, true,
 			{ *getFloatParameter(5),*getFloatParameter(6) },
-		this->getNumOutputChannels(), err);
+		2, err);
 		m_cur_num_out_chans = getNumOutputChannels();
 		m_ready_to_play = true;
 	}
@@ -197,6 +194,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		}
 		return;
 	}
+	m_control->getStretchAudioSource()->val_MainVolume = (float)*getFloatParameter(0);
 	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
 	m_control->getStretchAudioSource()->val_XFadeLen = 0.1;
 	//m_control->setFFTSize(*getFloatParameter(2));
@@ -262,6 +260,17 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 	if (m_is_recording==false)
 		return 0.0;
 	return 1.0 / m_recbuffer.getNumSamples()*m_rec_pos;
+}
+
+String PaulstretchpluginAudioProcessor::setAudioFile(File f)
+{
+	std::lock_guard<std::mutex> locker(m_mutex);
+	m_control->set_input_file(f, [this,f](String) 
+	{
+		
+	});
+	m_current_file = f;
+	return String();
 }
 
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)

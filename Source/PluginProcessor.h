@@ -62,6 +62,8 @@ public:
 	void setRecordingEnabled(bool b);
 	bool isRecordingEnabled() { return m_is_recording; }
 	double getRecordingPositionPercent();
+	String setAudioFile(File f);
+	File getAudioFile() { return m_current_file; }
 	std::unique_ptr<AudioFormatManager> m_afm;
 	std::unique_ptr<Control> m_control;
 private:
@@ -76,6 +78,19 @@ private:
 	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
+	File m_current_file;
+	template<typename F>
+	void callGUI(F&& f, bool async)
+	{
+		auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
+		if (ed)
+		{
+			if (async == false)
+				f(ed);
+			else
+				MessageManager::callAsync([ed,f]() { f(ed); });
+		}
+	}
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

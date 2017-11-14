@@ -16,6 +16,9 @@
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p), m_wavecomponent(p.m_afm.get())
 {
+	addAndMakeVisible(&m_import_button);
+	m_import_button.setButtonText("Import file...");
+	m_import_button.addListener(this);
 	addAndMakeVisible(&m_info_label);
 	addAndMakeVisible(&m_wavecomponent);
 	const auto& pars = processor.getParameters();
@@ -53,6 +56,20 @@ void PaulstretchpluginAudioProcessorEditor::buttonClicked(Button * but)
 	{
 		processor.setRecordingEnabled(but->getToggleState());
 	}
+	if (but == &m_import_button)
+	{
+		FileChooser myChooser("Please select audio file...",
+			File("C:/MusicAudio/sourcesamples"),
+			"*.wav");
+		if (myChooser.browseForFileToOpen())
+		{
+			processor.setAudioFile(myChooser.getResult());
+			if (processor.getAudioFile() != File())
+			{
+				m_wavecomponent.setAudioFile(processor.getAudioFile());
+			}
+		}
+	}
 }
 
 //==============================================================================
@@ -66,6 +83,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_rec_enable.setBounds(1, m_parcomps.back()->getBottom()+1, 10, 24);
 	m_rec_enable.changeWidthToFitText();
 	m_info_label.setBounds(m_rec_enable.getRight() + 1, m_rec_enable.getY(), 60, 24);
+	m_import_button.setBounds(m_info_label.getRight() + 1, m_rec_enable.getY(), 60, 24);
+	m_import_button.changeWidthToFitText();
 	m_wavecomponent.setBounds(1, m_info_label.getBottom()+1, getWidth()-2, getHeight()-1-m_info_label.getBottom());
 }
 
@@ -206,6 +225,8 @@ void WaveformComponent::setAudioFile(File f)
 		m_waveimage = Image();
 		if (m_thumb != nullptr && f == m_curfile) // reloading same file, might happen that the overview needs to be redone...
 			m_thumbcache.removeThumb(m_thumb->getHashCode());
+		if (m_thumb != nullptr)
+			m_thumb->reset(0, 0.0);
 		m_thumb->setSource(new FileInputSource(f));
 		m_curfile = f;
 	}
@@ -213,7 +234,7 @@ void WaveformComponent::setAudioFile(File f)
 	{
 		m_thumb->setSource(nullptr);
 	}
-
+	repaint();
 }
 
 void WaveformComponent::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)

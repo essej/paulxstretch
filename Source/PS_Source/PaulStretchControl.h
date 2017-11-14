@@ -119,7 +119,7 @@ public:
     int getPrebufferThreadPriority() { return m_prebufthreadprior; }
 private:
 	REALTYPE volume;
-    int m_prebufthreadprior = 5;
+    int m_prebufthreadprior = 4;
     int get_optimized_updown(int n,bool up);
     int optimizebufsize(int bufsize);
     std::string getfftsizestr(int fftsize);
