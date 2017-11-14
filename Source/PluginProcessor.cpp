@@ -36,7 +36,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_control->getStretchAudioSource()->setLoopingEnabled(true);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f));
 	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f));
-	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.6f));
+	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f));
 	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f));
 	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f));
 	addParameter(new AudioParameterFloat("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f));
@@ -127,6 +127,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_ready_to_play == false)
 	{
+		m_control->setFFTSize(0.7);
 		m_control->update_player_stretch();
 		m_control->update_process_parameters();
 		
@@ -259,10 +260,10 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	std::lock_guard<std::mutex> locker(m_mutex);
 	if (b == true)
 	{
-		m_is_recording = true;
 		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
+		m_is_recording = true;
 	}
 	else
 	{
