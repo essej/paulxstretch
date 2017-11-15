@@ -71,7 +71,7 @@ private:
 	
 	bool m_ready_to_play = false;
 	AudioBuffer<float> m_recbuffer;
-	double m_max_reclen = 10.0;
+	double m_max_reclen = 5;
 	bool m_is_recording = false;
 	int m_rec_pos = 0;
 	void finishRecording(int lenrecorded);

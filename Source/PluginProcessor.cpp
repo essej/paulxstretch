@@ -10,7 +10,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-std::unique_ptr<PropertiesFile> g_propsfile;
+#undef min
+#undef max
 
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
@@ -30,7 +31,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_afm = std::make_unique<AudioFormatManager>();
 	m_afm->registerBasicFormats();
 	m_control = std::make_unique<Control>(m_afm.get());
-	m_control->setPreBufferAmount(3);
+	m_control->setPreBufferAmount(2);
 	m_control->ppar.pitch_shift.enabled = true;
 	m_control->ppar.freq_shift.enabled = true;
 	m_control->setOnsetDetection(0.0);
@@ -126,7 +127,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_ready_to_play == false)
 	{
-		m_control->setFFTSize(0.7);
+		m_control->setFFTSize(0.2);
 		m_control->update_player_stretch();
 		m_control->update_process_parameters();
 		
@@ -169,6 +170,25 @@ bool PaulstretchpluginAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 }
 #endif
 
+void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<float>& dest, int destbufpos, int maxdestpos)
+{
+	for (int i = 0; i < dest.getNumChannels(); ++i)
+	{
+		int channel_to_copy = i % src.getNumChannels();
+		if (destbufpos + src.getNumSamples() > maxdestpos)
+		{
+			int wrappos = (destbufpos + src.getNumSamples()) % maxdestpos;
+			int partial_len = src.getNumSamples() - wrappos;
+			dest.copyFrom(channel_to_copy, destbufpos, src, channel_to_copy, 0, partial_len);
+			dest.copyFrom(channel_to_copy, partial_len, src, channel_to_copy, 0, wrappos);
+		}
+		else
+		{
+			dest.copyFrom(channel_to_copy, destbufpos, src, channel_to_copy, 0, src.getNumSamples());
+		}
+	}
+}
+
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 	std::lock_guard<std::mutex> locker(m_mutex);
@@ -182,16 +202,13 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		return;
 	if (m_is_recording == true)
 	{
-		if (m_rec_pos + buffer.getNumSamples() < m_recbuffer.getNumSamples())
+		int recbuflenframes = m_max_reclen * getSampleRate();
+		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
+		callGUI([this, &buffer](PaulstretchpluginAudioProcessorEditor*ed) 
 		{
-			m_recbuffer.copyFrom(0, m_rec_pos, buffer, 0, 0, buffer.getNumSamples());
-			m_recbuffer.copyFrom(1, m_rec_pos, buffer, 1, 0, buffer.getNumSamples());
-		}
-		m_rec_pos += buffer.getNumSamples();
-		if (m_rec_pos >= m_max_reclen * getSampleRate())
-		{
-			finishRecording(m_max_reclen*getSampleRate());
-		}
+			ed->addAudioBlock(buffer, getSampleRate(), m_rec_pos);
+		}, false);
+		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
 		return;
 	}
 	m_control->getStretchAudioSource()->val_MainVolume = (float)*getFloatParameter(0);
@@ -239,18 +256,23 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 {
 	std::lock_guard<std::mutex> locker(m_mutex);
+	int lenbufframes = getSampleRate()*m_max_reclen;
 	if (b == true)
 	{
 		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
+		callGUI([this,lenbufframes](PaulstretchpluginAudioProcessorEditor* ed) 
+		{
+			ed->beginAddingAudioBlocks(2, getSampleRate(), lenbufframes);
+		},false);
 		m_is_recording = true;
 	}
 	else
 	{
 		if (m_is_recording == true)
 		{
-			finishRecording(m_rec_pos);
+			finishRecording(lenbufframes);
 		}
 	}
 }
@@ -281,7 +303,7 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
 	if (ed)
 	{
-		ed->setAudioBuffer(&m_recbuffer, getSampleRate(), lenrecording);
+		//ed->setAudioBuffer(&m_recbuffer, getSampleRate(), lenrecording);
 	}
 }
 

@@ -79,6 +79,8 @@ public:
 	void paint(Graphics& g) override;
 	void setAudioFile(File f);
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
+	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
+	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
 	void timerCallback() override;
 	std::function<double()> CursorPosCallback;
 	std::function<void(double)> SeekCallback;
@@ -105,6 +107,7 @@ public:
 	void setTimerEnabled(bool b);
 	void setViewRange(Range<double> rng);
 	Value ShowFileCacheRange;
+	void setRecordingPosition(double pos) { m_rec_pos = pos; }
 private:
 	AudioThumbnailCache m_thumbcache;
 
@@ -124,6 +127,7 @@ private:
 	Image m_waveimage;
 	OpenGLContext m_ogl;
 	bool m_use_opengl = false;
+	double m_rec_pos = 0.0;
 };
 
 
@@ -140,6 +144,8 @@ public:
 	void timerCallback(int id) override;
 	void setAudioFile(File f);
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
+	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
+	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;

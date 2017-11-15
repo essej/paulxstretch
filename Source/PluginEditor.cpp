@@ -97,9 +97,11 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		if (processor.isRecordingEnabled() != m_rec_enable.getToggleState())
 			m_rec_enable.setToggleState(processor.isRecordingEnabled(), dontSendNotification);
 		if (processor.isRecordingEnabled())
-			m_info_label.setText(String(processor.getRecordingPositionPercent()*100.0, 1),dontSendNotification);
-		else
-			m_info_label.setText(String(processor.m_control->getStretchAudioSource()->m_param_change_count), dontSendNotification);
+		{
+			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
+		} else
+			m_wavecomponent.setRecordingPosition(-1.0);
+		m_info_label.setText(String(processor.m_control->getStretchAudioSource()->m_param_change_count), dontSendNotification);
 	}
 }
 
@@ -114,6 +116,16 @@ void PaulstretchpluginAudioProcessorEditor::setAudioBuffer(AudioBuffer<float>* b
 	{
 		m_wavecomponent.setAudioBuffer(buf, samplerate, len);
 	});
+}
+
+void PaulstretchpluginAudioProcessorEditor::beginAddingAudioBlocks(int channels, int samplerate, int totalllen)
+{
+	m_wavecomponent.beginAddingAudioBlocks(channels, samplerate, totalllen);
+}
+
+void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos)
+{
+	m_wavecomponent.addAudioBlock(buf, samplerate, pos);
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm) : m_thumbcache(100)
@@ -217,6 +229,12 @@ void WaveformComponent::paint(Graphics & g)
 		double pos = jmap<double>(CursorPosCallback(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		g.fillRect((int)pos, m_topmargin, 1, getHeight() - m_topmargin);
 	}
+	if (m_rec_pos >= 0.0)
+	{
+		g.setColour(Colours::lightpink);
+		double pos = jmap<double>(m_rec_pos, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
+		g.fillRect((int)pos, m_topmargin, 1, getHeight() - m_topmargin);
+	}
 	g.setColour(Colours::aqua.darker());
 	g.drawText(m_curfile.getFullPathName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
 }
@@ -246,6 +264,18 @@ void WaveformComponent::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, 
 	m_curfile = File();
 	m_thumb->reset(buf->getNumChannels(), samplerate, len);
 	m_thumb->addBlock(0, *buf, 0, len);
+}
+
+void WaveformComponent::beginAddingAudioBlocks(int channels, int samplerate, int totalllen)
+{
+	m_waveimage = Image();
+	m_curfile = File();
+	m_thumb->reset(channels, samplerate, totalllen);
+}
+
+void WaveformComponent::addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos)
+{
+	m_thumb->addBlock(pos, buf, 0, buf.getNumSamples());
 }
 
 void WaveformComponent::timerCallback()
