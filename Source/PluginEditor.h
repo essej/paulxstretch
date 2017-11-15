@@ -146,12 +146,13 @@ public:
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
 	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
 	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
+	WaveformComponent m_wavecomponent;
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
 	ToggleButton m_rec_enable;
 	TextButton m_import_button;
 	Label m_info_label;
-	WaveformComponent m_wavecomponent;
+	
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

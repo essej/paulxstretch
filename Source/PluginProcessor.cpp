@@ -275,9 +275,10 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 			setAudioFile(f);
 			Timer::callAfterDelay(500, [this,f]() 
 			{
-				callGUI([f](PaulstretchpluginAudioProcessorEditor* ed)
+				callGUI([f,this](PaulstretchpluginAudioProcessorEditor* ed)
 				{
 					ed->setAudioFile(f);
+					ed->m_wavecomponent.setTimeSelection({ *getFloatParameter(5),*getFloatParameter(6) });
 				}, false);
 			});
 			
