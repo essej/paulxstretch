@@ -4,8 +4,8 @@
               reportAppUsage="0" splashScreenColour="Dark" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.paulstretchplugin"
               includeBinaryInAppConfig="1" cppLanguageStandard="latest" companyCopyright=""
-              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
-              buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="paulstretchplugin"
+              buildVST="1" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildAAX="0" buildStandalone="0" enableIAA="0" pluginName="paulstretchplugin"
               pluginDesc="paulstretchplugin" pluginManufacturer="Xenakios"
               pluginManufacturerCode="XenS" pluginCode="Fn1r" pluginChannelConfigs="{2,2},{4,4}, {8,8}"
               pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
@@ -52,12 +52,16 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX">
+    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="/usr/local/Cellar/fftw/3.3.6-pl2/lib/libfftw3f.a&#10;">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
-                       linkTimeOptimisation="0" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+                       linkTimeOptimisation="0" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
+                       libraryPath="/usr/local/Cellar/fftw/3.3.6-pl2/lib" cppLibType="libc++"
+                       osxArchitecture="64BitIntel" osxCompatibility="10.9 SDK"/>
         <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
-                       linkTimeOptimisation="1" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"/>
+                       linkTimeOptimisation="1" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
+                       osxCompatibility="10.9 SDK" osxArchitecture="64BitIntel" cppLibType="libc++"
+                       libraryPath="/usr/local/Cellar/fftw/3.3.6-pl2/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
@@ -84,7 +88,7 @@
                        headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\VSTPlugins"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
-                       linkTimeOptimisation="0" isDebug="0" optimisation="3" targetName="paulstretchplugin"
+                       linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="paulstretchplugin"
                        headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\VSTPlugins"/>
       </CONFIGURATIONS>
       <MODULEPATHS>

@@ -58,8 +58,13 @@ void PaulstretchpluginAudioProcessorEditor::buttonClicked(Button * but)
 	}
 	if (but == &m_import_button)
 	{
-		FileChooser myChooser("Please select audio file...",
-			File("C:/MusicAudio/sourcesamples"),
+#ifdef WIN32
+        File initialloc("C:/MusicAudio/sourcesamples");
+#else
+        File initialloc("/Users/teemu/AudioProjects/sourcesamples");
+#endif
+        FileChooser myChooser("Please select audio file...",
+			initialloc,
 			"*.wav");
 		if (myChooser.browseForFileToOpen())
 		{

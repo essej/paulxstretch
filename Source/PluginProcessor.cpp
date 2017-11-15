@@ -13,6 +13,19 @@
 #undef min
 #undef max
 
+template<typename F>
+void callGUI(AudioProcessor* ap, F&& f, bool async)
+{
+    auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(ap->getActiveEditor());
+    if (ed)
+    {
+        if (async == false)
+            f(ed);
+        else
+            MessageManager::callAsync([ed,f]() { f(ed); });
+    }
+}
+
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -123,7 +136,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, 
 			getSampleRate(), 
 			len);
-		callGUI([this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len); },false);
+		callGUI(this,[this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len); },false);
 	}
 	if (m_ready_to_play == false)
 	{
@@ -204,7 +217,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		int recbuflenframes = m_max_reclen * getSampleRate();
 		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
-		callGUI([this, &buffer](PaulstretchpluginAudioProcessorEditor*ed) 
+		callGUI(this,[this, &buffer](PaulstretchpluginAudioProcessorEditor*ed) 
 		{
 			ed->addAudioBlock(buffer, getSampleRate(), m_rec_pos);
 		}, false);
@@ -275,7 +288,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 			setAudioFile(f);
 			Timer::callAfterDelay(500, [this,f]() 
 			{
-				callGUI([f,this](PaulstretchpluginAudioProcessorEditor* ed)
+				callGUI(this,[f,this](PaulstretchpluginAudioProcessorEditor* ed)
 				{
 					ed->setAudioFile(f);
 					ed->m_wavecomponent.setTimeSelection({ *getFloatParameter(5),*getFloatParameter(6) });
@@ -297,7 +310,7 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
-		callGUI([this,lenbufframes](PaulstretchpluginAudioProcessorEditor* ed) 
+		callGUI(this,[this,lenbufframes](PaulstretchpluginAudioProcessorEditor* ed)
 		{
 			ed->beginAddingAudioBlocks(2, getSampleRate(), lenbufframes);
 		},false);

@@ -79,18 +79,7 @@ private:
 	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
 	File m_current_file;
-	template<typename F>
-	void callGUI(F&& f, bool async)
-	{
-		auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
-		if (ed)
-		{
-			if (async == false)
-				f(ed);
-			else
-				MessageManager::callAsync([ed,f]() { f(ed); });
-		}
-	}
+	
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
