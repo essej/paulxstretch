@@ -81,7 +81,7 @@ public:
 	}
 	
 protected:
-	int64_t m_currentsample = 0;
+	volatile int64_t m_currentsample = 0;
 	int m_silenceoutputted = 0;
 	bool m_loop_enabled = false;
 	Range<double> m_activerange{ 0.0,1.0 };

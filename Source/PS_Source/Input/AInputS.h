@@ -22,7 +22,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-//#include <audiofile.h>
 #include "InputS.h"
 
 inline double ramp(int64_t pos, int64_t totallen, int64_t rampinlen, int64_t rampoutlen)
@@ -51,7 +50,8 @@ public:
 
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 	{
-		m_afreader = nullptr;
+        std::lock_guard<std::mutex> locker(m_mutex);
+        m_afreader = nullptr;
 		m_using_memory_buffer = true;
 		m_readbuf = *buf;
 		info.nchannels = buf->getNumChannels();
@@ -70,7 +70,8 @@ public:
 		AudioFormatReader* reader = m_manager->createReaderFor(file);
         if (reader)
         {
-			m_using_memory_buffer = false;
+			std::lock_guard<std::mutex> locker(m_mutex);
+            m_using_memory_buffer = false;
 			m_afreader = std::unique_ptr<AudioFormatReader>(reader);
             m_currentsample = 0;
             info.samplerate = (int)m_afreader->sampleRate;
@@ -96,8 +97,12 @@ public:
     }
 	int readNextBlock(AudioBuffer<float>& abuf, int nsmps, int numchans) override
 	{
-		if (m_afreader == nullptr && m_using_memory_buffer == false)
-			return 0;
+		std::lock_guard<std::mutex> locker(m_mutex);
+        if (m_afreader == nullptr && m_using_memory_buffer == false)
+        {
+            jassert(false);
+            return 0;
+        }
 		int inchans = 0;
 		if (m_afreader)
 			inchans = m_afreader->numChannels;
@@ -292,4 +297,5 @@ private:
 	int64_t m_loopcount = 0;
 	bool m_using_memory_buffer = false;
 	AudioFormatManager* m_manager = nullptr;
+    std::mutex m_mutex;
 };

@@ -65,7 +65,9 @@ Control::~Control()
 }
 void Control::processAudio(AudioBuffer<float>& buf)
 {
-	if (m_buffering_source != nullptr)
+    jassert(m_buffering_source!=nullptr);
+    jassert(m_bufferingthread.isThreadRunning());
+    if (m_buffering_source != nullptr)
 	{
 		AudioSourceChannelInfo aif(buf);
 		m_buffering_source->getNextAudioBlock(aif);
