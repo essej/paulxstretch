@@ -79,7 +79,7 @@ private:
 	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
 	File m_current_file;
-	
+    double m_phase = 0.0;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

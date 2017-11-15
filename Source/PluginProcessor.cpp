@@ -224,6 +224,15 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
 		return;
 	}
+    /*
+    for (int i=0;i<buffer.getNumSamples();++i)
+    {
+        buffer.setSample(0, i, 0.1*sin(2*3.141592/44100*m_phase*440));
+        buffer.setSample(1, i, 0.1*sin(2*3.141592/44100*m_phase*440));
+        m_phase+=1.0;
+    }
+    return;
+     */
 	m_control->getStretchAudioSource()->val_MainVolume = (float)*getFloatParameter(0);
 	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
 	m_control->getStretchAudioSource()->val_XFadeLen = 0.1;
