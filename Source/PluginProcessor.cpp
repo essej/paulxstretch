@@ -127,7 +127,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_ready_to_play == false)
 	{
-		m_control->setFFTSize(0.2);
+		m_control->setFFTSize(0.7);
 		m_control->update_player_stretch();
 		m_control->update_process_parameters();
 		
@@ -242,15 +242,47 @@ AudioProcessorEditor* PaulstretchpluginAudioProcessor::createEditor()
 //==============================================================================
 void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+	ValueTree paramtree("paulstretch3pluginstate");
+	for (int i=0;i<getNumParameters();++i)
+	{
+		auto par = getFloatParameter(i);
+		paramtree.setProperty(par->paramID, (double)*par, nullptr);
+	}
+	if (m_current_file != File())
+	{
+		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
+	}
+	MemoryOutputStream stream(destData,true);
+	paramtree.writeToStream(stream);
 }
 
 void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+	ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
+	if (tree.isValid())
+	{
+		for (int i = 0; i<getNumParameters(); ++i)
+		{
+			auto par = getFloatParameter(i);
+			double parval = tree.getProperty(par->paramID, (double)*par);
+			*par = parval;
+		}
+		String fn = tree.getProperty("importedfile");
+		if (fn.isEmpty() == false)
+		{
+			m_using_memory_buffer = false;
+			File f(fn);
+			setAudioFile(f);
+			Timer::callAfterDelay(500, [this,f]() 
+			{
+				callGUI([f](PaulstretchpluginAudioProcessorEditor* ed)
+				{
+					ed->setAudioFile(f);
+				}, false);
+			});
+			
+		}
+	}
 }
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
@@ -259,6 +291,8 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	int lenbufframes = getSampleRate()*m_max_reclen;
 	if (b == true)
 	{
+		m_using_memory_buffer = true;
+		m_current_file = File();
 		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
@@ -292,6 +326,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		
 	});
 	m_current_file = f;
+	m_using_memory_buffer = false;
 	return String();
 }
 

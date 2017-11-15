@@ -75,7 +75,7 @@ private:
 	bool m_is_recording = false;
 	int m_rec_pos = 0;
 	void finishRecording(int lenrecorded);
-	bool m_using_memory_buffer = true;
+	bool m_using_memory_buffer = false;
 	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
 	File m_current_file;

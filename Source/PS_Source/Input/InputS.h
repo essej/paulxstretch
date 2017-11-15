@@ -28,7 +28,7 @@ public:
 		InputS()
         {
 			skipbufsize=1024;
-			skipbuf.setSize(4, skipbufsize);
+			skipbuf.setSize(1, skipbufsize);
 		};
 
 		virtual ~InputS()
@@ -45,8 +45,8 @@ public:
 			{
 				int readsize=(nsmps<skipbufsize)?nsmps:skipbufsize;
 				if (skipbuf.getNumSamples() < readsize)
-					skipbuf.setSize(info.nchannels, readsize);
-				readNextBlock(skipbuf,readsize,info.nchannels);
+					skipbuf.setSize(1, readsize);
+				readNextBlock(skipbuf,readsize,1);
 				nsmps-=readsize;
 			};
 		};
@@ -79,11 +79,13 @@ public:
 	{
 		return m_currentsample >= info.nsamples*m_activerange.getEnd();
 	}
+	
 protected:
 	int64_t m_currentsample = 0;
 	int m_silenceoutputted = 0;
 	bool m_loop_enabled = false;
 	Range<double> m_activerange{ 0.0,1.0 };
+	
 private:
 	int skipbufsize;
 	AudioBuffer<float> skipbuf;
