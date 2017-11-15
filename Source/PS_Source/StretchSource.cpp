@@ -401,7 +401,7 @@ void StretchAudioSource::setRate(double rate)
 
 void StretchAudioSource::setProcessParameters(ProcessParameters * pars)
 {
-	if (memcmp(pars, &m_ppar, sizeof(ProcessParameters)) == 0)
+	if (*pars == m_ppar)
 		return;
 	std::lock_guard<std::mutex> locker(m_mutex);
 	m_ppar = *pars;
@@ -467,9 +467,9 @@ void StretchAudioSource::setOnsetDetection(double x)
 
 void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
-	if (m_playrange.isEmpty()==false && playrange == m_playrange)
+	if (m_playrange.isEmpty() == false && playrange == m_playrange)
 		return;
+	std::lock_guard<std::mutex> locker(m_mutex);
 	if (playrange.isEmpty())
 		m_playrange = { 0.0,1.0 };
 	else
@@ -480,6 +480,7 @@ void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 	m_inputfile->setLoopEnabled(isloop);
 	m_inputfile->seek(m_playrange.getStart());
 	m_seekpos = m_playrange.getStart();
+	++m_param_change_count;
 }
 
 bool StretchAudioSource::isLoopEnabled()

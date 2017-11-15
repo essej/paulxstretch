@@ -22,8 +22,10 @@
 #include "FreeEdit.h"
 #include "Stretch.h"
 
-struct ProcessParameters{
-	ProcessParameters(){
+struct ProcessParameters
+{
+	ProcessParameters()
+	{
 		pitch_shift.enabled=false;
 		pitch_shift.cents=0;
 
@@ -108,7 +110,74 @@ struct ProcessParameters{
 
 	//FreeEdit free_filter;
 	//FreeEdit stretch_multiplier;
-
+	/*
+	auto getMembers() const
+	{
+		return std::make_tuple(pitch_shift.enabled,
+			pitch_shift.cents,
+			octave.enabled,
+			octave.o0,
+			octave.o1,
+			octave.o15,
+			octave.o2,
+			octave.om1,
+			octave.om2,
+			spread.enabled,
+			spread.bandwidth,
+			tonal_vs_noise.enabled,
+			tonal_vs_noise.bandwidth,
+			tonal_vs_noise.preserve,
+			freq_shift.enabled,
+			freq_shift.Hz,
+			compressor.enabled,
+			compressor.power,
+			harmonics.bandwidth,
+			harmonics.enabled,
+			harmonics.freq,
+			harmonics.gauss,
+			harmonics.nharmonics,
+			filter.enabled,
+			filter.hdamp,
+			filter.high,
+			filter.low,
+			filter.stop);
+	}
+	bool operator == (const ProcessParameters& other) const
+	{
+		return getMembers() == other.getMembers();
+	}
+	*/
+	bool operator == (const ProcessParameters& other) const noexcept
+	{
+		return pitch_shift.enabled == other.pitch_shift.enabled &&
+			pitch_shift.cents == other.pitch_shift.cents &&
+			octave.enabled == other.octave.enabled &&
+			octave.o0 == other.octave.o0 &&
+			octave.o1 == other.octave.o1 &&
+			octave.o15 == other.octave.o15 &&
+			octave.o2 == other.octave.o2 &&
+			octave.om1 == other.octave.om1 &&
+			octave.om2 == other.octave.om2 &&
+			spread.enabled == other.spread.enabled &&
+			spread.bandwidth == other.spread.bandwidth &&
+			tonal_vs_noise.enabled == other.tonal_vs_noise.enabled &&
+			tonal_vs_noise.bandwidth == other.tonal_vs_noise.bandwidth &&
+			tonal_vs_noise.preserve == other.tonal_vs_noise.preserve &&
+			freq_shift.enabled == other.freq_shift.enabled &&
+			freq_shift.Hz == other.freq_shift.Hz &&
+			compressor.enabled == other.compressor.enabled &&
+			compressor.power == other.compressor.power &&
+			harmonics.bandwidth == other.harmonics.bandwidth &&
+			harmonics.enabled == other.harmonics.enabled &&
+			harmonics.freq == other.harmonics.freq &&
+			harmonics.gauss == other.harmonics.gauss &&
+			harmonics.nharmonics == other.harmonics.nharmonics &&
+			filter.enabled == other.filter.enabled &&
+			filter.hdamp == other.filter.hdamp &&
+			filter.high == other.filter.high &&
+			filter.low == other.filter.low &&
+			filter.stop == other.filter.stop;
+	}
 };
 
 class SpectrumProcess
