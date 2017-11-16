@@ -207,7 +207,8 @@ public:
 			m_cached_file_range = { 0,m_readbuf.getNumSamples() };
 			return;
 		}
-		if (m_afreader==nullptr)
+        //jassert(m_afreader!=nullptr);
+        if (m_afreader==nullptr)
             return;
 		m_loopcount = 0;
 		m_silenceoutputted = 0;
@@ -295,7 +296,7 @@ private:
 	int m_xfadelen = 0;
 	bool m_reverseplay = false;
 	int64_t m_loopcount = 0;
-	bool m_using_memory_buffer = false;
+	bool m_using_memory_buffer = true;
 	AudioFormatManager* m_manager = nullptr;
     std::mutex m_mutex;
 };

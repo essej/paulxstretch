@@ -280,7 +280,8 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 
 void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-	ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
+    return;
+    ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
 	if (tree.isValid())
 	{
 		for (int i = 0; i<getNumParameters(); ++i)
