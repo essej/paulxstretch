@@ -15,6 +15,34 @@
 #include <memory>
 #include <vector>
 
+inline void attachCallback(Button& button, std::function<void()> callback)
+{
+	struct ButtonCallback : public Button::Listener,
+		private ComponentListener
+	{
+		ButtonCallback(Button& b, std::function<void()> f) : target(b), fn(f)
+		{
+			target.addListener(this);
+			target.addComponentListener(this);
+		}
+
+		~ButtonCallback()
+		{
+			target.removeListener(this);
+		}
+
+		void componentBeingDeleted(Component&) override { delete this; }
+		void buttonClicked(Button*) override { fn(); }
+
+		Button& target;
+		std::function<void()> fn;
+
+		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ButtonCallback)
+	};
+
+	new ButtonCallback(button, callback);
+}
+
 class ParameterComponent : public Component,
 	public Slider::Listener
 {
@@ -136,14 +164,12 @@ private:
 
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
-	public MultiTimer, public Button::Listener
+	public MultiTimer
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
     ~PaulstretchpluginAudioProcessorEditor();
-	void buttonClicked(Button* but) override;
-    //==============================================================================
-    void paint (Graphics&) override;
+	void paint (Graphics&) override;
     void resized() override;
 	void timerCallback(int id) override;
 	void setAudioFile(File f);
@@ -157,6 +183,6 @@ private:
 	ToggleButton m_rec_enable;
 	TextButton m_import_button;
 	Label m_info_label;
-	
+	void chooseFile();
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

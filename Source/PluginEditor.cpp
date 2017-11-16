@@ -21,7 +21,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 {
 	addAndMakeVisible(&m_import_button);
 	m_import_button.setButtonText("Import file...");
-	m_import_button.addListener(this);
+	attachCallback(m_import_button, [this]() { chooseFile(); });
+	
 	addAndMakeVisible(&m_info_label);
 	addAndMakeVisible(&m_wavecomponent);
 	const auto& pars = processor.getParameters();
@@ -33,7 +34,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	}
 	addAndMakeVisible(&m_rec_enable);
 	m_rec_enable.setButtonText("Capture");
-	m_rec_enable.addListener(this);
+	attachCallback(m_rec_enable, [this]() { processor.setRecordingEnabled(m_rec_enable.getToggleState()); });
+
 	setSize (700, pars.size()*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
@@ -48,40 +50,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	startTimer(1, 100);
 	startTimer(2, 1000);
 	m_wavecomponent.startTimer(100);
+	
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 {
 }
 
-void PaulstretchpluginAudioProcessorEditor::buttonClicked(Button * but)
-{
-	if (but == &m_rec_enable)
-	{
-		processor.setRecordingEnabled(but->getToggleState());
-	}
-	if (but == &m_import_button)
-	{
-#ifdef WIN32
-        File initialloc("C:/MusicAudio/sourcesamples");
-#else
-        File initialloc("/Users/teemu/AudioProjects/sourcesamples");
-#endif
-        FileChooser myChooser("Please select audio file...",
-			initialloc,
-			"*.wav");
-		if (myChooser.browseForFileToOpen())
-		{
-			processor.setAudioFile(myChooser.getResult());
-			if (processor.getAudioFile() != File())
-			{
-				m_wavecomponent.setAudioFile(processor.getAudioFile());
-			}
-		}
-	}
-}
-
-//==============================================================================
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
 	g.fillAll(Colours::darkgrey);
@@ -145,6 +120,26 @@ void PaulstretchpluginAudioProcessorEditor::beginAddingAudioBlocks(int channels,
 void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos)
 {
 	m_wavecomponent.addAudioBlock(buf, samplerate, pos);
+}
+
+void PaulstretchpluginAudioProcessorEditor::chooseFile()
+{
+#ifdef WIN32
+	File initialloc("C:/MusicAudio/sourcesamples");
+#else
+	File initialloc("/Users/teemu/AudioProjects/sourcesamples");
+#endif
+	FileChooser myChooser("Please select audio file...",
+		initialloc,
+		"*.wav");
+	if (myChooser.browseForFileToOpen())
+	{
+		processor.setAudioFile(myChooser.getResult());
+		if (processor.getAudioFile() != File())
+		{
+			m_wavecomponent.setAudioFile(processor.getAudioFile());
+		}
+	}
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm) : m_thumbcache(100)
