@@ -83,7 +83,8 @@ void BinauralBeats::process(REALTYPE *smpsl,REALTYPE *smpsr,int nsmps,REALTYPE p
 			REALTYPE outl2=m1-m2;
 
 
-			h1=0,h2=0;
+            h1=0;
+            h2=0;
 			hr.process(smpsr[i],h1,h2);
 
 			m1=h1*cos(x);

@@ -140,7 +140,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_ready_to_play == false)
 	{
-		m_control->setFFTSize(0.7);
+		m_control->setFFTSize(0.5);
 		m_control->update_player_stretch();
 		m_control->update_process_parameters();
 		

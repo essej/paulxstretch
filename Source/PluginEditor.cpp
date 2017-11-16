@@ -14,7 +14,10 @@
 
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
-    : AudioProcessorEditor (&p), processor (p), m_wavecomponent(p.m_afm.get())
+    : AudioProcessorEditor (&p),
+    m_wavecomponent(p.m_afm.get()),
+    processor (p)
+
 {
 	addAndMakeVisible(&m_import_button);
 	m_import_button.setButtonText("Import file...");

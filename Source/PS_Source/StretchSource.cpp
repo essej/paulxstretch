@@ -161,7 +161,8 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	int wanted = m_resampler->ResamplePrepare(bufferToFill.numSamples, m_num_outchans, &rsinbuf);
 	double silencethreshold = Decibels::decibelsToGain(-70.0);
 	bool tempfirst = true;
-	//if (m_output_counter<=m_process_fftsize*2) // && m_inputfile->hasEnded() == false)
+    auto foofilepos0 = m_inputfile->getCurrentPosition();
+    //if (m_output_counter<=m_process_fftsize*2) // && m_inputfile->hasEnded() == false)
 	{
 		while (m_stretchoutringbuf.available() < wanted*m_num_outchans)
 		{
@@ -231,6 +232,8 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			
 		}
 	}
+    auto foofilepos1 = m_inputfile->getCurrentPosition();
+    //jassert(abs(foofilepos1-foofilepos0)>0);
 	for (int i = 0; i < wanted*m_num_outchans; ++i)
 	{
 		double sample = m_stretchoutringbuf.get();
