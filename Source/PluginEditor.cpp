@@ -29,7 +29,6 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	for (int i=0;i<pars.size();++i)
 	{
 		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i]));
-		m_parcomps.back()->setBounds(1, 30+i * 25, 598, 24);
 		addAndMakeVisible(m_parcomps.back().get());
 	}
 	addAndMakeVisible(&m_rec_enable);
@@ -64,12 +63,18 @@ void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 
 void PaulstretchpluginAudioProcessorEditor::resized()
 {
-	m_rec_enable.setBounds(1, m_parcomps.back()->getBottom()+1, 10, 24);
-	m_rec_enable.changeWidthToFitText();
-	m_info_label.setBounds(m_rec_enable.getRight() + 1, m_rec_enable.getY(), 60, 24);
-	m_import_button.setBounds(m_info_label.getRight() + 1, m_rec_enable.getY(), 60, 24);
+	m_import_button.setBounds(1, 1, 60, 24);
 	m_import_button.changeWidthToFitText();
-	m_wavecomponent.setBounds(1, m_info_label.getBottom()+1, getWidth()-2, getHeight()-1-m_info_label.getBottom());
+	m_rec_enable.setBounds(m_import_button.getRight()+1, 1, 10, 24);
+	m_rec_enable.changeWidthToFitText();
+	m_info_label.setBounds(m_rec_enable.getRight() + 1, m_rec_enable.getY(), getWidth()-m_rec_enable.getRight()-1, 24);
+	
+	for (int i = 0; i < m_parcomps.size(); ++i)
+	{
+		m_parcomps[i]->setBounds(1, 30 + i * 25, 598, 24);
+	}
+	int yoffs = m_parcomps.back()->getBottom() + 1;
+	m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
