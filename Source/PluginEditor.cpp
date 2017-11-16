@@ -29,14 +29,14 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	for (int i=0;i<pars.size();++i)
 	{
 		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i]));
-		m_parcomps.back()->setBounds(1, i * 25, 598, 24);
+		m_parcomps.back()->setBounds(1, 30+i * 25, 598, 24);
 		addAndMakeVisible(m_parcomps.back().get());
 	}
 	addAndMakeVisible(&m_rec_enable);
 	m_rec_enable.setButtonText("Capture");
 	attachCallback(m_rec_enable, [this]() { processor.setRecordingEnabled(m_rec_enable.getToggleState()); });
 
-	setSize (700, pars.size()*25+200);
+	setSize (700, 30+pars.size()*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
 		*processor.getFloatParameter(5) = range.getStart();

@@ -44,7 +44,7 @@ inline void attachCallback(Button& button, std::function<void()> callback)
 }
 
 class ParameterComponent : public Component,
-	public Slider::Listener
+	public Slider::Listener, public Button::Listener
 {
 public:
 	ParameterComponent(AudioProcessorParameter* par) : m_par(par)
@@ -68,7 +68,10 @@ public:
 		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(par);
 		if (boolpar)
 		{
-
+			m_togglebut = std::make_unique<ToggleButton>();
+			m_togglebut->setToggleState(*boolpar, dontSendNotification);
+			m_togglebut->addListener(this);
+			addAndMakeVisible(m_togglebut.get());
 		}
 	}
 	void resized() override
@@ -76,11 +79,21 @@ public:
 		m_label.setBounds(0, 0, 200, 24);
 		if (m_slider)
 			m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
+		if (m_togglebut)
+			m_togglebut->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
 	}
 	void sliderValueChanged(Slider* slid) override
 	{
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
 		*floatpar = slid->getValue();
+	}
+	void buttonClicked(Button* but) override
+	{
+		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
+		if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
+		{
+			*boolpar = m_togglebut->getToggleState();
+		}
 	}
 	void updateComponent()
 	{
@@ -88,6 +101,11 @@ public:
 		if (m_slider != nullptr && (float)m_slider->getValue() != *floatpar)
 		{
 			m_slider->setValue(*floatpar, dontSendNotification);
+		}
+		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
+		if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
+		{
+			m_togglebut->setToggleState(*boolpar, dontSendNotification);
 		}
 	}
 private:

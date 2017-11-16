@@ -134,7 +134,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	if (m_stretchoutringbuf.available() > 0)
 		m_output_has_begun = true;
 	bool freezing = m_freezing;
-	/*
+	
     if (m_stretchers[0]->isFreezing() != freezing)
 	{
 		if (freezing == true && m_inputfile!=nullptr)
@@ -142,7 +142,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		for (auto& e : m_stretchers)
 			e->set_freezing(m_freezing);
 	}
-     */
+    
 	double maingain = Decibels::decibelsToGain((double)val_MainVolume.getValue());
 	if (m_vol_smoother.getTargetValue() != maingain)
 		m_vol_smoother.setValue(maingain);

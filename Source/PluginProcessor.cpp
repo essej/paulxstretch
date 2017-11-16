@@ -10,8 +10,12 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <set>
+
 #undef min
 #undef max
+
+std::set<PaulstretchpluginAudioProcessor*> g_activeprocessors;
 
 template<typename F>
 void callGUI(AudioProcessor* ap, F&& f, bool async)
@@ -39,6 +43,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
                        )
 #endif
 {
+	g_activeprocessors.insert(this);
 	m_recbuffer.setSize(2, 44100);
 	m_recbuffer.clear();
 	m_afm = std::make_unique<AudioFormatManager>();
@@ -49,17 +54,19 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_control->ppar.freq_shift.enabled = true;
 	m_control->setOnsetDetection(0.0);
 	m_control->getStretchAudioSource()->setLoopingEnabled(true);
-	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f));
-	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f));
-	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f));
-	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f));
-	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f));
-	addParameter(new AudioParameterFloat("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f));
-	addParameter(new AudioParameterFloat("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f));
+	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f)); // 0
+	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f)); // 1
+	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f)); // 2
+	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f)); // 3
+	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f)); // 4
+	addParameter(new AudioParameterFloat("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f)); // 5
+	addParameter(new AudioParameterFloat("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f)); // 6
+	addParameter(new AudioParameterBool("freeze0", "Freeze", false)); // 7
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
+	g_activeprocessors.erase(this);
 	m_control->stopplay();
 }
 
@@ -224,15 +231,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
 		return;
 	}
-    /*
-    for (int i=0;i<buffer.getNumSamples();++i)
-    {
-        buffer.setSample(0, i, 0.1*sin(2*3.141592/44100*m_phase*440));
-        buffer.setSample(1, i, 0.1*sin(2*3.141592/44100*m_phase*440));
-        m_phase+=1.0;
-    }
-    return;
-     */
+	
 	m_control->getStretchAudioSource()->val_MainVolume = (float)*getFloatParameter(0);
 	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
 	m_control->getStretchAudioSource()->val_XFadeLen = 0.1;
@@ -246,6 +245,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	if (t1 - t0 < 0.001)
 		t1 = t0 + 0.001;
 	m_control->getStretchAudioSource()->setPlayRange({ t0,t1 }, true);
+	m_control->getStretchAudioSource()->setFreezing(getParameter(7));
 	m_control->update_process_parameters();
 	m_control->processAudio(buffer);
 }
@@ -268,7 +268,10 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 	for (int i=0;i<getNumParameters();++i)
 	{
 		auto par = getFloatParameter(i);
-		paramtree.setProperty(par->paramID, (double)*par, nullptr);
+		if (par != nullptr)
+		{
+			paramtree.setProperty(par->paramID, (double)*par, nullptr);
+		}
 	}
 	if (m_current_file != File())
 	{
@@ -286,8 +289,11 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 		for (int i = 0; i<getNumParameters(); ++i)
 		{
 			auto par = getFloatParameter(i);
-			double parval = tree.getProperty(par->paramID, (double)*par);
-			*par = parval;
+			if (par != nullptr)
+			{
+				double parval = tree.getProperty(par->paramID, (double)*par);
+				*par = parval;
+			}
 		}
 		String fn = tree.getProperty("importedfile");
 		if (fn.isEmpty() == false)
