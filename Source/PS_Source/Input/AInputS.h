@@ -23,6 +23,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "InputS.h"
+#include <mutex>
 
 inline double ramp(int64_t pos, int64_t totallen, int64_t rampinlen, int64_t rampoutlen)
 {
@@ -238,7 +239,10 @@ public:
         if (m_afreader != nullptr && m_using_memory_buffer == false)
 			m_afreader->read(&m_crossfadebuf, 0, m_xfadelen, (int64_t)(m_activerange.getStart()*info.nsamples), true, true);
 		if (m_afreader == nullptr && m_using_memory_buffer == true)
-			m_crossfadebuf.copyFrom(0, 0, m_readbuf, 0, (int64_t)(m_activerange.getStart()*info.nsamples), m_xfadelen);
+		{
+			for (int i=0;i<info.nchannels;++i)
+				m_crossfadebuf.copyFrom(i, 0, m_readbuf, i, (int64_t)(m_activerange.getStart()*info.nsamples), m_xfadelen);
+		}
 		m_cached_crossfade_range =
             Range<int64_t>((int64_t)(m_activerange.getStart()*info.nsamples),(int64_t)(m_activerange.getStart()*info.nsamples+m_xfadelen));
     }

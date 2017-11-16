@@ -280,7 +280,6 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 
 void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    return;
     ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
 	if (tree.isValid())
 	{
@@ -296,15 +295,6 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 			m_using_memory_buffer = false;
 			File f(fn);
 			setAudioFile(f);
-			Timer::callAfterDelay(500, [this,f]() 
-			{
-				callGUI(this,[f,this](PaulstretchpluginAudioProcessorEditor* ed)
-				{
-					ed->setAudioFile(f);
-					ed->m_wavecomponent.setTimeSelection({ *getFloatParameter(5),*getFloatParameter(6) });
-				}, false);
-			});
-			
 		}
 	}
 }
@@ -352,6 +342,11 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 	m_current_file = f;
 	m_using_memory_buffer = false;
 	return String();
+}
+
+Range<double> PaulstretchpluginAudioProcessor::getTimeSelection()
+{
+	return { *getFloatParameter(5),*getFloatParameter(6) };
 }
 
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)

@@ -46,6 +46,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	};
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
+	startTimer(2, 1000);
 	m_wavecomponent.startTimer(100);
 }
 
@@ -112,6 +113,14 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		//m_info_label.setText(String(processor.m_control->getStretchAudioSource()->m_param_change_count), dontSendNotification);
         double prebufavail=processor.m_control->getPreBufferingPercent();
         m_info_label.setText(String(prebufavail,1), dontSendNotification);
+	}
+	if (id == 2)
+	{
+		if (processor.getAudioFile() != File() && processor.getAudioFile() != m_wavecomponent.getAudioFile())
+		{
+			m_wavecomponent.setAudioFile(processor.getAudioFile());
+		}
+		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
 	}
 }
 
@@ -264,6 +273,7 @@ void WaveformComponent::setAudioFile(File f)
 	else
 	{
 		m_thumb->setSource(nullptr);
+		m_curfile = File();
 	}
 	repaint();
 }
@@ -318,6 +328,7 @@ void WaveformComponent::setViewRange(Range<double> rng)
 void WaveformComponent::mouseDown(const MouseEvent & e)
 {
 	m_mousedown = true;
+	m_lock_timesel_set = true;
 	double pos = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
 	if (e.y < m_topmargin)
 	{
@@ -341,6 +352,7 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 
 void WaveformComponent::mouseUp(const MouseEvent & /*e*/)
 {
+	m_lock_timesel_set = false;
 	m_mousedown = false;
 	m_didseek = false;
 	if (m_didchangetimeselection)

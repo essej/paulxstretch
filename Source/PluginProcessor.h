@@ -64,6 +64,7 @@ public:
 	double getRecordingPositionPercent();
 	String setAudioFile(File f);
 	File getAudioFile() { return m_current_file; }
+	Range<double> getTimeSelection();
 	std::unique_ptr<AudioFormatManager> m_afm;
 	std::unique_ptr<Control> m_control;
 private:
@@ -75,7 +76,7 @@ private:
 	bool m_is_recording = false;
 	int m_rec_pos = 0;
 	void finishRecording(int lenrecorded);
-	bool m_using_memory_buffer = false;
+	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
 	File m_current_file;

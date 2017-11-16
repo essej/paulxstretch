@@ -78,6 +78,7 @@ public:
 	void changeListenerCallback(ChangeBroadcaster* cb) override;
 	void paint(Graphics& g) override;
 	void setAudioFile(File f);
+	const File& getAudioFile() const { return m_curfile; }
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
 	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
 	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
@@ -97,6 +98,8 @@ public:
 	}
 	void setTimeSelection(Range<double> rng)
 	{
+		if (m_lock_timesel_set == true)
+			return;
 		if (rng.isEmpty())
 			rng = { -1.0,1.0 };
 		m_time_sel_start = rng.getStart();
@@ -128,6 +131,7 @@ private:
 	OpenGLContext m_ogl;
 	bool m_use_opengl = false;
 	double m_rec_pos = 0.0;
+	bool m_lock_timesel_set = false;
 };
 
 
