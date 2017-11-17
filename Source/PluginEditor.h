@@ -47,7 +47,7 @@ class ParameterComponent : public Component,
 	public Slider::Listener, public Button::Listener
 {
 public:
-	ParameterComponent(AudioProcessorParameter* par) : m_par(par)
+	ParameterComponent(AudioProcessorParameter* par, bool notifyOnlyOnRelease) : m_par(par)
 	{
 		addAndMakeVisible(&m_label);
 		m_label.setText(par->getName(50),dontSendNotification);
@@ -55,6 +55,7 @@ public:
 		if (floatpar)
 		{
 			m_slider = std::make_unique<Slider>();
+			m_notify_only_on_release = notifyOnlyOnRelease;
 			m_slider->setRange(floatpar->range.start, floatpar->range.end, floatpar->range.interval);
 			m_slider->setValue(*floatpar, dontSendNotification);
 			m_slider->addListener(this);
@@ -84,6 +85,20 @@ public:
 	}
 	void sliderValueChanged(Slider* slid) override
 	{
+		if (m_notify_only_on_release == true)
+			return;
+		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
+		*floatpar = slid->getValue();
+	}
+	void sliderDragStarted(Slider* slid) override
+	{
+		m_dragging = true;
+	}
+	void sliderDragEnded(Slider* slid) override
+	{
+		m_dragging = false;
+		if (m_notify_only_on_release == false)
+			return;
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
 		*floatpar = slid->getValue();
 	}
@@ -98,7 +113,7 @@ public:
 	void updateComponent()
 	{
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		if (m_slider != nullptr && (float)m_slider->getValue() != *floatpar)
+		if (m_slider != nullptr && m_dragging == false && (float)m_slider->getValue() != *floatpar)
 		{
 			m_slider->setValue(*floatpar, dontSendNotification);
 		}
@@ -114,6 +129,8 @@ private:
 	std::unique_ptr<Slider> m_slider;
 	std::unique_ptr<ComboBox> m_combobox;
 	std::unique_ptr<ToggleButton> m_togglebut;
+	bool m_notify_only_on_release = false;
+	bool m_dragging = false;
 };
 
 class WaveformComponent : public Component, public ChangeListener, public Timer

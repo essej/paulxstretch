@@ -235,7 +235,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_control->getStretchAudioSource()->val_MainVolume = (float)*getFloatParameter(0);
 	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
 	m_control->getStretchAudioSource()->val_XFadeLen = 0.1;
-	//m_control->setFFTSize(*getFloatParameter(2));
+	m_control->setFFTSize(*getFloatParameter(2));
 	m_control->ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
 	m_control->ppar.freq_shift.Hz = *getFloatParameter(4);
 	double t0 = *getFloatParameter(5);

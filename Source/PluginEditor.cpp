@@ -28,8 +28,16 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	const auto& pars = processor.getParameters();
 	for (int i=0;i<pars.size();++i)
 	{
-		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i]));
-		addAndMakeVisible(m_parcomps.back().get());
+		AudioProcessorParameterWithID* parid = dynamic_cast<AudioProcessorParameterWithID*>(pars[i]);
+		jassert(parid);
+		if (parid)
+		{
+			bool notifyonlyonrelease = false;
+			if (parid->paramID.startsWith("fftsize"))
+				notifyonlyonrelease = true;
+			m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
+			addAndMakeVisible(m_parcomps.back().get());
+		}
 	}
 	addAndMakeVisible(&m_rec_enable);
 	m_rec_enable.setButtonText("Capture");
@@ -90,9 +98,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		//m_info_label.setText(String(processor.m_control->getStretchAudioSource()->m_param_change_count), dontSendNotification);
-        double prebufavail=processor.m_control->getPreBufferingPercent();
-        m_info_label.setText(String(prebufavail,1), dontSendNotification);
+		String infotext = String(processor.m_control->getPreBufferingPercent(), 1) + " " + String(processor.m_control->getStretchAudioSource()->m_param_change_count);
+		m_info_label.setText(infotext, dontSendNotification);
 	}
 	if (id == 2)
 	{

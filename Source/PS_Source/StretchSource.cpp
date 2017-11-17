@@ -437,10 +437,11 @@ void StretchAudioSource::setFFTWindowingType(int windowtype)
 void StretchAudioSource::setFFTSize(int size)
 {
     jassert(size>0);
-    if (size != m_process_fftsize)
+    if (m_process_fftsize == 0 || size != m_process_fftsize)
 	{
 		m_process_fftsize = size;
-		
+		initObjects();
+		++m_param_change_count;
 	}
 }
 
