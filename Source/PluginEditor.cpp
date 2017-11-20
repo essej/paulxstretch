@@ -51,7 +51,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	};
 	m_wavecomponent.CursorPosCallback = [this]()
 	{
-		return processor.m_control->getLivePlayPosition();
+		return processor.getStretchSource()->getInfilePositionPercent();
 	};
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
@@ -98,7 +98,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		String infotext = String(processor.m_control->getPreBufferingPercent(), 1) + " " + String(processor.m_control->getStretchAudioSource()->m_param_change_count);
+		String infotext = String(processor.getPreBufferingPercent(), 1) + " " + String(processor.getStretchSource()->m_param_change_count);
 		m_info_label.setText(infotext, dontSendNotification);
 	}
 	if (id == 2)

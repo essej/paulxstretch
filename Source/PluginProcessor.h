@@ -66,7 +66,8 @@ public:
 	File getAudioFile() { return m_current_file; }
 	Range<double> getTimeSelection();
 	std::unique_ptr<AudioFormatManager> m_afm;
-	std::unique_ptr<Control> m_control;
+	StretchAudioSource* getStretchSource() { return m_stretch_source.get(); }
+	double getPreBufferingPercent();
 private:
 	
 	
@@ -80,7 +81,22 @@ private:
 	int m_cur_num_out_chans = 2;
 	std::mutex m_mutex;
 	File m_current_file;
-    double m_phase = 0.0;
+    
+
+	TimeSliceThread m_bufferingthread;
+	std::unique_ptr<StretchAudioSource> m_stretch_source;
+	std::unique_ptr<MyBufferingAudioSource> m_buffering_source;
+	int m_prebuffer_amount = 1;
+	bool m_recreate_buffering_source = true;
+	
+	int m_fft_size_to_use = 1024;
+	double m_last_outpos_pos = 0.0;
+	double m_last_in_pos = 0.0;
+	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
+	ProcessParameters m_ppar;
+	void setPreBufferAmount(int x);
+	void setFFTSize(double size);
+	void startplay(Range<double> playrange, int numoutchans, String& err);
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

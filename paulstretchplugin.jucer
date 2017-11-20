@@ -22,16 +22,12 @@
         <FILE id="qAo4mG" name="FreeEdit.cpp" compile="1" resource="0" file="Source/PS_Source/FreeEdit.cpp"/>
         <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
         <FILE id="O0cKQ4" name="Mutex.h" compile="0" resource="0" file="Source/PS_Source/Mutex.h"/>
-        <FILE id="Rl76Ct" name="PaulStretchControl.h" compile="0" resource="0"
-              file="Source/PS_Source/PaulStretchControl.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
               file="Source/PS_Source/ProcessedStretch.h"/>
         <FILE id="TcGuiz" name="Stretch.h" compile="0" resource="0" file="Source/PS_Source/Stretch.h"/>
         <FILE id="yz0SM3" name="StretchSource.h" compile="0" resource="0" file="Source/PS_Source/StretchSource.h"/>
         <FILE id="G6XXRZ" name="AInputS.h" compile="0" resource="0" file="Source/PS_Source/Input/AInputS.h"/>
         <FILE id="jSSkH5" name="InputS.h" compile="0" resource="0" file="Source/PS_Source/Input/InputS.h"/>
-        <FILE id="iCUwyO" name="PaulStretchControl.cpp" compile="1" resource="0"
-              file="Source/PS_Source/PaulStretchControl.cpp"/>
         <FILE id="EIKlL1" name="ProcessedStretch.cpp" compile="1" resource="0"
               file="Source/PS_Source/ProcessedStretch.cpp"/>
         <FILE id="x1qOMW" name="Stretch.cpp" compile="1" resource="0" file="Source/PS_Source/Stretch.cpp"/>

@@ -30,8 +30,35 @@ void callGUI(AudioProcessor* ap, F&& f, bool async)
     }
 }
 
+int get_optimized_updown(int n, bool up) {
+	int orig_n = n;
+	while (true) {
+		n = orig_n;
+
+		while (!(n % 11)) n /= 11;
+		while (!(n % 7)) n /= 7;
+
+		while (!(n % 5)) n /= 5;
+		while (!(n % 3)) n /= 3;
+		while (!(n % 2)) n /= 2;
+		if (n<2) break;
+		if (up) orig_n++;
+		else orig_n--;
+		if (orig_n<4) return 4;
+	};
+	return orig_n;
+};
+
+int optimizebufsize(int n) {
+	int n1 = get_optimized_updown(n, false);
+	int n2 = get_optimized_updown(n, true);
+	if ((n - n1)<(n2 - n)) return n1;
+	else return n2;
+};
+
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
+	: m_bufferingthread("pspluginprebufferthread")
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -48,12 +75,13 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_recbuffer.clear();
 	m_afm = std::make_unique<AudioFormatManager>();
 	m_afm->registerBasicFormats();
-	m_control = std::make_unique<Control>(m_afm.get());
-	m_control->setPreBufferAmount(2);
-	m_control->ppar.pitch_shift.enabled = true;
-	m_control->ppar.freq_shift.enabled = true;
-	m_control->setOnsetDetection(0.0);
-	m_control->getStretchAudioSource()->setLoopingEnabled(true);
+	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm.get());
+	
+	setPreBufferAmount(2);
+	m_ppar.pitch_shift.enabled = true;
+	m_ppar.freq_shift.enabled = true;
+	m_stretch_source->setOnsetDetection(0.0);
+	m_stretch_source->setLoopingEnabled(true);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f)); // 0
 	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f)); // 1
 	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f)); // 2
@@ -67,7 +95,17 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
 	g_activeprocessors.erase(this);
-	m_control->stopplay();
+	m_bufferingthread.stopThread(1000);
+}
+
+void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
+{
+	int temp = jlimit(0, 5, x);
+	if (temp != m_prebuffer_amount)
+	{
+		m_prebuffer_amount = temp;
+		m_recreate_buffering_source = true;
+	}
 }
 
 //==============================================================================
@@ -132,7 +170,41 @@ void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String
 {
 }
 
-//==============================================================================
+void PaulstretchpluginAudioProcessor::setFFTSize(double size)
+{
+	if (m_prebuffer_amount == 5)
+		m_fft_size_to_use = pow(2, 7.0 + size * 14.5);
+	else m_fft_size_to_use = pow(2, 7.0 + size * 10.0); // chicken out from allowing huge FFT sizes if not enough prebuffering
+	int optim = optimizebufsize(m_fft_size_to_use);
+	m_fft_size_to_use = optim;
+	m_stretch_source->setFFTSize(optim);
+	//Logger::writeToLog(String(m_fft_size_to_use));
+}
+
+void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, String& err)
+{
+	m_stretch_source->setPlayRange(playrange, m_stretch_source->isLoopingEnabled());
+
+	int bufamt = m_bufamounts[m_prebuffer_amount];
+
+	if (m_buffering_source != nullptr && numoutchans != m_buffering_source->getNumberOfChannels())
+		m_recreate_buffering_source = true;
+	if (m_recreate_buffering_source == true)
+	{
+		m_buffering_source = std::make_unique<MyBufferingAudioSource>(m_stretch_source.get(),
+			m_bufferingthread, false, bufamt, numoutchans, false);
+		m_recreate_buffering_source = false;
+	}
+	if (m_bufferingthread.isThreadRunning() == false)
+		m_bufferingthread.startThread();
+	m_stretch_source->setNumOutChannels(numoutchans);
+	m_stretch_source->setFFTSize(m_fft_size_to_use);
+	m_stretch_source->setProcessParameters(&m_ppar);
+	m_last_outpos_pos = 0.0;
+	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
+	m_buffering_source->prepareToPlay(1024, 44100.0);
+};
+
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	if (getNumOutputChannels() != m_cur_num_out_chans)
@@ -140,20 +212,18 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	if (m_using_memory_buffer == true)
 	{
 		int len = jlimit(100,m_recbuffer.getNumSamples(), m_rec_pos);
-		m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, 
+		m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, 
 			getSampleRate(), 
 			len);
 		callGUI(this,[this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len); },false);
 	}
 	if (m_ready_to_play == false)
 	{
-		m_control->setFFTSize(0.5);
-		m_control->update_player_stretch();
-		m_control->update_process_parameters();
+		setFFTSize(0.5);
+		m_stretch_source->setProcessParameters(&m_ppar);
 		
 		String err;
-		m_control->startplay(false, true,
-			{ *getFloatParameter(5),*getFloatParameter(6) },
+		startplay({ *getFloatParameter(5),*getFloatParameter(6) },
 		2, err);
 		m_cur_num_out_chans = getNumOutputChannels();
 		m_ready_to_play = true;
@@ -231,23 +301,26 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
 		return;
 	}
-	
-	m_control->getStretchAudioSource()->val_MainVolume = (float)*getFloatParameter(0);
-	m_control->getStretchAudioSource()->setRate(*getFloatParameter(1));
-	m_control->getStretchAudioSource()->val_XFadeLen = 0.1;
-	m_control->setFFTSize(*getFloatParameter(2));
-	m_control->ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
-	m_control->ppar.freq_shift.Hz = *getFloatParameter(4);
+	jassert(m_buffering_source != nullptr);
+	jassert(m_bufferingthread.isThreadRunning());
+	m_stretch_source->val_MainVolume = (float)*getFloatParameter(0);
+	m_stretch_source->setRate(*getFloatParameter(1));
+	m_stretch_source->val_XFadeLen = 0.1;
+	setFFTSize(*getFloatParameter(2));
+	m_ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
+	m_ppar.freq_shift.Hz = *getFloatParameter(4);
 	double t0 = *getFloatParameter(5);
 	double t1 = *getFloatParameter(6);
 	if (t0 > t1)
 		std::swap(t0, t1);
 	if (t1 - t0 < 0.001)
 		t1 = t0 + 0.001;
-	m_control->getStretchAudioSource()->setPlayRange({ t0,t1 }, true);
-	m_control->getStretchAudioSource()->setFreezing(getParameter(7));
-	m_control->update_process_parameters();
-	m_control->processAudio(buffer);
+	m_stretch_source->setPlayRange({ t0,t1 }, true);
+	m_stretch_source->setFreezing(getParameter(7));
+	m_stretch_source->setProcessParameters(&m_ppar);
+	
+	AudioSourceChannelInfo aif(buffer);
+	m_buffering_source->getNextAudioBlock(aif);
 }
 
 //==============================================================================
@@ -341,13 +414,28 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 {
 	std::lock_guard<std::mutex> locker(m_mutex);
-	m_control->set_input_file(f, [this,f](String) 
+	auto ai = unique_from_raw(m_afm->createReaderFor(f));
+	if (ai != nullptr)
 	{
-		
-	});
-	m_current_file = f;
-	m_using_memory_buffer = false;
-	return String();
+		if (ai->numChannels > 32)
+		{
+			//MessageManager::callAsync([cb, file]() { cb("Too many channels in file " + file.getFullPathName()); });
+			return "Too many channels in file "+f.getFullPathName();
+		}
+		if (ai->bitsPerSample>32)
+		{
+			//MessageManager::callAsync([cb, file]() { cb("Too high bit depth in file " + file.getFullPathName()); });
+			return "Too high bit depth in file " + f.getFullPathName();
+		}
+		m_current_file = f;
+		m_using_memory_buffer = false;
+		m_stretch_source->setAudioFile(f);
+		return String();
+		//MessageManager::callAsync([cb, file]() { cb(String()); });
+
+	}
+	
+	return "Could not open file " + f.getFullPathName();
 }
 
 Range<double> PaulstretchpluginAudioProcessor::getTimeSelection()
@@ -355,11 +443,18 @@ Range<double> PaulstretchpluginAudioProcessor::getTimeSelection()
 	return { *getFloatParameter(5),*getFloatParameter(6) };
 }
 
+double PaulstretchpluginAudioProcessor::getPreBufferingPercent()
+{
+	if (m_buffering_source==nullptr)
+		return 0.0;
+	return m_buffering_source->getPercentReady();
+}
+
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
-	m_control->getStretchAudioSource()->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), lenrecording);
-	m_control->getStretchAudioSource()->setPlayRange({ *getFloatParameter(5),*getFloatParameter(6) }, true);
+	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), lenrecording);
+	m_stretch_source->setPlayRange({ *getFloatParameter(5),*getFloatParameter(6) }, true);
 	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
 	if (ed)
 	{

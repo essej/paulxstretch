@@ -54,7 +54,7 @@ public:
 	bool clipFloatOutput = true;
 	std::function<void(RenderInfoRef)> completion_callback;
 };
-
+#ifdef USEPSCONTROL
 class Control
 {
 public:
@@ -149,3 +149,4 @@ private:
 	double m_last_in_pos = 0.0;
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
 };
+#endif
