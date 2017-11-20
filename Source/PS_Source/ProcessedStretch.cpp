@@ -21,8 +21,6 @@
 #include <stdio.h>
 #include "ProcessedStretch.h"
 
-extern std::unique_ptr<PropertiesFile> g_propsfile;
-
 ProcessedStretch::ProcessedStretch(REALTYPE rap_,int in_bufsize_,FFTWindow w,bool bypass_,REALTYPE samplerate_,int stereo_mode_)
 	: Stretch(rap_,in_bufsize_,w,bypass_,samplerate_,stereo_mode_)
 {

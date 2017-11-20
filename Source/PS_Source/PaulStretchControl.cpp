@@ -29,8 +29,6 @@
 
 using namespace std;
 
-extern std::unique_ptr<PropertiesFile> g_propsfile;
-
 Control::Control(AudioFormatManager* afm) : m_afm(afm), m_bufferingthread("stretchbufferingthread")
 {
 	m_stretch_source = std::make_unique<StretchAudioSource>(2,m_afm);
