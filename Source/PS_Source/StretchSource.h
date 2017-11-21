@@ -123,7 +123,7 @@ private:
 	int64_t m_maxloops = 0;
 	std::unique_ptr<WDL_Resampler> m_resampler;
 	std::vector<double> m_resampler_outbuf;
-	std::mutex m_mutex;
+	std::recursive_mutex m_mutex;
 	std::vector<int> m_specproc_order;
 	bool m_stop_play_requested = false;
 	double m_freeze_pos = 0.0;
@@ -132,6 +132,11 @@ private:
 	bool m_clip_output = true;
 	void initObjects();
 	AudioFormatManager* m_afm = nullptr;
+	std::atomic<bool> m_is_crossfading{ false };
+	AudioBuffer<float> m_crossfadebuffer;
+	int m_crossfade_requested_len = 8192;
+	int m_crossfade_len = 0;
+	int m_crossfade_counter = 0;
 };
 
 class MultiStretchAudioSource final : public PositionableAudioSource

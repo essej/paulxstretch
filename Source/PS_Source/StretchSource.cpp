@@ -14,6 +14,8 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManage
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	m_specproc_order = { 0,1,2,3,4,5,6,7 };
 	setNumOutChannels(initialnumoutchans);
+	m_crossfadebuffer.setSize(initialnumoutchans, 65536);
+	m_crossfadebuffer.clear();
 }
 
 StretchAudioSource::~StretchAudioSource()
@@ -56,7 +58,7 @@ std::vector<int> StretchAudioSource::getSpectrumProcessOrder()
 
 void StretchAudioSource::setSpectrumProcessOrder(std::vector<int> order)
 {
-	std::lock_guard <std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_specproc_order = order;
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
@@ -86,7 +88,7 @@ ValueTree StretchAudioSource::getStateTree()
 
 void StretchAudioSource::setStateTree(ValueTree state)
 {
-	std::lock_guard <std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	getFromTreeProperties(state, "pitch_shift", m_ppar.pitch_shift.cents,
 		"octaves_minus2", m_ppar.octave.om2,
 		"octaves_minus1", m_ppar.octave.om1,
@@ -109,7 +111,7 @@ bool StretchAudioSource::isLoopingEnabled()
 
 void StretchAudioSource::setLoopingEnabled(bool b)
 {
-	std::lock_guard <std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	if (m_inputfile != nullptr)
 	{
 		m_inputfile->setLoopEnabled(b);
@@ -118,7 +120,7 @@ void StretchAudioSource::setLoopingEnabled(bool b)
 
 void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len)
 {
-	std::lock_guard <std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_inputfile->setAudioBuffer(buf, sr, len);
 	m_seekpos = 0.0;
 	m_lastinpos = 0.0;
@@ -130,7 +132,7 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	// for realtime play, this is assumed to be used with BufferingAudioSource, so mutex locking should not be too bad...
-	std::lock_guard <std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	if (m_stretchoutringbuf.available() > 0)
 		m_output_has_begun = true;
 	bool freezing = m_freezing;
@@ -256,10 +258,21 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		for (int j = 0; j < outbufchans; ++j)
 		{
 			double outsample = m_resampler_outbuf[i*m_num_outchans + j];
+			if (m_is_crossfading == true)
+			{
+				jassert(m_crossfade_len > 0);
+				jassert(m_crossfade_counter >= 0 && m_crossfade_counter < m_crossfade_len);
+				double xfadegain = 1.0 / m_crossfade_len * m_crossfade_counter;
+				jassert(xfadegain >= 0.0 && xfadegain <= 1.0);
+				double outsample2 = m_crossfadebuffer.getSample(j, m_crossfade_counter);
+				outsample = (1.0 - xfadegain)*outsample2 + xfadegain * outsample;
+			}
 			outarrays[j][i + offset] = jlimit(-samplelimit,samplelimit , outsample * smoothed_gain);
 			mixed += outsample;
 		}
-		
+		++m_crossfade_counter;
+		if (m_crossfade_counter >= m_crossfade_len)
+			m_is_crossfading = false;
 		if (source_ended && m_output_counter>=2*m_process_fftsize)
 		{
 			if (fabs(mixed) < silencethreshold)
@@ -297,7 +310,7 @@ bool StretchAudioSource::isLooping() const
 
 String StretchAudioSource::setAudioFile(File file)
 {
-	std::lock_guard <std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	if (m_inputfile->openAudioFile(file))
 	{
 		m_curfile = file;
@@ -319,7 +332,7 @@ void StretchAudioSource::setNumOutChannels(int chans)
 
 void StretchAudioSource::initObjects()
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_inputfile->setActiveRange(m_playrange);
 	m_inputfile->seek(m_seekpos);
 	
@@ -389,7 +402,7 @@ void StretchAudioSource::setRate(double rate)
 {
 	if (rate == m_playrate)
 		return;
-	std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	//if (rate != m_lastplayrate)
 	{
 		//m_output_counter = m_output_counter*rate;
@@ -408,7 +421,7 @@ void StretchAudioSource::setProcessParameters(ProcessParameters * pars)
 {
 	if (*pars == m_ppar)
 		return;
-	std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_ppar = *pars;
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
@@ -426,7 +439,7 @@ void StretchAudioSource::setFFTWindowingType(int windowtype)
 {
     if (windowtype==m_fft_window_type)
         return;
-    std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
     m_fft_window_type = windowtype;
     for (int i = 0; i < m_stretchers.size(); ++i)
     {
@@ -439,6 +452,39 @@ void StretchAudioSource::setFFTSize(int size)
     jassert(size>0);
     if (m_process_fftsize == 0 || size != m_process_fftsize)
 	{
+		std::lock_guard <decltype(m_mutex)> locker(m_mutex);
+		if (m_crossfadebuffer.getNumChannels() < m_num_outchans)
+		{
+			m_crossfadebuffer.setSize(m_num_outchans, m_crossfadebuffer.getNumSamples());
+			
+		}
+		if (m_process_fftsize > 0)
+		{
+			
+			double curpos = getInfilePositionPercent();
+			
+			m_crossfade_len = m_crossfade_requested_len; //std::min(m_stretchoutringbuf.available() / m_num_outchans, m_crossfade_len);
+			m_is_crossfading = false;
+			m_crossfadebuffer.clear();
+			int sampstofill = std::min(m_crossfade_requested_len, m_stretchoutringbuf.available() / m_num_outchans);
+			for (int i = 0; i < sampstofill; ++i)
+			{
+				for (int j = 0; j < m_num_outchans; ++j)
+				{
+					m_crossfadebuffer.setSample(j, i, m_stretchoutringbuf.get());
+				}
+			}
+			m_crossfade_len = sampstofill;
+			Logger::writeToLog("crossfade len " + String(m_crossfade_len));
+			//AudioSourceChannelInfo aif(&m_crossfadebuffer,0,m_crossfade_len);
+			//getNextAudioBlock(aif);
+			m_crossfade_counter = 0;
+			
+			m_is_crossfading = true;
+			
+			//m_seekpos = curpos;
+		}
+		
 		m_process_fftsize = size;
 		initObjects();
 		++m_param_change_count;
@@ -447,7 +493,7 @@ void StretchAudioSource::setFFTSize(int size)
 
 void StretchAudioSource::seekPercent(double pos)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_seekpos = pos;
 	m_inputfile->seek(pos);
 	m_lastinpos = pos;
@@ -463,7 +509,7 @@ double StretchAudioSource::getOutputDurationSecondsForRange(Range<double> range,
 
 void StretchAudioSource::setOnsetDetection(double x)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_onsetdetection = x;
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
@@ -475,7 +521,7 @@ void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 {
 	if (m_playrange.isEmpty() == false && playrange == m_playrange)
 		return;
-	std::lock_guard<std::mutex> locker(m_mutex);
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	if (playrange.isEmpty())
 		m_playrange = { 0.0,1.0 };
 	else
