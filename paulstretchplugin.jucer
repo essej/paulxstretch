@@ -4,7 +4,7 @@
               reportAppUsage="0" splashScreenColour="Dark" projectType="audioplug"
               version="1.0.0" bundleIdentifier="com.yourcompany.paulstretchplugin"
               includeBinaryInAppConfig="1" cppLanguageStandard="latest" companyCopyright=""
-              buildVST="1" buildVST3="0" buildAU="0" buildAUv3="0" buildRTAS="0"
+              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="paulstretchplugin"
               pluginDesc="paulstretchplugin" pluginManufacturer="Xenakios"
               pluginManufacturerCode="XenS" pluginCode="Fn1r" pluginChannelConfigs="{2,2},{4,4}, {8,8}"
@@ -56,9 +56,10 @@
                        osxArchitecture="64BitIntel" osxCompatibility="10.9 SDK" osxSDK="default"
                        defines="JUCE_NO_DEPRECATION_WARNINGS"/>
         <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
-                       linkTimeOptimisation="1" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
+                       linkTimeOptimisation="0" targetName="paulstretchplugin" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
                        osxCompatibility="10.9 SDK" osxArchitecture="64BitIntel" cppLibType="libc++"
-                       libraryPath="/usr/local/Cellar/fftw/3.3.6-pl2/lib" defines="JUCE_NO_DEPRECATION_WARNINGS"/>
+                       libraryPath="/usr/local/Cellar/fftw/3.3.6-pl2/lib" defines="JUCE_NO_DEPRECATION_WARNINGS"
+                       auBinaryLocation="/Library/Audio/Plug-Ins/Components"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
