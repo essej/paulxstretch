@@ -113,7 +113,7 @@ private:
 	double m_lastplayrate = 0.0;
 	double m_onsetdetection = 0.0;
 	double m_seekpos = 0.0;
-	double m_lastinpos = 0.0;
+	
 	bool m_freezing = false;
 	Range<double> m_playrange{ 0.0,1.0 };
 	
@@ -132,11 +132,15 @@ private:
 	bool m_clip_output = true;
 	void initObjects();
 	AudioFormatManager* m_afm = nullptr;
-	std::atomic<bool> m_is_crossfading{ false };
-	AudioBuffer<float> m_crossfadebuffer;
-	int m_crossfade_requested_len = 8192;
-	int m_crossfade_len = 0;
-	int m_crossfade_counter = 0;
+	struct
+	{
+		AudioBuffer<float> buffer;
+		int state = 0; // 0 not active, 1 fill xfade buffer, 2 play xfade buffer
+		int xfade_len = 0;
+		int counter = 0;
+		int requested_fft_size = 0;
+		File requested_file;
+	} m_xfadetask;
 };
 
 class MultiStretchAudioSource final : public PositionableAudioSource

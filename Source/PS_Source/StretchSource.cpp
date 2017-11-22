@@ -14,8 +14,8 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManage
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	m_specproc_order = { 0,1,2,3,4,5,6,7 };
 	setNumOutChannels(initialnumoutchans);
-	m_crossfadebuffer.setSize(initialnumoutchans, 65536);
-	m_crossfadebuffer.clear();
+	m_xfadetask.buffer.setSize(initialnumoutchans, 65536);
+	m_xfadetask.buffer.clear();
 }
 
 StretchAudioSource::~StretchAudioSource()
@@ -123,7 +123,7 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_inputfile->setAudioBuffer(buf, sr, len);
 	m_seekpos = 0.0;
-	m_lastinpos = 0.0;
+	
 	m_curfile = File();
 	if (m_playrange.isEmpty())
 		setPlayRange({ 0.0,1.0 }, true);
@@ -159,22 +159,16 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	if (m_inputfile->info.nsamples == 0)
 		return;
 	m_inputfile->setXFadeLenSeconds(val_XFadeLen.getValue());
-    double* rsinbuf = nullptr;
-	int wanted = m_resampler->ResamplePrepare(bufferToFill.numSamples, m_num_outchans, &rsinbuf);
+    
 	double silencethreshold = Decibels::decibelsToGain(-70.0);
 	bool tempfirst = true;
     auto foofilepos0 = m_inputfile->getCurrentPosition();
-    //if (m_output_counter<=m_process_fftsize*2) // && m_inputfile->hasEnded() == false)
+	auto ringbuffilltask = [this](int framestoproduce)
 	{
-		while (m_stretchoutringbuf.available() < wanted*m_num_outchans)
+		while (m_stretchoutringbuf.available() < framestoproduce*m_num_outchans)
 		{
 			int readsize = 0;
 			double in_pos = (double)m_inputfile->getCurrentPosition() / (double)m_inputfile->info.nsamples;
-			if (tempfirst == true)
-			{
-				m_lastinpos = in_pos;
-				tempfirst = false;
-			}
 			if (m_firstbuffer)
 			{
 				readsize = m_stretchers[0]->get_nsamples_for_fill();
@@ -231,22 +225,55 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 
 				}
 			}
-			
+
 		}
-	}
-    auto foofilepos1 = m_inputfile->getCurrentPosition();
-    //jassert(abs(foofilepos1-foofilepos0)>0);
-	for (int i = 0; i < wanted*m_num_outchans; ++i)
+		
+	};
+	int previousxfadestate = m_xfadetask.state;
+	auto resamplertask = [this, &ringbuffilltask, &bufferToFill]()
 	{
-		double sample = m_stretchoutringbuf.get();
-		rsinbuf[i] = sample;
-	}
-	if (wanted*m_num_outchans > m_resampler_outbuf.size())
-	{
-		m_resampler_outbuf.resize(wanted*m_num_outchans);
-	}
-	/*int produced =*/ m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, bufferToFill.numSamples, m_num_outchans);
+		double* rsinbuf = nullptr;
+		int outsamplestoproduce = bufferToFill.numSamples;
+		if (m_xfadetask.state == 1)
+			outsamplestoproduce = m_xfadetask.xfade_len;
+		int wanted = m_resampler->ResamplePrepare(outsamplestoproduce, m_num_outchans, &rsinbuf);
+		ringbuffilltask(wanted);
+		for (int i = 0; i < wanted*m_num_outchans; ++i)
+		{
+			double sample = m_stretchoutringbuf.get();
+			rsinbuf[i] = sample;
+		}
+		if (outsamplestoproduce*m_num_outchans > m_resampler_outbuf.size())
+		{
+			m_resampler_outbuf.resize(outsamplestoproduce*m_num_outchans);
+		}
+		/*int produced =*/ m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, outsamplestoproduce, m_num_outchans);
+		if (m_xfadetask.state == 1)
+		{
+			Logger::writeToLog("Filling xfade buffer");
+			for (int i = 0; i < outsamplestoproduce; ++i)
+			{
+				for (int j = 0; j < m_num_outchans; ++j)
+				{
+					m_xfadetask.buffer.setSample(j, i, m_resampler_outbuf[i*m_num_outchans + j]);
+				}
+			}
+			if (m_process_fftsize != m_xfadetask.requested_fft_size)
+			{
+				m_process_fftsize = m_xfadetask.requested_fft_size;
+				Logger::writeToLog("Initing stretcher objects");
+				initObjects();
+			}
+			m_xfadetask.state = 2;
+		}
+	};
 	
+	resamplertask();
+	if (previousxfadestate == 1 && m_xfadetask.state == 2)
+	{
+		Logger::writeToLog("Rerunning resampler task");
+		resamplertask();
+	}
 	bool source_ended = m_inputfile->hasEnded();
 	double samplelimit = 16384.0;
 	if (m_clip_output == true)
@@ -258,21 +285,22 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		for (int j = 0; j < outbufchans; ++j)
 		{
 			double outsample = m_resampler_outbuf[i*m_num_outchans + j];
-			if (m_is_crossfading == true)
+			if (m_xfadetask.state == 2)
 			{
-				jassert(m_crossfade_len > 0);
-				jassert(m_crossfade_counter >= 0 && m_crossfade_counter < m_crossfade_len);
-				double xfadegain = 1.0 / m_crossfade_len * m_crossfade_counter;
+				double xfadegain = 1.0 / m_xfadetask.xfade_len*m_xfadetask.counter;
 				jassert(xfadegain >= 0.0 && xfadegain <= 1.0);
-				double outsample2 = m_crossfadebuffer.getSample(j, m_crossfade_counter);
-				outsample = (1.0 - xfadegain)*outsample2 + xfadegain * outsample;
+				double outsample2 = m_xfadetask.buffer.getSample(j, m_xfadetask.counter);
+				outsample = xfadegain * outsample + (1.0 - xfadegain)*outsample2;
 			}
 			outarrays[j][i + offset] = jlimit(-samplelimit,samplelimit , outsample * smoothed_gain);
 			mixed += outsample;
 		}
-		++m_crossfade_counter;
-		if (m_crossfade_counter >= m_crossfade_len)
-			m_is_crossfading = false;
+		if (m_xfadetask.state == 2)
+		{
+			++m_xfadetask.counter;
+			if (m_xfadetask.counter >= m_xfadetask.xfade_len)
+				m_xfadetask.state = 0;
+		}
 		if (source_ended && m_output_counter>=2*m_process_fftsize)
 		{
 			if (fabs(mixed) < silencethreshold)
@@ -450,43 +478,27 @@ void StretchAudioSource::setFFTWindowingType(int windowtype)
 void StretchAudioSource::setFFTSize(int size)
 {
     jassert(size>0);
-    if (m_process_fftsize == 0 || size != m_process_fftsize)
+    if (m_xfadetask.state == 0 && (m_process_fftsize == 0 || size != m_process_fftsize))
 	{
 		std::lock_guard <decltype(m_mutex)> locker(m_mutex);
-		if (m_crossfadebuffer.getNumChannels() < m_num_outchans)
+		if (m_xfadetask.buffer.getNumChannels() < m_num_outchans)
 		{
-			m_crossfadebuffer.setSize(m_num_outchans, m_crossfadebuffer.getNumSamples());
+			m_xfadetask.buffer.setSize(m_num_outchans, m_xfadetask.buffer.getNumSamples());
 			
 		}
 		if (m_process_fftsize > 0)
 		{
-			
-			double curpos = getInfilePositionPercent();
-			
-			m_crossfade_len = m_crossfade_requested_len; //std::min(m_stretchoutringbuf.available() / m_num_outchans, m_crossfade_len);
-			m_is_crossfading = false;
-			m_crossfadebuffer.clear();
-			int sampstofill = std::min(m_crossfade_requested_len, m_stretchoutringbuf.available() / m_num_outchans);
-			for (int i = 0; i < sampstofill; ++i)
-			{
-				for (int j = 0; j < m_num_outchans; ++j)
-				{
-					m_crossfadebuffer.setSample(j, i, m_stretchoutringbuf.get());
-				}
-			}
-			m_crossfade_len = sampstofill;
-			Logger::writeToLog("crossfade len " + String(m_crossfade_len));
-			//AudioSourceChannelInfo aif(&m_crossfadebuffer,0,m_crossfade_len);
-			//getNextAudioBlock(aif);
-			m_crossfade_counter = 0;
-			
-			m_is_crossfading = true;
-			
-			//m_seekpos = curpos;
+			m_xfadetask.state = 1;
+			m_xfadetask.counter = 0;
+			m_xfadetask.xfade_len = 44100;
+			m_xfadetask.requested_fft_size = size;
+		}
+		else
+		{
+			m_process_fftsize = size;
+			initObjects();
 		}
 		
-		m_process_fftsize = size;
-		initObjects();
 		++m_param_change_count;
 	}
 }
@@ -496,7 +508,7 @@ void StretchAudioSource::seekPercent(double pos)
 	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_seekpos = pos;
 	m_inputfile->seek(pos);
-	m_lastinpos = pos;
+	
 }
 
 double StretchAudioSource::getOutputDurationSecondsForRange(Range<double> range, int fftsize)
