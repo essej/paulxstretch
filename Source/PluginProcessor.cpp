@@ -73,9 +73,9 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	g_activeprocessors.insert(this);
 	m_recbuffer.setSize(2, 44100);
 	m_recbuffer.clear();
-	m_afm = std::make_unique<AudioFormatManager>();
-	m_afm->registerBasicFormats();
-	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm.get());
+	if (m_afm->getNumKnownFormats()==0)
+		m_afm->registerBasicFormats();
+	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm);
 	
 	setPreBufferAmount(2);
 	m_ppar.pitch_shift.enabled = true;

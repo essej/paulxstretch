@@ -15,7 +15,7 @@
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
     : AudioProcessorEditor (&p),
-    m_wavecomponent(p.m_afm.get()),
+    m_wavecomponent(p.m_afm),
     processor (p)
 
 {

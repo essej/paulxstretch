@@ -15,6 +15,7 @@
 
 class MyThumbCache;
 
+
 class PaulstretchpluginAudioProcessor  : public AudioProcessor
 {
 public:
@@ -64,7 +65,7 @@ public:
 	String setAudioFile(File f);
 	File getAudioFile() { return m_current_file; }
 	Range<double> getTimeSelection();
-	std::unique_ptr<AudioFormatManager> m_afm;
+	SharedResourcePointer<AudioFormatManager> m_afm;
 	StretchAudioSource* getStretchSource() { return m_stretch_source.get(); }
 	double getPreBufferingPercent();
 private:
