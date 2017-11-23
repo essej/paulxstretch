@@ -175,7 +175,7 @@ public:
 	Value ShowFileCacheRange;
 	void setRecordingPosition(double pos) { m_rec_pos = pos; }
 private:
-	AudioThumbnailCache m_thumbcache;
+	std::shared_ptr<AudioThumbnailCache> m_thumbcache;
 
 	std::unique_ptr<AudioThumbnail> m_thumb;
 	Range<double> m_view_range{ 0.0,1.0 };
@@ -221,3 +221,5 @@ private:
 	void chooseFile();
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
+
+void cleanUpGUI();

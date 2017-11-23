@@ -154,14 +154,21 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 	}
 }
 
-WaveformComponent::WaveformComponent(AudioFormatManager* afm) : m_thumbcache(100)
+std::shared_ptr<AudioThumbnailCache> g_thumbcache;
+
+WaveformComponent::WaveformComponent(AudioFormatManager* afm)
 {
+	if (g_thumbcache == nullptr)
+	{
+		g_thumbcache = std::make_shared<AudioThumbnailCache>(100);
+	}
+	m_thumbcache = g_thumbcache;
 	TimeSelectionChangedCallback = [](Range<double>, int) {};
 	if (m_use_opengl == true)
 		m_ogl.attachTo(*this);
 	// The default priority of 2 is a bit too low in some cases, it seems...
-	m_thumbcache.getTimeSliceThread().setPriority(3);
-	m_thumb = std::make_unique<AudioThumbnail>(512, *afm, m_thumbcache);
+	m_thumbcache->getTimeSliceThread().setPriority(3);
+	m_thumb = std::make_unique<AudioThumbnail>(512, *afm, *m_thumbcache);
 	m_thumb->addChangeListener(this);
 	setOpaque(true);
 }
@@ -271,7 +278,7 @@ void WaveformComponent::setAudioFile(File f)
 	{
 		m_waveimage = Image();
 		if (m_thumb != nullptr && f == m_curfile) // reloading same file, might happen that the overview needs to be redone...
-			m_thumbcache.removeThumb(m_thumb->getHashCode());
+			m_thumbcache->removeThumb(m_thumb->getHashCode());
 		if (m_thumb != nullptr)
 			m_thumb->reset(0, 0.0);
 		m_thumb->setSource(new FileInputSource(f));
@@ -429,4 +436,12 @@ int WaveformComponent::getTimeSelectionEdge(int x, int y)
 	if (juce::Rectangle<int>(xcorright - 5, m_topmargin, 10, getHeight() - m_topmargin).contains(x, y))
 		return 2;
 	return 0;
+}
+
+void cleanUpGUI()
+{
+	if (g_thumbcache.unique())
+	{
+		g_thumbcache = nullptr;
+	}
 }

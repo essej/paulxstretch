@@ -96,6 +96,7 @@ PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
 	g_activeprocessors.erase(this);
 	m_bufferingthread.stopThread(1000);
+	cleanUpGUI();
 }
 
 void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
