@@ -133,6 +133,13 @@ private:
 	bool m_dragging = false;
 };
 
+class MyThumbCache : public AudioThumbnailCache
+{
+public:
+	MyThumbCache() : AudioThumbnailCache(100) { Logger::writeToLog("Constructed AudioThumbNailCache"); }
+	~MyThumbCache() { Logger::writeToLog("Destructed AudioThumbNailCache"); }
+};
+
 class WaveformComponent : public Component, public ChangeListener, public Timer
 {
 public:
@@ -175,7 +182,7 @@ public:
 	Value ShowFileCacheRange;
 	void setRecordingPosition(double pos) { m_rec_pos = pos; }
 private:
-	std::shared_ptr<AudioThumbnailCache> m_thumbcache;
+	SharedResourcePointer<MyThumbCache> m_thumbcache;
 
 	std::unique_ptr<AudioThumbnail> m_thumb;
 	Range<double> m_view_range{ 0.0,1.0 };
@@ -222,4 +229,3 @@ private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
-void cleanUpGUI();

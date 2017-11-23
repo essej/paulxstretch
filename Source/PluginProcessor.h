@@ -13,9 +13,8 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PS_Source/PaulStretchControl.h"
 
-//==============================================================================
-/**
-*/
+class MyThumbCache;
+
 class PaulstretchpluginAudioProcessor  : public AudioProcessor
 {
 public:
@@ -97,6 +96,7 @@ private:
 	void setPreBufferAmount(int x);
 	void setFFTSize(double size);
 	void startplay(Range<double> playrange, int numoutchans, String& err);
+	SharedResourcePointer<MyThumbCache> m_thumbcache;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

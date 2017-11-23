@@ -154,15 +154,8 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 	}
 }
 
-std::shared_ptr<AudioThumbnailCache> g_thumbcache;
-
 WaveformComponent::WaveformComponent(AudioFormatManager* afm)
 {
-	if (g_thumbcache == nullptr)
-	{
-		g_thumbcache = std::make_shared<AudioThumbnailCache>(100);
-	}
-	m_thumbcache = g_thumbcache;
 	TimeSelectionChangedCallback = [](Range<double>, int) {};
 	if (m_use_opengl == true)
 		m_ogl.attachTo(*this);
@@ -438,10 +431,3 @@ int WaveformComponent::getTimeSelectionEdge(int x, int y)
 	return 0;
 }
 
-void cleanUpGUI()
-{
-	if (g_thumbcache.unique())
-	{
-		g_thumbcache = nullptr;
-	}
-}
