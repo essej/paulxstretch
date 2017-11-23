@@ -356,9 +356,10 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 
 void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
+	ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
 	if (tree.isValid())
 	{
+		std::lock_guard<std::mutex> locker(m_mutex);
 		for (int i = 0; i<getNumParameters(); ++i)
 		{
 			auto par = getFloatParameter(i);
