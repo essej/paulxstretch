@@ -83,13 +83,15 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f)); // 0
-	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 0.1f, 128.0f, 1.0f)); // 1
+	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 
+		NormalisableRange<float>(0.1f, 128.0f, 0.01f, 0.5),1.0f)); // 1
 	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f)); // 2
 	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f)); // 3
 	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f)); // 4
 	addParameter(new AudioParameterFloat("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f)); // 5
 	addParameter(new AudioParameterFloat("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f)); // 6
 	addParameter(new AudioParameterBool("freeze0", "Freeze", false)); // 7
+	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -183,7 +185,7 @@ void PaulstretchpluginAudioProcessor::setFFTSize(double size)
 
 void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, String& err)
 {
-	m_stretch_source->setPlayRange(playrange, m_stretch_source->isLoopingEnabled());
+	m_stretch_source->setPlayRange(playrange, true);
 
 	int bufamt = m_bufamounts[m_prebuffer_amount];
 
@@ -207,6 +209,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+	std::lock_guard<std::mutex> locker(m_mutex);
 	if (getNumOutputChannels() != m_cur_num_out_chans)
 		m_ready_to_play = false;
 	if (m_using_memory_buffer == true)
@@ -309,6 +312,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	setFFTSize(*getFloatParameter(2));
 	m_ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
 	m_ppar.freq_shift.Hz = *getFloatParameter(4);
+	m_ppar.spread.enabled = *getFloatParameter(8) > 0.0f;
+	m_ppar.spread.bandwidth = *getFloatParameter(8);
 	double t0 = *getFloatParameter(5);
 	double t1 = *getFloatParameter(6);
 	if (t0 > t1)
@@ -359,20 +364,21 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 	ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
 	if (tree.isValid())
 	{
-		std::lock_guard<std::mutex> locker(m_mutex);
-		for (int i = 0; i<getNumParameters(); ++i)
 		{
-			auto par = getFloatParameter(i);
-			if (par != nullptr)
+			std::lock_guard<std::mutex> locker(m_mutex);
+			for (int i = 0; i < getNumParameters(); ++i)
 			{
-				double parval = tree.getProperty(par->paramID, (double)*par);
-				*par = parval;
+				auto par = getFloatParameter(i);
+				if (par != nullptr)
+				{
+					double parval = tree.getProperty(par->paramID, (double)*par);
+					*par = parval;
+				}
 			}
 		}
 		String fn = tree.getProperty("importedfile");
 		if (fn.isEmpty() == false)
 		{
-			m_using_memory_buffer = false;
 			File f(fn);
 			setAudioFile(f);
 		}
@@ -414,7 +420,6 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 
 String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
 	auto ai = unique_from_raw(m_afm->createReaderFor(f));
 	if (ai != nullptr)
 	{
@@ -428,9 +433,10 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 			//MessageManager::callAsync([cb, file]() { cb("Too high bit depth in file " + file.getFullPathName()); });
 			return "Too high bit depth in file " + f.getFullPathName();
 		}
+		std::lock_guard<std::mutex> locker(m_mutex);
+		m_stretch_source->setAudioFile(f);
 		m_current_file = f;
 		m_using_memory_buffer = false;
-		m_stretch_source->setAudioFile(f);
 		return String();
 		//MessageManager::callAsync([cb, file]() { cb(String()); });
 

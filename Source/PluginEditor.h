@@ -43,6 +43,24 @@ inline void attachCallback(Button& button, std::function<void()> callback)
 	new ButtonCallback(button, callback);
 }
 
+class MySlider : public Slider
+{
+public:
+	MySlider(NormalisableRange<float>* range) : m_range(range)
+	{
+	}
+	double proportionOfLengthToValue(double x) override
+	{
+		return m_range->convertFrom0to1(x);
+	}
+	double valueToProportionOfLength(double x) override
+	{
+		return m_range->convertTo0to1(x);
+	}
+private:
+	NormalisableRange<float>* m_range = nullptr;
+};
+
 class ParameterComponent : public Component,
 	public Slider::Listener, public Button::Listener
 {
@@ -54,7 +72,7 @@ public:
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(par);
 		if (floatpar)
 		{
-			m_slider = std::make_unique<Slider>();
+			m_slider = std::make_unique<MySlider>(&floatpar->range);
 			m_notify_only_on_release = notifyOnlyOnRelease;
 			m_slider->setRange(floatpar->range.start, floatpar->range.end, floatpar->range.interval);
 			m_slider->setValue(*floatpar, dontSendNotification);
@@ -126,7 +144,7 @@ public:
 private:
 	Label m_label;
 	AudioProcessorParameter* m_par = nullptr;
-	std::unique_ptr<Slider> m_slider;
+	std::unique_ptr<MySlider> m_slider;
 	std::unique_ptr<ComboBox> m_combobox;
 	std::unique_ptr<ToggleButton> m_togglebut;
 	bool m_notify_only_on_release = false;
@@ -136,8 +154,8 @@ private:
 class MyThumbCache : public AudioThumbnailCache
 {
 public:
-	MyThumbCache() : AudioThumbnailCache(100) { Logger::writeToLog("Constructed AudioThumbNailCache"); }
-	~MyThumbCache() { Logger::writeToLog("Destructed AudioThumbNailCache"); }
+	MyThumbCache() : AudioThumbnailCache(100) { /*Logger::writeToLog("Constructed AudioThumbNailCache");*/ }
+	~MyThumbCache() { /*Logger::writeToLog("Destructed AudioThumbNailCache");*/ }
 };
 
 class WaveformComponent : public Component, public ChangeListener, public Timer
