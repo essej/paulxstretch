@@ -129,6 +129,20 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 		setPlayRange({ 0.0,1.0 }, true);
 }
 
+void StretchAudioSource::setMainVolume(double decibels)
+{
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
+	m_main_volume = jlimit(-144.0, 12.0, decibels);
+	++m_param_change_count;
+}
+
+void StretchAudioSource::setLoopXFadeLength(double lenseconds)
+{
+	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
+	m_loopxfadelen = jlimit(0.0, 1.0, lenseconds);
+	++m_param_change_count;
+}
+
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	// for realtime play, this is assumed to be used with BufferingAudioSource, so mutex locking should not be too bad...
@@ -145,7 +159,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			e->set_freezing(m_freezing);
 	}
     
-	double maingain = Decibels::decibelsToGain((double)val_MainVolume.getValue());
+	double maingain = Decibels::decibelsToGain(m_main_volume);
 	if (m_vol_smoother.getTargetValue() != maingain)
 		m_vol_smoother.setValue(maingain);
 	FloatVectorOperations::disableDenormalisedNumberSupport();
@@ -158,7 +172,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		return;
 	if (m_inputfile->info.nsamples == 0)
 		return;
-	m_inputfile->setXFadeLenSeconds(val_XFadeLen.getValue());
+	m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
     
 	double silencethreshold = Decibels::decibelsToGain(-70.0);
 	bool tempfirst = true;
@@ -633,8 +647,8 @@ void MultiStretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & b
 	m_blocksize = bufferToFill.numSamples;
 	if (m_is_in_switch == false)
 	{
-		getActiveStretchSource()->val_MainVolume.setValue(val_MainVolume.getValue());
-        getActiveStretchSource()->val_XFadeLen.setValue(val_XFadeLen.getValue());
+		getActiveStretchSource()->setMainVolume(val_MainVolume.getValue());
+        getActiveStretchSource()->setLoopXFadeLength(val_XFadeLen.getValue());
 		getActiveStretchSource()->setFreezing(m_freezing);
         getActiveStretchSource()->getNextAudioBlock(bufferToFill);
         
@@ -648,10 +662,10 @@ void MultiStretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & b
 		}
 		AudioSourceChannelInfo ascinfo1(m_processbuffers[0]);
 		AudioSourceChannelInfo ascinfo2(m_processbuffers[1]);
-		m_stretchsources[0]->val_MainVolume.setValue(val_MainVolume.getValue());
-		m_stretchsources[1]->val_MainVolume.setValue(val_MainVolume.getValue());
-        m_stretchsources[0]->val_XFadeLen.setValue(val_XFadeLen.getValue());
-        m_stretchsources[1]->val_XFadeLen.setValue(val_XFadeLen.getValue());
+		m_stretchsources[0]->setMainVolume(val_MainVolume.getValue());
+		m_stretchsources[1]->setMainVolume(val_MainVolume.getValue());
+        m_stretchsources[0]->setLoopXFadeLength(val_XFadeLen.getValue());
+        m_stretchsources[1]->setLoopXFadeLength(val_XFadeLen.getValue());
 		m_stretchsources[0]->setFreezing(m_freezing);
 		m_stretchsources[1]->setFreezing(m_freezing);
 		m_stretchsources[1]->setFFTWindowingType(m_stretchsources[0]->getFFTWindowingType());

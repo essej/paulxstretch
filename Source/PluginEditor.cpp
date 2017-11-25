@@ -79,7 +79,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	
 	for (int i = 0; i < m_parcomps.size(); ++i)
 	{
-		m_parcomps[i]->setBounds(1, 30 + i * 25, 598, 24);
+		m_parcomps[i]->setBounds(1, 30 + i * 25, getWidth()-2, 24);
 	}
 	int yoffs = m_parcomps.back()->getBottom() + 1;
 	m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);

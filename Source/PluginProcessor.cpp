@@ -12,8 +12,10 @@
 #include "PluginEditor.h"
 #include <set>
 
+#ifdef WIN32
 #undef min
 #undef max
+#endif
 
 std::set<PaulstretchpluginAudioProcessor*> g_activeprocessors;
 
@@ -92,6 +94,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f)); // 6
 	addParameter(new AudioParameterBool("freeze0", "Freeze", false)); // 7
 	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
+	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
+	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -145,7 +149,7 @@ bool PaulstretchpluginAudioProcessor::isMidiEffect() const
 
 double PaulstretchpluginAudioProcessor::getTailLengthSeconds() const
 {
-    return 0.0;
+    return (double)m_bufamounts[m_prebuffer_amount]/getSampleRate();
 }
 
 int PaulstretchpluginAudioProcessor::getNumPrograms()
@@ -306,14 +310,16 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	}
 	jassert(m_buffering_source != nullptr);
 	jassert(m_bufferingthread.isThreadRunning());
-	m_stretch_source->val_MainVolume = (float)*getFloatParameter(0);
+	m_stretch_source->setMainVolume(*getFloatParameter(0));
 	m_stretch_source->setRate(*getFloatParameter(1));
-	m_stretch_source->val_XFadeLen = 0.1;
+
 	setFFTSize(*getFloatParameter(2));
 	m_ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
 	m_ppar.freq_shift.Hz = *getFloatParameter(4);
 	m_ppar.spread.enabled = *getFloatParameter(8) > 0.0f;
 	m_ppar.spread.bandwidth = *getFloatParameter(8);
+	m_ppar.compressor.power = *getFloatParameter(9);
+	m_stretch_source->setLoopXFadeLength(*getFloatParameter(10));
 	double t0 = *getFloatParameter(5);
 	double t1 = *getFloatParameter(6);
 	if (t0 > t1)
