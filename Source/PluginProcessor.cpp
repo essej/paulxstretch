@@ -222,7 +222,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_ready_to_play == false)
 	{
-		setFFTSize(0.5);
+		setFFTSize(*getFloatParameter(2));
 		m_stretch_source->setProcessParameters(&m_ppar);
 		
 		String err;
