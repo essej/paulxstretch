@@ -131,6 +131,8 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 
 void StretchAudioSource::setMainVolume(double decibels)
 {
+	if (decibels == m_main_volume)
+		return;
 	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_main_volume = jlimit(-144.0, 12.0, decibels);
 	++m_param_change_count;
@@ -138,6 +140,8 @@ void StretchAudioSource::setMainVolume(double decibels)
 
 void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 {
+	if (lenseconds == m_loopxfadelen)
+		return;
 	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_loopxfadelen = jlimit(0.0, 1.0, lenseconds);
 	++m_param_change_count;
