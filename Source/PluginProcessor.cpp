@@ -84,6 +84,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_ppar.freq_shift.enabled = true;
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
+	m_stretch_source->setFFTWindowingType(1);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f)); // 0
 	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 
 		NormalisableRange<float>(0.1f, 128.0f, 0.01f, 0.5),1.0f)); // 1

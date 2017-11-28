@@ -563,6 +563,7 @@ void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 		m_inputfile->seek(m_playrange.getStart());
 	m_seekpos = m_playrange.getStart();
 	++m_param_change_count;
+
 }
 
 bool StretchAudioSource::isLoopEnabled()
