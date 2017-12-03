@@ -188,6 +188,109 @@ inline REALTYPE profile(REALTYPE fi, REALTYPE bwi) {
 
 };
 
+inline void spectrum_spread(int nfreq, double samplerate, 
+	std::vector<REALTYPE>& tmpfreq1,
+	REALTYPE *freq1, REALTYPE *freq2, REALTYPE spread_bandwidth) {
+	//convert to log spectrum
+	REALTYPE minfreq = 20.0f;
+	REALTYPE maxfreq = 0.5f*samplerate;
+
+	REALTYPE log_minfreq = log(minfreq);
+	REALTYPE log_maxfreq = log(maxfreq);
+
+	for (int i = 0; i<nfreq; i++) {
+		REALTYPE freqx = i / (REALTYPE)nfreq;
+		REALTYPE x = exp(log_minfreq + freqx * (log_maxfreq - log_minfreq)) / maxfreq * nfreq;
+		REALTYPE y = 0.0f;
+		int x0 = (int)floor(x); if (x0 >= nfreq) x0 = nfreq - 1;
+		int x1 = x0 + 1; if (x1 >= nfreq) x1 = nfreq - 1;
+		REALTYPE xp = x - x0;
+		if (x<nfreq) {
+			y = freq1[x0] * (1.0f - xp) + freq1[x1] * xp;
+		};
+		tmpfreq1[i] = y;
+	};
+
+	//increase the bandwidth of each harmonic (by smoothing the log spectrum)
+	int n = 2;
+	REALTYPE bandwidth = spread_bandwidth;
+	REALTYPE a = 1.0f - pow(2.0f, -bandwidth * bandwidth*10.0f);
+	a = pow(a, 8192.0f / nfreq * n);
+
+	for (int k = 0; k<n; k++) {
+		tmpfreq1[0] = 0.0f;
+		for (int i = 1; i<nfreq; i++) {
+			tmpfreq1[i] = tmpfreq1[i - 1] * a + tmpfreq1[i] * (1.0f - a);
+		};
+		tmpfreq1[nfreq - 1] = 0.0f;
+		for (int i = nfreq - 2; i>0; i--) {
+			tmpfreq1[i] = tmpfreq1[i + 1] * a + tmpfreq1[i] * (1.0f - a);
+		};
+	};
+
+	freq2[0] = 0;
+	REALTYPE log_maxfreq_d_minfreq = log(maxfreq / minfreq);
+	for (int i = 1; i<nfreq; i++) {
+		REALTYPE freqx = i / (REALTYPE)nfreq;
+		REALTYPE x = log((freqx*maxfreq) / minfreq) / log_maxfreq_d_minfreq * nfreq;
+		REALTYPE y = 0.0;
+		if ((x>0.0) && (x<nfreq)) {
+			int x0 = (int)floor(x); if (x0 >= nfreq) x0 = nfreq - 1;
+			int x1 = x0 + 1; if (x1 >= nfreq) x1 = nfreq - 1;
+			REALTYPE xp = x - x0;
+			y = tmpfreq1[x0] * (1.0f - xp) + tmpfreq1[x1] * xp;
+		};
+		freq2[i] = y;
+	};
+
+
+};
+
+
+inline void spectrum_do_compressor(ProcessParameters& pars, int nfreq, REALTYPE *freq1, REALTYPE *freq2) {
+	REALTYPE rms = 0.0;
+	for (int i = 0; i<nfreq; i++) rms += freq1[i] * freq1[i];
+	rms = sqrt(rms / nfreq)*0.1f;
+	if (rms<1e-3f) rms = 1e-3f;
+
+	REALTYPE _rap = pow(rms, -pars.compressor.power);
+	for (int i = 0; i<nfreq; i++) freq2[i] = freq1[i] * _rap;
+};
+
+inline void spectrum_do_tonal_vs_noise(ProcessParameters& pars, int nfreq, double samplerate,
+	std::vector<REALTYPE>& tmpfreq1,
+	REALTYPE *freq1, REALTYPE *freq2) {
+	spectrum_spread(nfreq, samplerate, tmpfreq1, freq1, tmpfreq1.data(), pars.tonal_vs_noise.bandwidth);
+
+	if (pars.tonal_vs_noise.preserve >= 0.0) {
+		REALTYPE mul = (pow(10.0f, pars.tonal_vs_noise.preserve) - 1.0f);
+		for (int i = 0; i<nfreq; i++) {
+			REALTYPE x = freq1[i];
+			REALTYPE smooth_x = tmpfreq1[i] + 1e-6f;
+
+			REALTYPE result = 0.0f;
+			result = x - smooth_x * mul;
+			if (result<0.0f) result = 0.0f;
+			freq2[i] = result;
+		};
+	}
+	else {
+		REALTYPE mul = (pow(5.0f, 1.0f + pars.tonal_vs_noise.preserve) - 1.0f);
+		for (int i = 0; i<nfreq; i++) {
+			REALTYPE x = freq1[i];
+			REALTYPE smooth_x = tmpfreq1[i] + 1e-6f;
+
+			REALTYPE result = 0.0f;
+			result = x - smooth_x * mul + 0.1f*mul;
+			if (result<0.0f) result = x;
+			else result = 0.0f;
+
+			freq2[i] = result;
+		};
+	};
+
+};
+
 inline void spectrum_do_harmonics(ProcessParameters& pars, std::vector<REALTYPE>& tmpfreq1, int nfreq, double samplerate, REALTYPE *freq1, REALTYPE *freq2) {
 	REALTYPE freq = pars.harmonics.freq;
 	REALTYPE bandwidth = pars.harmonics.bandwidth;
