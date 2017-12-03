@@ -56,7 +56,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
 	startTimer(2, 1000);
-	startTimer(3, 500);
+	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
 	
 }
@@ -446,48 +446,67 @@ SpectralVisualizer::SpectralVisualizer()
 
 void SpectralVisualizer::setState(ProcessParameters & pars, int nfreqs, double samplerate)
 {
-	m_img = Image(Image::RGB, getWidth(), getHeight(), true);
-	std::vector<REALTYPE> insamples(nfreqs*2);
-	std::vector<REALTYPE> freqs1(nfreqs*2);
-	std::vector<REALTYPE> freqs2(nfreqs*2);
-	std::vector<REALTYPE> freqs3(nfreqs*2);
+	double t0 = Time::getMillisecondCounterHiRes();
 	double hz = 440.0;
 	int numharmonics = 40;
 	double scaler = 1.0 / numharmonics;
-	for (int i = 0; i < nfreqs; ++i)
+	if (m_img.getWidth()!=getWidth() || m_img.getHeight()!=getHeight())
+		m_img = Image(Image::RGB, getWidth(), getHeight(), true);
+	if (m_nfreqs == 0 || nfreqs != m_nfreqs)
 	{
-		for (int j = 0; j < numharmonics; ++j)
+		m_nfreqs = nfreqs;
+		m_insamples = std::vector<REALTYPE>(nfreqs * 2);
+		m_freqs1 = std::vector<REALTYPE>(nfreqs);
+		m_freqs2 = std::vector<REALTYPE>(nfreqs);
+		m_freqs3 = std::vector<REALTYPE>(nfreqs);
+		m_fft = std::make_unique<FFT>(nfreqs*2);
+		std::fill(m_insamples.begin(), m_insamples.end(), 0.0f);
+		for (int i = 0; i < nfreqs; ++i)
 		{
-			double oscgain = 1.0 - (1.0 / numharmonics)*j;
-			insamples[i] += scaler * oscgain * sin(2 * 3.141592653 / samplerate * i* (hz+hz*j));
+			for (int j = 0; j < numharmonics; ++j)
+			{
+				double oscgain = 1.0 - (1.0 / numharmonics)*j;
+				m_insamples[i] += scaler * oscgain * sin(2 * 3.141592653 / samplerate * i* (hz + hz * j));
+			}
 		}
 	}
-	FFT fft(nfreqs*2);
+	
+	//std::fill(m_freqs1.begin(), m_freqs1.end(), 0.0f);
+	//std::fill(m_freqs2.begin(), m_freqs2.end(), 0.0f);
+	//std::fill(m_freqs3.begin(), m_freqs3.end(), 0.0f);
+	//std::fill(m_fft->freq.begin(), m_fft->freq.end(), 0.0f);
+	
+	
 	for (int i = 0; i < nfreqs; ++i)
 	{
-		fft.smp[i] = insamples[i];
+		m_fft->smp[i] = m_insamples[i];
 	}
-	fft.applywindow(W_HAMMING);
-	fft.smp2freq();
+	m_fft->applywindow(W_HAMMING);
+	m_fft->smp2freq();
 	double ratio = pow(2.0f, pars.pitch_shift.cents / 1200.0f);
-	spectrum_do_pitch_shift(pars, nfreqs, fft.freq.data(), freqs2.data(), ratio);
-	spectrum_do_freq_shift(pars, nfreqs, samplerate, freqs2.data(), freqs1.data());
-	spectrum_do_compressor(pars, nfreqs, freqs1.data(), freqs2.data());
-	spectrum_spread(nfreqs, samplerate, freqs3, freqs2.data(), freqs1.data(), pars.spread.bandwidth);
+	spectrum_do_pitch_shift(pars, nfreqs, m_fft->freq.data(), m_freqs2.data(), ratio);
+	spectrum_do_freq_shift(pars, nfreqs, samplerate, m_freqs2.data(), m_freqs1.data());
+	spectrum_do_compressor(pars, nfreqs, m_freqs1.data(), m_freqs2.data());
+	spectrum_spread(nfreqs, samplerate, m_freqs3, m_freqs2.data(), m_freqs1.data(), pars.spread.bandwidth);
 	Graphics g(m_img);
+	g.fillAll(Colours::black);
 	g.setColour(Colours::white);
 	for (int i = 0; i < nfreqs; ++i)
 	{
 		double binfreq = (samplerate / 2 / nfreqs)*i;
 		double xcor = jmap<double>(binfreq, 0.0, samplerate / 2.0, 0.0, getWidth());
-		double ycor = getHeight()- jmap<double>(freqs1[i], 0.0, nfreqs/64, 0.0, getHeight());
+		double ycor = getHeight()- jmap<double>(m_freqs1[i], 0.0, nfreqs/64, 0.0, getHeight());
 		ycor = jlimit<double>(0.0, getHeight(), ycor);
 		g.drawLine(xcor, getHeight(), xcor, ycor, 1.0);
 	}
+	double t1 = Time::getMillisecondCounterHiRes();
+	m_elapsed = t1 - t0;
 	repaint();
 }
 
 void SpectralVisualizer::paint(Graphics & g)
 {
 	g.drawImage(m_img, 0, 0, getWidth(), getHeight(), 0, 0, m_img.getWidth(), m_img.getHeight());
+	g.setColour(Colours::yellow);
+	g.drawText(String(m_elapsed, 1)+" ms", 1, 1, getWidth(), 30, Justification::topLeft);
 }

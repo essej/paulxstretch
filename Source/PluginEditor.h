@@ -24,6 +24,10 @@ public:
 	
 private:
 	Image m_img;
+	std::vector<REALTYPE> m_insamples,m_freqs1, m_freqs2, m_freqs3;
+	std::unique_ptr<FFT> m_fft;
+	int m_nfreqs = 0;
+	double m_elapsed = 0.0;
 };
 
 inline void attachCallback(Button& button, std::function<void()> callback)
