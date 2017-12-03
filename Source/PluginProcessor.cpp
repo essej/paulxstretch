@@ -97,6 +97,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
 	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
 	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
+	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics", 0.0f, 100.0f, 0.0f)); // 11
+	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 1.0f, 5000.0f, 100.0f)); // 12
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -320,6 +322,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_ppar.spread.enabled = *getFloatParameter(8) > 0.0f;
 	m_ppar.spread.bandwidth = *getFloatParameter(8);
 	m_ppar.compressor.power = *getFloatParameter(9);
+	m_ppar.harmonics.enabled = *getFloatParameter(11)>=1.0;
+	m_ppar.harmonics.nharmonics = *getFloatParameter(11);
+	m_ppar.harmonics.freq = *getFloatParameter(12);
 	m_stretch_source->setLoopXFadeLength(*getFloatParameter(10));
 	double t0 = *getFloatParameter(5);
 	double t1 = *getFloatParameter(6);

@@ -192,7 +192,7 @@ class Stretch
 
 		virtual void process_spectrum(REALTYPE *){};
 		virtual REALTYPE get_stretch_multiplier(REALTYPE pos_percents);
-		REALTYPE samplerate;
+		REALTYPE samplerate=0.0f;
 		
 	private:
 

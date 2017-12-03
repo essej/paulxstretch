@@ -188,6 +188,12 @@ inline REALTYPE profile(REALTYPE fi, REALTYPE bwi) {
 
 };
 
+inline void spectrum_copy(int nfreq, REALTYPE* freq1, REALTYPE* freq2)
+{
+	for (int i = 0; i<nfreq; i++) freq2[i] = freq1[i];
+};
+
+
 inline void spectrum_spread(int nfreq, double samplerate, 
 	std::vector<REALTYPE>& tmpfreq1,
 	REALTYPE *freq1, REALTYPE *freq2, REALTYPE spread_bandwidth) {

@@ -488,6 +488,9 @@ void SpectralVisualizer::setState(const ProcessParameters & pars, int nfreqs, do
 	spectrum_do_freq_shift(pars, nfreqs, samplerate, m_freqs2.data(), m_freqs1.data());
 	spectrum_do_compressor(pars, nfreqs, m_freqs1.data(), m_freqs2.data());
 	spectrum_spread(nfreqs, samplerate, m_freqs3, m_freqs2.data(), m_freqs1.data(), pars.spread.bandwidth);
+	if (pars.harmonics.enabled)
+		spectrum_do_harmonics(pars, m_freqs3, nfreqs, samplerate, m_freqs1.data(), m_freqs2.data());
+	else spectrum_copy(nfreqs, m_freqs1.data(), m_freqs2.data());
 	Graphics g(m_img);
 	g.fillAll(Colours::black);
 	g.setColour(Colours::white);
@@ -495,7 +498,7 @@ void SpectralVisualizer::setState(const ProcessParameters & pars, int nfreqs, do
 	{
 		double binfreq = (samplerate / 2 / nfreqs)*i;
 		double xcor = jmap<double>(binfreq, 0.0, samplerate / 2.0, 0.0, getWidth());
-		double ycor = getHeight()- jmap<double>(m_freqs1[i], 0.0, nfreqs/64, 0.0, getHeight());
+		double ycor = getHeight()- jmap<double>(m_freqs2[i], 0.0, nfreqs/128, 0.0, getHeight());
 		ycor = jlimit<double>(0.0, getHeight(), ycor);
 		g.drawLine(xcor, getHeight(), xcor, ycor, 1.0);
 	}

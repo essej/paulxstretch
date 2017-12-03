@@ -104,9 +104,9 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 {
 	for (auto& e : m_spectrum_processes)
     {
-		copy(freq, infreq.data());
+		spectrum_copy(nfreq, freq, infreq.data());
 		if (e == 0 && pars.harmonics.enabled)
-			do_harmonics(infreq.data(), freq);
+			spectrum_do_harmonics(pars, tmpfreq1, nfreq, samplerate, infreq.data(), freq);
 		if (e == 1 && pars.tonal_vs_noise.enabled)
 			do_tonal_vs_noise(infreq.data(), freq);
 		if (e == 2 && pars.freq_shift.enabled)
