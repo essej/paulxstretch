@@ -444,7 +444,7 @@ SpectralVisualizer::SpectralVisualizer()
 	m_img = Image(Image::RGB, 500, 200, true);
 }
 
-void SpectralVisualizer::setState(ProcessParameters & pars, int nfreqs, double samplerate)
+void SpectralVisualizer::setState(const ProcessParameters & pars, int nfreqs, double samplerate)
 {
 	double t0 = Time::getMillisecondCounterHiRes();
 	double hz = 440.0;

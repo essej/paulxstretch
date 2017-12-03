@@ -59,7 +59,7 @@ public:
 	void setRate(double rate);
 	double getRate() { return m_playrate; }
 	void setProcessParameters(ProcessParameters* pars);
-	ProcessParameters getProcessParameters();
+	const ProcessParameters& getProcessParameters();
 	void setFFTSize(int size);
 	int getFFTSize() { return m_process_fftsize; }
 	

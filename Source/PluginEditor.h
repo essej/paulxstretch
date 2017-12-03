@@ -19,7 +19,7 @@ class SpectralVisualizer : public Component
 {
 public:
 	SpectralVisualizer();
-	void setState(ProcessParameters& pars, int nfreqs, double samplerate);
+	void setState(const ProcessParameters& pars, int nfreqs, double samplerate);
 	void paint(Graphics& g) override;
 	
 private:

@@ -476,7 +476,7 @@ void StretchAudioSource::setProcessParameters(ProcessParameters * pars)
 	++m_param_change_count;
 }
 
-ProcessParameters StretchAudioSource::getProcessParameters()
+const ProcessParameters& StretchAudioSource::getProcessParameters()
 {
 	return m_ppar;
 }
