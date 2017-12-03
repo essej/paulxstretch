@@ -42,7 +42,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	addAndMakeVisible(&m_rec_enable);
 	m_rec_enable.setButtonText("Capture");
 	attachCallback(m_rec_enable, [this]() { processor.setRecordingEnabled(m_rec_enable.getToggleState()); });
-
+	addAndMakeVisible(&m_specvis);
 	setSize (700, 30+pars.size()*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
@@ -56,6 +56,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
 	startTimer(2, 1000);
+	startTimer(3, 500);
 	m_wavecomponent.startTimer(100);
 	
 }
@@ -82,7 +83,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 		m_parcomps[i]->setBounds(1, 30 + i * 25, getWidth()-2, 24);
 	}
 	int yoffs = m_parcomps.back()->getBottom() + 1;
-	m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
+	//m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
+	m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
@@ -108,6 +110,12 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setAudioFile(processor.getAudioFile());
 		}
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
+		
+	}
+	if (id == 3)
+	{
+		m_specvis.setState(processor.getStretchSource()->getProcessParameters(), processor.getStretchSource()->getFFTSize() / 2,
+			processor.getSampleRate());
 	}
 }
 
@@ -431,3 +439,55 @@ int WaveformComponent::getTimeSelectionEdge(int x, int y)
 	return 0;
 }
 
+SpectralVisualizer::SpectralVisualizer()
+{
+	m_img = Image(Image::RGB, 500, 200, true);
+}
+
+void SpectralVisualizer::setState(ProcessParameters & pars, int nfreqs, double samplerate)
+{
+	m_img = Image(Image::RGB, getWidth(), getHeight(), true);
+	std::vector<REALTYPE> insamples(nfreqs*2);
+	std::vector<REALTYPE> freqs1(nfreqs*2);
+	std::vector<REALTYPE> freqs2(nfreqs*2);
+	std::vector<REALTYPE> freqs3(nfreqs*2);
+	double hz = 440.0;
+	int numharmonics = 40;
+	double scaler = 1.0 / numharmonics;
+	for (int i = 0; i < nfreqs; ++i)
+	{
+		for (int j = 0; j < numharmonics; ++j)
+		{
+			double oscgain = 1.0 - (1.0 / numharmonics)*j;
+			insamples[i] += scaler * oscgain * sin(2 * 3.141592653 / samplerate * i* (hz+hz*j));
+		}
+	}
+	FFT fft(nfreqs*2);
+	for (int i = 0; i < nfreqs; ++i)
+	{
+		fft.smp[i] = insamples[i];
+	}
+	fft.applywindow(W_HAMMING);
+	fft.smp2freq();
+	double ratio = pow(2.0f, pars.pitch_shift.cents / 1200.0f);
+	spectrum_do_pitch_shift(pars, nfreqs, fft.freq.data(), freqs2.data(), ratio);
+	spectrum_do_freq_shift(pars, nfreqs, samplerate, freqs2.data(), freqs1.data());
+	spectrum_do_compressor(pars, nfreqs, freqs1.data(), freqs2.data());
+	spectrum_spread(nfreqs, samplerate, freqs3, freqs2.data(), freqs1.data(), pars.spread.bandwidth);
+	Graphics g(m_img);
+	g.setColour(Colours::white);
+	for (int i = 0; i < nfreqs; ++i)
+	{
+		double binfreq = (samplerate / 2 / nfreqs)*i;
+		double xcor = jmap<double>(binfreq, 0.0, samplerate / 2.0, 0.0, getWidth());
+		double ycor = getHeight()- jmap<double>(freqs1[i], 0.0, nfreqs/64, 0.0, getHeight());
+		ycor = jlimit<double>(0.0, getHeight(), ycor);
+		g.drawLine(xcor, getHeight(), xcor, ycor, 1.0);
+	}
+	repaint();
+}
+
+void SpectralVisualizer::paint(Graphics & g)
+{
+	g.drawImage(m_img, 0, 0, getWidth(), getHeight(), 0, 0, m_img.getWidth(), m_img.getHeight());
+}

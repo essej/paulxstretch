@@ -15,6 +15,17 @@
 #include <memory>
 #include <vector>
 
+class SpectralVisualizer : public Component
+{
+public:
+	SpectralVisualizer();
+	void setState(ProcessParameters& pars, int nfreqs, double samplerate);
+	void paint(Graphics& g) override;
+	
+private:
+	Image m_img;
+};
+
 inline void attachCallback(Button& button, std::function<void()> callback)
 {
 	struct ButtonCallback : public Button::Listener,
@@ -240,6 +251,7 @@ public:
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
+	SpectralVisualizer m_specvis;
 	ToggleButton m_rec_enable;
 	TextButton m_import_button;
 	Label m_info_label;
