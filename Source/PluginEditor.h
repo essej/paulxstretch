@@ -15,6 +15,21 @@
 #include <memory>
 #include <vector>
 
+class SpectralVisualizer : public Component
+{
+public:
+	SpectralVisualizer();
+	void setState(const ProcessParameters& pars, int nfreqs, double samplerate);
+	void paint(Graphics& g) override;
+	
+private:
+	Image m_img;
+	std::vector<REALTYPE> m_insamples,m_freqs1, m_freqs2, m_freqs3;
+	std::unique_ptr<FFT> m_fft;
+	int m_nfreqs = 0;
+	double m_elapsed = 0.0;
+};
+
 inline void attachCallback(Button& button, std::function<void()> callback)
 {
 	struct ButtonCallback : public Button::Listener,
@@ -240,6 +255,7 @@ public:
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
+	SpectralVisualizer m_specvis;
 	ToggleButton m_rec_enable;
 	TextButton m_import_button;
 	Label m_info_label;

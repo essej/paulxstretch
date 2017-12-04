@@ -122,7 +122,7 @@ enum FFTWindow{W_RECTANGULAR,W_HAMMING,W_HANN,W_BLACKMAN,W_BLACKMAN_HARRIS};
 class FFT
 {//FFT class that considers phases as random
 	public:
-		FFT(int nsamples_);//samples must be even
+		FFT(int nsamples_, bool no_inverse=false);//samples must be even
 		~FFT();
 		void smp2freq();//input is smp, output is freq (phases are discarded)
 		void freq2smp();//input is freq,output is smp (phases are random)
@@ -192,7 +192,7 @@ class Stretch
 
 		virtual void process_spectrum(REALTYPE *){};
 		virtual REALTYPE get_stretch_multiplier(REALTYPE pos_percents);
-		REALTYPE samplerate;
+		REALTYPE samplerate=0.0f;
 		
 	private:
 

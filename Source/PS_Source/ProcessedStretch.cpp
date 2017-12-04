@@ -104,9 +104,9 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 {
 	for (auto& e : m_spectrum_processes)
     {
-		copy(freq, infreq.data());
+		spectrum_copy(nfreq, freq, infreq.data());
 		if (e == 0 && pars.harmonics.enabled)
-			do_harmonics(infreq.data(), freq);
+			spectrum_do_harmonics(pars, tmpfreq1, nfreq, samplerate, infreq.data(), freq);
 		if (e == 1 && pars.tonal_vs_noise.enabled)
 			do_tonal_vs_noise(infreq.data(), freq);
 		if (e == 2 && pars.freq_shift.enabled)
@@ -173,15 +173,6 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 
 //void ProcessedStretch::process_output(REALTYPE *smps,int nsmps){
 //};
-
-
-REALTYPE profile(REALTYPE fi, REALTYPE bwi){
-	REALTYPE x=fi/bwi;
-	x*=x;
-	if (x>14.71280603) return 0.0;
-	return exp(-x);///bwi;
-
-};
 
 void ProcessedStretch::do_harmonics(REALTYPE *freq1,REALTYPE *freq2){
 	REALTYPE freq=pars.harmonics.freq;

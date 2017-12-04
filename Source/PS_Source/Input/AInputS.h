@@ -74,7 +74,9 @@ public:
 			std::lock_guard<std::mutex> locker(m_mutex);
             m_using_memory_buffer = false;
 			m_afreader = std::unique_ptr<AudioFormatReader>(reader);
-            m_currentsample = 0;
+			if (m_activerange.isEmpty())
+				m_activerange = { 0.0,1.0 };
+			m_currentsample = m_activerange.getStart()*info.nsamples;
             info.samplerate = (int)m_afreader->sampleRate;
             info.nchannels = m_afreader->numChannels;
             info.nsamples = m_afreader->lengthInSamples;
@@ -83,6 +85,7 @@ public:
 				m_readbuf.setSize(info.nchannels, m_readbuf.getNumSamples());
 				m_crossfadebuf.setSize(info.nchannels, m_crossfadebuf.getNumSamples());
 			}
+			updateXFadeCache();
 			m_readbuf.clear();
             return true;
         }

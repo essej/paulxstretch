@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-FFT::FFT(int nsamples_)
+FFT::FFT(int nsamples_, bool no_inverse)
 {
     nsamples=nsamples_;
 	if (nsamples%2!=0) {
@@ -43,13 +43,15 @@ FFT::FFT(int nsamples_)
     {
         //fftwf_plan_with_nthreads(2);
         planfftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_R2HC,FFTW_MEASURE);
-        planifftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_HC2R,FFTW_MEASURE);
+        if (no_inverse == false)
+			planifftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_HC2R,FFTW_MEASURE);
     } else
     {
         //fftwf_plan_with_nthreads(2);
         planfftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_R2HC,FFTW_ESTIMATE);
         //fftwf_plan_with_nthreads(2);
-        planifftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_HC2R,FFTW_ESTIMATE);
+        if (no_inverse == false)
+			planifftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_HC2R,FFTW_ESTIMATE);
     }
     //double t1 = Time::getMillisecondCounterHiRes();
     //Logger::writeToLog("Creating FFTW3 plans took "+String(t1-t0)+ "ms");
@@ -64,7 +66,8 @@ FFT::FFT(int nsamples_)
 FFT::~FFT()
 {
 	fftwf_destroy_plan(planfftw);
-	fftwf_destroy_plan(planifftw);
+	if (planifftw!=nullptr)
+		fftwf_destroy_plan(planifftw);
 };
 
 void FFT::smp2freq()

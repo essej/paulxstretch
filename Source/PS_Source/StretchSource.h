@@ -59,7 +59,7 @@ public:
 	void setRate(double rate);
 	double getRate() { return m_playrate; }
 	void setProcessParameters(ProcessParameters* pars);
-	ProcessParameters getProcessParameters();
+	const ProcessParameters& getProcessParameters();
 	void setFFTSize(int size);
 	int getFFTSize() { return m_process_fftsize; }
 	
@@ -82,8 +82,7 @@ public:
 	void setFFTWindowingType(int windowtype);
     int getFFTWindowingType() { return m_fft_window_type; }
     std::pair<Range<double>,Range<double>> getFileCachedRangesNormalized();
-	Value val_MainVolume;
-    Value val_XFadeLen;
+	
 	ValueTree getStateTree();
 	void setStateTree(ValueTree state);
 	void setClippingEnabled(bool b) { m_clip_output = b; }
@@ -91,6 +90,10 @@ public:
 	void setLoopingEnabled(bool b);
 	void setMaxLoops(int64_t numloops) { m_maxloops = numloops; }
 	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
+	void setMainVolume(double decibels);
+	double getMainVolume() const { return m_main_volume; }
+	void setLoopXFadeLength(double lenseconds);
+	double getLoopXFadeLengtj() const { return m_loopxfadelen; }
 	int m_param_change_count = 0;
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
@@ -107,6 +110,8 @@ private:
 	double m_outsr = 44100.0;
 	int m_process_fftsize = 0;
     int m_fft_window_type = -1;
+	double m_main_volume = 0.0;
+	double m_loopxfadelen = 0.0;
 	ProcessParameters m_ppar;
 	BinauralBeatsParameters	m_bbpar;
 	double m_playrate = 1.0;

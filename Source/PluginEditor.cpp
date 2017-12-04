@@ -42,7 +42,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	addAndMakeVisible(&m_rec_enable);
 	m_rec_enable.setButtonText("Capture");
 	attachCallback(m_rec_enable, [this]() { processor.setRecordingEnabled(m_rec_enable.getToggleState()); });
-
+	addAndMakeVisible(&m_specvis);
 	setSize (700, 30+pars.size()*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
@@ -56,6 +56,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	m_wavecomponent.ShowFileCacheRange = true;
 	startTimer(1, 100);
 	startTimer(2, 1000);
+	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
 	
 }
@@ -79,10 +80,11 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	
 	for (int i = 0; i < m_parcomps.size(); ++i)
 	{
-		m_parcomps[i]->setBounds(1, 30 + i * 25, 598, 24);
+		m_parcomps[i]->setBounds(1, 30 + i * 25, getWidth()-2, 24);
 	}
 	int yoffs = m_parcomps.back()->getBottom() + 1;
-	m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
+	//m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
+	m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
@@ -108,6 +110,12 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setAudioFile(processor.getAudioFile());
 		}
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
+		
+	}
+	if (id == 3)
+	{
+		m_specvis.setState(processor.getStretchSource()->getProcessParameters(), processor.getStretchSource()->getFFTSize() / 2,
+			processor.getSampleRate());
 	}
 }
 
@@ -431,3 +439,77 @@ int WaveformComponent::getTimeSelectionEdge(int x, int y)
 	return 0;
 }
 
+SpectralVisualizer::SpectralVisualizer()
+{
+	m_img = Image(Image::RGB, 500, 200, true);
+}
+
+void SpectralVisualizer::setState(const ProcessParameters & pars, int nfreqs, double samplerate)
+{
+	double t0 = Time::getMillisecondCounterHiRes();
+	double hz = 440.0;
+	int numharmonics = 40;
+	double scaler = 1.0 / numharmonics;
+	if (m_img.getWidth()!=getWidth() || m_img.getHeight()!=getHeight())
+		m_img = Image(Image::RGB, getWidth(), getHeight(), true);
+	if (m_nfreqs == 0 || nfreqs != m_nfreqs)
+	{
+		m_nfreqs = nfreqs;
+		m_insamples = std::vector<REALTYPE>(nfreqs * 2);
+		m_freqs1 = std::vector<REALTYPE>(nfreqs);
+		m_freqs2 = std::vector<REALTYPE>(nfreqs);
+		m_freqs3 = std::vector<REALTYPE>(nfreqs);
+		m_fft = std::make_unique<FFT>(nfreqs*2);
+		std::fill(m_insamples.begin(), m_insamples.end(), 0.0f);
+		for (int i = 0; i < nfreqs; ++i)
+		{
+			for (int j = 0; j < numharmonics; ++j)
+			{
+				double oscgain = 1.0 - (1.0 / numharmonics)*j;
+				m_insamples[i] += scaler * oscgain * sin(2 * 3.141592653 / samplerate * i* (hz + hz * j));
+			}
+		}
+	}
+	
+	//std::fill(m_freqs1.begin(), m_freqs1.end(), 0.0f);
+	//std::fill(m_freqs2.begin(), m_freqs2.end(), 0.0f);
+	//std::fill(m_freqs3.begin(), m_freqs3.end(), 0.0f);
+	//std::fill(m_fft->freq.begin(), m_fft->freq.end(), 0.0f);
+	
+	
+	for (int i = 0; i < nfreqs; ++i)
+	{
+		m_fft->smp[i] = m_insamples[i];
+	}
+	m_fft->applywindow(W_HAMMING);
+	m_fft->smp2freq();
+	double ratio = pow(2.0f, pars.pitch_shift.cents / 1200.0f);
+	spectrum_do_pitch_shift(pars, nfreqs, m_fft->freq.data(), m_freqs2.data(), ratio);
+	spectrum_do_freq_shift(pars, nfreqs, samplerate, m_freqs2.data(), m_freqs1.data());
+	spectrum_do_compressor(pars, nfreqs, m_freqs1.data(), m_freqs2.data());
+	spectrum_spread(nfreqs, samplerate, m_freqs3, m_freqs2.data(), m_freqs1.data(), pars.spread.bandwidth);
+	if (pars.harmonics.enabled)
+		spectrum_do_harmonics(pars, m_freqs3, nfreqs, samplerate, m_freqs1.data(), m_freqs2.data());
+	else spectrum_copy(nfreqs, m_freqs1.data(), m_freqs2.data());
+	Graphics g(m_img);
+	g.fillAll(Colours::black);
+	g.setColour(Colours::white);
+	for (int i = 0; i < nfreqs; ++i)
+	{
+		double binfreq = (samplerate / 2 / nfreqs)*i;
+		double xcor = jmap<double>(binfreq, 0.0, samplerate / 2.0, 0.0, getWidth());
+		double ycor = getHeight()- jmap<double>(m_freqs2[i], 0.0, nfreqs/128, 0.0, getHeight());
+		ycor = jlimit<double>(0.0, getHeight(), ycor);
+		g.drawLine(xcor, getHeight(), xcor, ycor, 1.0);
+	}
+	double t1 = Time::getMillisecondCounterHiRes();
+	m_elapsed = t1 - t0;
+	repaint();
+}
+
+void SpectralVisualizer::paint(Graphics & g)
+{
+	g.drawImage(m_img, 0, 0, getWidth(), getHeight(), 0, 0, m_img.getWidth(), m_img.getHeight());
+	g.setColour(Colours::yellow);
+	g.drawText(String(m_elapsed, 1)+" ms", 1, 1, getWidth(), 30, Justification::topLeft);
+}
