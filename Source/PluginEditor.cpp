@@ -475,8 +475,6 @@ void SpectralVisualizer::setState(const ProcessParameters & pars, int nfreqs, do
 	//std::fill(m_freqs2.begin(), m_freqs2.end(), 0.0f);
 	//std::fill(m_freqs3.begin(), m_freqs3.end(), 0.0f);
 	//std::fill(m_fft->freq.begin(), m_fft->freq.end(), 0.0f);
-	
-	
 	for (int i = 0; i < nfreqs; ++i)
 	{
 		m_fft->smp[i] = m_insamples[i];
