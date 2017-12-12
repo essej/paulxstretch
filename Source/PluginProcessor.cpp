@@ -327,23 +327,30 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setRate(*getFloatParameter(1));
 
 	setFFTSize(*getFloatParameter(2));
-	m_ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
-	m_ppar.freq_shift.Hz = *getFloatParameter(4);
-	m_ppar.spread.enabled = *getFloatParameter(8) > 0.0f;
-	m_ppar.spread.bandwidth = *getFloatParameter(8);
-	m_ppar.compressor.power = *getFloatParameter(9);
-	m_ppar.harmonics.enabled = *getFloatParameter(11)>=1.0;
-	m_ppar.harmonics.nharmonics = *getFloatParameter(11);
-	m_ppar.harmonics.freq = *getFloatParameter(12);
-	m_stretch_source->setLoopXFadeLength(*getFloatParameter(10));
-	double t0 = *getFloatParameter(5);
-	double t1 = *getFloatParameter(6);
+	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
+	m_ppar.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
+	m_ppar.spread.enabled = *getFloatParameter(cpi_spreadamount) > 0.0f;
+	m_ppar.spread.bandwidth = *getFloatParameter(cpi_spreadamount);
+	m_ppar.compressor.power = *getFloatParameter(cpi_compress);
+	m_ppar.harmonics.enabled = *getFloatParameter(cpi_numharmonics)>=1.0;
+	m_ppar.harmonics.nharmonics = *getFloatParameter(cpi_numharmonics);
+	m_ppar.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
+	m_ppar.octave.om2 = *getFloatParameter(cpi_octavesm2);
+	m_ppar.octave.om1 = *getFloatParameter(cpi_octavesm1);
+	m_ppar.octave.o0 = *getFloatParameter(cpi_octaves0);
+	m_ppar.octave.o1 = *getFloatParameter(cpi_octaves1);
+	m_ppar.octave.o15 = *getFloatParameter(cpi_octaves15);
+	m_ppar.octave.o2 = *getFloatParameter(cpi_octaves2);
+	m_ppar.octave.enabled = true;
+	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
+	double t0 = *getFloatParameter(cpi_soundstart);
+	double t1 = *getFloatParameter(cpi_soundend);
 	if (t0 > t1)
 		std::swap(t0, t1);
 	if (t1 - t0 < 0.001)
 		t1 = t0 + 0.001;
 	m_stretch_source->setPlayRange({ t0,t1 }, true);
-	m_stretch_source->setFreezing(getParameter(7));
+	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setProcessParameters(&m_ppar);
 	
 	AudioSourceChannelInfo aif(buffer);
