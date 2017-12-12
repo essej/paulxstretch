@@ -104,7 +104,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
 	addParameter(new AudioParameterFloat("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f)); // 15
 	addParameter(new AudioParameterFloat("octavemixm1_0", "Octave down level", 0.0f, 1.0f, 0.0f)); // 16
-	addParameter(new AudioParameterFloat("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 0.0f)); // 17
+	addParameter(new AudioParameterFloat("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 1.0f)); // 17
 	addParameter(new AudioParameterFloat("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f)); // 18
 	addParameter(new AudioParameterFloat("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f)); // 19
 	addParameter(new AudioParameterFloat("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f)); // 20
@@ -326,7 +326,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setMainVolume(*getFloatParameter(0));
 	m_stretch_source->setRate(*getFloatParameter(1));
 
-	setFFTSize(*getFloatParameter(2));
+	setFFTSize(*getFloatParameter(cpi_fftsize));
 	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
 	m_ppar.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
 	m_ppar.spread.enabled = *getFloatParameter(cpi_spreadamount) > 0.0f;
