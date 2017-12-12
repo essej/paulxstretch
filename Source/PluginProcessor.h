@@ -15,6 +15,31 @@
 
 class MyThumbCache;
 
+const int cpi_main_volume = 0;
+const int cpi_stretchamount = 1;
+const int cpi_fftsize = 2;
+const int cpi_pitchshift = 3;
+const int cpi_frequencyshift = 4;
+const int cpi_soundstart = 5;
+const int cpi_soundend = 6;
+const int cpi_freeze = 7;
+const int cpi_spreadamount = 8;
+const int cpi_compress = 9;
+const int cpi_loopxfadelen = 10;
+const int cpi_numharmonics = 11;
+const int cpi_harmonicsfreq = 12;
+const int cpi_harmonicsbw = 13;
+const int cpi_harmonicsgauss = 14;
+const int cpi_octavesm2 = 15;
+const int cpi_octavesm1 = 16;
+const int cpi_octaves0 = 17;
+const int cpi_octaves1 = 18;
+const int cpi_octaves15 = 19;
+const int cpi_octaves2 = 20;
+const int cpi_tonalvsnoisebw = 21;
+const int cpi_tonalvsnoisepreserve = 22;
+const int cpi_filter_low = 23;
+const int cpi_filter_high = 24;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor
 {
@@ -79,7 +104,7 @@ private:
 	void finishRecording(int lenrecorded);
 	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;
-	std::mutex m_mutex;
+	CriticalSection m_cs;
 	File m_current_file;
     
 

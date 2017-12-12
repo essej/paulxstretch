@@ -98,7 +98,17 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
 	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
 	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics", 0.0f, 100.0f, 0.0f)); // 11
-	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 1.0f, 5000.0f, 100.0f)); // 12
+	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 
+		NormalisableRange<float>(1.0f, 5000.0f, 1.00f, 0.5), 128.0f)); // 12
+	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
+	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
+	addParameter(new AudioParameterFloat("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f)); // 15
+	addParameter(new AudioParameterFloat("octavemixm1_0", "Octave down level", 0.0f, 1.0f, 0.0f)); // 16
+	addParameter(new AudioParameterFloat("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 1.0f)); // 17
+	addParameter(new AudioParameterFloat("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f)); // 18
+	addParameter(new AudioParameterFloat("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f)); // 19
+	addParameter(new AudioParameterFloat("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f)); // 20
+
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -216,7 +226,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedLock locker(m_cs);
 	if (getNumOutputChannels() != m_cur_num_out_chans)
 		m_ready_to_play = false;
 	if (m_using_memory_buffer == true)
@@ -291,7 +301,7 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedLock locker(m_cs);
 	ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
@@ -316,24 +326,31 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setMainVolume(*getFloatParameter(0));
 	m_stretch_source->setRate(*getFloatParameter(1));
 
-	setFFTSize(*getFloatParameter(2));
-	m_ppar.pitch_shift.cents = *getFloatParameter(3) * 100.0;
-	m_ppar.freq_shift.Hz = *getFloatParameter(4);
-	m_ppar.spread.enabled = *getFloatParameter(8) > 0.0f;
-	m_ppar.spread.bandwidth = *getFloatParameter(8);
-	m_ppar.compressor.power = *getFloatParameter(9);
-	m_ppar.harmonics.enabled = *getFloatParameter(11)>=1.0;
-	m_ppar.harmonics.nharmonics = *getFloatParameter(11);
-	m_ppar.harmonics.freq = *getFloatParameter(12);
-	m_stretch_source->setLoopXFadeLength(*getFloatParameter(10));
-	double t0 = *getFloatParameter(5);
-	double t1 = *getFloatParameter(6);
+	setFFTSize(*getFloatParameter(cpi_fftsize));
+	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
+	m_ppar.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
+	m_ppar.spread.enabled = *getFloatParameter(cpi_spreadamount) > 0.0f;
+	m_ppar.spread.bandwidth = *getFloatParameter(cpi_spreadamount);
+	m_ppar.compressor.power = *getFloatParameter(cpi_compress);
+	m_ppar.harmonics.enabled = *getFloatParameter(cpi_numharmonics)>=1.0;
+	m_ppar.harmonics.nharmonics = *getFloatParameter(cpi_numharmonics);
+	m_ppar.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
+	m_ppar.octave.om2 = *getFloatParameter(cpi_octavesm2);
+	m_ppar.octave.om1 = *getFloatParameter(cpi_octavesm1);
+	m_ppar.octave.o0 = *getFloatParameter(cpi_octaves0);
+	m_ppar.octave.o1 = *getFloatParameter(cpi_octaves1);
+	m_ppar.octave.o15 = *getFloatParameter(cpi_octaves15);
+	m_ppar.octave.o2 = *getFloatParameter(cpi_octaves2);
+	m_ppar.octave.enabled = true;
+	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
+	double t0 = *getFloatParameter(cpi_soundstart);
+	double t1 = *getFloatParameter(cpi_soundend);
 	if (t0 > t1)
 		std::swap(t0, t1);
 	if (t1 - t0 < 0.001)
 		t1 = t0 + 0.001;
 	m_stretch_source->setPlayRange({ t0,t1 }, true);
-	m_stretch_source->setFreezing(getParameter(7));
+	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setProcessParameters(&m_ppar);
 	
 	AudioSourceChannelInfo aif(buffer);
@@ -377,7 +394,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 	if (tree.isValid())
 	{
 		{
-			std::lock_guard<std::mutex> locker(m_mutex);
+			ScopedLock locker(m_cs);
 			for (int i = 0; i < getNumParameters(); ++i)
 			{
 				auto par = getFloatParameter(i);
@@ -399,7 +416,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedLock locker(m_cs);
 	int lenbufframes = getSampleRate()*m_max_reclen;
 	if (b == true)
 	{
@@ -445,7 +462,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 			//MessageManager::callAsync([cb, file]() { cb("Too high bit depth in file " + file.getFullPathName()); });
 			return "Too high bit depth in file " + f.getFullPathName();
 		}
-		std::lock_guard<std::mutex> locker(m_mutex);
+		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
 		m_current_file = f;
 		m_using_memory_buffer = false;

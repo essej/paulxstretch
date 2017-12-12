@@ -42,8 +42,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	addAndMakeVisible(&m_rec_enable);
 	m_rec_enable.setButtonText("Capture");
 	attachCallback(m_rec_enable, [this]() { processor.setRecordingEnabled(m_rec_enable.getToggleState()); });
-	addAndMakeVisible(&m_specvis);
-	setSize (700, 30+pars.size()*25+200);
+	//addAndMakeVisible(&m_specvis);
+	setSize (1000, 30+(pars.size()/2)*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
 		*processor.getFloatParameter(5) = range.getStart();
@@ -80,11 +80,13 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	
 	for (int i = 0; i < m_parcomps.size(); ++i)
 	{
-		m_parcomps[i]->setBounds(1, 30 + i * 25, getWidth()-2, 24);
+		int gridx = i % 2;
+		int gridy = i / 2;
+		m_parcomps[i]->setBounds(1+gridx*(getWidth()/2), 30 + gridy * 25, getWidth()/2-2, 24);
 	}
 	int yoffs = m_parcomps.back()->getBottom() + 1;
-	//m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
-	m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
+	m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
+	//m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
@@ -114,8 +116,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	}
 	if (id == 3)
 	{
-		m_specvis.setState(processor.getStretchSource()->getProcessParameters(), processor.getStretchSource()->getFFTSize() / 2,
-			processor.getSampleRate());
+		//m_specvis.setState(processor.getStretchSource()->getProcessParameters(), processor.getStretchSource()->getFFTSize() / 2,
+		//	processor.getSampleRate());
 	}
 }
 

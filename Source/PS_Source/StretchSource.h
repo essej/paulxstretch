@@ -128,7 +128,7 @@ private:
 	int64_t m_maxloops = 0;
 	std::unique_ptr<WDL_Resampler> m_resampler;
 	std::vector<double> m_resampler_outbuf;
-	std::recursive_mutex m_mutex;
+	CriticalSection m_cs;
 	std::vector<int> m_specproc_order;
 	bool m_stop_play_requested = false;
 	double m_freeze_pos = 0.0;

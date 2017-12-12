@@ -237,6 +237,22 @@ private:
 	bool m_lock_timesel_set = false;
 };
 
+class MyDynamicObject : public DynamicObject
+{
+public:
+	bool hasMethod(const Identifier& methodName) const override
+	{
+		if (methodName == Identifier("setLabelBounds") ||
+			methodName == Identifier("setComponentBounds"))
+			return true;
+		return false;
+	}
+	var invokeMethod(Identifier methodName,
+		const var::NativeFunctionArgs& args) override
+	{
+		return var();
+	}
+};
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer
@@ -260,6 +276,8 @@ private:
 	TextButton m_import_button;
 	Label m_info_label;
 	void chooseFile();
+	JavascriptEngine m_js_engine;
+	MyDynamicObject m_js_object;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
