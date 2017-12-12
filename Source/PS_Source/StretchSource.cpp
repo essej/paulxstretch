@@ -146,9 +146,12 @@ void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 {
 	if (lenseconds == m_loopxfadelen)
 		return;
-	ScopedLock locker(m_cs);
-	m_loopxfadelen = jlimit(0.0, 1.0, lenseconds);
-	++m_param_change_count;
+	if (m_cs.tryEnter())
+	{
+		m_loopxfadelen = jlimit(0.0, 1.0, lenseconds);
+		++m_param_change_count;
+		m_cs.exit();
+	}
 }
 
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
@@ -459,6 +462,7 @@ void StretchAudioSource::setRate(double rate)
 			m_stretchers[i]->set_rap((float)rate);
 		}
 		++m_param_change_count;
+		m_cs.exit();
 	}
 }
 
