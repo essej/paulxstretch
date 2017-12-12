@@ -467,6 +467,7 @@ void StretchAudioSource::setProcessParameters(ProcessParameters * pars)
 {
 	if (*pars == m_ppar)
 		return;
+	//SpinLock::ScopedLockType
 	std::lock_guard <decltype(m_mutex)> locker(m_mutex);
 	m_ppar = *pars;
 	for (int i = 0; i < m_stretchers.size(); ++i)

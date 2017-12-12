@@ -98,7 +98,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
 	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
 	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics", 0.0f, 100.0f, 0.0f)); // 11
-	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 1.0f, 5000.0f, 100.0f)); // 12
+	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 
+		NormalisableRange<float>(1.0f, 5000.0f, 1.00f, 0.5), 128.0f)); // 12
 	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
 	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
 	addParameter(new AudioParameterFloat("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f)); // 15
