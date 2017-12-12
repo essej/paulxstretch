@@ -99,6 +99,15 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
 	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics", 0.0f, 100.0f, 0.0f)); // 11
 	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 1.0f, 5000.0f, 100.0f)); // 12
+	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
+	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
+	addParameter(new AudioParameterFloat("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f)); // 15
+	addParameter(new AudioParameterFloat("octavemixm1_0", "Octave down level", 0.0f, 1.0f, 0.0f)); // 16
+	addParameter(new AudioParameterFloat("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 0.0f)); // 17
+	addParameter(new AudioParameterFloat("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f)); // 18
+	addParameter(new AudioParameterFloat("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f)); // 19
+	addParameter(new AudioParameterFloat("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f)); // 20
+
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
