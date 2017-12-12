@@ -134,9 +134,12 @@ void StretchAudioSource::setMainVolume(double decibels)
 {
 	if (decibels == m_main_volume)
 		return;
-	ScopedLock locker(m_cs);
-	m_main_volume = jlimit(-144.0, 12.0, decibels);
-	++m_param_change_count;
+	if (m_cs.tryEnter())
+	{
+		m_main_volume = jlimit(-144.0, 12.0, decibels);
+		++m_param_change_count;
+		m_cs.exit();
+	}
 }
 
 void StretchAudioSource::setLoopXFadeLength(double lenseconds)

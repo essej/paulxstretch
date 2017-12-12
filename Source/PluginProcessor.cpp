@@ -226,7 +226,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedLock locker(m_cs);
 	if (getNumOutputChannels() != m_cur_num_out_chans)
 		m_ready_to_play = false;
 	if (m_using_memory_buffer == true)
@@ -301,7 +301,7 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedLock locker(m_cs);
 	ScopedNoDenormals noDenormals;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
@@ -394,7 +394,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 	if (tree.isValid())
 	{
 		{
-			std::lock_guard<std::mutex> locker(m_mutex);
+			ScopedLock locker(m_cs);
 			for (int i = 0; i < getNumParameters(); ++i)
 			{
 				auto par = getFloatParameter(i);
@@ -416,7 +416,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 {
-	std::lock_guard<std::mutex> locker(m_mutex);
+	ScopedLock locker(m_cs);
 	int lenbufframes = getSampleRate()*m_max_reclen;
 	if (b == true)
 	{
@@ -462,7 +462,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 			//MessageManager::callAsync([cb, file]() { cb("Too high bit depth in file " + file.getFullPathName()); });
 			return "Too high bit depth in file " + f.getFullPathName();
 		}
-		std::lock_guard<std::mutex> locker(m_mutex);
+		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
 		m_current_file = f;
 		m_using_memory_buffer = false;

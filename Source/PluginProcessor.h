@@ -104,7 +104,7 @@ private:
 	void finishRecording(int lenrecorded);
 	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;
-	std::mutex m_mutex;
+	CriticalSection m_cs;
 	File m_current_file;
     
 
