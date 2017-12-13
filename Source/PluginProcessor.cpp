@@ -82,6 +82,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	setPreBufferAmount(2);
 	m_ppar.pitch_shift.enabled = true;
 	m_ppar.freq_shift.enabled = true;
+	m_ppar.filter.enabled = true;
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
 	m_stretch_source->setFFTWindowingType(1);
@@ -108,7 +109,13 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f)); // 18
 	addParameter(new AudioParameterFloat("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f)); // 19
 	addParameter(new AudioParameterFloat("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f)); // 20
-
+	addParameter(new AudioParameterFloat("tonalvsnoisebw_0", "Tonal vs Noise BW", 0.74f, 1.0f, 0.74f)); // 21
+	addParameter(new AudioParameterFloat("tonalvsnoisepreserve_0", "Tonal vs Noise preserve", -1.0f, 1.0f, 0.5f)); // 22
+	addParameter(new AudioParameterFloat("filter_low_0", "Filter low", 20.0f, 10000.0f, 20.0f)); // 23
+	addParameter(new AudioParameterFloat("filter_high_0", "Filter high", 20.0f, 20000.0f, 20000.0f)); // 24
+	addParameter(new AudioParameterFloat("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f)); // 25
+	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
+	startTimer(1, 50);
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -342,6 +349,12 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_ppar.octave.o15 = *getFloatParameter(cpi_octaves15);
 	m_ppar.octave.o2 = *getFloatParameter(cpi_octaves2);
 	m_ppar.octave.enabled = true;
+	m_ppar.filter.low = *getFloatParameter(cpi_filter_low);
+	m_ppar.filter.high = *getFloatParameter(cpi_filter_high);
+	m_ppar.tonal_vs_noise.enabled = (*getFloatParameter(cpi_tonalvsnoisebw)) > 0.75;
+	m_ppar.tonal_vs_noise.bandwidth = *getFloatParameter(cpi_tonalvsnoisebw);
+	m_ppar.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
+	m_stretch_source->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
 	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
 	double t0 = *getFloatParameter(cpi_soundstart);
 	double t1 = *getFloatParameter(cpi_soundend);
@@ -422,7 +435,7 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	{
 		m_using_memory_buffer = true;
 		m_current_file = File();
-		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096);
+		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		callGUI(this,[this,lenbufframes](PaulstretchpluginAudioProcessorEditor* ed)
@@ -484,6 +497,25 @@ double PaulstretchpluginAudioProcessor::getPreBufferingPercent()
 	if (m_buffering_source==nullptr)
 		return 0.0;
 	return m_buffering_source->getPercentReady();
+}
+
+void PaulstretchpluginAudioProcessor::timerCallback(int id)
+{
+	if (id == 1)
+	{
+		bool capture = getParameter(cpi_capture_enabled);
+		if (capture == true && m_is_recording == false)
+		{
+			setRecordingEnabled(true);
+			return;
+		}
+		if (capture == false && m_is_recording == true)
+		{
+			setRecordingEnabled(false);
+			return;
+		}
+		
+	}
 }
 
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)

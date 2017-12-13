@@ -40,8 +40,10 @@ const int cpi_tonalvsnoisebw = 21;
 const int cpi_tonalvsnoisepreserve = 22;
 const int cpi_filter_low = 23;
 const int cpi_filter_high = 24;
+const int cpi_onsetdetection = 25;
+const int cpi_capture_enabled = 26;
 
-class PaulstretchpluginAudioProcessor  : public AudioProcessor
+class PaulstretchpluginAudioProcessor  : public AudioProcessor, public MultiTimer
 {
 public:
     //==============================================================================
@@ -93,6 +95,7 @@ public:
 	SharedResourcePointer<AudioFormatManager> m_afm;
 	StretchAudioSource* getStretchSource() { return m_stretch_source.get(); }
 	double getPreBufferingPercent();
+	void timerCallback(int id) override;
 private:
 	
 	

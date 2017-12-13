@@ -498,12 +498,16 @@ void StretchAudioSource::setFFTWindowingType(int windowtype)
 {
     if (windowtype==m_fft_window_type)
         return;
-	ScopedLock locker(m_cs);
-    m_fft_window_type = windowtype;
-    for (int i = 0; i < m_stretchers.size(); ++i)
-    {
-        m_stretchers[i]->window_type = (FFTWindow)windowtype;
-    }
+	if (m_cs.tryEnter())
+	{
+		m_fft_window_type = windowtype;
+		for (int i = 0; i < m_stretchers.size(); ++i)
+		{
+			m_stretchers[i]->window_type = (FFTWindow)windowtype;
+		}
+		++m_param_change_count;
+		m_cs.exit();
+	}
 }
 
 void StretchAudioSource::setFFTSize(int size)
@@ -552,13 +556,18 @@ double StretchAudioSource::getOutputDurationSecondsForRange(Range<double> range,
 
 void StretchAudioSource::setOnsetDetection(double x)
 {
-	ScopedLock locker(m_cs);
-	m_onsetdetection = x;
-	for (int i = 0; i < m_stretchers.size(); ++i)
+	if (x == m_onsetdetection)
+		return;
+	if (m_cs.tryEnter())
 	{
-		m_stretchers[i]->set_onset_detection_sensitivity((float)x);
+		m_onsetdetection = x;
+		for (int i = 0; i < m_stretchers.size(); ++i)
+		{
+			m_stretchers[i]->set_onset_detection_sensitivity((float)x);
+		}
+		++m_param_change_count;
+		m_cs.exit();
 	}
-	++m_param_change_count;
 }
 
 void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)

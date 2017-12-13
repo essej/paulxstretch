@@ -345,6 +345,12 @@ REALTYPE Stretch::process(REALTYPE *smps,int nsmps)
 	return onset;	
 };
 
+void Stretch::set_onset_detection_sensitivity(REALTYPE detection_sensitivity) 
+{
+	onset_detection_sensitivity = detection_sensitivity;
+	if (detection_sensitivity<1e-3) extra_onset_time_credit = 0.0;
+}
+
 void Stretch::here_is_onset(REALTYPE onset){
 	if (freezing) return;
 	if (onset>0.5){

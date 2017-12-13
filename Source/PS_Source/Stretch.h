@@ -129,7 +129,7 @@ class FFT
 		void applywindow(FFTWindow type);
 		std::vector<REALTYPE> smp;//size of samples/2
 		std::vector<REALTYPE> freq;//size of samples
-		int nsamples;
+		int nsamples=0;
 	private:
 
 		fftwf_plan planfftw,planifftw;
@@ -179,10 +179,7 @@ class Stretch
 
 		void set_rap(REALTYPE newrap);//set the current stretch value
 
-		void set_onset_detection_sensitivity(REALTYPE detection_sensitivity){
-			onset_detection_sensitivity=detection_sensitivity;
-			if (detection_sensitivity<1e-3) extra_onset_time_credit=0.0;
-		};
+		void set_onset_detection_sensitivity(REALTYPE detection_sensitivity);;
 		void here_is_onset(REALTYPE onset);
 		virtual void setSampleRate(REALTYPE sr) { samplerate = jlimit(1000.0f, 38400.0f, sr); }
 		REALTYPE getSampleRate() { return samplerate; }
