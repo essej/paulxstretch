@@ -274,12 +274,11 @@ private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
 	SpectralVisualizer m_specvis;
-	ToggleButton m_rec_enable;
+	
 	TextButton m_import_button;
 	Label m_info_label;
 	void chooseFile();
-	JavascriptEngine m_js_engine;
-	MyDynamicObject m_js_object;
+	
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

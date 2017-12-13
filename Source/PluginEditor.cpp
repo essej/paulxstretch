@@ -39,9 +39,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 			addAndMakeVisible(m_parcomps.back().get());
 		}
 	}
-	addAndMakeVisible(&m_rec_enable);
-	m_rec_enable.setButtonText("Capture");
-	attachCallback(m_rec_enable, [this]() { processor.setRecordingEnabled(m_rec_enable.getToggleState()); });
+	
 	//addAndMakeVisible(&m_specvis);
 	setSize (1000, 30+(pars.size()/2)*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
@@ -74,9 +72,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 {
 	m_import_button.setBounds(1, 1, 60, 24);
 	m_import_button.changeWidthToFitText();
-	m_rec_enable.setBounds(m_import_button.getRight()+1, 1, 10, 24);
-	m_rec_enable.changeWidthToFitText();
-	m_info_label.setBounds(m_rec_enable.getRight() + 1, m_rec_enable.getY(), getWidth()-m_rec_enable.getRight()-1, 24);
+	
+	m_info_label.setBounds(m_import_button.getRight() + 1, m_import_button.getY(), getWidth()-m_import_button.getRight()-1, 24);
 	
 	for (int i = 0; i < m_parcomps.size(); ++i)
 	{
@@ -95,8 +92,6 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	{
 		for (auto& e : m_parcomps)
 			e->updateComponent();
-		if (processor.isRecordingEnabled() != m_rec_enable.getToggleState())
-			m_rec_enable.setToggleState(processor.isRecordingEnabled(), dontSendNotification);
 		if (processor.isRecordingEnabled())
 		{
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
