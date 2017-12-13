@@ -115,7 +115,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("filter_high_0", "Filter high", 20.0f, 20000.0f, 20000.0f)); // 24
 	addParameter(new AudioParameterFloat("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
-	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 1, 8, 2);
+	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2);
 	addParameter(m_outchansparam); // 27
 	startTimer(1, 50);
 }
