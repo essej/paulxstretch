@@ -182,7 +182,8 @@ public:
 	void paint(Graphics& g) override;
 	void setAudioFile(File f);
 	const File& getAudioFile() const { return m_curfile; }
-	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
+    bool isUsingAudioBuffer() const { return m_using_audio_buffer; }
+    void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
 	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
 	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
 	void timerCallback() override;
@@ -235,6 +236,7 @@ private:
 	bool m_use_opengl = false;
 	double m_rec_pos = 0.0;
 	bool m_lock_timesel_set = false;
+    bool m_using_audio_buffer = false;
 };
 
 class MyDynamicObject : public DynamicObject

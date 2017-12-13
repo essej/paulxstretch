@@ -111,7 +111,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		{
 			m_wavecomponent.setAudioFile(processor.getAudioFile());
 		}
-        if (processor.getAudioFile()==File() && processor.isRecordingEnabled()==false)
+        if (processor.getAudioFile()==File() && processor.isRecordingEnabled()==false && m_wavecomponent.isUsingAudioBuffer()==false)
         {
             auto bufptr = processor.getStretchSource()->getSourceAudioBuffer();
             if (bufptr!=nullptr)
@@ -293,6 +293,7 @@ void WaveformComponent::setAudioFile(File f)
 			m_thumb->reset(0, 0.0);
 		m_thumb->setSource(new FileInputSource(f));
 		m_curfile = f;
+        m_using_audio_buffer = false;
 	}
 	else
 	{
@@ -305,6 +306,7 @@ void WaveformComponent::setAudioFile(File f)
 void WaveformComponent::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 {
     jassert(buf!=nullptr);
+    m_using_audio_buffer = true;
     m_waveimage = Image();
 	m_curfile = File();
 	m_thumb->reset(buf->getNumChannels(), samplerate, len);
