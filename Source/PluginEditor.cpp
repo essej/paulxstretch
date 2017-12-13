@@ -533,34 +533,13 @@ void SpectralChainEditor::paint(Graphics & g)
 	int box_h = getHeight();
 	for (int i = 0; i < m_order.size(); ++i)
 	{
-		String txt;
-		if (m_order[i] == 0)
-			txt = "Harmonics";
-		if (m_order[i] == 1)
-			txt = "Tonal vs Noise";
-		if (m_order[i] == 2)
-			txt = "Frequency shift";
-		if (m_order[i] == 3)
-			txt = "Pitch shift";
-		if (m_order[i] == 4)
-			txt = "Octaves";
-		if (m_order[i] == 5)
-			txt = "Spread";
-		if (m_order[i] == 6)
-			txt = "Filter";
-		if (m_order[i] == 7)
-			txt = "Compressor";
-		if (i == m_cur_index)
-		{
-			g.setColour(Colours::darkgrey);
-			g.fillRect(i*box_w, 0, box_w - 30, box_h - 1);
-		}
-		g.setColour(Colours::white);
-		g.drawRect(i*box_w, 0, box_w - 30, box_h - 1);
-		g.drawFittedText(txt, i*box_w, 0, box_w - 30, box_h - 1, Justification::centred, 3);
+		if (i!=m_cur_index)
+			drawBox(g, i, i*box_w, 0, box_w - 30, box_h);
 		if (i<m_order.size() - 1)
 			g.drawArrow(juce::Line<float>(i*box_w + (box_w - 30), box_h / 2, i*box_w + box_w, box_h / 2), 2.0f, 15.0f, 15.0f);
 	}
+	if (m_drag_x>=0 && m_drag_x<getWidth() && m_cur_index>=0)
+		drawBox(g, m_cur_index, m_drag_x, 0, box_w - 30, box_h);
 }
 
 void SpectralChainEditor::mouseDown(const MouseEvent & ev)
@@ -569,6 +548,7 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 	int box_w = getWidth() / m_order.size();
 	int box_h = getHeight();
 	m_cur_index = ev.x / box_w;
+	m_drag_x = ev.x;
 	repaint();
 }
 
@@ -578,14 +558,16 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 	{
 		int box_w = getWidth() / m_order.size();
 		int box_h = getHeight();
-		int new_index = ev.x / box_w;
+		int new_index = (ev.x+(ev.x-m_drag_x)) / box_w;
 		if (new_index >= 0 && new_index < m_order.size() && new_index != m_cur_index)
 		{
 			std::swap(m_order[m_cur_index], m_order[new_index]);
 			m_cur_index = new_index;
 			m_did_drag = true;
-			repaint();
+			
 		}
+		m_drag_x = ev.x+(ev.x-m_drag_x);
+		repaint();
 	}
 }
 
@@ -595,4 +577,37 @@ void SpectralChainEditor::mouseUp(const MouseEvent & ev)
 	{
 		m_src->setSpectrumProcessOrder(m_order);
 	}
+	m_drag_x = -1;
+	m_cur_index = -1;
+	repaint();
+}
+
+void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, int h)
+{
+	String txt;
+	if (m_order[index] == 0)
+		txt = "Harmonics";
+	if (m_order[index] == 1)
+		txt = "Tonal vs Noise";
+	if (m_order[index] == 2)
+		txt = "Frequency shift";
+	if (m_order[index] == 3)
+		txt = "Pitch shift";
+	if (m_order[index] == 4)
+		txt = "Octaves";
+	if (m_order[index] == 5)
+		txt = "Spread";
+	if (m_order[index] == 6)
+		txt = "Filter";
+	if (m_order[index] == 7)
+		txt = "Compressor";
+	if (index == m_cur_index)
+	{
+		g.setColour(Colours::darkgrey);
+		//g.fillRect(i*box_w, 0, box_w - 30, box_h - 1);
+		g.fillRect(x, y, w, h);
+	}
+	g.setColour(Colours::white);
+	g.drawRect(x, y, w, h);
+	g.drawFittedText(txt, x,y,w,h, Justification::centred, 3);
 }
