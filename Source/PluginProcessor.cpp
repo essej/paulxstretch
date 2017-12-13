@@ -230,7 +230,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 	m_stretch_source->setProcessParameters(&m_ppar);
 	m_last_outpos_pos = 0.0;
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
-	m_buffering_source->prepareToPlay(1024, 44100.0);
+	m_buffering_source->prepareToPlay(1024, getSampleRate());
 };
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -521,7 +521,17 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 			setRecordingEnabled(false);
 			return;
 		}
-		
+		if (m_cur_num_out_chans != *m_outchansparam)
+		{
+			ScopedLock locker(m_cs);
+			m_ready_to_play = false;
+			m_cur_num_out_chans = *m_outchansparam;
+			//Logger::writeToLog("Switching to use " + String(m_cur_num_out_chans) + " out channels");
+			String err;
+			startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
+				m_cur_num_out_chans, err);
+			m_ready_to_play = true;
+		}
 	}
 }
 

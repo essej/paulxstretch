@@ -35,6 +35,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 			bool notifyonlyonrelease = false;
 			if (parid->paramID.startsWith("fftsize"))
 				notifyonlyonrelease = true;
+			if (parid->paramID.startsWith("numoutchans"))
+				notifyonlyonrelease = true;
 			m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
 			addAndMakeVisible(m_parcomps.back().get());
 		}
