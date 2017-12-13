@@ -115,6 +115,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("filter_high_0", "Filter high", 20.0f, 20000.0f, 20000.0f)); // 24
 	addParameter(new AudioParameterFloat("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
+	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 1, 8, 2);
+	addParameter(m_outchansparam); // 27
 	startTimer(1, 50);
 }
 
@@ -234,7 +236,8 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	ScopedLock locker(m_cs);
-	if (getNumOutputChannels() != m_cur_num_out_chans)
+	int numoutchans = *m_outchansparam;
+	if (numoutchans != m_cur_num_out_chans)
 		m_ready_to_play = false;
 	if (m_using_memory_buffer == true)
 	{
@@ -251,8 +254,8 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		
 		String err;
 		startplay({ *getFloatParameter(5),*getFloatParameter(6) },
-		2, err);
-		m_cur_num_out_chans = getNumOutputChannels();
+		numoutchans, err);
+		m_cur_num_out_chans = numoutchans;
 		m_ready_to_play = true;
 	}
 }
@@ -393,6 +396,7 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 			paramtree.setProperty(par->paramID, (double)*par, nullptr);
 		}
 	}
+	paramtree.setProperty(m_outchansparam->paramID, (int)*m_outchansparam, nullptr);
 	if (m_current_file != File())
 	{
 		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
@@ -417,6 +421,9 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 					*par = parval;
 				}
 			}
+			if (tree.hasProperty(m_outchansparam->paramID))
+				*m_outchansparam = tree.getProperty(m_outchansparam->paramID, 2);
+
 		}
 		String fn = tree.getProperty("importedfile");
 		if (fn.isEmpty() == false)

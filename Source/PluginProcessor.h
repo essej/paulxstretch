@@ -42,6 +42,7 @@ const int cpi_filter_low = 23;
 const int cpi_filter_high = 24;
 const int cpi_onsetdetection = 25;
 const int cpi_capture_enabled = 26;
+const int cpi_num_outchans = 27;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, public MultiTimer
 {
@@ -126,6 +127,7 @@ private:
 	void setFFTSize(double size);
 	void startplay(Range<double> playrange, int numoutchans, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
+	AudioParameterInt* m_outchansparam = nullptr;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

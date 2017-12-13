@@ -61,16 +61,21 @@ inline void attachCallback(Button& button, std::function<void()> callback)
 class MySlider : public Slider
 {
 public:
+	MySlider() {}
 	MySlider(NormalisableRange<float>* range) : m_range(range)
 	{
 	}
 	double proportionOfLengthToValue(double x) override
 	{
-		return m_range->convertFrom0to1(x);
+		if (m_range)
+			return m_range->convertFrom0to1(x);
+		return Slider::proportionOfLengthToValue(x);
 	}
 	double valueToProportionOfLength(double x) override
 	{
-		return m_range->convertTo0to1(x);
+		if (m_range)
+			return m_range->convertTo0to1(x);
+		return Slider::valueToProportionOfLength(x);
 	}
 private:
 	NormalisableRange<float>* m_range = nullptr;
@@ -91,6 +96,16 @@ public:
 			m_notify_only_on_release = notifyOnlyOnRelease;
 			m_slider->setRange(floatpar->range.start, floatpar->range.end, floatpar->range.interval);
 			m_slider->setValue(*floatpar, dontSendNotification);
+			m_slider->addListener(this);
+			addAndMakeVisible(m_slider.get());
+		}
+		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(par);
+		if (intpar)
+		{
+			m_slider = std::make_unique<MySlider>();
+			m_notify_only_on_release = notifyOnlyOnRelease;
+			m_slider->setRange(intpar->getRange().getStart(), intpar->getRange().getEnd(), 1.0);
+			m_slider->setValue(*intpar, dontSendNotification);
 			m_slider->addListener(this);
 			addAndMakeVisible(m_slider.get());
 		}
@@ -121,7 +136,11 @@ public:
 		if (m_notify_only_on_release == true)
 			return;
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		*floatpar = slid->getValue();
+		if (floatpar!=nullptr)
+			*floatpar = slid->getValue();
+		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(m_par);
+		if (intpar != nullptr)
+			*intpar = slid->getValue();
 	}
 	void sliderDragStarted(Slider* slid) override
 	{
@@ -133,7 +152,11 @@ public:
 		if (m_notify_only_on_release == false)
 			return;
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		*floatpar = slid->getValue();
+		if (floatpar!=nullptr)
+			*floatpar = slid->getValue();
+		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(m_par);
+		if (intpar != nullptr)
+			*intpar = slid->getValue();
 	}
 	void buttonClicked(Button* but) override
 	{
@@ -146,9 +169,14 @@ public:
 	void updateComponent()
 	{
 		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		if (m_slider != nullptr && m_dragging == false && (float)m_slider->getValue() != *floatpar)
+		if (floatpar!=nullptr && m_slider != nullptr && m_dragging == false && (float)m_slider->getValue() != *floatpar)
 		{
 			m_slider->setValue(*floatpar, dontSendNotification);
+		}
+		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(m_par);
+		if (intpar != nullptr && m_slider != nullptr && m_dragging == false && (int)m_slider->getValue() != *intpar)
+		{
+			m_slider->setValue(*intpar, dontSendNotification);
 		}
 		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
 		if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
