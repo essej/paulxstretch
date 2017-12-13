@@ -52,6 +52,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 		return processor.getStretchSource()->getInfilePositionPercent();
 	};
 	m_wavecomponent.ShowFileCacheRange = true;
+	m_spec_order_ed.setSource(processor.getStretchSource());
+	addAndMakeVisible(&m_spec_order_ed);
 	startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
@@ -82,7 +84,9 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 		m_parcomps[i]->setBounds(1+gridx*(getWidth()/2), 30 + gridy * 25, getWidth()/2-2, 24);
 	}
 	int yoffs = m_parcomps.back()->getBottom() + 1;
-	m_wavecomponent.setBounds(1, yoffs, getWidth()-2, getHeight()-1-yoffs);
+	int remain_h = getHeight() - 1 - yoffs;
+	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
+	m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
 	//m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
 }
 
@@ -517,4 +521,77 @@ void SpectralVisualizer::paint(Graphics & g)
 	g.drawImage(m_img, 0, 0, getWidth(), getHeight(), 0, 0, m_img.getWidth(), m_img.getHeight());
 	g.setColour(Colours::yellow);
 	g.drawText(String(m_elapsed, 1)+" ms", 1, 1, getWidth(), 30, Justification::topLeft);
+}
+
+void SpectralChainEditor::paint(Graphics & g)
+{
+	g.fillAll(Colours::black);
+	if (m_src == nullptr)
+		return;
+	
+	int box_w = getWidth() / m_order.size();
+	int box_h = getHeight();
+	for (int i = 0; i < m_order.size(); ++i)
+	{
+		String txt;
+		if (m_order[i] == 0)
+			txt = "Harmonics";
+		if (m_order[i] == 1)
+			txt = "Tonal vs Noise";
+		if (m_order[i] == 2)
+			txt = "Frequency shift";
+		if (m_order[i] == 3)
+			txt = "Pitch shift";
+		if (m_order[i] == 4)
+			txt = "Octaves";
+		if (m_order[i] == 5)
+			txt = "Spread";
+		if (m_order[i] == 6)
+			txt = "Filter";
+		if (m_order[i] == 7)
+			txt = "Compressor";
+		if (i == m_cur_index)
+		{
+			g.setColour(Colours::darkgrey);
+			g.fillRect(i*box_w, 0, box_w - 30, box_h - 1);
+		}
+		g.setColour(Colours::white);
+		g.drawRect(i*box_w, 0, box_w - 30, box_h - 1);
+		g.drawFittedText(txt, i*box_w, 0, box_w - 30, box_h - 1, Justification::centred, 3);
+		if (i<m_order.size() - 1)
+			g.drawArrow(juce::Line<float>(i*box_w + (box_w - 30), box_h / 2, i*box_w + box_w, box_h / 2), 2.0f, 15.0f, 15.0f);
+	}
+}
+
+void SpectralChainEditor::mouseDown(const MouseEvent & ev)
+{
+	m_did_drag = false;
+	int box_w = getWidth() / m_order.size();
+	int box_h = getHeight();
+	m_cur_index = ev.x / box_w;
+	repaint();
+}
+
+void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
+{
+	if (m_cur_index >= 0 && m_cur_index < m_order.size())
+	{
+		int box_w = getWidth() / m_order.size();
+		int box_h = getHeight();
+		int new_index = ev.x / box_w;
+		if (new_index >= 0 && new_index < m_order.size() && new_index != m_cur_index)
+		{
+			std::swap(m_order[m_cur_index], m_order[new_index]);
+			m_cur_index = new_index;
+			repaint();
+		}
+	}
+}
+
+void SpectralChainEditor::mouseUp(const MouseEvent & ev)
+{
+	if (m_did_drag == true)
+	{
+		//m_src->setSpectrumProcessOrder(m_order);
+	}
 }

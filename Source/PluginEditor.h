@@ -239,6 +239,27 @@ private:
     bool m_using_audio_buffer = false;
 };
 
+class SpectralChainEditor : public Component
+{
+public:
+	SpectralChainEditor() {}
+	void paint(Graphics& g) override;
+	void setSource(StretchAudioSource* src)
+	{
+		m_src = src;
+		m_order = m_src->getSpectrumProcessOrder();
+		repaint();
+	}
+	void mouseDown(const MouseEvent& ev) override;
+	void mouseDrag(const MouseEvent& ev) override;
+	void mouseUp(const MouseEvent& ev) override;
+private:
+	StretchAudioSource * m_src = nullptr;
+	bool m_did_drag = false;
+	int m_cur_index = -1;
+	std::vector<int> m_order;
+};
+
 class MyDynamicObject : public DynamicObject
 {
 public:
@@ -277,6 +298,7 @@ private:
 	
 	TextButton m_import_button;
 	Label m_info_label;
+	SpectralChainEditor m_spec_order_ed;
 	void chooseFile();
 	
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
