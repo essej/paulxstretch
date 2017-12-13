@@ -533,7 +533,7 @@ void SpectralChainEditor::paint(Graphics & g)
 	int box_h = getHeight();
 	for (int i = 0; i < m_order.size(); ++i)
 	{
-		if (i!=m_cur_index)
+		//if (i!=m_cur_index)
 			drawBox(g, i, i*box_w, 0, box_w - 30, box_h);
 		if (i<m_order.size() - 1)
 			g.drawArrow(juce::Line<float>(i*box_w + (box_w - 30), box_h / 2, i*box_w + box_w, box_h / 2), 2.0f, 15.0f, 15.0f);
@@ -548,7 +548,7 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 	int box_w = getWidth() / m_order.size();
 	int box_h = getHeight();
 	m_cur_index = ev.x / box_w;
-	m_drag_x = ev.x;
+	m_drag_x = -1;
 	repaint();
 }
 
@@ -558,27 +558,23 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 	{
 		int box_w = getWidth() / m_order.size();
 		int box_h = getHeight();
-		int new_index = (ev.x+(ev.x-m_drag_x)) / box_w;
+		int new_index = ev.x / box_w;
 		if (new_index >= 0 && new_index < m_order.size() && new_index != m_cur_index)
 		{
 			std::swap(m_order[m_cur_index], m_order[new_index]);
 			m_cur_index = new_index;
 			m_did_drag = true;
-			
+			m_src->setSpectrumProcessOrder(m_order);
 		}
-		m_drag_x = ev.x+(ev.x-m_drag_x);
+		m_drag_x = ev.x;
 		repaint();
 	}
 }
 
 void SpectralChainEditor::mouseUp(const MouseEvent & ev)
 {
-	if (m_did_drag == true)
-	{
-		m_src->setSpectrumProcessOrder(m_order);
-	}
 	m_drag_x = -1;
-	m_cur_index = -1;
+	//m_cur_index = -1;
 	repaint();
 }
 
