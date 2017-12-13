@@ -583,6 +583,7 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 		{
 			std::swap(m_order[m_cur_index], m_order[new_index]);
 			m_cur_index = new_index;
+			m_did_drag = true;
 			repaint();
 		}
 	}
@@ -592,6 +593,6 @@ void SpectralChainEditor::mouseUp(const MouseEvent & ev)
 {
 	if (m_did_drag == true)
 	{
-		//m_src->setSpectrumProcessOrder(m_order);
+		m_src->setSpectrumProcessOrder(m_order);
 	}
 }
