@@ -65,6 +65,12 @@ public:
 		seek(m_activerange.getStart());
 		updateXFadeCache();
 	}
+    virtual AudioBuffer<float>* getAudioBuffer() override
+    {
+        if (m_using_memory_buffer)
+            return &m_readbuf;
+        return nullptr;
+    }
 	bool openAudioFile(File file) override
     {
 		m_silenceoutputted = 0;

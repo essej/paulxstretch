@@ -79,7 +79,7 @@ public:
 	{
 		return m_currentsample >= info.nsamples*m_activerange.getEnd();
 	}
-	
+    virtual AudioBuffer<float>* getAudioBuffer()=0;
 protected:
 	volatile int64_t m_currentsample = 0;
 	int m_silenceoutputted = 0;

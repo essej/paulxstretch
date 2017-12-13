@@ -51,6 +51,8 @@ public:
 	String setAudioFile(File file);
 	File getAudioFile();
 
+    AudioBuffer<float>* getSourceAudioBuffer();
+    
 	void setNumOutChannels(int chans);
 	int getNumOutChannels() { return m_num_outchans; }
 	double getInfilePositionPercent();

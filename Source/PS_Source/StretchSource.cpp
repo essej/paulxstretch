@@ -44,6 +44,13 @@ void StretchAudioSource::releaseResources()
 	
 }
 
+AudioBuffer<float>* StretchAudioSource::getSourceAudioBuffer()
+{
+    if (m_inputfile==nullptr)
+        return nullptr;
+    return m_inputfile->getAudioBuffer();
+}
+
 bool StretchAudioSource::isResampling()
 {
     if (m_inputfile==nullptr || m_inputfile->info.samplerate==0)

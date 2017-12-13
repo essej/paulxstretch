@@ -111,6 +111,13 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		{
 			m_wavecomponent.setAudioFile(processor.getAudioFile());
 		}
+        if (processor.getAudioFile()==File() && processor.isRecordingEnabled()==false)
+        {
+            auto bufptr = processor.getStretchSource()->getSourceAudioBuffer();
+            if (bufptr!=nullptr)
+                m_wavecomponent.setAudioBuffer(bufptr,
+                                               processor.getSampleRate(), bufptr->getNumSamples());
+        }
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
 		
 	}
@@ -297,7 +304,8 @@ void WaveformComponent::setAudioFile(File f)
 
 void WaveformComponent::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 {
-	m_waveimage = Image();
+    jassert(buf!=nullptr);
+    m_waveimage = Image();
 	m_curfile = File();
 	m_thumb->reset(buf->getNumChannels(), samplerate, len);
 	m_thumb->addBlock(0, *buf, 0, len);
