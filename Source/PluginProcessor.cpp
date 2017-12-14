@@ -210,7 +210,7 @@ void PaulstretchpluginAudioProcessor::setFFTSize(double size)
 	//Logger::writeToLog(String(m_fft_size_to_use));
 }
 
-void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, String& err)
+void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err)
 {
 	m_stretch_source->setPlayRange(playrange, true);
 
@@ -231,12 +231,13 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 	m_stretch_source->setProcessParameters(&m_ppar);
 	m_last_outpos_pos = 0.0;
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
-	m_buffering_source->prepareToPlay(1024, getSampleRate());
+	m_buffering_source->prepareToPlay(maxBlockSize, getSampleRate());
 };
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	ScopedLock locker(m_cs);
+	m_curmaxblocksize = samplesPerBlock;
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
 		m_ready_to_play = false;
@@ -255,7 +256,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		
 		String err;
 		startplay({ *getFloatParameter(5),*getFloatParameter(6) },
-		numoutchans, err);
+		numoutchans, samplesPerBlock, err);
 		m_cur_num_out_chans = numoutchans;
 		m_ready_to_play = true;
 	}
@@ -527,13 +528,14 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 		}
 		if (m_cur_num_out_chans != *m_outchansparam)
 		{
+			jassert(m_curmaxblocksize > 0);
 			ScopedLock locker(m_cs);
 			m_ready_to_play = false;
 			m_cur_num_out_chans = *m_outchansparam;
 			//Logger::writeToLog("Switching to use " + String(m_cur_num_out_chans) + " out channels");
 			String err;
 			startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
-				m_cur_num_out_chans, err);
+				m_cur_num_out_chans, m_curmaxblocksize, err);
 			m_ready_to_play = true;
 		}
 	}

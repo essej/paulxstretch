@@ -125,9 +125,10 @@ private:
 	ProcessParameters m_ppar;
 	void setPreBufferAmount(int x);
 	void setFFTSize(double size);
-	void startplay(Range<double> playrange, int numoutchans, String& err);
+	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
 	AudioParameterInt* m_outchansparam = nullptr;
+	int m_curmaxblocksize = 0;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
