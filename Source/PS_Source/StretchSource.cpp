@@ -164,6 +164,11 @@ void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
+	if (m_pause_state == 2)
+	{
+		bufferToFill.buffer->clear(bufferToFill.startSample,bufferToFill.numSamples);
+		return;
+	}
 	if (m_stretchoutringbuf.available() > 0)
 		m_output_has_begun = true;
 	bool freezing = m_freezing;
@@ -341,8 +346,17 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		}
 		
 	}
-	//if (m_inputfile->hasEnded())
-		m_output_counter += bufferToFill.numSamples;
+	if (m_pause_state == 1)
+	{
+		bufferToFill.buffer->applyGainRamp(bufferToFill.startSample, bufferToFill.numSamples, 1.0f, 0.0f);
+		m_pause_state = 2;
+	}
+	if (m_pause_state == 3)
+	{
+		bufferToFill.buffer->applyGainRamp(bufferToFill.startSample, bufferToFill.numSamples, 0.0f, 1.0f);
+		m_pause_state = 0;
+	}
+	m_output_counter += bufferToFill.numSamples;
 }
 
 void StretchAudioSource::setNextReadPosition(int64 /*newPosition*/)
@@ -536,6 +550,30 @@ void StretchAudioSource::setFFTSize(int size)
 		
 		++m_param_change_count;
 	}
+}
+
+void StretchAudioSource::setPaused(bool b)
+{
+	if (b == true && m_pause_state>0)
+		return;
+	if (b == false && m_pause_state == 0)
+		return;
+	ScopedLock locker(m_cs);
+	if (b == true && m_pause_state == 0)
+	{
+		m_pause_state = 1;
+		return;
+	}
+	if (b == false && m_pause_state == 2)
+	{
+		m_pause_state = 3;
+		return;
+	}
+}
+
+bool StretchAudioSource::isPaused() const
+{
+	return m_pause_state > 0;
 }
 
 void StretchAudioSource::seekPercent(double pos)

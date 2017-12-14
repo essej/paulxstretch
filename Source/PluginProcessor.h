@@ -43,6 +43,7 @@ const int cpi_filter_high = 24;
 const int cpi_onsetdetection = 25;
 const int cpi_capture_enabled = 26;
 const int cpi_num_outchans = 27;
+const int cpi_pause_enabled = 28;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, public MultiTimer
 {

@@ -116,8 +116,9 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("filter_high_0", "Filter high", 20.0f, 20000.0f, 20000.0f)); // 24
 	addParameter(new AudioParameterFloat("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
-	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2);
+	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2); // 27
 	addParameter(m_outchansparam); // 27
+	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	startTimer(1, 50);
 }
 
@@ -253,7 +254,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	{
 		setFFTSize(*getFloatParameter(cpi_fftsize));
 		m_stretch_source->setProcessParameters(&m_ppar);
-		
+		m_stretch_source->setFFTWindowingType(1);
 		String err;
 		startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
 		numoutchans, samplesPerBlock, err);
@@ -372,6 +373,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		t1 = t0 + 0.001;
 	m_stretch_source->setPlayRange({ t0,t1 }, true);
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
+	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
 	m_stretch_source->setProcessParameters(&m_ppar);
 	
 	AudioSourceChannelInfo aif(buffer);

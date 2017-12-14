@@ -69,6 +69,9 @@ public:
 	void setFreezing(bool b) { m_freezing = b; }
 	bool isFreezing() { return m_freezing; }
 
+	void setPaused(bool b);
+	bool isPaused() const;
+
 	void seekPercent(double pos);
 	
 	double getOutputDurationSecondsForRange(Range<double> range, int fftsize);
@@ -122,6 +125,8 @@ private:
 	double m_seekpos = 0.0;
 	
 	bool m_freezing = false;
+	
+	int m_pause_state = 0;
 	Range<double> m_playrange{ 0.0,1.0 };
 	
 	bool m_stream_end_reached = false;
@@ -148,6 +153,7 @@ private:
 		int requested_fft_size = 0;
 		File requested_file;
 	} m_xfadetask;
+	int m_pause_fade_counter = 0;
 };
 
 class MultiStretchAudioSource final : public PositionableAudioSource
