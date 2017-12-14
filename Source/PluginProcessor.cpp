@@ -251,11 +251,11 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_ready_to_play == false)
 	{
-		setFFTSize(*getFloatParameter(2));
+		setFFTSize(*getFloatParameter(cpi_fftsize));
 		m_stretch_source->setProcessParameters(&m_ppar);
 		
 		String err;
-		startplay({ *getFloatParameter(5),*getFloatParameter(6) },
+		startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
 		numoutchans, samplesPerBlock, err);
 		m_cur_num_out_chans = numoutchans;
 		m_ready_to_play = true;
@@ -335,8 +335,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	}
 	jassert(m_buffering_source != nullptr);
 	jassert(m_bufferingthread.isThreadRunning());
-	m_stretch_source->setMainVolume(*getFloatParameter(0));
-	m_stretch_source->setRate(*getFloatParameter(1));
+	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
+	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 
 	setFFTSize(*getFloatParameter(cpi_fftsize));
 	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
@@ -501,7 +501,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 
 Range<double> PaulstretchpluginAudioProcessor::getTimeSelection()
 {
-	return { *getFloatParameter(5),*getFloatParameter(6) };
+	return { *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) };
 }
 
 double PaulstretchpluginAudioProcessor::getPreBufferingPercent()
@@ -545,7 +545,7 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), lenrecording);
-	m_stretch_source->setPlayRange({ *getFloatParameter(5),*getFloatParameter(6) }, true);
+	m_stretch_source->setPlayRange({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) }, true);
 	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
 	if (ed)
 	{
