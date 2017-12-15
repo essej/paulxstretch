@@ -112,10 +112,24 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f)); // 20
 	addParameter(new AudioParameterFloat("tonalvsnoisebw_0", "Tonal vs Noise BW", 0.74f, 1.0f, 0.74f)); // 21
 	addParameter(new AudioParameterFloat("tonalvsnoisepreserve_0", "Tonal vs Noise preserve", -1.0f, 1.0f, 0.5f)); // 22
+	auto filt_convertFrom0To1Func = [](float rangemin, float rangemax, float value) 
+	{
+		if (value < 0.5f)
+			return jmap<float>(value, 0.0f, 0.5f, 20.0f, 1000.0f);
+		return jmap<float>(value, 0.5f, 1.0f, 1000.0f, 20000.0f);
+	};
+	auto filt_convertTo0To1Func = [](float rangemin, float rangemax, float value)
+	{
+		if (value < 1000.0f)
+			return jmap<float>(value, 20.0f, 1000.0f, 0.0f, 0.5f);
+		return jmap<float>(value, 1000.0f, 20000.0f, 0.5f, 1.0f);
+	};
 	addParameter(new AudioParameterFloat("filter_low_0", "Filter low",
-                                         NormalisableRange<float>(20.0f, 10000.0f, 1.0f, 0.3), 20.0f)); // 23
+                                         NormalisableRange<float>(20.0f, 20000.0f, 
+											 filt_convertFrom0To1Func, filt_convertTo0To1Func), 20.0f)); // 23
 	addParameter(new AudioParameterFloat("filter_high_0", "Filter high",
-                                         NormalisableRange<float>(100.0f, 20000.0f, 1.0f, 0.3), 20000.0f));; // 24
+                                         NormalisableRange<float>(20.0f, 20000.0f, 
+											 filt_convertFrom0To1Func,filt_convertTo0To1Func), 20000.0f));; // 24
 	addParameter(new AudioParameterFloat("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
 	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2); // 27
