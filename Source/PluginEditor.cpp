@@ -154,11 +154,7 @@ void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& bu
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
-#ifdef WIN32
-	File initialloc("C:/MusicAudio/sourcesamples");
-#else
-	File initialloc("/Users/teemu/AudioProjects/sourcesamples");
-#endif
+    File initialloc = File::getSpecialLocation(File::userHomeDirectory);
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
 		"*.wav",true);

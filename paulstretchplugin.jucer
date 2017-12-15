@@ -86,7 +86,7 @@
                        headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\VSTPlugins_64bit"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
-                       linkTimeOptimisation="0" isDebug="0" optimisation="3" targetName="PaulXStretch"
+                       linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="PaulXStretch"
                        headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\VSTPlugins_64bit"
                        useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
