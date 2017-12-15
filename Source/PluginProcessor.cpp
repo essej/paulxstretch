@@ -424,6 +424,12 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 	{
 		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
 	}
+	auto specorder = m_stretch_source->getSpectrumProcessOrder();
+	paramtree.setProperty("numspectralstages", (int)specorder.size(), nullptr);
+	for (int i = 0; i < specorder.size(); ++i)
+	{
+		paramtree.setProperty("specorder" + String(i), specorder[i], nullptr);
+	}
 	MemoryOutputStream stream(destData,true);
 	paramtree.writeToStream(stream);
 }
@@ -435,6 +441,16 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 	{
 		{
 			ScopedLock locker(m_cs);
+			if (tree.hasProperty("numspectralstages"))
+			{
+				std::vector<int> order;
+				int ordersize = tree.getProperty("numspectralstages");
+				for (int i = 0; i < ordersize; ++i)
+				{
+					order.push_back((int)tree.getProperty("specorder" + String(i)));
+				}
+				m_stretch_source->setSpectrumProcessOrder(order);
+			}
 			for (int i = 0; i < getNumParameters(); ++i)
 			{
 				auto par = getFloatParameter(i);
