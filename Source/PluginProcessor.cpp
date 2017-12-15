@@ -89,7 +89,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_stretch_source->setFFTWindowingType(1);
 	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f)); // 0
 	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 
-		NormalisableRange<float>(0.1f, 128.0f, 0.01f, 0.5),1.0f)); // 1
+		NormalisableRange<float>(0.1f, 1024.0f, 0.01f, 0.25),1.0f)); // 1
 	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f)); // 2
 	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f)); // 3
 	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f)); // 4
