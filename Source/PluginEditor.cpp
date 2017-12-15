@@ -103,7 +103,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		String infotext = String(processor.getPreBufferingPercent(), 1) + " " + String(processor.getStretchSource()->m_param_change_count);
+		String infotext = String(processor.getPreBufferingPercent(), 1) + " " + String(processor.getStretchSource()->m_param_change_count)+" "+m_last_err;
 		m_info_label.setText(infotext, dontSendNotification);
 	}
 	if (id == 2)
@@ -161,10 +161,17 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 #endif
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
-		"*.wav");
+		"*.wav",true);
 	if (myChooser.browseForFileToOpen())
 	{
-		processor.setAudioFile(myChooser.getResult());
+        File resu = myChooser.getResult();
+        String pathname = resu.getFullPathName();
+        if (pathname.startsWith("/localhost"))
+        {
+            pathname = pathname.substring(10);
+            resu = File(pathname);
+        }
+        m_last_err = processor.setAudioFile(resu);
 		if (processor.getAudioFile() != File())
 		{
 			m_wavecomponent.setAudioFile(processor.getAudioFile());

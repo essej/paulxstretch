@@ -478,7 +478,11 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 
 String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 {
-	auto ai = unique_from_raw(m_afm->createReaderFor(f));
+    //if (f==File())
+    //    return String();
+    //if (f==m_current_file && f.getLastModificationTime()==m_current_file_date)
+    //    return String();
+    auto ai = unique_from_raw(m_afm->createReaderFor(f));
 	if (ai != nullptr)
 	{
 		if (ai->numChannels > 32)
@@ -494,6 +498,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
 		m_current_file = f;
+        m_current_file_date = m_current_file.getLastModificationTime();
 		m_using_memory_buffer = false;
 		return String();
 		//MessageManager::callAsync([cb, file]() { cb(String()); });

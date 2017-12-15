@@ -330,7 +330,7 @@ private:
 	Label m_info_label;
 	SpectralChainEditor m_spec_order_ed;
 	void chooseFile();
-	
+    String m_last_err;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

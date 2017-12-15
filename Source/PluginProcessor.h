@@ -111,7 +111,7 @@ private:
 	int m_cur_num_out_chans = 2;
 	CriticalSection m_cs;
 	File m_current_file;
-    
+    Time m_current_file_date;
 
 	TimeSliceThread m_bufferingthread;
 	std::unique_ptr<StretchAudioSource> m_stretch_source;
