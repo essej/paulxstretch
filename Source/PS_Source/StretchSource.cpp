@@ -286,7 +286,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		/*int produced =*/ m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, outsamplestoproduce, m_num_outchans);
 		if (m_xfadetask.state == 1)
 		{
-			Logger::writeToLog("Filling xfade buffer");
+			//Logger::writeToLog("Filling xfade buffer");
 			for (int i = 0; i < outsamplestoproduce; ++i)
 			{
 				for (int j = 0; j < m_num_outchans; ++j)
@@ -297,7 +297,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			if (m_process_fftsize != m_xfadetask.requested_fft_size)
 			{
 				m_process_fftsize = m_xfadetask.requested_fft_size;
-				Logger::writeToLog("Initing stretcher objects");
+				//Logger::writeToLog("Initing stretcher objects");
 				initObjects();
 			}
 			m_xfadetask.state = 2;
@@ -307,7 +307,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	resamplertask();
 	if (previousxfadestate == 1 && m_xfadetask.state == 2)
 	{
-		Logger::writeToLog("Rerunning resampler task");
+		//Logger::writeToLog("Rerunning resampler task");
 		resamplertask();
 	}
 	bool source_ended = m_inputfile->hasEnded();

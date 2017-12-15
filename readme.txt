@@ -18,7 +18,5 @@ Requirements for building from source code :
 History :
 
 12-15-2017 1.0.0 preview 1
+	-Very early public release. Various issues present.
 	
-	
-
-
