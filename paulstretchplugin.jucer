@@ -7,7 +7,7 @@
               buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="PaulXStretch"
               pluginDesc="PaulXStretch" pluginManufacturer="Xenakios" pluginManufacturerCode="XenS"
-              pluginCode="Fn1r" pluginChannelConfigs="{2,2},{4,4}, {8,8}" pluginIsSynth="0"
+              pluginCode="Fn1r" pluginChannelConfigs="{2,2},{2,4}, {2,8}" pluginIsSynth="0"
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
@@ -86,7 +86,7 @@
                        headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\VSTPlugins_64bit"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
-                       linkTimeOptimisation="0" isDebug="0" optimisation="3" targetName="PaulXStretch"
+                       linkTimeOptimisation="1" isDebug="0" optimisation="3" targetName="PaulXStretch"
                        headerPath="Source/PS_Source&#10;Source/WDL&#10;" vstBinaryLocation="C:\VSTPlugins_64bit"
                        useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
