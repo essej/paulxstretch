@@ -155,9 +155,10 @@ void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& bu
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
     File initialloc = File::getSpecialLocation(File::userHomeDirectory);
+	String filterstring = processor.m_afm->getWildcardForAllFormats();
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
-		"*.wav",true);
+		filterstring,true);
 	if (myChooser.browseForFileToOpen())
 	{
         File resu = myChooser.getResult();
