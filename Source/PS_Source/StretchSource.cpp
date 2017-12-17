@@ -14,7 +14,7 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManage
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	m_specproc_order = { 0,1,2,3,4,5,6,7 };
 	setNumOutChannels(initialnumoutchans);
-	m_xfadetask.buffer.setSize(initialnumoutchans, 65536);
+	m_xfadetask.buffer.setSize(8, 65536);
 	m_xfadetask.buffer.clear();
 }
 
