@@ -19,4 +19,7 @@ History :
 
 12-15-2017 1.0.0 preview 1
 	-Very early public release. Various issues present.
-	
+12-17-2017 1.0.0 preview 2
+	-Report only 2 input channels to host
+	-Fixes for using potentially invalid sample rates in internal initializations and calculations
+	-File import dialog allows importing file formats supported by JUCE, not just .wav
