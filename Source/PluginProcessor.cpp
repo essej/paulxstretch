@@ -189,7 +189,8 @@ bool PaulstretchpluginAudioProcessor::isMidiEffect() const
 
 double PaulstretchpluginAudioProcessor::getTailLengthSeconds() const
 {
-    return (double)m_bufamounts[m_prebuffer_amount]/getSampleRate();
+	return 0.0;
+	//return (double)m_bufamounts[m_prebuffer_amount]/getSampleRate();
 }
 
 int PaulstretchpluginAudioProcessor::getNumPrograms()
@@ -248,12 +249,19 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 	m_stretch_source->setProcessParameters(&m_ppar);
 	m_last_outpos_pos = 0.0;
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
-	m_buffering_source->prepareToPlay(maxBlockSize, getSampleRate());
-};
+	m_buffering_source->prepareToPlay(maxBlockSize, getSampleRateChecked());
+}
+double PaulstretchpluginAudioProcessor::getSampleRateChecked()
+{
+	if (m_cur_sr < 1.0)
+		return 44100.0;
+	return m_cur_sr;
+}
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	ScopedLock locker(m_cs);
+	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
@@ -262,9 +270,9 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	{
 		int len = jlimit(100,m_recbuffer.getNumSamples(), m_rec_pos);
 		m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, 
-			getSampleRate(), 
+			getSampleRateChecked(), 
 			len);
-		callGUI(this,[this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRate(), len); },false);
+		callGUI(this,[this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRateChecked(), len); },false);
 	}
 	if (m_ready_to_play == false)
 	{
@@ -332,6 +340,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 {
 	ScopedLock locker(m_cs);
 	ScopedNoDenormals noDenormals;
+	double srtemp = getSampleRate();
+	if (srtemp != m_cur_sr)
+		m_cur_sr = srtemp;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
 
@@ -476,17 +487,17 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 {
 	ScopedLock locker(m_cs);
-	int lenbufframes = getSampleRate()*m_max_reclen;
+	int lenbufframes = getSampleRateChecked()*m_max_reclen;
 	if (b == true)
 	{
 		m_using_memory_buffer = true;
 		m_current_file = File();
-		m_recbuffer.setSize(2, m_max_reclen*getSampleRate()+4096,false,false,true);
+		m_recbuffer.setSize(2, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		callGUI(this,[this,lenbufframes](PaulstretchpluginAudioProcessorEditor* ed)
 		{
-			ed->beginAddingAudioBlocks(2, getSampleRate(), lenbufframes);
+			ed->beginAddingAudioBlocks(2, getSampleRateChecked(), lenbufframes);
 		},false);
 		m_is_recording = true;
 	}
@@ -583,7 +594,7 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
-	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRate(), lenrecording);
+	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	m_stretch_source->setPlayRange({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) }, true);
 	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
 	if (ed)

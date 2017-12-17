@@ -324,7 +324,7 @@ public:
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
-	SpectralVisualizer m_specvis;
+	//SpectralVisualizer m_specvis;
 	
 	TextButton m_import_button;
 	Label m_info_label;

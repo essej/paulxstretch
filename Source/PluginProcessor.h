@@ -98,6 +98,7 @@ public:
 	StretchAudioSource* getStretchSource() { return m_stretch_source.get(); }
 	double getPreBufferingPercent();
 	void timerCallback(int id) override;
+	double getSampleRateChecked();
 private:
 	
 	
@@ -130,6 +131,8 @@ private:
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
 	AudioParameterInt* m_outchansparam = nullptr;
 	int m_curmaxblocksize = 0;
+	double m_cur_sr = 0.0;
+	
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

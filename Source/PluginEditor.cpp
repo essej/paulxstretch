@@ -117,7 +117,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
             auto bufptr = processor.getStretchSource()->getSourceAudioBuffer();
             if (bufptr!=nullptr)
                 m_wavecomponent.setAudioBuffer(bufptr,
-                                               processor.getSampleRate(), bufptr->getNumSamples());
+                                               processor.getSampleRateChecked(), bufptr->getNumSamples());
         }
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
 		
