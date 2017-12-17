@@ -113,7 +113,9 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		String infotext = String(processor.getPreBufferingPercent(), 1) + " " + String(processor.getStretchSource()->m_param_change_count)+" "+m_last_err;
+		String infotext = String(processor.getPreBufferingPercent(), 1) + "% buffered " 
+			+ String(processor.getStretchSource()->m_param_change_count)+" param changes "+m_last_err+" FFT size "+
+			String(processor.getStretchSource()->getFFTSize());
 		m_info_label.setText(infotext, dontSendNotification);
 	}
 	if (id == 2)
