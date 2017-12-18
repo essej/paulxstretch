@@ -416,6 +416,15 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	
 	AudioSourceChannelInfo aif(buffer);
 	m_buffering_source->getNextAudioBlock(aif);
+	for (int i = 0; i < buffer.getNumChannels(); ++i)
+	{
+		for (int j = 0; j < buffer.getNumSamples(); ++j)
+		{
+			float sample = buffer.getSample(i,j);
+			if (std::isnan(sample) || std::isinf(sample))
+				++m_abnormal_output_samples;
+		}
+	}
 }
 
 //==============================================================================

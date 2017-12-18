@@ -116,6 +116,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		String infotext = String(processor.getPreBufferingPercent(), 1) + "% buffered " 
 			+ String(processor.getStretchSource()->m_param_change_count)+" param changes "+m_last_err+" FFT size "+
 			String(processor.getStretchSource()->getFFTSize());
+		if (processor.m_abnormal_output_samples > 0)
+			infotext += " " + String(processor.m_abnormal_output_samples) + " invalid sample values";
 		m_info_label.setText(infotext, dontSendNotification);
 	}
 	if (id == 2)
