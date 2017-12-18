@@ -145,6 +145,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2); // 27
 	addParameter(m_outchansparam); // 27
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
+	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	startTimer(1, 50);
 }
 
@@ -576,6 +577,11 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 	if (id == 1)
 	{
 		bool capture = getParameter(cpi_capture_enabled);
+		if (capture == false && m_max_reclen != *getFloatParameter(cpi_max_capture_len))
+		{
+			m_max_reclen = *getFloatParameter(cpi_max_capture_len);
+			//Logger::writeToLog("Changing max capture len to " + String(m_max_reclen));
+		}
 		if (capture == true && m_is_recording == false)
 		{
 			setRecordingEnabled(true);
