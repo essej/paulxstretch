@@ -413,9 +413,15 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
 	m_stretch_source->setProcessParameters(&m_ppar);
-	
 	AudioSourceChannelInfo aif(buffer);
-	m_buffering_source->getNextAudioBlock(aif);
+	if (isNonRealtime())
+	{
+		m_stretch_source->getNextAudioBlock(aif);
+	}
+	else
+	{
+		m_buffering_source->getNextAudioBlock(aif);
+	}
 	for (int i = 0; i < buffer.getNumChannels(); ++i)
 	{
 		for (int j = 0; j < buffer.getNumSamples(); ++j)

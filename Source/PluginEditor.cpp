@@ -118,6 +118,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			String(processor.getStretchSource()->getFFTSize());
 		if (processor.m_abnormal_output_samples > 0)
 			infotext += " " + String(processor.m_abnormal_output_samples) + " invalid sample values";
+		if (processor.isNonRealtime())
+			infotext += " (offline rendering)";
 		m_info_label.setText(infotext, dontSendNotification);
 	}
 	if (id == 2)
