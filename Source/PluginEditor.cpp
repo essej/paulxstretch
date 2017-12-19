@@ -20,7 +20,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
+#include <array>
 
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
@@ -88,14 +88,30 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_import_button.changeWidthToFitText();
 	
 	m_info_label.setBounds(m_import_button.getRight() + 1, m_import_button.getY(), getWidth()-m_import_button.getRight()-1, 24);
-	
-	for (int i = 0; i < m_parcomps.size(); ++i)
+    std::array<int,30> indexes;
+    indexes[cpi_main_volume] = 0; indexes[cpi_pause_enabled] = 1;
+    indexes[cpi_capture_enabled] = 2; indexes[cpi_max_capture_len] = 3;
+    indexes[cpi_freeze] = 4; indexes[cpi_num_outchans] = 5;
+    indexes[cpi_fftsize] = 6; indexes[cpi_stretchamount] = 7;
+    indexes[cpi_pitchshift] = 8; indexes[cpi_frequencyshift] = 9;
+    indexes[cpi_octavesm2] = 10; indexes[cpi_octavesm1] = 11;
+    indexes[cpi_octaves0] = 12; indexes[cpi_octaves1] = 13;
+    indexes[cpi_octaves15] = 14; indexes[cpi_octaves2] = 15;
+    indexes[cpi_numharmonics] = 16; indexes[cpi_harmonicsfreq] = 17;
+    indexes[cpi_harmonicsbw] = 18; indexes[cpi_harmonicsgauss] = 19;
+    indexes[cpi_spreadamount] = 20; indexes[cpi_compress] = 21;
+    indexes[cpi_tonalvsnoisebw] = 22; indexes[cpi_tonalvsnoisepreserve] = 23;
+    indexes[cpi_soundstart] = 24; indexes[cpi_soundend] = 25;
+    indexes[cpi_filter_low] = 26; indexes[cpi_filter_high] = 27;
+    indexes[cpi_loopxfadelen] = 28; indexes[cpi_onsetdetection] = 29;
+    for (int i = 0; i < indexes.size(); ++i)
 	{
-		int gridx = i % 2;
-		int gridy = i / 2;
+        int tempfoo = indexes[i];
+        int gridx = tempfoo % 2;
+		int gridy = tempfoo / 2;
 		m_parcomps[i]->setBounds(1+gridx*(getWidth()/2), 30 + gridy * 25, getWidth()/2-2, 24);
 	}
-	int yoffs = m_parcomps.back()->getBottom() + 1;
+	int yoffs = m_parcomps[cpi_loopxfadelen]->getBottom() + 1;
 	int remain_h = getHeight() - 1 - yoffs;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
 	m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
