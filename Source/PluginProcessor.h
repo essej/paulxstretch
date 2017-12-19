@@ -56,6 +56,29 @@ const int cpi_num_outchans = 27;
 const int cpi_pause_enabled = 28;
 const int cpi_max_capture_len = 29;
 
+class MyPropertiesFile
+{
+public:
+    MyPropertiesFile()
+    {
+        
+        PropertiesFile::Options poptions;
+        poptions.applicationName = "PaulXStretch3";
+            poptions.folderName = "PaulXStretch3";
+            poptions.commonToAllUsers = false;
+            poptions.doNotSave = false;
+            poptions.storageFormat = PropertiesFile::storeAsXML;
+            poptions.millisecondsBeforeSaving = 1000;
+            poptions.ignoreCaseOfKeyNames = false;
+            poptions.processLock = nullptr;
+            poptions.filenameSuffix = ".xml";
+            poptions.osxLibrarySubFolder = "Application Support";
+        m_props_file = std::make_unique<PropertiesFile>(poptions);
+        
+    }
+    std::unique_ptr<PropertiesFile> m_props_file;
+};
+
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, public MultiTimer
 {
 public:
@@ -106,6 +129,7 @@ public:
 	File getAudioFile() { return m_current_file; }
 	Range<double> getTimeSelection();
 	SharedResourcePointer<AudioFormatManager> m_afm;
+    SharedResourcePointer<MyPropertiesFile> m_propsfile;
 	StretchAudioSource* getStretchSource() { return m_stretch_source.get(); }
 	double getPreBufferingPercent();
 	void timerCallback(int id) override;

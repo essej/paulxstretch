@@ -186,7 +186,9 @@ void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& bu
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
-    File initialloc = File::getSpecialLocation(File::userHomeDirectory);
+    String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
+                                                File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
+    File initialloc(initiallocfn);
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
@@ -200,6 +202,7 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
             pathname = pathname.substring(10);
             resu = File(pathname);
         }
+        processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
         m_last_err = processor.setAudioFile(resu);
 		if (processor.getAudioFile() != File())
 		{

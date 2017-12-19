@@ -82,7 +82,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
                        )
 #endif
 {
-	g_activeprocessors.insert(this);
+	
+    g_activeprocessors.insert(this);
 	m_recbuffer.setSize(2, 44100);
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
