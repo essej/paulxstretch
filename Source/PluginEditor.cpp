@@ -223,9 +223,17 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 {
 	PopupMenu menu;
-	menu.addItem(1, "Foo 1", true, false);
-	menu.addItem(2, "Foo 2", true, false);
+	menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
+	menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
 	int r = menu.show();
+	if (r == 1)
+	{
+		processor.m_play_when_host_plays = !processor.m_play_when_host_plays;
+	}
+	if (r == 2)
+	{
+		processor.m_capture_when_host_plays = !processor.m_capture_when_host_plays;
+	}
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm)

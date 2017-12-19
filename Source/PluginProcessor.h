@@ -136,6 +136,8 @@ public:
 	double getSampleRateChecked();
 	int m_abnormal_output_samples = 0;
 	AudioPlayHead::CurrentPositionInfo m_playposinfo;
+	bool m_play_when_host_plays = false;
+	bool m_capture_when_host_plays = false;
 private:
 	
 	
@@ -169,7 +171,7 @@ private:
 	AudioParameterInt* m_outchansparam = nullptr;
 	int m_curmaxblocksize = 0;
 	double m_cur_sr = 0.0;
-	
+	bool m_last_host_playing = false;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

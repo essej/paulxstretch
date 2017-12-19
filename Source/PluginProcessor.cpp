@@ -381,6 +381,17 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	}
 	jassert(m_buffering_source != nullptr);
 	jassert(m_bufferingthread.isThreadRunning());
+	if (m_last_host_playing == false && m_playposinfo.isPlaying)
+	{
+		m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
+		m_last_host_playing = true;
+	}
+	else if (m_last_host_playing == true && m_playposinfo.isPlaying == false)
+	{
+		m_last_host_playing = false;
+	}
+	if (m_play_when_host_plays == true && m_playposinfo.isPlaying == false)
+		return;
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 
