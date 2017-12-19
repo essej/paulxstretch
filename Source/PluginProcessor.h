@@ -135,7 +135,7 @@ public:
 	void timerCallback(int id) override;
 	double getSampleRateChecked();
 	int m_abnormal_output_samples = 0;
-	
+	AudioPlayHead::CurrentPositionInfo m_playposinfo;
 private:
 	
 	

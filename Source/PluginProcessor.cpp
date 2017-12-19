@@ -351,6 +351,11 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 	ScopedLock locker(m_cs);
+	AudioPlayHead* phead = getPlayHead();
+	if (phead != nullptr)
+	{
+		phead->getCurrentPosition(m_playposinfo);
+	}
 	ScopedNoDenormals noDenormals;
 	double srtemp = getSampleRate();
 	if (srtemp != m_cur_sr)
