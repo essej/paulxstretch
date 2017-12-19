@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="fn1Rg8" name="paulstretchplugin" displaySplashScreen="0"
-              reportAppUsage="0" splashScreenColour="Dark" projectType="audioplug"
-              version="1.0.0" bundleIdentifier="com.xenakios.paulxstretch"
-              includeBinaryInAppConfig="1" cppLanguageStandard="latest" companyCopyright=""
-              buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
-              buildAAX="0" buildStandalone="1" enableIAA="0" pluginName="PaulXStretch"
-              pluginDesc="PaulXStretch" pluginManufacturer="Xenakios" pluginManufacturerCode="XenS"
-              pluginCode="Fn1r" pluginChannelConfigs="{2,2},{2,4}, {2,8}" pluginIsSynth="0"
-              pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
-              pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
-              pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
+<JUCERPROJECT id="fn1Rg8" name="PaulXStretch" displaySplashScreen="0" reportAppUsage="0"
+              splashScreenColour="Dark" projectType="audioplug" version="1.0.0"
+              bundleIdentifier="com.xenakios.paulxstretch" includeBinaryInAppConfig="1"
+              cppLanguageStandard="latest" companyCopyright="" buildVST="1"
+              buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
+              buildStandalone="1" enableIAA="0" pluginName="PaulXStretch" pluginDesc="PaulXStretch"
+              pluginManufacturer="Xenakios" pluginManufacturerCode="XenS" pluginCode="Fn1r"
+              pluginChannelConfigs="{2,2},{2,4}, {2,8}" pluginIsSynth="0" pluginWantsMidiIn="0"
+              pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0"
+              pluginAUExportPrefix="paulxstretchAU" pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.0"
               headerPath="&#10;&#10;">
-  <MAINGROUP id="nozXHl" name="paulstretchplugin">
+  <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
