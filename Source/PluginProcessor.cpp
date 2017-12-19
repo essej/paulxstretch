@@ -297,6 +297,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		m_cur_num_out_chans = numoutchans;
 		m_ready_to_play = true;
 	}
+	
 }
 
 void PaulstretchpluginAudioProcessor::releaseResources()

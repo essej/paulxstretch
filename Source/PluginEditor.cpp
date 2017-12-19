@@ -33,6 +33,10 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	m_import_button.setButtonText("Import file...");
 	attachCallback(m_import_button, [this]() { chooseFile(); });
 	
+	addAndMakeVisible(&m_settings_button);
+	m_settings_button.setButtonText("Settings...");
+	attachCallback(m_settings_button, [this]() { showSettingsMenu(); });
+
 	addAndMakeVisible(&m_info_label);
 	addAndMakeVisible(&m_wavecomponent);
 	const auto& pars = processor.getParameters();
@@ -86,8 +90,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 {
 	m_import_button.setBounds(1, 1, 60, 24);
 	m_import_button.changeWidthToFitText();
-	
-	m_info_label.setBounds(m_import_button.getRight() + 1, m_import_button.getY(), getWidth()-m_import_button.getRight()-1, 24);
+	m_settings_button.setBounds(m_import_button.getRight() + 1, 1, 60, 24);
+	m_settings_button.changeWidthToFitText();
+	m_info_label.setBounds(m_settings_button.getRight() + 1, m_settings_button.getY(), 
+		getWidth()-m_settings_button.getRight()-1, 24);
     std::array<int,30> indexes;
     indexes[cpi_main_volume] = 0; indexes[cpi_pause_enabled] = 1;
     indexes[cpi_capture_enabled] = 2; indexes[cpi_max_capture_len] = 3;
@@ -212,6 +218,14 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 			m_wavecomponent.setAudioFile(processor.getAudioFile());
 		}
 	}
+}
+
+void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
+{
+	PopupMenu menu;
+	menu.addItem(1, "Foo 1", true, false);
+	menu.addItem(2, "Foo 2", true, false);
+	int r = menu.show();
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm)

@@ -337,9 +337,11 @@ private:
 	//SpectralVisualizer m_specvis;
 	
 	TextButton m_import_button;
+	TextButton m_settings_button;
 	Label m_info_label;
 	SpectralChainEditor m_spec_order_ed;
 	void chooseFile();
+	void showSettingsMenu();
     String m_last_err;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
