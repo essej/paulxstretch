@@ -25,4 +25,5 @@ History :
 	-File import dialog allows importing file formats supported by JUCE, not just .wav
 12-17-2017 1.0.0 preview 2b
 	-Fix buffer channel count issue, seems to make AU validation pass consistently
- 
+12-19-2017 1.0.0 preview 3
+	-
