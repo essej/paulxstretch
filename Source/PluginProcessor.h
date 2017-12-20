@@ -139,6 +139,7 @@ public:
 	bool m_play_when_host_plays = false;
 	bool m_capture_when_host_plays = false;
     bool m_use_backgroundbuffering = true;
+	bool m_pass_input_through = false;
     void setPreBufferAmount(int x);
     int getPreBufferAmount()
     {
@@ -180,6 +181,7 @@ private:
 	int m_curmaxblocksize = 0;
 	double m_cur_sr = 0.0;
 	bool m_last_host_playing = false;
+	AudioBuffer<float> m_input_buffer;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

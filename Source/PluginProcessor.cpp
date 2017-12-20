@@ -285,12 +285,14 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	ScopedLock locker(m_cs);
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
+	m_input_buffer.setSize(2, samplesPerBlock);
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
 		m_ready_to_play = false;
 	if (m_using_memory_buffer == true)
 	{
-		int len = jlimit(100,m_recbuffer.getNumSamples(), m_rec_pos);
+		int len = jlimit(100,m_recbuffer.getNumSamples(), 
+			int(getSampleRateChecked()*(*getFloatParameter(cpi_max_capture_len))));
 		m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, 
 			getSampleRateChecked(), 
 			len);
@@ -373,13 +375,16 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_cur_sr = srtemp;
     const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
-
+	for (int i = 0; i < totalNumInputChannels; ++i)
+		m_input_buffer.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 	if (m_ready_to_play == false)
 		return;
 	if (m_is_recording == true)
 	{
+		if (m_playposinfo.isPlaying == false && m_capture_when_host_plays == true)
+			return;
 		int recbuflenframes = m_max_reclen * getSampleRate();
 		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
 		callGUI(this,[this, &buffer](PaulstretchpluginAudioProcessorEditor*ed) 
@@ -449,6 +454,13 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	else
 	{
 		m_buffering_source->getNextAudioBlock(aif);
+	}
+	if (m_pass_input_through == true)
+	{
+		for (int i = 0; i < totalNumInputChannels; ++i)
+		{
+			buffer.addFrom(i, 0, m_input_buffer, i, 0, buffer.getNumSamples());
+		}
 	}
 	for (int i = 0; i < buffer.getNumChannels(); ++i)
 	{
