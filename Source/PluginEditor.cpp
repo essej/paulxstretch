@@ -225,7 +225,17 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	PopupMenu menu;
 	menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
 	menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
-	int r = menu.show();
+	//menu.addItem(3, "Prebuffering", true, processor.m_use_backgroundbuffering);
+    PopupMenu bufferingmenu;
+    int curbufamount = processor.getPreBufferAmount();
+    bufferingmenu.addItem(100,"None",true,curbufamount == -1);
+    bufferingmenu.addItem(101,"Small",true,curbufamount == 1);
+    bufferingmenu.addItem(102,"Medium",true,curbufamount == 2);
+    bufferingmenu.addItem(103,"Large",true,curbufamount == 3);
+    bufferingmenu.addItem(104,"Very large",true,curbufamount == 4);
+    bufferingmenu.addItem(105,"Huge",true,curbufamount == 5);
+    menu.addSubMenu("Prebuffering", bufferingmenu);
+    int r = menu.show();
 	if (r == 1)
 	{
 		processor.m_play_when_host_plays = !processor.m_play_when_host_plays;
@@ -234,6 +244,13 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	{
 		processor.m_capture_when_host_plays = !processor.m_capture_when_host_plays;
 	}
+    if (r >= 100 && r < 200)
+    {
+        if (r == 100)
+            processor.m_use_backgroundbuffering = false;
+        if (r > 100)
+            processor.setPreBufferAmount(r-100);
+    }
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm)

@@ -90,7 +90,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 		m_afm->registerBasicFormats();
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm);
 	
-	setPreBufferAmount(2);
+	
 	m_ppar.pitch_shift.enabled = true;
 	m_ppar.freq_shift.enabled = true;
 	m_ppar.filter.enabled = true;
@@ -147,7 +147,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(m_outchansparam); // 27
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
-	startTimer(1, 50);
+	setPreBufferAmount(2);
+    startTimer(1, 50);
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -159,10 +160,19 @@ PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
 {
 	int temp = jlimit(0, 5, x);
-	if (temp != m_prebuffer_amount)
+	if (temp != m_prebuffer_amount || m_use_backgroundbuffering == false)
 	{
-		m_prebuffer_amount = temp;
+        m_use_backgroundbuffering = true;
+        m_prebuffer_amount = temp;
 		m_recreate_buffering_source = true;
+        ScopedLock locker(m_cs);
+        m_ready_to_play = false;
+        m_cur_num_out_chans = *m_outchansparam;
+        //Logger::writeToLog("Switching to use " + String(m_cur_num_out_chans) + " out channels");
+        String err;
+        startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
+                  m_cur_num_out_chans, m_curmaxblocksize, err);
+        m_ready_to_play = true;
 	}
 }
 
@@ -432,7 +442,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
 	m_stretch_source->setProcessParameters(&m_ppar);
 	AudioSourceChannelInfo aif(buffer);
-	if (isNonRealtime())
+	if (isNonRealtime() || m_use_backgroundbuffering == false)
 	{
 		m_stretch_source->getNextAudioBlock(aif);
 	}
@@ -485,7 +495,11 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 	{
 		paramtree.setProperty("specorder" + String(i), specorder[i], nullptr);
 	}
-	MemoryOutputStream stream(destData,true);
+    if (m_use_backgroundbuffering)
+        paramtree.setProperty("prebufamount", m_prebuffer_amount, nullptr);
+	else
+        paramtree.setProperty("prebufamount", -1, nullptr);
+    MemoryOutputStream stream(destData,true);
 	paramtree.writeToStream(stream);
 }
 
@@ -519,6 +533,11 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 				*m_outchansparam = tree.getProperty(m_outchansparam->paramID, 2);
 
 		}
+        int prebufamt = tree.getProperty("prebufamount", 2);
+        if (prebufamt==-1)
+            m_use_backgroundbuffering = false;
+        else
+            setPreBufferAmount(prebufamt);
 		String fn = tree.getProperty("importedfile");
 		if (fn.isEmpty() == false)
 		{

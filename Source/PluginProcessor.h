@@ -138,6 +138,14 @@ public:
 	AudioPlayHead::CurrentPositionInfo m_playposinfo;
 	bool m_play_when_host_plays = false;
 	bool m_capture_when_host_plays = false;
+    bool m_use_backgroundbuffering = true;
+    void setPreBufferAmount(int x);
+    int getPreBufferAmount()
+    {
+        if (m_use_backgroundbuffering==false)
+            return -1;
+        return m_prebuffer_amount;
+    }
 private:
 	
 	
@@ -164,7 +172,7 @@ private:
 	double m_last_in_pos = 0.0;
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
 	ProcessParameters m_ppar;
-	void setPreBufferAmount(int x);
+	
 	void setFFTSize(double size);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
