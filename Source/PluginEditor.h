@@ -95,108 +95,13 @@ class ParameterComponent : public Component,
 	public Slider::Listener, public Button::Listener
 {
 public:
-	ParameterComponent(AudioProcessorParameter* par, bool notifyOnlyOnRelease) : m_par(par)
-	{
-		addAndMakeVisible(&m_label);
-		m_label.setText(par->getName(50),dontSendNotification);
-		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(par);
-		if (floatpar)
-		{
-			m_slider = std::make_unique<MySlider>(&floatpar->range);
-			m_notify_only_on_release = notifyOnlyOnRelease;
-			m_slider->setRange(floatpar->range.start, floatpar->range.end, floatpar->range.interval);
-			m_slider->setValue(*floatpar, dontSendNotification);
-			m_slider->addListener(this);
-			addAndMakeVisible(m_slider.get());
-		}
-		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(par);
-		if (intpar)
-		{
-			m_slider = std::make_unique<MySlider>();
-			m_notify_only_on_release = notifyOnlyOnRelease;
-			m_slider->setRange(intpar->getRange().getStart(), intpar->getRange().getEnd(), 1.0);
-			m_slider->setValue(*intpar, dontSendNotification);
-			m_slider->addListener(this);
-			addAndMakeVisible(m_slider.get());
-		}
-		AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(par);
-		if (choicepar)
-		{
-
-		}
-		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(par);
-		if (boolpar)
-		{
-			m_togglebut = std::make_unique<ToggleButton>();
-			m_togglebut->setToggleState(*boolpar, dontSendNotification);
-			m_togglebut->addListener(this);
-			m_togglebut->setButtonText(par->getName(50));
-			addAndMakeVisible(m_togglebut.get());
-		}
-	}
-	void resized() override
-	{
-		if (m_slider)
-		{
-			m_label.setBounds(0, 0, 200, 24);
-			m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
-		}
-		if (m_togglebut)
-			m_togglebut->setBounds(1, 0, getWidth() -1, 24);
-	}
-	void sliderValueChanged(Slider* slid) override
-	{
-		if (m_notify_only_on_release == true)
-			return;
-		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		if (floatpar!=nullptr)
-			*floatpar = slid->getValue();
-		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(m_par);
-		if (intpar != nullptr)
-			*intpar = slid->getValue();
-	}
-	void sliderDragStarted(Slider* slid) override
-	{
-		m_dragging = true;
-	}
-	void sliderDragEnded(Slider* slid) override
-	{
-		m_dragging = false;
-		if (m_notify_only_on_release == false)
-			return;
-		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		if (floatpar!=nullptr)
-			*floatpar = slid->getValue();
-		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(m_par);
-		if (intpar != nullptr)
-			*intpar = slid->getValue();
-	}
-	void buttonClicked(Button* but) override
-	{
-		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-		if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
-		{
-			*boolpar = m_togglebut->getToggleState();
-		}
-	}
-	void updateComponent()
-	{
-		AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(m_par);
-		if (floatpar!=nullptr && m_slider != nullptr && m_dragging == false && (float)m_slider->getValue() != *floatpar)
-		{
-			m_slider->setValue(*floatpar, dontSendNotification);
-		}
-		AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(m_par);
-		if (intpar != nullptr && m_slider != nullptr && m_dragging == false && (int)m_slider->getValue() != *intpar)
-		{
-			m_slider->setValue(*intpar, dontSendNotification);
-		}
-		AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-		if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
-		{
-			m_togglebut->setToggleState(*boolpar, dontSendNotification);
-		}
-	}
+	ParameterComponent(AudioProcessorParameter* par, bool notifyOnlyOnRelease);
+	void resized() override;
+	void sliderValueChanged(Slider* slid) override;
+	void sliderDragStarted(Slider* slid) override;
+	void sliderDragEnded(Slider* slid) override;
+	void buttonClicked(Button* but) override;
+	void updateComponent();
 private:
 	Label m_label;
 	AudioProcessorParameter* m_par = nullptr;
