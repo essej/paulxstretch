@@ -55,6 +55,7 @@ const int cpi_capture_enabled = 26;
 const int cpi_num_outchans = 27;
 const int cpi_pause_enabled = 28;
 const int cpi_max_capture_len = 29;
+const int cpi_passthrough = 30;
 
 class MyPropertiesFile
 {
@@ -141,12 +142,7 @@ public:
     bool m_use_backgroundbuffering = true;
 	bool m_pass_input_through = false;
     void setPreBufferAmount(int x);
-    int getPreBufferAmount()
-    {
-        if (m_use_backgroundbuffering==false)
-            return -1;
-        return m_prebuffer_amount;
-    }
+	int getPreBufferAmount();
 private:
 	
 	

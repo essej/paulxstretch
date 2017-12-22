@@ -147,6 +147,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(m_outchansparam); // 27
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
+	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
 	setPreBufferAmount(2);
     startTimer(1, 50);
 }
@@ -174,6 +175,13 @@ void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
                   m_cur_num_out_chans, m_curmaxblocksize, err);
         m_ready_to_play = true;
 	}
+}
+
+int PaulstretchpluginAudioProcessor::getPreBufferAmount()
+{
+	if (m_use_backgroundbuffering == false)
+		return -1;
+	return m_prebuffer_amount;
 }
 
 //==============================================================================

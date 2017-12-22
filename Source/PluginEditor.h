@@ -317,6 +317,19 @@ public:
 	}
 };
 
+class ParamLayoutInfo
+{
+public:
+	ParamLayoutInfo() {}
+	ParamLayoutInfo(int c, int x, int y, int w, int h) :
+		m_comp(c), m_col(x), m_row(y), m_w(w), m_h(h) {}
+	int m_comp = 0;
+	int m_col = 0;
+	int m_row = 0;
+	int m_w = 1;
+	int m_h = 1;
+};
+
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer
 {
