@@ -130,16 +130,19 @@ public:
 			m_togglebut = std::make_unique<ToggleButton>();
 			m_togglebut->setToggleState(*boolpar, dontSendNotification);
 			m_togglebut->addListener(this);
+			m_togglebut->setButtonText(par->getName(50));
 			addAndMakeVisible(m_togglebut.get());
 		}
 	}
 	void resized() override
 	{
-		m_label.setBounds(0, 0, 200, 24);
 		if (m_slider)
+		{
+			m_label.setBounds(0, 0, 200, 24);
 			m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
+		}
 		if (m_togglebut)
-			m_togglebut->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
+			m_togglebut->setBounds(1, 0, getWidth() -1, 24);
 	}
 	void sliderValueChanged(Slider* slid) override
 	{
