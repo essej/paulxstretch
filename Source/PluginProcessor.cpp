@@ -110,7 +110,17 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
 	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
 	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
-	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics", 0.0f, 100.0f, 0.0f)); // 11
+    auto numhar_convertFrom0To1Func = [](float rangemin, float rangemax, float value)
+    {
+        return jmap<float>(value, 0.0f, 1.0f, 101.0f, 1.0f);
+    };
+    auto numhar_convertTo0To1Func = [](float rangemin, float rangemax, float value)
+    {
+        return jmap<float>(value, 101.0f, 1.0f, 0.0f, 1.0f);
+    };
+    addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics",
+                                         NormalisableRange<float>(1.0f, 101.0f,
+                                        numhar_convertFrom0To1Func, numhar_convertTo0To1Func), 101.0f)); // 11
 	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 
 		NormalisableRange<float>(1.0f, 5000.0f, 1.00f, 0.5), 128.0f)); // 12
 	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
@@ -425,7 +435,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_ppar.spread.bandwidth = *getFloatParameter(cpi_spreadamount);
     m_ppar.compressor.enabled = *getFloatParameter(cpi_compress)>0.0f;
     m_ppar.compressor.power = *getFloatParameter(cpi_compress);
-	m_ppar.harmonics.enabled = *getFloatParameter(cpi_numharmonics)>=1.0;
+	m_ppar.harmonics.enabled = *getFloatParameter(cpi_numharmonics)<101.0;
 	m_ppar.harmonics.nharmonics = *getFloatParameter(cpi_numharmonics);
 	m_ppar.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
     m_ppar.harmonics.bandwidth = *getFloatParameter(cpi_harmonicsbw);
