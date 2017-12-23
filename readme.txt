@@ -25,12 +25,16 @@ History :
 	-File import dialog allows importing file formats supported by JUCE, not just .wav
 12-17-2017 1.0.0 preview 2b
 	-Fix buffer channel count issue, seems to make AU validation pass consistently
-12-22-2017 1.0.0 preview 3
+12-23-2017 1.0.0 preview 3
 	-Added parameter to set audio input capture buffer length (up to 120 seconds)
-	-Add button to show settings menu
+	-Added parameter allow passing through audio from plugin input
+	-Inverted the number of harmonics parameter active range
+	-Added button to show settings menu
 	-Fix bug when offline rendering in host
 	-Allow setting background prebuffering amount in settings, including none. 
 	 (None is mostly useful in case the plugin doesn't detect the host is offline rendering. 
 	 For real time playback none is likely only going to work with small FFT sizes.)
-	-Slightly better GUI layout but still mostly just 2 columns of parameters
+	-Slightly better GUI layout but still mostly just 2 columns of sliders
 	-Remember last file import folder
+	-Added detection of invalid audio output sample values (infinities, NaN)
+	
