@@ -108,19 +108,19 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 		if (e == 0 && pars.harmonics.enabled)
 			spectrum_do_harmonics(pars, tmpfreq1, nfreq, samplerate, infreq.data(), freq);
 		if (e == 1 && pars.tonal_vs_noise.enabled)
-			do_tonal_vs_noise(infreq.data(), freq);
+			spectrum_do_tonal_vs_noise(pars,nfreq,samplerate,tmpfreq1, infreq.data(), freq);
 		if (e == 2 && pars.freq_shift.enabled)
-			do_freq_shift(infreq.data(), freq);
+			spectrum_do_freq_shift(pars,nfreq,samplerate,infreq.data(), freq);
 		if (e == 3 && pars.pitch_shift.enabled)
-			do_pitch_shift(infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
+			spectrum_do_pitch_shift(pars,nfreq,infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
 		if (e == 4 && pars.octave.enabled)
-			do_octave(infreq.data(), freq);
+			spectrum_do_octave(pars,nfreq,samplerate, sumfreq, tmpfreq1, infreq.data(), freq);
 		if (e == 5 && pars.spread.enabled)
-			do_spread(infreq.data(), freq);
+			spectrum_spread(nfreq,samplerate,tmpfreq1,infreq.data(), freq, pars.spread.bandwidth);
 		if (e == 6 && pars.filter.enabled)
-			do_filter(infreq.data(), freq);
+			spectrum_do_filter(pars,nfreq,samplerate,infreq.data(), freq);
 		if (e == 7 && pars.compressor.enabled)
-			do_compressor(infreq.data(), freq);
+			spectrum_do_compressor(pars,nfreq, infreq.data(), freq);
 	}
 
 #ifdef USE_OLD_SPEC_PROC

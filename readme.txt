@@ -32,5 +32,5 @@ History :
 	-Allow setting background prebuffering amount in settings, including none. 
 	 (None is mostly useful in case the plugin doesn't detect the host is offline rendering. 
 	 For real time playback none is likely only going to work with small FFT sizes.)
-	-Slightly better GUI layout but still just 2 columns of parameters
+	-Slightly better GUI layout but still mostly just 2 columns of parameters
 	-Remember last file import folder
