@@ -140,7 +140,7 @@ public:
 	bool m_play_when_host_plays = false;
 	bool m_capture_when_host_plays = false;
     bool m_use_backgroundbuffering = true;
-	bool m_pass_input_through = false;
+	
     void setPreBufferAmount(int x);
 	int getPreBufferAmount();
 private:
