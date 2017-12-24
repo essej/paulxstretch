@@ -22,6 +22,8 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "PluginEditor.h"
 #include <array>
 
+extern String g_plugintitle;
+
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
     : AudioProcessorEditor (&p),
@@ -290,6 +292,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
     bufferingmenu.addItem(104,"Very large",true,curbufamount == 4);
     bufferingmenu.addItem(105,"Huge",true,curbufamount == 5);
     menu.addSubMenu("Prebuffering", bufferingmenu);
+	menu.addItem(3, "About...", true, false);
     int r = menu.show();
 	if (r == 1)
 	{
@@ -299,7 +302,22 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	{
 		processor.m_capture_when_host_plays = !processor.m_capture_when_host_plays;
 	}
-	
+	if (r == 3)
+	{
+		String fftlib = fftwf_version;
+String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
+		AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon,
+			g_plugintitle,
+			"Plugin for extreme time stretching and other processing of sound files\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
+			"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
+			"(C) 2017 Xenakios\n\n"
+			"Using " + fftlib + " for FFT\n\n"
+			+ juceversiontxt + " (c) Roli. Used under the GPL license.\n\n"
+			"GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n"
+			, "OK",
+			this);
+
+	}
     if (r >= 100 && r < 200)
     {
         if (r == 100)

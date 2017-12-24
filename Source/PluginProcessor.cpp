@@ -27,6 +27,8 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #undef max
 #endif
 
+String g_plugintitle{ "PaulXStretch 1.0.0 preview 4" };
+
 std::set<PaulstretchpluginAudioProcessor*> g_activeprocessors;
 
 template<typename F>
