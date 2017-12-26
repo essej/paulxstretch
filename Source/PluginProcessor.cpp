@@ -111,7 +111,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("freeze0", "Freeze", false)); // 7
 	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
 	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
-	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.0f)); // 10
+	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.01f)); // 10
     auto numhar_convertFrom0To1Func = [](float rangemin, float rangemax, float value)
     {
         return jmap<float>(value, 0.0f, 1.0f, 101.0f, 1.0f);
@@ -544,7 +544,8 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
         paramtree.setProperty("prebufamount", m_prebuffer_amount, nullptr);
 	else
         paramtree.setProperty("prebufamount", -1, nullptr);
-    MemoryOutputStream stream(destData,true);
+	paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
+	MemoryOutputStream stream(destData,true);
 	paramtree.writeToStream(stream);
 }
 
@@ -555,6 +556,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 	{
 		{
 			ScopedLock locker(m_cs);
+			m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
 			if (tree.hasProperty("numspectralstages"))
 			{
 				std::vector<int> order;
@@ -583,11 +585,14 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
             m_use_backgroundbuffering = false;
         else
             setPreBufferAmount(prebufamt);
-		String fn = tree.getProperty("importedfile");
-		if (fn.isEmpty() == false)
+		if (m_load_file_with_state == true)
 		{
-			File f(fn);
-			setAudioFile(f);
+			String fn = tree.getProperty("importedfile");
+			if (fn.isEmpty() == false)
+			{
+				File f(fn);
+				setAudioFile(f);
+			}
 		}
 	}
 }
