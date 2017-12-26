@@ -160,6 +160,9 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
+	auto& pars = getParameters();
+	for (const auto& p : pars)
+		m_reset_pars.push_back(p->getValue());
 	setPreBufferAmount(2);
     startTimer(1, 50);
 }
@@ -168,6 +171,16 @@ PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
 	g_activeprocessors.erase(this);
 	m_bufferingthread.stopThread(1000);
+}
+
+void PaulstretchpluginAudioProcessor::resetParameters()
+{
+	ScopedLock locker(m_cs);
+	for (int i = 0; i < m_reset_pars.size(); ++i)
+	{
+		if (i!=cpi_main_volume && i!=cpi_passthrough)
+			setParameter(i, m_reset_pars[i]);
+	}
 }
 
 void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)

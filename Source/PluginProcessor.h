@@ -80,10 +80,11 @@ public:
     std::unique_ptr<PropertiesFile> m_props_file;
 };
 
-class PaulstretchpluginAudioProcessor  : public AudioProcessor, public MultiTimer
+class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
+	public MultiTimer
 {
 public:
-    //==============================================================================
+    
     PaulstretchpluginAudioProcessor();
     ~PaulstretchpluginAudioProcessor();
 
@@ -140,7 +141,7 @@ public:
 	bool m_play_when_host_plays = false;
 	bool m_capture_when_host_plays = false;
     bool m_use_backgroundbuffering = true;
-	
+	void resetParameters();
     void setPreBufferAmount(int x);
 	int getPreBufferAmount();
 private:
@@ -178,6 +179,7 @@ private:
 	double m_cur_sr = 0.0;
 	bool m_last_host_playing = false;
 	AudioBuffer<float> m_input_buffer;
+	std::vector<float> m_reset_pars;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
