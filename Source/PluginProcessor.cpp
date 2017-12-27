@@ -223,7 +223,7 @@ int PaulstretchpluginAudioProcessor::getPreBufferAmount()
 	return m_prebuffer_amount;
 }
 
-ValueTree PaulstretchpluginAudioProcessor::getStateTree()
+ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool ignorefile)
 {
 	ValueTree paramtree("paulstretch3pluginstate");
 	for (int i = 0; i<getNumParameters(); ++i)
@@ -235,7 +235,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree()
 		}
 	}
 	paramtree.setProperty(m_outchansparam->paramID, (int)*m_outchansparam, nullptr);
-	if (m_current_file != File())
+	if (m_current_file != File() && ignorefile == false)
 	{
 		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
 	}
@@ -245,11 +245,14 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree()
 	{
 		paramtree.setProperty("specorder" + String(i), specorder[i], nullptr);
 	}
-	if (m_use_backgroundbuffering)
-		paramtree.setProperty("prebufamount", m_prebuffer_amount, nullptr);
-	else
-		paramtree.setProperty("prebufamount", -1, nullptr);
-	paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
+	if (ignoreoptions == false)
+	{
+		if (m_use_backgroundbuffering)
+			paramtree.setProperty("prebufamount", m_prebuffer_amount, nullptr);
+		else
+			paramtree.setProperty("prebufamount", -1, nullptr);
+		paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
+	}
 	return paramtree;
 }
 
@@ -297,6 +300,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 				setAudioFile(f);
 			}
 		}
+		m_state_dirty = true;
 	}
 }
 
@@ -639,7 +643,7 @@ AudioProcessorEditor* PaulstretchpluginAudioProcessor::createEditor()
 //==============================================================================
 void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-	ValueTree paramtree = getStateTree();
+	ValueTree paramtree = getStateTree(false,false);
 	MemoryOutputStream stream(destData,true);
 	paramtree.writeToStream(stream);
 }

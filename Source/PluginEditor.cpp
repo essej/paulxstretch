@@ -217,7 +217,11 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
                                                processor.getSampleRateChecked(), bufptr->getNumSamples());
         }
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
-		
+		if (processor.m_state_dirty)
+		{
+			m_spec_order_ed.setSource(processor.getStretchSource());
+			processor.m_state_dirty = false;
+		}
 	}
 	if (id == 3)
 	{
@@ -362,7 +366,7 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
     }
 	if (r == 6)
 	{
-		ValueTree tree = processor.getStateTree();
+		ValueTree tree = processor.getStateTree(true,true);
 		MemoryBlock destData;
 		MemoryOutputStream stream(destData, true);
 		tree.writeToStream(stream);

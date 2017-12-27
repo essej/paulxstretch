@@ -145,8 +145,9 @@ public:
     void setPreBufferAmount(int x);
 	int getPreBufferAmount();
 	bool m_load_file_with_state = true;
-	ValueTree getStateTree();
+	ValueTree getStateTree(bool ignoreoptions, bool ignorefile);
 	void setStateFromTree(ValueTree tree);
+	bool m_state_dirty = false;
 private:
 	
 	
