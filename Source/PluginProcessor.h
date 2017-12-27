@@ -148,7 +148,7 @@ public:
 private:
 	
 	
-	bool m_ready_to_play = false;
+	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;
 	double m_max_reclen = 10.0;
 	bool m_is_recording = false;

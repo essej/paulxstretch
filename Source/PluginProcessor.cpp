@@ -192,13 +192,13 @@ void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
         m_prebuffer_amount = temp;
 		m_recreate_buffering_source = true;
         ScopedLock locker(m_cs);
-        m_ready_to_play = false;
+        m_prebuffering_inited = false;
         m_cur_num_out_chans = *m_outchansparam;
         //Logger::writeToLog("Switching to use " + String(m_cur_num_out_chans) + " out channels");
         String err;
         startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
                   m_cur_num_out_chans, m_curmaxblocksize, err);
-        m_ready_to_play = true;
+        m_prebuffering_inited = true;
 	}
 }
 
@@ -321,7 +321,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_input_buffer.setSize(2, samplesPerBlock);
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
-		m_ready_to_play = false;
+		m_prebuffering_inited = false;
 	if (m_using_memory_buffer == true)
 	{
 		int len = jlimit(100,m_recbuffer.getNumSamples(), 
@@ -331,7 +331,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 			len);
 		callGUI(this,[this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRateChecked(), len); },false);
 	}
-	if (m_ready_to_play == false)
+	if (m_prebuffering_inited == false)
 	{
 		setFFTSize(*getFloatParameter(cpi_fftsize));
 		m_stretch_source->setProcessParameters(&m_ppar);
@@ -340,9 +340,12 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
 		numoutchans, samplesPerBlock, err);
 		m_cur_num_out_chans = numoutchans;
-		m_ready_to_play = true;
+		m_prebuffering_inited = true;
 	}
-	
+	else
+	{
+		m_buffering_source->prepareToPlay(samplesPerBlock, getSampleRateChecked());
+	}
 }
 
 void PaulstretchpluginAudioProcessor::releaseResources()
@@ -412,7 +415,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_input_buffer.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
-	if (m_ready_to_play == false)
+	if (m_prebuffering_inited == false)
 		return;
 	if (m_is_recording == true)
 	{
@@ -698,13 +701,13 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 		{
 			jassert(m_curmaxblocksize > 0);
 			ScopedLock locker(m_cs);
-			m_ready_to_play = false;
+			m_prebuffering_inited = false;
 			m_cur_num_out_chans = *m_outchansparam;
 			//Logger::writeToLog("Switching to use " + String(m_cur_num_out_chans) + " out channels");
 			String err;
 			startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
 				m_cur_num_out_chans, m_curmaxblocksize, err);
-			m_ready_to_play = true;
+			m_prebuffering_inited = true;
 		}
 	}
 }

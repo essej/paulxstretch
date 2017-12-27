@@ -439,6 +439,7 @@ void StretchAudioSource::initObjects()
 		m_stretchers[i]->set_onset_detection_sensitivity(onsetsens);
 		m_stretchers[i]->set_parameters(&m_ppar);
 		m_stretchers[i]->set_freezing(m_freezing);
+		fill_container(m_stretchers[i]->out_buf, 0.0f);
 		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
 	}
 	m_inbufs.resize(m_num_outchans);

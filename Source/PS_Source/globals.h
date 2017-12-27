@@ -187,3 +187,9 @@ private:
 	int m_avail = 0;
 	std::vector<T> m_buf;
 };
+
+template<typename Cont,typename T>
+inline void fill_container(Cont& c, const T& x)
+{
+	std::fill(std::begin(c), std::end(c), x);
+}

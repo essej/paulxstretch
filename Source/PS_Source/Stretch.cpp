@@ -237,14 +237,15 @@ void Stretch::setBufferSize(int bufsize_)
 		outfft = std::make_unique<FFT>(bufsize * 2);
 	}
 	jassert(infft != nullptr && fft != nullptr && outfft != nullptr);
+	fill_container(outfft->smp, 0.0f);
 	for (int i = 0; i<bufsize * 2; i++) {
 		old_out_smps[i] = 0.0;
 	};
 	for (int i = 0; i<bufsize; i++) {
-		old_freq[i] = 0.0;
-		new_smps[i] = 0.0;
-		old_smps[i] = 0.0;
-		very_old_smps[i] = 0.0;
+		old_freq[i] = 0.0f;
+		new_smps[i] = 0.0f;
+		old_smps[i] = 0.0f;
+		very_old_smps[i] = 0.0f;
 	};
 }
 

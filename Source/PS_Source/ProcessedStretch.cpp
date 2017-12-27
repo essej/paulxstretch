@@ -41,18 +41,22 @@ void ProcessedStretch::set_parameters(ProcessParameters *ppar)
 }
 void ProcessedStretch::setBufferSize(int sz)
 {
+	jassert(sz > 0);
 	Stretch::setBufferSize(sz);
-	nfreq = bufsize;
-	infreq = floatvector(nfreq);
-	sumfreq = floatvector(nfreq);
-	tmpfreq1 = floatvector(nfreq);
-	tmpfreq2 = floatvector(nfreq);
-	//fbfreq=new REALTYPE[nfreq];
-	free_filter_freqs = floatvector(nfreq);
-	for (int i = 0; i<nfreq; i++) {
-		free_filter_freqs[i] = 1.0;
-		//	fbfreq[i]=0.0;
-	};
+	//if (nfreq != sz)
+	{
+		nfreq = bufsize;
+		infreq = floatvector(nfreq);
+		sumfreq = floatvector(nfreq);
+		tmpfreq1 = floatvector(nfreq);
+		tmpfreq2 = floatvector(nfreq);
+		//fbfreq=new REALTYPE[nfreq];
+		free_filter_freqs = floatvector(nfreq);
+		for (int i = 0; i < nfreq; i++) {
+			free_filter_freqs[i] = 1.0;
+			//	fbfreq[i]=0.0;
+		};
+	}
 }
 
 
