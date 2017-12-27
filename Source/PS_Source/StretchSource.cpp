@@ -407,7 +407,7 @@ void StretchAudioSource::initObjects()
 {
 	ScopedLock locker(m_cs);
 	m_inputfile->setActiveRange(m_playrange);
-	m_inputfile->seek(m_seekpos);
+	m_inputfile->seek(m_playrange.getStart());
 	
 	m_firstbuffer = true;
 	if (m_stretchoutringbuf.getSize() < m_num_outchans*m_process_fftsize)
@@ -445,8 +445,11 @@ void StretchAudioSource::initObjects()
 	m_inbufs.resize(m_num_outchans);
 	m_file_inbuf.setSize(m_num_outchans, 3 * inbufsize);
 	int poolsize = m_stretchers[0]->get_max_bufsize();
-	for (int i = 0; i<m_num_outchans; ++i)
+	for (int i = 0; i < m_num_outchans; ++i)
+	{
 		m_inbufs[i].resize(poolsize);
+		fill_container(m_inbufs[i],0.0f);
+	}
 	
 }
 
