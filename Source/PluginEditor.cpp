@@ -249,6 +249,28 @@ void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& bu
 	m_wavecomponent.addAudioBlock(buf, samplerate, pos);
 }
 
+bool PaulstretchpluginAudioProcessorEditor::isInterestedInFileDrag(const StringArray & files)
+{
+	if (files.size() == 0)
+		return false;
+	File f(files[0]);
+	String extension = f.getFileExtension().toLowerCase();
+	if (processor.m_afm->getWildcardForAllFormats().containsIgnoreCase(extension))
+		return true;
+	return false;
+
+}
+
+void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & files, int x, int y)
+{
+	if (files.size() > 0)
+	{
+		File f(files[0]);
+		processor.setAudioFile(f);
+		toFront(true);
+	}
+}
+
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
     String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",

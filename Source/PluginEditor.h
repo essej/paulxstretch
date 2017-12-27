@@ -239,7 +239,7 @@ public:
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
-	public MultiTimer
+	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
@@ -251,6 +251,9 @@ public:
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
 	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
 	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
+	bool isInterestedInFileDrag(const StringArray &files) override;
+	void filesDropped(const StringArray &files, int x, int y) override;
+
 	WaveformComponent m_wavecomponent;
 private:
     PaulstretchpluginAudioProcessor& processor;
