@@ -107,7 +107,6 @@ private:
 	std::unique_ptr<AInputS> m_inputfile;
 	std::vector<std::shared_ptr<ProcessedStretch>> m_stretchers;
 	std::unique_ptr<BinauralBeats> m_binaubeats;
-	float2dvector m_inbufs;
 	std::function<void(StretchAudioSource*)> SourceEndedCallback;
 	bool m_firstbuffer = false;
 	bool m_output_has_begun = false;

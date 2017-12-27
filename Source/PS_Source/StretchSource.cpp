@@ -219,15 +219,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			{
 				readed = m_inputfile->readNextBlock(m_file_inbuf, readsize, m_num_outchans);
 			}
-			auto inbufptrs = m_file_inbuf.getArrayOfReadPointers();
-			for (int ch = 0; ch < m_num_outchans; ++ch)
-			{
-				int inchantouse = ch;
-				for (int i = 0; i < readed; i++)
-				{
-					m_inbufs[ch][i] = inbufptrs[inchantouse][i];
-				}
-			}
+			auto inbufptrs = m_file_inbuf.getArrayOfWritePointers();
 			REALTYPE onset_max = std::numeric_limits<REALTYPE>::min();
 #ifdef USE_PPL_TO_PROCESS_STRETCHERS
 			std::array<REALTYPE, 16> onset_values_arr;
@@ -241,7 +233,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 #else
 			for (int i = 0; i < m_stretchers.size(); ++i)
 			{
-				REALTYPE onset_l = m_stretchers[i]->process(m_inbufs[i].data(), readed);
+				REALTYPE onset_l = m_stretchers[i]->process(inbufptrs[i], readed);
 				onset_max = std::max(onset_max, onset_l);
 			}
 #endif
@@ -442,15 +434,8 @@ void StretchAudioSource::initObjects()
 		fill_container(m_stretchers[i]->out_buf, 0.0f);
 		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
 	}
-	m_inbufs.resize(m_num_outchans);
 	m_file_inbuf.setSize(m_num_outchans, 3 * inbufsize);
 	int poolsize = m_stretchers[0]->get_max_bufsize();
-	for (int i = 0; i < m_num_outchans; ++i)
-	{
-		m_inbufs[i].resize(poolsize);
-		fill_container(m_inbufs[i],0.0f);
-	}
-	
 }
 
 double StretchAudioSource::getInfilePositionPercent()
