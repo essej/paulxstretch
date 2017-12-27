@@ -317,7 +317,10 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
     bufferingmenu.addItem(105,"Huge",true,curbufamount == 5);
     menu.addSubMenu("Prebuffering", bufferingmenu);
 	menu.addItem(3, "About...", true, false);
-    int r = menu.show();
+#ifdef JUCE_DEBUG
+	menu.addItem(6, "Dump preset to clipboard", true, false);
+#endif
+	int r = menu.show();
 	if (r == 1)
 	{
 		processor.m_play_when_host_plays = !processor.m_play_when_host_plays;
@@ -357,6 +360,15 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
         if (r > 100)
             processor.setPreBufferAmount(r-100);
     }
+	if (r == 6)
+	{
+		ValueTree tree = processor.getStateTree();
+		MemoryBlock destData;
+		MemoryOutputStream stream(destData, true);
+		tree.writeToStream(stream);
+		String txt = Base64::toBase64(destData.getData(), destData.getSize());
+		SystemClipboard::copyTextToClipboard(txt);
+	}
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm)

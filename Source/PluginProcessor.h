@@ -145,6 +145,8 @@ public:
     void setPreBufferAmount(int x);
 	int getPreBufferAmount();
 	bool m_load_file_with_state = true;
+	ValueTree getStateTree();
+	void setStateFromTree(ValueTree tree);
 private:
 	
 	
@@ -181,6 +183,8 @@ private:
 	bool m_last_host_playing = false;
 	AudioBuffer<float> m_input_buffer;
 	std::vector<float> m_reset_pars;
+	int m_cur_program = 0;
+	void setParameters(const std::vector<double>& pars);
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

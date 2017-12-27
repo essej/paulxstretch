@@ -31,6 +31,20 @@ String g_plugintitle{ "PaulXStretch 1.0.0 preview 4" };
 
 std::set<PaulstretchpluginAudioProcessor*> g_activeprocessors;
 
+struct PresetEntry
+{
+	PresetEntry(String name, String data) : m_name(name), m_data(data) {}
+	String m_name;
+	String m_data;
+};
+
+static const PresetEntry g_presets[] = 
+{ 
+	{"Factory reset","cGF1bHN0cmV0Y2gzcGx1Z2luc3RhdGUAASZtYWludm9sdW1lMAABCQQAAACAi1cewHN0cmV0Y2hhbW91bnQwAAEJBAAAACAAAPA/ZmZ0c2l6ZTAAAQkEAAAAYGZm5j9waXRjaHNoaWZ0MAABCQQAAAAAAAAAAGZyZXFzaGlmdDAAAQkEAAAAAAAAAABwbGF5cmFuZ2Vfc3RhcnQwAAEJBAAAAAAAAAAAcGxheXJhbmdlX2VuZDAAAQkEAAAAAAAA8D9zcHJlYWQwAAEJBAAAAAAAAAAAY29tcHJlc3MwAAEJBAAAAAAAAAAAbG9vcHhmYWRlbGVuMAABCQQAAABA4XqEP251bWhhcm1vbmljczAAAQkEAAAAAABAWUBoYXJtb25pY3NmcmVxMAABCQQAAAAAAABgQGhhcm1vbmljc2J3MAABCQQAAAAAAAA5QG9jdGF2ZW1peG0yXzAAAQkEAAAAAAAAAABvY3RhdmVtaXhtMV8wAAEJBAAAAAAAAAAAb2N0YXZlbWl4MF8wAAEJBAAAAAAAAPA/b2N0YXZlbWl4MV8wAAEJBAAAAAAAAAAAb2N0YXZlbWl4MTVfMAABCQQAAAAAAAAAAG9jdGF2ZW1peDJfMAABCQQAAAAAAAAAAHRvbmFsdnNub2lzZWJ3XzAAAQkEAAAAgBSu5z90b25hbHZzbm9pc2VwcmVzZXJ2ZV8wAAEJBAAAAAAAAOA/ZmlsdGVyX2xvd18wAAEJBAAAAAAAADRAZmlsdGVyX2hpZ2hfMAABCQQAAAAAAIjTQG9uc2V0ZGV0ZWN0XzAAAQkEAAAAAAAAAABtYXhjYXB0dXJlbGVuXzAAAQkEAAAAAAAAJEBudW1vdXRjaGFuczAAAQUBAgAAAGltcG9ydGVkZmlsZQABKAVDOlxNdXNpY0F1ZGlvXHNvdXJjZXNhbXBsZXNcc2hlaWxhLndhdgBudW1zcGVjdHJhbHN0YWdlcwABBQEIAAAAc3BlY29yZGVyMAABBQEDAAAAc3BlY29yZGVyMQABBQEAAAAAc3BlY29yZGVyMgABBQEBAAAAc3BlY29yZGVyMwABBQECAAAAc3BlY29yZGVyNAABBQEEAAAAc3BlY29yZGVyNQABBQEFAAAAc3BlY29yZGVyNgABBQEGAAAAc3BlY29yZGVyNwABBQEHAAAAcHJlYnVmYW1vdW50AAEFAQIAAABsb2FkZmlsZXdpdGhzdGF0ZQABAQIAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQ=="},
+	{"Chipmunk","cGF1bHN0cmV0Y2gzcGx1Z2luc3RhdGUAASZtYWludm9sdW1lMAABCQQAAACAi1cewHN0cmV0Y2hhbW91bnQwAAEJBAAAAAAAAOA/ZmZ0c2l6ZTAAAQkEAAAAAAAA4D9waXRjaHNoaWZ0MAABCQQAAAAAAAAoQGZyZXFzaGlmdDAAAQkEAAAAAAAAAABwbGF5cmFuZ2Vfc3RhcnQwAAEJBAAAAAAAAAAAcGxheXJhbmdlX2VuZDAAAQkEAAAAAAAA8D9zcHJlYWQwAAEJBAAAAAAAAAAAY29tcHJlc3MwAAEJBAAAAAAAAAAAbG9vcHhmYWRlbGVuMAABCQQAAABA4XqUP251bWhhcm1vbmljczAAAQkEAAAAAABAWUBoYXJtb25pY3NmcmVxMAABCQQAAAAAAABgQGhhcm1vbmljc2J3MAABCQQAAAAAAAA5QG9jdGF2ZW1peG0yXzAAAQkEAAAAAAAAAABvY3RhdmVtaXhtMV8wAAEJBAAAAAAAAAAAb2N0YXZlbWl4MF8wAAEJBAAAAAAAAPA/b2N0YXZlbWl4MV8wAAEJBAAAAAAAAAAAb2N0YXZlbWl4MTVfMAABCQQAAAAAAAAAAG9jdGF2ZW1peDJfMAABCQQAAAAAAAAAAHRvbmFsdnNub2lzZWJ3XzAAAQkEAAAAgBSu5z90b25hbHZzbm9pc2VwcmVzZXJ2ZV8wAAEJBAAAAAAAAOA/ZmlsdGVyX2xvd18wAAEJBAAAAAAAADRAZmlsdGVyX2hpZ2hfMAABCQQAAAAAAIjTQG9uc2V0ZGV0ZWN0XzAAAQkEAAAAAAAAAABtYXhjYXB0dXJlbGVuXzAAAQkEAAAAAAAAJEBudW1vdXRjaGFuczAAAQUBAgAAAGltcG9ydGVkZmlsZQABKAVDOlxNdXNpY0F1ZGlvXHNvdXJjZXNhbXBsZXNcc2hlaWxhLndhdgBudW1zcGVjdHJhbHN0YWdlcwABBQEIAAAAc3BlY29yZGVyMAABBQEAAAAAc3BlY29yZGVyMQABBQEBAAAAc3BlY29yZGVyMgABBQECAAAAc3BlY29yZGVyMwABBQEDAAAAc3BlY29yZGVyNAABBQEEAAAAc3BlY29yZGVyNQABBQEFAAAAc3BlY29yZGVyNgABBQEGAAAAc3BlY29yZGVyNwABBQEHAAAAcHJlYnVmYW1vdW50AAEFAQIAAABsb2FkZmlsZXdpdGhzdGF0ZQABAQIAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQ=="},
+	{"Chipmunk harmonic series","cGF1bHN0cmV0Y2gzcGx1Z2luc3RhdGUAASZtYWludm9sdW1lMAABCQQAAACAi1cewHN0cmV0Y2hhbW91bnQwAAEJBAAAAAAAAOA/ZmZ0c2l6ZTAAAQkEAAAAoJmZ2T9waXRjaHNoaWZ0MAABCQQAAAAAAAAoQGZyZXFzaGlmdDAAAQkEAAAAAAAAAABwbGF5cmFuZ2Vfc3RhcnQwAAEJBAAAAAAAAAAAcGxheXJhbmdlX2VuZDAAAQkEAAAAAAAA8D9zcHJlYWQwAAEJBAAAAAAAAAAAY29tcHJlc3MwAAEJBAAAAAAAAAAAbG9vcHhmYWRlbGVuMAABCQQAAABA4XqUP251bWhhcm1vbmljczAAAQkEAAAAQMTsSkBoYXJtb25pY3NmcmVxMAABCQQAAAAAAABQQGhhcm1vbmljc2J3MAABCQQAAAAAAAA5QG9jdGF2ZW1peG0yXzAAAQkEAAAAAAAAAABvY3RhdmVtaXhtMV8wAAEJBAAAAAAAAAAAb2N0YXZlbWl4MF8wAAEJBAAAAAAAAPA/b2N0YXZlbWl4MV8wAAEJBAAAAAAAAAAAb2N0YXZlbWl4MTVfMAABCQQAAAAAAAAAAG9jdGF2ZW1peDJfMAABCQQAAAAAAAAAAHRvbmFsdnNub2lzZWJ3XzAAAQkEAAAAgBSu5z90b25hbHZzbm9pc2VwcmVzZXJ2ZV8wAAEJBAAAAAAAAOA/ZmlsdGVyX2xvd18wAAEJBAAAAAAAADRAZmlsdGVyX2hpZ2hfMAABCQQAAAAAAIjTQG9uc2V0ZGV0ZWN0XzAAAQkEAAAAAAAAAABtYXhjYXB0dXJlbGVuXzAAAQkEAAAAAAAAJEBudW1vdXRjaGFuczAAAQUBAgAAAGltcG9ydGVkZmlsZQABKAVDOlxNdXNpY0F1ZGlvXHNvdXJjZXNhbXBsZXNcc2hlaWxhLndhdgBudW1zcGVjdHJhbHN0YWdlcwABBQEIAAAAc3BlY29yZGVyMAABBQEDAAAAc3BlY29yZGVyMQABBQEAAAAAc3BlY29yZGVyMgABBQEBAAAAc3BlY29yZGVyMwABBQECAAAAc3BlY29yZGVyNAABBQEEAAAAc3BlY29yZGVyNQABBQEFAAAAc3BlY29yZGVyNgABBQEGAAAAc3BlY29yZGVyNwABBQEHAAAAcHJlYnVmYW1vdW50AAEFAQIAAABsb2FkZmlsZXdpdGhzdGF0ZQABAQIAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3NzQ=="}
+};
+
 template<typename F>
 void callGUI(AudioProcessor* ap, F&& f, bool async)
 {
@@ -209,6 +223,83 @@ int PaulstretchpluginAudioProcessor::getPreBufferAmount()
 	return m_prebuffer_amount;
 }
 
+ValueTree PaulstretchpluginAudioProcessor::getStateTree()
+{
+	ValueTree paramtree("paulstretch3pluginstate");
+	for (int i = 0; i<getNumParameters(); ++i)
+	{
+		auto par = getFloatParameter(i);
+		if (par != nullptr)
+		{
+			paramtree.setProperty(par->paramID, (double)*par, nullptr);
+		}
+	}
+	paramtree.setProperty(m_outchansparam->paramID, (int)*m_outchansparam, nullptr);
+	if (m_current_file != File())
+	{
+		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
+	}
+	auto specorder = m_stretch_source->getSpectrumProcessOrder();
+	paramtree.setProperty("numspectralstages", (int)specorder.size(), nullptr);
+	for (int i = 0; i < specorder.size(); ++i)
+	{
+		paramtree.setProperty("specorder" + String(i), specorder[i], nullptr);
+	}
+	if (m_use_backgroundbuffering)
+		paramtree.setProperty("prebufamount", m_prebuffer_amount, nullptr);
+	else
+		paramtree.setProperty("prebufamount", -1, nullptr);
+	paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
+	return paramtree;
+}
+
+void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
+{
+	if (tree.isValid())
+	{
+		{
+			ScopedLock locker(m_cs);
+			m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
+			if (tree.hasProperty("numspectralstages"))
+			{
+				std::vector<int> order;
+				int ordersize = tree.getProperty("numspectralstages");
+				for (int i = 0; i < ordersize; ++i)
+				{
+					order.push_back((int)tree.getProperty("specorder" + String(i)));
+				}
+				m_stretch_source->setSpectrumProcessOrder(order);
+			}
+			for (int i = 0; i < getNumParameters(); ++i)
+			{
+				auto par = getFloatParameter(i);
+				if (par != nullptr)
+				{
+					double parval = tree.getProperty(par->paramID, (double)*par);
+					*par = parval;
+				}
+			}
+			if (tree.hasProperty(m_outchansparam->paramID))
+				*m_outchansparam = tree.getProperty(m_outchansparam->paramID, 2);
+
+		}
+		int prebufamt = tree.getProperty("prebufamount", 2);
+		if (prebufamt == -1)
+			m_use_backgroundbuffering = false;
+		else
+			setPreBufferAmount(prebufamt);
+		if (m_load_file_with_state == true)
+		{
+			String fn = tree.getProperty("importedfile");
+			if (fn.isEmpty() == false)
+			{
+				File f(fn);
+				setAudioFile(f);
+			}
+		}
+	}
+}
+
 //==============================================================================
 const String PaulstretchpluginAudioProcessor::getName() const
 {
@@ -250,22 +341,36 @@ double PaulstretchpluginAudioProcessor::getTailLengthSeconds() const
 
 int PaulstretchpluginAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
+    return 3;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int PaulstretchpluginAudioProcessor::getCurrentProgram()
 {
-    return 0;
+    return m_cur_program;
 }
 
 void PaulstretchpluginAudioProcessor::setCurrentProgram (int index)
 {
+	index = jlimit(0, 2, index);
+	m_cur_program = index;
+	bool temp = m_load_file_with_state;
+	m_load_file_with_state = false;
+	MemoryBlock mb;
+	MemoryOutputStream stream(mb, true);
+	if (Base64::convertFromBase64(stream, g_presets[index].m_data)==true)
+	{
+		ValueTree tree = ValueTree::readFromData(mb.getData(), mb.getSize());
+		tree.setProperty("loadfilewithstate", false, nullptr);
+		setStateFromTree(tree);
+	}
+	m_load_file_with_state = temp;
 }
 
 const String PaulstretchpluginAudioProcessor::getProgramName (int index)
 {
-    return {};
+	index = jlimit(0, 2, index);
+	return g_presets[index].m_name;
 }
 
 void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String& newName)
@@ -306,6 +411,17 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
 	m_buffering_source->prepareToPlay(maxBlockSize, getSampleRateChecked());
 }
+
+void PaulstretchpluginAudioProcessor::setParameters(const std::vector<double>& pars)
+{
+	ScopedLock locker(m_cs);
+	for (int i = 0; i < getNumParameters(); ++i)
+	{
+		if (i<pars.size())
+			setParameter(i, pars[i]);
+	}
+}
+
 double PaulstretchpluginAudioProcessor::getSampleRateChecked()
 {
 	if (m_cur_sr < 1.0)
@@ -523,31 +639,7 @@ AudioProcessorEditor* PaulstretchpluginAudioProcessor::createEditor()
 //==============================================================================
 void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
-	ValueTree paramtree("paulstretch3pluginstate");
-	for (int i=0;i<getNumParameters();++i)
-	{
-		auto par = getFloatParameter(i);
-		if (par != nullptr)
-		{
-			paramtree.setProperty(par->paramID, (double)*par, nullptr);
-		}
-	}
-	paramtree.setProperty(m_outchansparam->paramID, (int)*m_outchansparam, nullptr);
-	if (m_current_file != File())
-	{
-		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
-	}
-	auto specorder = m_stretch_source->getSpectrumProcessOrder();
-	paramtree.setProperty("numspectralstages", (int)specorder.size(), nullptr);
-	for (int i = 0; i < specorder.size(); ++i)
-	{
-		paramtree.setProperty("specorder" + String(i), specorder[i], nullptr);
-	}
-    if (m_use_backgroundbuffering)
-        paramtree.setProperty("prebufamount", m_prebuffer_amount, nullptr);
-	else
-        paramtree.setProperty("prebufamount", -1, nullptr);
-	paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
+	ValueTree paramtree = getStateTree();
 	MemoryOutputStream stream(destData,true);
 	paramtree.writeToStream(stream);
 }
@@ -555,49 +647,7 @@ void PaulstretchpluginAudioProcessor::getStateInformation (MemoryBlock& destData
 void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
 	ValueTree tree = ValueTree::readFromData(data, sizeInBytes);
-	if (tree.isValid())
-	{
-		{
-			ScopedLock locker(m_cs);
-			m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
-			if (tree.hasProperty("numspectralstages"))
-			{
-				std::vector<int> order;
-				int ordersize = tree.getProperty("numspectralstages");
-				for (int i = 0; i < ordersize; ++i)
-				{
-					order.push_back((int)tree.getProperty("specorder" + String(i)));
-				}
-				m_stretch_source->setSpectrumProcessOrder(order);
-			}
-			for (int i = 0; i < getNumParameters(); ++i)
-			{
-				auto par = getFloatParameter(i);
-				if (par != nullptr)
-				{
-					double parval = tree.getProperty(par->paramID, (double)*par);
-					*par = parval;
-				}
-			}
-			if (tree.hasProperty(m_outchansparam->paramID))
-				*m_outchansparam = tree.getProperty(m_outchansparam->paramID, 2);
-
-		}
-        int prebufamt = tree.getProperty("prebufamount", 2);
-        if (prebufamt==-1)
-            m_use_backgroundbuffering = false;
-        else
-            setPreBufferAmount(prebufamt);
-		if (m_load_file_with_state == true)
-		{
-			String fn = tree.getProperty("importedfile");
-			if (fn.isEmpty() == false)
-			{
-				File f(fn);
-				setAudioFile(f);
-			}
-		}
-	}
+	setStateFromTree(tree);
 }
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
