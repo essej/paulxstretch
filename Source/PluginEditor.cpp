@@ -40,6 +40,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	attachCallback(m_settings_button, [this]() { showSettingsMenu(); });
 
 	addAndMakeVisible(&m_info_label);
+	m_info_label.setJustificationType(Justification::centredRight);
+
 	addAndMakeVisible(&m_wavecomponent);
 	const auto& pars = processor.getParameters();
 	for (int i=0;i<pars.size();++i)
@@ -191,7 +193,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		String infotext = String(processor.getPreBufferingPercent(), 1) + "% buffered " 
+		String infotext = String(processor.getPreBufferingPercent()*100.0, 1) + "% buffered " 
 			+ String(processor.getStretchSource()->m_param_change_count)+" param changes "+m_last_err+" FFT size "+
 			String(processor.getStretchSource()->getFFTSize());
 		if (processor.m_abnormal_output_samples > 0)
