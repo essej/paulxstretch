@@ -464,22 +464,14 @@ private:
     REALTYPE get_stretch_multiplier(REALTYPE pos_percents) override;
 //		void process_output(REALTYPE *smps,int nsmps);
     void process_spectrum(REALTYPE *freq) override;
-    void do_harmonics(REALTYPE *freq1,REALTYPE *freq2);
-    void do_pitch_shift(REALTYPE *freq1,REALTYPE *freq2,REALTYPE rap);
-    void do_freq_shift(REALTYPE *freq1,REALTYPE *freq2);
-    void do_octave(REALTYPE *freq1,REALTYPE *freq2);
-    void do_filter(REALTYPE *freq1,REALTYPE *freq2);
-    void do_free_filter(REALTYPE *freq1,REALTYPE *freq2);
-    void do_compressor(REALTYPE *freq1,REALTYPE *freq2);
-    void do_spread(REALTYPE *freq1,REALTYPE *freq2);
-    void do_tonal_vs_noise(REALTYPE *freq1,REALTYPE *freq2);
+    
 
     //void copy(const realvector& freq1,realvector& freq2);
     void copy(REALTYPE* freq1, REALTYPE* freq2);
     void add(REALTYPE *freq2,REALTYPE *freq1,REALTYPE a=1.0);
     void mul(REALTYPE *freq1,REALTYPE a);
     void zero(REALTYPE *freq1);
-    void spread(REALTYPE *freq1,REALTYPE *freq2,REALTYPE spread_bandwidth);
+    
 
     void update_free_filter();
     int nfreq=0;
