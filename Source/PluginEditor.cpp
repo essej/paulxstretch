@@ -48,16 +48,11 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (Pa
 	{
 		AudioProcessorParameterWithID* parid = dynamic_cast<AudioProcessorParameterWithID*>(pars[i]);
 		jassert(parid);
-		if (parid)
-		{
-			bool notifyonlyonrelease = false;
-			if (parid->paramID.startsWith("fftsize"))
-				notifyonlyonrelease = true;
-			if (parid->paramID.startsWith("numoutchans"))
-				notifyonlyonrelease = true;
-			m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
-			addAndMakeVisible(m_parcomps.back().get());
-		}
+		bool notifyonlyonrelease = false;
+		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans"))
+			notifyonlyonrelease = true;
+		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
+		addAndMakeVisible(m_parcomps.back().get());
 	}
 	
 	//addAndMakeVisible(&m_specvis);
