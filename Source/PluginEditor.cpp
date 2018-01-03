@@ -641,6 +641,24 @@ void WaveformComponent::mouseMove(const MouseEvent & e)
 
 }
 
+Range<double> WaveformComponent::getTimeSelection()
+{
+	if (m_time_sel_start >= 0.0 && m_time_sel_end>m_time_sel_start + 0.001)
+		return { m_time_sel_start, m_time_sel_end };
+	return { 0.0, 1.0 };
+}
+
+void WaveformComponent::setTimeSelection(Range<double> rng)
+{
+	if (m_lock_timesel_set == true)
+		return;
+	if (rng.isEmpty())
+		rng = { -1.0,1.0 };
+	m_time_sel_start = rng.getStart();
+	m_time_sel_end = rng.getEnd();
+	repaint();
+}
+
 int WaveformComponent::getTimeSelectionEdge(int x, int y)
 {
 	int xcorleft = (int)jmap<double>(m_time_sel_start, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
@@ -742,6 +760,13 @@ void SpectralChainEditor::paint(Graphics & g)
 	}
 	if (m_drag_x>=0 && m_drag_x<getWidth() && m_cur_index>=0)
 		drawBox(g, m_cur_index, m_drag_x, 0, box_w - 30, box_h);
+}
+
+void SpectralChainEditor::setSource(StretchAudioSource * src)
+{
+	m_src = src;
+	m_order = m_src->getSpectrumProcessOrder();
+	repaint();
 }
 
 void SpectralChainEditor::mouseDown(const MouseEvent & ev)
@@ -917,4 +942,22 @@ void ParameterComponent::updateComponent()
 	{
 		m_togglebut->setToggleState(*boolpar, dontSendNotification);
 	}
+}
+
+MySlider::MySlider(NormalisableRange<float>* range) : m_range(range)
+{
+}
+
+double MySlider::proportionOfLengthToValue(double x)
+{
+	if (m_range)
+		return m_range->convertFrom0to1(x);
+	return Slider::proportionOfLengthToValue(x);
+}
+
+double MySlider::valueToProportionOfLength(double x)
+{
+	if (m_range)
+		return m_range->convertTo0to1(x);
+	return Slider::valueToProportionOfLength(x);
 }

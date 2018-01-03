@@ -44,21 +44,9 @@ class MySlider : public Slider
 {
 public:
 	MySlider() {}
-	MySlider(NormalisableRange<float>* range) : m_range(range)
-	{
-	}
-	double proportionOfLengthToValue(double x) override
-	{
-		if (m_range)
-			return m_range->convertFrom0to1(x);
-		return Slider::proportionOfLengthToValue(x);
-	}
-	double valueToProportionOfLength(double x) override
-	{
-		if (m_range)
-			return m_range->convertTo0to1(x);
-		return Slider::valueToProportionOfLength(x);
-	}
+	MySlider(NormalisableRange<float>* range);
+	double proportionOfLengthToValue(double x) override;
+	double valueToProportionOfLength(double x) override;
 private:
 	NormalisableRange<float>* m_range = nullptr;
 };
@@ -112,22 +100,8 @@ public:
 	void mouseUp(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
 	void mouseMove(const MouseEvent& e) override;
-	Range<double> getTimeSelection()
-	{
-		if (m_time_sel_start >= 0.0 && m_time_sel_end>m_time_sel_start + 0.001)
-			return { m_time_sel_start, m_time_sel_end };
-		return { 0.0, 1.0 };
-	}
-	void setTimeSelection(Range<double> rng)
-	{
-		if (m_lock_timesel_set == true)
-			return;
-		if (rng.isEmpty())
-			rng = { -1.0,1.0 };
-		m_time_sel_start = rng.getStart();
-		m_time_sel_end = rng.getEnd();
-		repaint();
-	}
+	Range<double> getTimeSelection();
+	void setTimeSelection(Range<double> rng);
 	void setFileCachedRange(std::pair<Range<double>, Range<double>> rng);
 	void setTimerEnabled(bool b);
 	void setViewRange(Range<double> rng);
@@ -162,12 +136,7 @@ class SpectralChainEditor : public Component
 public:
 	SpectralChainEditor() {}
 	void paint(Graphics& g) override;
-	void setSource(StretchAudioSource* src)
-	{
-		m_src = src;
-		m_order = m_src->getSpectrumProcessOrder();
-		repaint();
-	}
+	void setSource(StretchAudioSource* src);
 	void mouseDown(const MouseEvent& ev) override;
 	void mouseDrag(const MouseEvent& ev) override;
 	void mouseUp(const MouseEvent& ev) override;
