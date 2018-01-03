@@ -20,7 +20,6 @@
               file="Source/PS_Source/BinauralBeats.cpp"/>
         <FILE id="qAo4mG" name="FreeEdit.cpp" compile="1" resource="0" file="Source/PS_Source/FreeEdit.cpp"/>
         <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
-        <FILE id="O0cKQ4" name="Mutex.h" compile="0" resource="0" file="Source/PS_Source/Mutex.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
               file="Source/PS_Source/ProcessedStretch.h"/>
         <FILE id="TcGuiz" name="Stretch.h" compile="0" resource="0" file="Source/PS_Source/Stretch.h"/>
