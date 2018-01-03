@@ -40,34 +40,6 @@ private:
 	double m_elapsed = 0.0;
 };
 
-inline void attachCallback(Button& button, std::function<void()> callback)
-{
-	struct ButtonCallback : public Button::Listener,
-		private ComponentListener
-	{
-		ButtonCallback(Button& b, std::function<void()> f) : target(b), fn(f)
-		{
-			target.addListener(this);
-			target.addComponentListener(this);
-		}
-
-		~ButtonCallback()
-		{
-			target.removeListener(this);
-		}
-
-		void componentBeingDeleted(Component&) override { delete this; }
-		void buttonClicked(Button*) override { fn(); }
-
-		Button& target;
-		std::function<void()> fn;
-
-		JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ButtonCallback)
-	};
-
-	new ButtonCallback(button, callback);
-}
-
 class MySlider : public Slider
 {
 public:

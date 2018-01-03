@@ -25,20 +25,20 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 extern String g_plugintitle;
 
 //==============================================================================
-PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor& p)
-    : AudioProcessorEditor (&p),
-    m_wavecomponent(p.m_afm),
-    processor (p)
+PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
+	: AudioProcessorEditor(&p),
+	m_wavecomponent(p.m_afm),
+	processor(p)
 
 {
 	addAndMakeVisible(&m_import_button);
 	m_import_button.setButtonText("Import file...");
-	attachCallback(m_import_button, [this]() { chooseFile(); });
+	m_import_button.onClick = [this]() { chooseFile(); };
 	
 	addAndMakeVisible(&m_settings_button);
 	m_settings_button.setButtonText("Settings...");
-	attachCallback(m_settings_button, [this]() { showSettingsMenu(); });
-
+	m_settings_button.onClick = [this]() { showSettingsMenu(); };
+	
 	addAndMakeVisible(&m_info_label);
 	m_info_label.setJustificationType(Justification::centredRight);
 
