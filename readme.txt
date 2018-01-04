@@ -37,7 +37,7 @@ History :
 	-Slightly better GUI layout but still mostly just 2 columns of sliders
 	-Remember last file import folder
 	-Added detection of invalid audio output sample values (infinities, NaN)
-12-27-2017 1.0.0 preview 4
+01-04-2018 1.0.0 preview 4
 	-Added reset parameters (except main volume and input pass through) command to settings menu
 	-Added option to settings menu to ignore loading imported audio file when recalling state
 	-Added support for dropping audio files to GUI
