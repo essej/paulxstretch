@@ -40,7 +40,7 @@ History :
 01-05-2018 1.0.0 preview 4
 	-Added reset parameters (except main volume and input pass through) command to settings menu
 	-Added option to settings menu to ignore loading imported audio file when recalling state
-	-Added support for dropping audio files to GUI
+	-Added support for dropping audio files to GUI (available functionality depends on host, many will simply 
+	 provide the file name of the source of audio file, so audio clip/event/item specific audio won't be imported)
 	-Removed an unnecessary level of buffering (doesn't reduce latency but should help a bit with CPU usage)
 	-Added About window
-	
