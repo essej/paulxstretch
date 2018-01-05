@@ -193,3 +193,16 @@ inline void fill_container(Cont& c, const T& x)
 {
 	std::fill(std::begin(c), std::end(c), x);
 }
+
+template<typename T, typename F>
+inline void callGUI(T* ap, F&& f, bool async)
+{
+	auto ed = dynamic_cast<typename T::EditorType*>(ap->getActiveEditor());
+	if (ed)
+	{
+		if (async == false)
+			f(ed);
+		else
+			MessageManager::callAsync([ed, f]() { f(ed); });
+	}
+}

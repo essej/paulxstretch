@@ -80,11 +80,13 @@ public:
     std::unique_ptr<PropertiesFile> m_props_file;
 };
 
+class PaulstretchpluginAudioProcessorEditor;
+
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
 	public MultiTimer
 {
 public:
-    
+	using EditorType = PaulstretchpluginAudioProcessorEditor;
     PaulstretchpluginAudioProcessor();
     ~PaulstretchpluginAudioProcessor();
 
