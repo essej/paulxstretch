@@ -346,7 +346,7 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
 			g_plugintitle,
 			"Plugin for extreme time stretching and other processing of sound files\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
 			"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
-			"(C) 2017 Xenakios\n\n"
+			"(C) 2017-2018 Xenakios\n\n"
 			"Using " + fftlib + " for FFT\n\n"
 			+ juceversiontxt + " (c) Roli. Used under the GPL license.\n\n"
 			"GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n"
