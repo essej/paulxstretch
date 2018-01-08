@@ -274,7 +274,7 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
-    String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
+	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
                                                 File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
     File initialloc(initiallocfn);
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
