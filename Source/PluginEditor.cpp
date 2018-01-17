@@ -27,7 +27,7 @@ extern String g_plugintitle;
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
-	m_wavecomponent(p.m_afm),
+	m_wavecomponent(p.m_afm,p.m_thumb.get()),
 	processor(p)
 
 {
@@ -372,15 +372,15 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
 	}
 }
 
-WaveformComponent::WaveformComponent(AudioFormatManager* afm)
+WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb)
 {
 	TimeSelectionChangedCallback = [](Range<double>, int) {};
 	if (m_use_opengl == true)
 		m_ogl.attachTo(*this);
 	// The default priority of 2 is a bit too low in some cases, it seems...
-	m_thumbcache->getTimeSliceThread().setPriority(3);
-	m_thumb = std::make_unique<AudioThumbnail>(512, *afm, *m_thumbcache);
-	m_thumb->addChangeListener(this);
+	//m_thumbcache->getTimeSliceThread().setPriority(3);
+	m_thumbnail = thumb;
+	m_thumbnail->addChangeListener(this);
 	setOpaque(true);
 }
 
@@ -388,6 +388,7 @@ WaveformComponent::~WaveformComponent()
 {
 	if (m_use_opengl == true)
 		m_ogl.detach();
+	m_thumbnail->removeChangeListener(this);
 }
 
 void WaveformComponent::changeListenerCallback(ChangeBroadcaster * /*cb*/)
@@ -402,14 +403,14 @@ void WaveformComponent::paint(Graphics & g)
 	g.fillAll(Colours::black);
 	g.setColour(Colours::darkgrey);
 	g.fillRect(0, 0, getWidth(), m_topmargin);
-	if (m_thumb == nullptr || m_thumb->getTotalLength() < 0.1)
+	if (m_thumbnail == nullptr || m_thumbnail->getTotalLength() < 0.01)
 	{
 		g.setColour(Colours::aqua.darker());
 		g.drawText("No file loaded", 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
 		return;
 	}
 	g.setColour(Colours::lightslategrey);
-	double thumblen = m_thumb->getTotalLength();
+	double thumblen = m_thumbnail->getTotalLength();
 	double tick_interval = 1.0;
 	if (thumblen > 60.0)
 		tick_interval = 5.0;
@@ -430,7 +431,7 @@ void WaveformComponent::paint(Graphics & g)
 			Graphics tempg(m_waveimage);
 			tempg.fillAll(Colours::black);
 			tempg.setColour(Colours::darkgrey);
-			m_thumb->drawChannels(tempg, { 0,0,getWidth(),getHeight() - m_topmargin },
+			m_thumbnail->drawChannels(tempg, { 0,0,getWidth(),getHeight() - m_topmargin },
 				thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
 		}
 		g.drawImage(m_waveimage, 0, m_topmargin, getWidth(), getHeight() - m_topmargin, 0, 0, getWidth(), getHeight() - m_topmargin);
@@ -440,7 +441,7 @@ void WaveformComponent::paint(Graphics & g)
 	{
 		//g.fillAll(Colours::black);
 		g.setColour(Colours::darkgrey);
-		m_thumb->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight() - m_topmargin },
+		m_thumbnail->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight() - m_topmargin },
 			thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
 	}
 
@@ -485,6 +486,7 @@ void WaveformComponent::paint(Graphics & g)
 
 void WaveformComponent::setAudioFile(File f)
 {
+	/*
 	if (f.existsAsFile())
 	{
 		m_waveimage = Image();
@@ -502,28 +504,35 @@ void WaveformComponent::setAudioFile(File f)
 		m_curfile = File();
 	}
 	repaint();
+	*/
 }
 
 void WaveformComponent::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 {
-    jassert(buf!=nullptr);
+    /*
+	jassert(buf!=nullptr);
     m_using_audio_buffer = true;
     m_waveimage = Image();
 	m_curfile = File();
 	m_thumb->reset(buf->getNumChannels(), samplerate, len);
 	m_thumb->addBlock(0, *buf, 0, len);
+	*/
 }
 
 void WaveformComponent::beginAddingAudioBlocks(int channels, int samplerate, int totalllen)
 {
+	/*
 	m_waveimage = Image();
 	m_curfile = File();
 	m_thumb->reset(channels, samplerate, totalllen);
+	*/
 }
 
 void WaveformComponent::addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos)
 {
+	/*
 	m_thumb->addBlock(pos, buf, 0, buf.getNumSamples());
+	*/
 }
 
 void WaveformComponent::timerCallback()

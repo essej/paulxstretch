@@ -82,7 +82,7 @@ public:
 class WaveformComponent : public Component, public ChangeListener, public Timer
 {
 public:
-	WaveformComponent(AudioFormatManager* afm);
+	WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb);
 	~WaveformComponent();
 	void changeListenerCallback(ChangeBroadcaster* cb) override;
 	void paint(Graphics& g) override;
@@ -108,9 +108,7 @@ public:
 	Value ShowFileCacheRange;
 	void setRecordingPosition(double pos) { m_rec_pos = pos; }
 private:
-	SharedResourcePointer<MyThumbCache> m_thumbcache;
-
-	std::unique_ptr<AudioThumbnail> m_thumb;
+	AudioThumbnail* m_thumbnail = nullptr;
 	Range<double> m_view_range{ 0.0,1.0 };
 	int m_time_sel_drag_target = 0;
 	double m_time_sel_start = -1.0;

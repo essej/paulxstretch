@@ -90,10 +90,13 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 {
 	
     g_activeprocessors.insert(this);
+	
 	m_recbuffer.setSize(2, 44100);
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();
+	m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
+	//m_thumb->addChangeListener(this);
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm);
 	
 	
@@ -695,6 +698,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 			//MessageManager::callAsync([cb, file]() { cb("Too high bit depth in file " + file.getFullPathName()); });
 			return "Too high bit depth in file " + f.getFullPathName();
 		}
+		m_thumb->setSource(new FileInputSource(f));
 		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
 		m_current_file = f;

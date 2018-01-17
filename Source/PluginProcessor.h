@@ -150,6 +150,7 @@ public:
 	ValueTree getStateTree(bool ignoreoptions, bool ignorefile);
 	void setStateFromTree(ValueTree tree);
 	bool m_state_dirty = false;
+	std::unique_ptr<AudioThumbnail> m_thumb;
 private:
 	
 	
@@ -188,6 +189,7 @@ private:
 	std::vector<float> m_reset_pars;
 	int m_cur_program = 0;
 	void setParameters(const std::vector<double>& pars);
+	
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
