@@ -44,3 +44,7 @@ History :
 	 provide the file name of the source of audio file, so audio clip/event/item specific audio won't be imported)
 	-Removed an unnecessary level of buffering (doesn't reduce latency but should help a bit with CPU usage)
 	-Added About window
+01-17-2018 1.0.0 preview 5
+	-Restored ability to set capture buffer length
+	-Seek to play range beginning when audio file imported
+	-Fixes to waveform display issues
