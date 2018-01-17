@@ -701,6 +701,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		m_thumb->setSource(new FileInputSource(f));
 		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
+		m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
 		m_current_file = f;
         m_current_file_date = m_current_file.getLastModificationTime();
 		m_using_memory_buffer = false;
