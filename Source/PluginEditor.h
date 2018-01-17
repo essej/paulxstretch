@@ -89,10 +89,7 @@ public:
 	void setAudioFile(File f);
 	const File& getAudioFile() const { return m_curfile; }
     bool isUsingAudioBuffer() const { return m_using_audio_buffer; }
-    void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
-	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
-	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
-	void timerCallback() override;
+    void timerCallback() override;
 	std::function<double()> CursorPosCallback;
 	std::function<void(double)> SeekCallback;
 	std::function<void(Range<double>, int)> TimeSelectionChangedCallback;
@@ -187,9 +184,7 @@ public:
     void resized() override;
 	void timerCallback(int id) override;
 	void setAudioFile(File f);
-	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len);
-	void beginAddingAudioBlocks(int channels, int samplerate, int totalllen);
-	void addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos);
+	
 	bool isInterestedInFileDrag(const StringArray &files) override;
 	void filesDropped(const StringArray &files, int x, int y) override;
 

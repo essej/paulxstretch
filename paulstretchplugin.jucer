@@ -76,7 +76,7 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" externalLibraries="C:\ProgrammingProjects\gitrepos\fftw-3.3.6\fftw-3.3-libs\x64\Static-Release\libfftwf-3.3.lib"
-            extraDefs="">
+            extraDefs="" vst3Folder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"

@@ -442,7 +442,6 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 			getSampleRateChecked(), 
 			len);
 		m_thumb->reset(m_recbuffer.getNumChannels(), sampleRate, len);
-		//callGUI(this,[this,len](auto ed) { ed->setAudioBuffer(&m_recbuffer, getSampleRateChecked(), len); },false);
 	}
 	if (m_prebuffering_inited == false)
 	{
@@ -537,12 +536,6 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		int recbuflenframes = m_max_reclen * getSampleRate();
 		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
 		m_thumb->addBlock(m_rec_pos, buffer, 0, buffer.getNumSamples());
-		/*
-		callGUI(this,[this, &buffer](PaulstretchpluginAudioProcessorEditor*ed) 
-		{
-			ed->addAudioBlock(buffer, getSampleRate(), m_rec_pos);
-		}, false);
-		*/
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
 		return;
 	}
@@ -661,12 +654,6 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 		m_recbuffer.setSize(2, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
-		/*
-		callGUI(this,[this,lenbufframes](PaulstretchpluginAudioProcessorEditor* ed)
-		{
-			ed->beginAddingAudioBlocks(2, getSampleRateChecked(), lenbufframes);
-		},false);
-		*/
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);
 		m_is_recording = true;
 	}

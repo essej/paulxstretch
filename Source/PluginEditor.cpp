@@ -208,13 +208,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		{
 			m_wavecomponent.setAudioFile(processor.getAudioFile());
 		}
-        if (processor.getAudioFile()==File() && processor.isRecordingEnabled()==false && m_wavecomponent.isUsingAudioBuffer()==false)
-        {
-            auto bufptr = processor.getStretchSource()->getSourceAudioBuffer();
-            if (bufptr!=nullptr)
-                m_wavecomponent.setAudioBuffer(bufptr,
-                                               processor.getSampleRateChecked(), bufptr->getNumSamples());
-        }
+        
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
 		if (processor.m_state_dirty)
 		{
@@ -232,24 +226,6 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 void PaulstretchpluginAudioProcessorEditor::setAudioFile(File f)
 {
 	m_wavecomponent.setAudioFile(f);
-}
-
-void PaulstretchpluginAudioProcessorEditor::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
-{
-	MessageManager::callAsync([this,buf, samplerate, len]()
-	{
-		m_wavecomponent.setAudioBuffer(buf, samplerate, len);
-	});
-}
-
-void PaulstretchpluginAudioProcessorEditor::beginAddingAudioBlocks(int channels, int samplerate, int totalllen)
-{
-	m_wavecomponent.beginAddingAudioBlocks(channels, samplerate, totalllen);
-}
-
-void PaulstretchpluginAudioProcessorEditor::addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos)
-{
-	m_wavecomponent.addAudioBlock(buf, samplerate, pos);
 }
 
 bool PaulstretchpluginAudioProcessorEditor::isInterestedInFileDrag(const StringArray & files)
@@ -517,34 +493,6 @@ void WaveformComponent::setAudioFile(File f)
 		m_curfile = File();
 	}
 	repaint();
-	*/
-}
-
-void WaveformComponent::setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
-{
-    /*
-	jassert(buf!=nullptr);
-    m_using_audio_buffer = true;
-    m_waveimage = Image();
-	m_curfile = File();
-	m_thumb->reset(buf->getNumChannels(), samplerate, len);
-	m_thumb->addBlock(0, *buf, 0, len);
-	*/
-}
-
-void WaveformComponent::beginAddingAudioBlocks(int channels, int samplerate, int totalllen)
-{
-	/*
-	m_waveimage = Image();
-	m_curfile = File();
-	m_thumb->reset(channels, samplerate, totalllen);
-	*/
-}
-
-void WaveformComponent::addAudioBlock(AudioBuffer<float>& buf, int samplerate, int pos)
-{
-	/*
-	m_thumb->addBlock(pos, buf, 0, buf.getNumSamples());
 	*/
 }
 
