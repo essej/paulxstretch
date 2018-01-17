@@ -98,6 +98,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	int yoffs = 30;
 	int div = w / 4;
 	m_parcomps[cpi_capture_enabled]->setBounds(xoffs, yoffs, div-1, 24);
+	//xoffs += div;
+	//m_parcomps[cpi_max_capture_len]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_passthrough]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
@@ -317,11 +319,22 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
     bufferingmenu.addItem(104,"Very large",true,curbufamount == 4);
     bufferingmenu.addItem(105,"Huge",true,curbufamount == 5);
     menu.addSubMenu("Prebuffering", bufferingmenu);
+	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
+	PopupMenu capturelenmenu;
+	std::vector<int> capturelens{ 2,5,10,30,60,120 };
+	for (int i=0;i<capturelens.size();++i)
+		capturelenmenu.addItem(200+i, String(capturelens[i])+" seconds", true, capturelen == capturelens[i]);
+	menu.addSubMenu("Capture buffer length", capturelenmenu);
 	menu.addItem(3, "About...", true, false);
 #ifdef JUCE_DEBUG
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	int r = menu.show();
+	if (r >= 200 && r < 210)
+	{
+		int caplen = capturelens[r - 200];
+		*processor.getFloatParameter(cpi_max_capture_len) = (float)caplen;
+	}
 	if (r == 1)
 	{
 		processor.m_play_when_host_plays = !processor.m_play_when_host_plays;
