@@ -204,11 +204,6 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	}
 	if (id == 2)
 	{
-		if (processor.getAudioFile() != File() && processor.getAudioFile() != m_wavecomponent.getAudioFile())
-		{
-			m_wavecomponent.setAudioFile(processor.getAudioFile());
-		}
-        
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
 		if (processor.m_state_dirty)
 		{
@@ -221,11 +216,6 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		//m_specvis.setState(processor.getStretchSource()->getProcessParameters(), processor.getStretchSource()->getFFTSize() / 2,
 		//	processor.getSampleRate());
 	}
-}
-
-void PaulstretchpluginAudioProcessorEditor::setAudioFile(File f)
-{
-	m_wavecomponent.setAudioFile(f);
 }
 
 bool PaulstretchpluginAudioProcessorEditor::isInterestedInFileDrag(const StringArray & files)
@@ -270,10 +260,6 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
         }
         processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
         m_last_err = processor.setAudioFile(resu);
-		if (processor.getAudioFile() != File())
-		{
-			m_wavecomponent.setAudioFile(processor.getAudioFile());
-		}
 	}
 }
 
@@ -333,7 +319,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
 		AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon,
 			g_plugintitle,
-			"Plugin for extreme time stretching and other processing of sound files\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
+			"Plugin for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
 			"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
 			"(C) 2017-2018 Xenakios\n\n"
 			"Using " + fftlib + " for FFT\n\n"
@@ -471,29 +457,6 @@ void WaveformComponent::paint(Graphics & g)
 	}
 	g.setColour(Colours::aqua.darker());
 	g.drawText(m_curfile.getFullPathName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
-}
-
-void WaveformComponent::setAudioFile(File f)
-{
-	/*
-	if (f.existsAsFile())
-	{
-		m_waveimage = Image();
-		if (m_thumb != nullptr && f == m_curfile) // reloading same file, might happen that the overview needs to be redone...
-			m_thumbcache->removeThumb(m_thumb->getHashCode());
-		if (m_thumb != nullptr)
-			m_thumb->reset(0, 0.0);
-		m_thumb->setSource(new FileInputSource(f));
-		m_curfile = f;
-        m_using_audio_buffer = false;
-	}
-	else
-	{
-		m_thumb->setSource(nullptr);
-		m_curfile = File();
-	}
-	repaint();
-	*/
 }
 
 void WaveformComponent::timerCallback()

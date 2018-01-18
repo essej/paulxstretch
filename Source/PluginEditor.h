@@ -86,7 +86,6 @@ public:
 	~WaveformComponent();
 	void changeListenerCallback(ChangeBroadcaster* cb) override;
 	void paint(Graphics& g) override;
-	void setAudioFile(File f);
 	const File& getAudioFile() const { return m_curfile; }
     bool isUsingAudioBuffer() const { return m_using_audio_buffer; }
     void timerCallback() override;
@@ -183,7 +182,7 @@ public:
 	void paint (Graphics&) override;
     void resized() override;
 	void timerCallback(int id) override;
-	void setAudioFile(File f);
+	
 	
 	bool isInterestedInFileDrag(const StringArray &files) override;
 	void filesDropped(const StringArray &files, int x, int y) override;
