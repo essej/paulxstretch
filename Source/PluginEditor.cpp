@@ -42,6 +42,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	addAndMakeVisible(&m_info_label);
 	m_info_label.setJustificationType(Justification::centredRight);
 
+	m_wavecomponent.GetFileCallback = [this]() { return processor.getAudioFile(); };
 	addAndMakeVisible(&m_wavecomponent);
 	const auto& pars = processor.getParameters();
 	for (int i=0;i<pars.size();++i)
@@ -372,6 +373,7 @@ void WaveformComponent::changeListenerCallback(ChangeBroadcaster * /*cb*/)
 
 void WaveformComponent::paint(Graphics & g)
 {
+	jassert(GetFileCallback);
 	//Logger::writeToLog("Waveform component paint");
 	g.fillAll(Colours::black);
 	g.setColour(Colours::darkgrey);
@@ -454,7 +456,7 @@ void WaveformComponent::paint(Graphics & g)
 		g.fillRect((int)pos, m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	g.setColour(Colours::aqua.darker());
-	g.drawText(m_curfile.getFullPathName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
+	g.drawText(GetFileCallback().getFileName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
 }
 
 void WaveformComponent::timerCallback()

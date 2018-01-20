@@ -86,12 +86,11 @@ public:
 	~WaveformComponent();
 	void changeListenerCallback(ChangeBroadcaster* cb) override;
 	void paint(Graphics& g) override;
-	const File& getAudioFile() const { return m_curfile; }
-    bool isUsingAudioBuffer() const { return m_using_audio_buffer; }
-    void timerCallback() override;
+	void timerCallback() override;
 	std::function<double()> CursorPosCallback;
 	std::function<void(double)> SeekCallback;
 	std::function<void(Range<double>, int)> TimeSelectionChangedCallback;
+	std::function<File()> GetFileCallback;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
@@ -116,7 +115,7 @@ private:
 	int m_topmargin = 0;
 	int getTimeSelectionEdge(int x, int y);
 	std::pair<Range<double>, Range<double>> m_file_cached;
-	File m_curfile;
+	
 	Image m_waveimage;
 	OpenGLContext m_ogl;
 	bool m_use_opengl = false;
