@@ -96,7 +96,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();
 	m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
-	//m_thumb->addChangeListener(this);
+	// The default priority of 2 is a bit too low in some cases, it seems...
+	m_thumbcache->getTimeSliceThread().setPriority(3);
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm);
 	
 	

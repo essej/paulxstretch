@@ -352,8 +352,6 @@ WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* th
 	TimeSelectionChangedCallback = [](Range<double>, int) {};
 	if (m_use_opengl == true)
 		m_ogl.attachTo(*this);
-	// The default priority of 2 is a bit too low in some cases, it seems...
-	//m_thumbcache->getTimeSliceThread().setPriority(3);
 	m_thumbnail = thumb;
 	m_thumbnail->addChangeListener(this);
 	setOpaque(true);
