@@ -95,6 +95,7 @@ public:
 	void mouseUp(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
 	void mouseMove(const MouseEvent& e) override;
+	void mouseDoubleClick(const MouseEvent& e) override;
 	Range<double> getTimeSelection();
 	void setTimeSelection(Range<double> rng);
 	void setFileCachedRange(std::pair<Range<double>, Range<double>> rng);

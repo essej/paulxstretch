@@ -60,8 +60,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	setSize (1000, 30+(pars.size()/2)*25+200);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
-		*processor.getFloatParameter(5) = range.getStart();
-		*processor.getFloatParameter(6) = range.getEnd();
+		*processor.getFloatParameter(cpi_soundstart) = range.getStart();
+		*processor.getFloatParameter(cpi_soundend) = range.getEnd();
 	};
 	m_wavecomponent.CursorPosCallback = [this]()
 	{
@@ -503,8 +503,8 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 		m_drag_time_start = pos;
 		if (m_time_sel_drag_target == 0)
 		{
-			m_time_sel_start = -1.0;
-			m_time_sel_end = -1.0;
+			//m_time_sel_start = 0.0;
+			//m_time_sel_end = 1.0;
 		}
 	}
 
@@ -572,6 +572,14 @@ void WaveformComponent::mouseMove(const MouseEvent & e)
 	if (m_time_sel_drag_target == 2)
 		setMouseCursor(MouseCursor::LeftRightResizeCursor);
 
+}
+
+void WaveformComponent::mouseDoubleClick(const MouseEvent & e)
+{
+	m_time_sel_start = 0.0;
+	m_time_sel_end = 1.0;
+	TimeSelectionChangedCallback({ 0.0,1.0 }, 0);
+	repaint();
 }
 
 Range<double> WaveformComponent::getTimeSelection()
