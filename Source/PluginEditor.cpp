@@ -424,15 +424,19 @@ void WaveformComponent::paint(Graphics & g)
 	//m_thumb->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight()-m_topmargin }, 
 	//	0.0, thumblen, 1.0f);
 	g.setColour(Colours::white.withAlpha(0.5f));
-	int xcorleft = (int)jmap<double>(m_time_sel_start, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-	int xcorright = (int)jmap<double>(m_time_sel_end, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-	g.fillRect(xcorleft, m_topmargin, xcorright - xcorleft, getHeight() - m_topmargin);
+	double sel_len = m_time_sel_end - m_time_sel_start;
+	//if (sel_len > 0.0 && sel_len < 1.0)
+	{
+		int xcorleft = (int)jmap<double>(m_time_sel_start, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
+		int xcorright = (int)jmap<double>(m_time_sel_end, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
+		g.fillRect(xcorleft, m_topmargin, xcorright - xcorleft, getHeight() - m_topmargin);
+	}
 	if (m_file_cached.first.getLength() > 0.0 &&
 		(bool)ShowFileCacheRange.getValue())
 	{
 		g.setColour(Colours::red.withAlpha(0.2f));
-		xcorleft = (int)jmap<double>(m_file_cached.first.getStart(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-		xcorright = (int)jmap<double>(m_file_cached.first.getEnd(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
+		int xcorleft = (int)jmap<double>(m_file_cached.first.getStart(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
+		int xcorright = (int)jmap<double>(m_file_cached.first.getEnd(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		g.fillRect(xcorleft, 0, xcorright - xcorleft, m_topmargin / 2);
 		xcorleft = (int)jmap<double>(m_file_cached.second.getStart(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		xcorright = (int)jmap<double>(m_file_cached.second.getEnd(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
