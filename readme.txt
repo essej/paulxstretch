@@ -48,3 +48,5 @@ History :
 	-Restored ability to set capture buffer length (via the settings menu)
 	-Seek to play range beginning when audio file imported
 	-Fixes to waveform display issues
+	-Double click on waveform selects whole waveform
+
