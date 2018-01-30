@@ -115,20 +115,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
 	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
 	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.01f)); // 10
-    auto numhar_convertFrom0To1Func = [](float rangemin, float rangemax, float value)
-    {
-        return jmap<float>(value, 0.0f, 1.0f, 101.0f, 1.0f);
-    };
-    auto numhar_convertTo0To1Func = [](float rangemin, float rangemax, float value)
-    {
-        return jmap<float>(value, 101.0f, 1.0f, 0.0f, 1.0f);
-    };
-    /*
-	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics",
-                                         NormalisableRange<float>(1.0f, 101.0f,
-                                        numhar_convertFrom0To1Func, numhar_convertTo0To1Func), 101.0f)); // 11
-	*/
-	addParameter(new AudioParameterInt("numharmonics0", "Num harmonics", 1, 100, 10)); // 11
+    addParameter(new AudioParameterInt("numharmonics0", "Num harmonics", 1, 100, 10)); // 11
 	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 
 		NormalisableRange<float>(1.0f, 5000.0f, 1.00f, 0.5), 128.0f)); // 12
 	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
