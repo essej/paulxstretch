@@ -722,7 +722,7 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 	m_cur_index = ev.x / box_w;
 	if (m_cur_index >= 0)
 	{
-		juce::Rectangle<int> r(box_w*m_cur_index, 1, 10, 10);
+		juce::Rectangle<int> r(box_w*m_cur_index, 1, 12, 12);
 		if (r.contains(ev.x, ev.y))
 		{
 			m_order[m_cur_index].m_enabled = !m_order[m_cur_index].m_enabled;
@@ -790,11 +790,11 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 	g.drawRect(x, y, w, h);
 	g.drawFittedText(txt, x,y,w,h, Justification::centred, 3);
 	g.setColour(Colours::gold);
-	g.drawRect(x + 2, y + 2, 10, 10);
+	g.drawRect(x + 2, y + 2, 12, 12);
 	if (m_order[index].m_enabled == true)
 	{
-		g.drawLine(x+2, y+2, x+12, y+12);
-		g.drawLine(x+2, y+12, x+12, y+2);
+		g.drawLine(x+2, y+2, x+14, y+14);
+		g.drawLine(x+2, y+14, x+14, y+2);
 	}
 	g.setColour(Colours::white);
 }

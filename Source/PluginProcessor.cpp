@@ -563,25 +563,26 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	setFFTSize(*getFloatParameter(cpi_fftsize));
 	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
 	m_ppar.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
-	m_ppar.spread.enabled = *getFloatParameter(cpi_spreadamount) > 0.0f;
+	
 	m_ppar.spread.bandwidth = *getFloatParameter(cpi_spreadamount);
-    m_ppar.compressor.enabled = *getFloatParameter(cpi_compress)>0.0f;
+    
     m_ppar.compressor.power = *getFloatParameter(cpi_compress);
-	m_ppar.harmonics.enabled = *getFloatParameter(cpi_numharmonics)<101.0;
+	
 	m_ppar.harmonics.nharmonics = *getFloatParameter(cpi_numharmonics);
 	m_ppar.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
     m_ppar.harmonics.bandwidth = *getFloatParameter(cpi_harmonicsbw);
     m_ppar.harmonics.gauss = getParameter(cpi_harmonicsgauss);
+	
 	m_ppar.octave.om2 = *getFloatParameter(cpi_octavesm2);
 	m_ppar.octave.om1 = *getFloatParameter(cpi_octavesm1);
 	m_ppar.octave.o0 = *getFloatParameter(cpi_octaves0);
 	m_ppar.octave.o1 = *getFloatParameter(cpi_octaves1);
 	m_ppar.octave.o15 = *getFloatParameter(cpi_octaves15);
 	m_ppar.octave.o2 = *getFloatParameter(cpi_octaves2);
-	m_ppar.octave.enabled = true;
+	
 	m_ppar.filter.low = *getFloatParameter(cpi_filter_low);
 	m_ppar.filter.high = *getFloatParameter(cpi_filter_high);
-	m_ppar.tonal_vs_noise.enabled = (*getFloatParameter(cpi_tonalvsnoisebw)) > 0.75;
+	
 	m_ppar.tonal_vs_noise.bandwidth = *getFloatParameter(cpi_tonalvsnoisebw);
 	m_ppar.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
 	m_stretch_source->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
