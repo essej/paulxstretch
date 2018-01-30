@@ -100,11 +100,6 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_thumbcache->getTimeSliceThread().setPriority(3);
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm);
 	
-	
-	m_ppar.pitch_shift.enabled = true;
-	m_ppar.freq_shift.enabled = true;
-	m_ppar.filter.enabled = true;
-    m_ppar.compressor.enabled = true;
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
 	m_stretch_source->setFFTWindowingType(1);

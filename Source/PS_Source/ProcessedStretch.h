@@ -26,35 +26,27 @@ struct ProcessParameters
 {
 	ProcessParameters()
 	{
-		pitch_shift.enabled=false;
 		pitch_shift.cents=0;
 
-		octave.enabled=false;
 		octave.om2=octave.om1=octave.o1=octave.o15=octave.o2=0.0f;
 		octave.o0=1.0f;
 
-		freq_shift.enabled=false;
 		freq_shift.Hz=0;
 
-		compressor.enabled=false;
 		compressor.power=0.0f;
 
-		filter.enabled=false;
 		filter.stop=false;
 		filter.low=0.0f;
 		filter.high=22000.0f;
 		filter.hdamp=0.0f;
 
-		harmonics.enabled=false;
 		harmonics.freq=440.0f;
 		harmonics.bandwidth=25.0f;
 		harmonics.nharmonics=10;
 		harmonics.gauss=false;
 
-		spread.enabled=false;
 		spread.bandwidth=0.3f;
 		
-		tonal_vs_noise.enabled=false;
 		tonal_vs_noise.preserve=0.5f;
 		tonal_vs_noise.bandwidth=0.9f;
 	};
@@ -63,34 +55,28 @@ struct ProcessParameters
 	
 	
 	struct{
-		bool enabled;
 		int cents;
 	}pitch_shift;
 
 	struct{
-		bool enabled;
 		REALTYPE om2,om1,o0,o1,o15,o2;
 	}octave;
 
 	struct{
-		bool enabled;
 		int Hz;
 	}freq_shift;
 
 	struct{
-		bool enabled;
 		REALTYPE power;
 	}compressor;
 
 	struct{
-		bool enabled;
 		REALTYPE low,high;
 		REALTYPE hdamp;
 		bool stop;
 	}filter;    
 
 	struct{
-		bool enabled;
 		REALTYPE freq;
 		REALTYPE bandwidth;
 		int nharmonics;
@@ -98,12 +84,10 @@ struct ProcessParameters
 	}harmonics;
 
 	struct{
-		bool enabled;
 		REALTYPE bandwidth;
 	}spread;
 
 	struct{
-		bool enabled;
 		REALTYPE preserve;
 		REALTYPE bandwidth;
 	}tonal_vs_noise;
@@ -149,30 +133,22 @@ struct ProcessParameters
 	*/
 	bool operator == (const ProcessParameters& other) const noexcept
 	{
-		return pitch_shift.enabled == other.pitch_shift.enabled &&
-			pitch_shift.cents == other.pitch_shift.cents &&
-			octave.enabled == other.octave.enabled &&
+		return pitch_shift.cents == other.pitch_shift.cents &&
 			octave.o0 == other.octave.o0 &&
 			octave.o1 == other.octave.o1 &&
 			octave.o15 == other.octave.o15 &&
 			octave.o2 == other.octave.o2 &&
 			octave.om1 == other.octave.om1 &&
 			octave.om2 == other.octave.om2 &&
-			spread.enabled == other.spread.enabled &&
 			spread.bandwidth == other.spread.bandwidth &&
-			tonal_vs_noise.enabled == other.tonal_vs_noise.enabled &&
 			tonal_vs_noise.bandwidth == other.tonal_vs_noise.bandwidth &&
 			tonal_vs_noise.preserve == other.tonal_vs_noise.preserve &&
-			freq_shift.enabled == other.freq_shift.enabled &&
 			freq_shift.Hz == other.freq_shift.Hz &&
-			compressor.enabled == other.compressor.enabled &&
 			compressor.power == other.compressor.power &&
 			harmonics.bandwidth == other.harmonics.bandwidth &&
-			harmonics.enabled == other.harmonics.enabled &&
 			harmonics.freq == other.harmonics.freq &&
 			harmonics.gauss == other.harmonics.gauss &&
 			harmonics.nharmonics == other.harmonics.nharmonics &&
-			filter.enabled == other.filter.enabled &&
 			filter.hdamp == other.filter.hdamp &&
 			filter.high == other.filter.high &&
 			filter.low == other.filter.low &&
