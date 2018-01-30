@@ -128,9 +128,12 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
     {
         return jmap<float>(value, 101.0f, 1.0f, 0.0f, 1.0f);
     };
-    addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics",
+    /*
+	addParameter(new AudioParameterFloat("numharmonics0", "Num harmonics",
                                          NormalisableRange<float>(1.0f, 101.0f,
                                         numhar_convertFrom0To1Func, numhar_convertTo0To1Func), 101.0f)); // 11
+	*/
+	addParameter(new AudioParameterInt("numharmonics0", "Num harmonics", 1, 100, 10)); // 11
 	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 
 		NormalisableRange<float>(1.0f, 5000.0f, 1.00f, 0.5), 128.0f)); // 12
 	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
@@ -568,7 +571,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
     
     m_ppar.compressor.power = *getFloatParameter(cpi_compress);
 	
-	m_ppar.harmonics.nharmonics = *getFloatParameter(cpi_numharmonics);
+	m_ppar.harmonics.nharmonics = *getIntParameter(cpi_numharmonics);
 	m_ppar.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
     m_ppar.harmonics.bandwidth = *getFloatParameter(cpi_harmonicsbw);
     m_ppar.harmonics.gauss = getParameter(cpi_harmonicsgauss);

@@ -126,6 +126,10 @@ public:
 	{
 		return dynamic_cast<AudioParameterFloat*>(getParameters()[index]);
 	}
+	AudioParameterInt* getIntParameter(int index)
+	{
+		return dynamic_cast<AudioParameterInt*>(getParameters()[index]);
+	}
 	void setRecordingEnabled(bool b);
 	bool isRecordingEnabled() { return m_is_recording; }
 	double getRecordingPositionPercent();
