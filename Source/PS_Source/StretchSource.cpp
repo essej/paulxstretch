@@ -12,7 +12,7 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManage
 	m_resampler = std::make_unique<WDL_Resampler>();
 	m_resampler_outbuf.resize(1024*1024);
 	m_inputfile = std::make_unique<AInputS>(m_afm);
-	m_specproc_order = { 0,1,2,3,4,5,6,7 };
+	m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,true},{6,true},{7,true} };
 	setNumOutChannels(initialnumoutchans);
 	m_xfadetask.buffer.setSize(8, 65536);
 	m_xfadetask.buffer.clear();
@@ -58,12 +58,12 @@ bool StretchAudioSource::isResampling()
     return (int)m_outsr!=m_inputfile->info.samplerate;
 }
 
-std::vector<int> StretchAudioSource::getSpectrumProcessOrder()
+std::vector<SpectrumProcess> StretchAudioSource::getSpectrumProcessOrder()
 {
 	return m_specproc_order;
 }
 
-void StretchAudioSource::setSpectrumProcessOrder(std::vector<int> order)
+void StretchAudioSource::setSpectrumProcessOrder(std::vector<SpectrumProcess> order)
 {
 	ScopedLock locker(m_cs);
 	m_specproc_order = order;
@@ -920,12 +920,12 @@ bool MultiStretchAudioSource::isResampling()
 	return getActiveStretchSource()->isResampling();
 }
 
-std::vector<int> MultiStretchAudioSource::getSpectrumProcessOrder()
+std::vector<SpectrumProcess> MultiStretchAudioSource::getSpectrumProcessOrder()
 {
 	return getActiveStretchSource()->getSpectrumProcessOrder();
 }
 
-void MultiStretchAudioSource::setSpectrumProcessOrder(std::vector<int> order)
+void MultiStretchAudioSource::setSpectrumProcessOrder(std::vector<SpectrumProcess> order)
 {
 	getActiveStretchSource()->setSpectrumProcessOrder(order);
 }

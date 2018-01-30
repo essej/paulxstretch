@@ -440,15 +440,11 @@ inline void spectrum_do_filter(const ProcessParameters& pars, int nfreq, double 
 class SpectrumProcess
 {
 public:
-    SpectrumProcess() {}
-    SpectrumProcess(String name, int index) :
-    m_name(name), m_index(index) {}
-    String m_name;
+	SpectrumProcess() {}
+	SpectrumProcess(int index, bool enabled) : m_index(index), m_enabled(enabled) {}
 	int m_index = -1;
-private:
+	bool m_enabled = true;
 };
-
-std::vector<SpectrumProcess> make_spectrum_processes();
 
 class ProcessedStretch final : public Stretch
 {
@@ -458,7 +454,7 @@ public:
     ProcessedStretch(REALTYPE rap_,int in_bufsize_,FFTWindow w=W_HAMMING,bool bypass_=false,REALTYPE samplerate_=44100.0f,int stereo_mode=0);
     ~ProcessedStretch();
     void set_parameters(ProcessParameters *ppar);
-	std::vector<int> m_spectrum_processes;
+	std::vector<SpectrumProcess> m_spectrum_processes;
 	void setBufferSize(int sz) override;
 private:
     REALTYPE get_stretch_multiplier(REALTYPE pos_percents) override;

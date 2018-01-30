@@ -720,6 +720,17 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 	int box_w = getWidth() / m_order.size();
 	int box_h = getHeight();
 	m_cur_index = ev.x / box_w;
+	if (m_cur_index >= 0)
+	{
+		juce::Rectangle<int> r(box_w*m_cur_index, 1, 10, 10);
+		if (r.contains(ev.x, ev.y))
+		{
+			m_order[m_cur_index].m_enabled = !m_order[m_cur_index].m_enabled;
+			m_src->setSpectrumProcessOrder(m_order);
+			repaint();
+			return;
+		}
+	}
 	m_drag_x = -1;
 	repaint();
 }
@@ -753,21 +764,21 @@ void SpectralChainEditor::mouseUp(const MouseEvent & ev)
 void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, int h)
 {
 	String txt;
-	if (m_order[index] == 0)
+	if (m_order[index].m_index == 0)
 		txt = "Harmonics";
-	if (m_order[index] == 1)
+	if (m_order[index].m_index == 1)
 		txt = "Tonal vs Noise";
-	if (m_order[index] == 2)
+	if (m_order[index].m_index == 2)
 		txt = "Frequency shift";
-	if (m_order[index] == 3)
+	if (m_order[index].m_index == 3)
 		txt = "Pitch shift";
-	if (m_order[index] == 4)
+	if (m_order[index].m_index == 4)
 		txt = "Octaves";
-	if (m_order[index] == 5)
+	if (m_order[index].m_index == 5)
 		txt = "Spread";
-	if (m_order[index] == 6)
+	if (m_order[index].m_index == 6)
 		txt = "Filter";
-	if (m_order[index] == 7)
+	if (m_order[index].m_index == 7)
 		txt = "Compressor";
 	if (index == m_cur_index)
 	{
@@ -778,6 +789,14 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 	g.setColour(Colours::white);
 	g.drawRect(x, y, w, h);
 	g.drawFittedText(txt, x,y,w,h, Justification::centred, 3);
+	g.setColour(Colours::gold);
+	g.drawRect(x + 2, y + 2, 10, 10);
+	if (m_order[index].m_enabled == true)
+	{
+		g.drawLine(x+2, y+2, x+12, y+12);
+		g.drawLine(x+2, y+12, x+12, y+2);
+	}
+	g.setColour(Colours::white);
 }
 
 ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notifyOnlyOnRelease) : m_par(par)

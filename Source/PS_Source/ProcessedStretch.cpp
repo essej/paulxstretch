@@ -109,21 +109,21 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 	for (auto& e : m_spectrum_processes)
     {
 		spectrum_copy(nfreq, freq, infreq.data());
-		if (e == 0 && pars.harmonics.enabled)
+		if (e.m_index == 0 && e.m_enabled == true)
 			spectrum_do_harmonics(pars, tmpfreq1, nfreq, samplerate, infreq.data(), freq);
-		if (e == 1 && pars.tonal_vs_noise.enabled)
+		if (e.m_index == 1 && e.m_enabled == true)
 			spectrum_do_tonal_vs_noise(pars,nfreq,samplerate,tmpfreq1, infreq.data(), freq);
-		if (e == 2 && pars.freq_shift.enabled)
+		if (e.m_index == 2 && e.m_enabled == true)
 			spectrum_do_freq_shift(pars,nfreq,samplerate,infreq.data(), freq);
-		if (e == 3 && pars.pitch_shift.enabled)
+		if (e.m_index == 3 && e.m_enabled == true)
 			spectrum_do_pitch_shift(pars,nfreq,infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
-		if (e == 4 && pars.octave.enabled)
+		if (e.m_index == 4 && e.m_enabled == true)
 			spectrum_do_octave(pars,nfreq,samplerate, sumfreq, tmpfreq1, infreq.data(), freq);
-		if (e == 5 && pars.spread.enabled)
+		if (e.m_index == 5 && e.m_enabled == true)
 			spectrum_spread(nfreq,samplerate,tmpfreq1,infreq.data(), freq, pars.spread.bandwidth);
-		if (e == 6 && pars.filter.enabled)
+		if (e.m_index == 6 && e.m_enabled == true)
 			spectrum_do_filter(pars,nfreq,samplerate,infreq.data(), freq);
-		if (e == 7 && pars.compressor.enabled)
+		if (e.m_index == 7 && e.m_enabled == true)
 			spectrum_do_compressor(pars,nfreq, infreq.data(), freq);
 	}
 
@@ -197,16 +197,3 @@ void ProcessedStretch::update_free_filter()
 	*/
 };
 
-std::vector<SpectrumProcess> make_spectrum_processes()
-{
-	std::vector<SpectrumProcess> m_spectrum_processes;
-	m_spectrum_processes.emplace_back("Harmonics",0);
-	m_spectrum_processes.emplace_back("Tonal vs Noise",1);
-	m_spectrum_processes.emplace_back("Frequency shift",2);
-	m_spectrum_processes.emplace_back("Pitch shift",3);
-	m_spectrum_processes.emplace_back("Octaves mix",4);
-	m_spectrum_processes.emplace_back("Spread",5);
-	m_spectrum_processes.emplace_back("Filter",6);
-	m_spectrum_processes.emplace_back("Compressor",7);
-	return m_spectrum_processes;
-}

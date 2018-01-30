@@ -239,7 +239,8 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 	paramtree.setProperty("numspectralstages", (int)specorder.size(), nullptr);
 	for (int i = 0; i < specorder.size(); ++i)
 	{
-		paramtree.setProperty("specorder" + String(i), specorder[i], nullptr);
+		paramtree.setProperty("specorder" + String(i), specorder[i].m_index, nullptr);
+		paramtree.setProperty("specstepenabled" + String(i), specorder[i].m_enabled, nullptr);
 	}
 	if (ignoreoptions == false)
 	{
@@ -261,11 +262,12 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
 			if (tree.hasProperty("numspectralstages"))
 			{
-				std::vector<int> order;
+				std::vector<SpectrumProcess> order;
 				int ordersize = tree.getProperty("numspectralstages");
 				for (int i = 0; i < ordersize; ++i)
 				{
-					order.push_back((int)tree.getProperty("specorder" + String(i)));
+					bool step_enabled = tree.getProperty("specstepenabled" + String(i));
+					order.push_back({ (int)tree.getProperty("specorder" + String(i)), step_enabled });
 				}
 				m_stretch_source->setSpectrumProcessOrder(order);
 			}
@@ -698,7 +700,9 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		m_thumb->setSource(new FileInputSource(f));
 		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
-		m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
+		//Range<double> currange{ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) };
+		//if (currange.contains(m_stretch_source->getInfilePositionPercent())==false)
+			m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
 		m_current_file = f;
         m_current_file_date = m_current_file.getLastModificationTime();
 		m_using_memory_buffer = false;

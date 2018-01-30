@@ -82,8 +82,8 @@ public:
 	bool isLoopEnabled();
 	bool hasReachedEnd();
     bool isResampling();
-	std::vector<int> getSpectrumProcessOrder();
-	void setSpectrumProcessOrder(std::vector<int> order);
+	std::vector<SpectrumProcess> getSpectrumProcessOrder();
+	void setSpectrumProcessOrder(std::vector<SpectrumProcess> order);
 	void setFFTWindowingType(int windowtype);
     int getFFTWindowingType() { return m_fft_window_type; }
     std::pair<Range<double>,Range<double>> getFileCachedRangesNormalized();
@@ -135,7 +135,7 @@ private:
 	std::unique_ptr<WDL_Resampler> m_resampler;
 	std::vector<double> m_resampler_outbuf;
 	CriticalSection m_cs;
-	std::vector<int> m_specproc_order;
+	std::vector<SpectrumProcess> m_specproc_order;
 	bool m_stop_play_requested = false;
 	double m_freeze_pos = 0.0;
 	int64_t m_output_counter = 0;
@@ -199,8 +199,8 @@ public:
 	void setLoopingEnabled(bool b);
 	bool hasReachedEnd();
 	bool isResampling();
-	std::vector<int> getSpectrumProcessOrder();
-	void setSpectrumProcessOrder(std::vector<int> order);
+	std::vector<SpectrumProcess> getSpectrumProcessOrder();
+	void setSpectrumProcessOrder(std::vector<SpectrumProcess> order);
     void setFFTWindowingType(int windowtype);
     std::pair<Range<double>, Range<double>> getFileCachedRangesNormalized();
 	void setFreezing(bool b) { m_freezing = b; }
