@@ -84,6 +84,12 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
 	g.fillAll(Colours::darkgrey);
+	double amt = processor.getPreBufferingPercent();
+	g.setColour(Colours::green);
+	int w = amt * 100.0;
+	g.fillRect(m_settings_button.getRight() + 1, 1, w, 24);
+	g.setColour(Colours::white);
+	g.drawRect(m_settings_button.getRight() + 1, 1, 100, 24);
 }
 
 void PaulstretchpluginAudioProcessorEditor::resized()
@@ -191,8 +197,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		String infotext = String(processor.getPreBufferingPercent()*100.0, 1) + "% buffered " 
-			+ String(processor.getStretchSource()->m_param_change_count)+" param changes "+m_last_err+" FFT size "+
+		String infotext = String(processor.getStretchSource()->m_param_change_count)+" param changes "+m_last_err+" FFT size "+
 			String(processor.getStretchSource()->getFFTSize());
 		if (processor.m_abnormal_output_samples > 0)
 			infotext += " " + String(processor.m_abnormal_output_samples) + " invalid sample values";
