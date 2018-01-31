@@ -51,4 +51,5 @@ History :
 	-No longer seeks to beginning of play range when changing FFT size
 	-Fixes to waveform display issues
 	-Double click on waveform selects whole waveform
+	-Show prebuffering ready amount graphically instead of text
 
