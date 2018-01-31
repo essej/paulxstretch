@@ -72,6 +72,23 @@ private:
 	bool m_dragging = false;
 };
 
+class PerfMeterComponent : public Component
+{
+public:
+	PerfMeterComponent(PaulstretchpluginAudioProcessor* p) : m_proc(p) {}
+	void paint(Graphics& g) override
+	{
+		g.fillAll(Colours::grey);
+		double amt = m_proc->getPreBufferingPercent();
+		g.setColour(Colours::green);
+		int w = amt * getWidth();
+		g.fillRect(0, 0, w, getHeight());
+		g.setColour(Colours::white);
+		g.drawRect(0, 0, getWidth(), getHeight());
+	}
+	PaulstretchpluginAudioProcessor* m_proc = nullptr;
+};
+
 class MyThumbCache : public AudioThumbnailCache
 {
 public:
@@ -192,7 +209,7 @@ private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
 	//SpectralVisualizer m_specvis;
-	
+	PerfMeterComponent m_perfmeter;
 	TextButton m_import_button;
 	TextButton m_settings_button;
 	Label m_info_label;

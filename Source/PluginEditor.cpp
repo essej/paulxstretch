@@ -28,9 +28,11 @@ extern String g_plugintitle;
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
 	m_wavecomponent(p.m_afm,p.m_thumb.get()),
-	processor(p)
+	processor(p), m_perfmeter(&p)
 
 {
+	addAndMakeVisible(&m_perfmeter);
+	
 	addAndMakeVisible(&m_import_button);
 	m_import_button.setButtonText("Import file...");
 	m_import_button.onClick = [this]() { chooseFile(); };
@@ -84,12 +86,6 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
 	g.fillAll(Colours::darkgrey);
-	double amt = processor.getPreBufferingPercent();
-	g.setColour(Colours::green);
-	int w = amt * 100.0;
-	g.fillRect(m_settings_button.getRight() + 1, 1, w, 24);
-	g.setColour(Colours::white);
-	g.drawRect(m_settings_button.getRight() + 1, 1, 100, 24);
 }
 
 void PaulstretchpluginAudioProcessorEditor::resized()
@@ -98,6 +94,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_import_button.changeWidthToFitText();
 	m_settings_button.setBounds(m_import_button.getRight() + 1, 1, 60, 24);
 	m_settings_button.changeWidthToFitText();
+	m_perfmeter.setBounds(m_settings_button.getRight() + 1, 1, 200, 12);
 	m_info_label.setBounds(m_settings_button.getRight() + 1, m_settings_button.getY(), 
 		getWidth()-m_settings_button.getRight()-1, 24);
 	int w = getWidth();
@@ -205,8 +202,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			infotext += " (offline rendering)";
 		if (processor.m_playposinfo.isPlaying)
 			infotext += " "+String(processor.m_playposinfo.timeInSeconds,1);
-		
 		m_info_label.setText(infotext, dontSendNotification);
+		m_perfmeter.repaint();
 	}
 	if (id == 2)
 	{
