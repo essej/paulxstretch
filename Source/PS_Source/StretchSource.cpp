@@ -399,7 +399,8 @@ void StretchAudioSource::initObjects()
 {
 	ScopedLock locker(m_cs);
 	m_inputfile->setActiveRange(m_playrange);
-	m_inputfile->seek(m_playrange.getStart());
+	if (m_inputfile->getActiveRange().contains(m_inputfile->getCurrentPositionPercent())==false)
+		m_inputfile->seek(m_playrange.getStart());
 	
 	m_firstbuffer = true;
 	if (m_stretchoutringbuf.getSize() < m_num_outchans*m_process_fftsize)

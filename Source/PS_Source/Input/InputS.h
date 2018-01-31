@@ -75,6 +75,7 @@ public:
 	bool isLooping() { return m_loop_enabled; }
 	virtual void setLoopEnabled(bool b) = 0;
 	int64_t getCurrentPosition() { return m_currentsample; }
+	double getCurrentPositionPercent() { return 1.0 / info.nsamples*m_currentsample; }
 	virtual bool hasEnded()
 	{
 		return m_currentsample >= info.nsamples*m_activerange.getEnd();
