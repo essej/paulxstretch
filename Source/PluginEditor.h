@@ -156,7 +156,7 @@ private:
 	bool m_did_drag = false;
 	int m_cur_index = -1;
 	int m_drag_x = 0;
-	std::vector<SpectrumProcess> m_order;
+    std::vector<SpectrumProcess> m_order;
 	void drawBox(Graphics& g, int index, int x, int y, int w, int h);
 };
 

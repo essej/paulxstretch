@@ -719,7 +719,7 @@ void SpectralChainEditor::setSource(StretchAudioSource * src)
 void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 {
 	m_did_drag = false;
-	int box_w = getWidth() / m_order.size();
+    int box_w = getWidth() / m_order.size();
 	int box_h = getHeight();
 	m_cur_index = ev.x / box_w;
 	if (m_cur_index >= 0)
@@ -730,7 +730,7 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 			m_order[m_cur_index].m_enabled = !m_order[m_cur_index].m_enabled;
 			m_src->setSpectrumProcessOrder(m_order);
 			repaint();
-			return;
+            return;
 		}
 	}
 	m_drag_x = -1;
@@ -739,9 +739,13 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 
 void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 {
-	if (m_cur_index >= 0 && m_cur_index < m_order.size())
+    int box_w = getWidth() / m_order.size();
+    juce::Rectangle<int> r(box_w*m_cur_index, 1, 12, 12);
+    if (r.contains(ev.x, ev.y))
+        return;
+    if (m_cur_index >= 0 && m_cur_index < m_order.size())
 	{
-		int box_w = getWidth() / m_order.size();
+		
 		int box_h = getHeight();
 		int new_index = ev.x / box_w;
 		if (new_index >= 0 && new_index < m_order.size() && new_index != m_cur_index)
