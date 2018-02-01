@@ -507,6 +507,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		phead->getCurrentPosition(m_playposinfo);
 	}
+	else
+		m_playposinfo.isPlaying = false;
 	ScopedNoDenormals noDenormals;
 	double srtemp = getSampleRate();
 	if (srtemp != m_cur_sr)
