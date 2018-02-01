@@ -44,7 +44,7 @@ History :
 	 provide the file name of the source of audio file, so audio clip/event/item specific audio won't be imported)
 	-Removed an unnecessary level of buffering (doesn't reduce latency but should help a bit with CPU usage)
 	-Added About window
-01-31-2018 1.0.0 preview 5
+02-01-2018 1.0.0 preview 5
 	-Added buttons to enable/disable spectral processing steps
 	-Restored ability to set capture buffer length (via the settings menu)
 	-Seek to play range beginning when audio file imported
@@ -52,4 +52,5 @@ History :
 	-Fixes to waveform display issues
 	-Double click on waveform selects whole waveform
 	-Show prebuffering ready amount graphically instead of text
+	-Highlight related parameters when spectral processing module clicked in the module chain
 
