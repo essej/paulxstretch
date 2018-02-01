@@ -74,6 +74,11 @@ int optimizebufsize(int n) {
 	else return n2;
 };
 
+inline AudioParameterFloat* make_floatpar(String id, String name, float minv, float maxv, float defv, float step, float skew)
+{
+	return new AudioParameterFloat(id, name, NormalisableRange<float>(minv, maxv, step, skew), defv);
+}
+
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	: m_bufferingthread("pspluginprebufferthread")
@@ -103,31 +108,29 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
 	m_stretch_source->setFFTWindowingType(1);
-	addParameter(new AudioParameterFloat("mainvolume0", "Main volume", -24.0f, 12.0f, -3.0f)); // 0
-	addParameter(new AudioParameterFloat("stretchamount0", "Stretch amount", 
-		NormalisableRange<float>(0.1f, 1024.0f, 0.01f, 0.25),1.0f)); // 1
-	addParameter(new AudioParameterFloat("fftsize0", "FFT size", 0.0f, 1.0f, 0.7f)); // 2
-	addParameter(new AudioParameterFloat("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f)); // 3
-	addParameter(new AudioParameterFloat("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f)); // 4
-	addParameter(new AudioParameterFloat("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f)); // 5
-	addParameter(new AudioParameterFloat("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f)); // 6
+	addParameter(make_floatpar("mainvolume0", "Main volume", -24.0, 12.0, -3.0, 0.1, 1.0)); 
+	addParameter(make_floatpar("stretchamount0", "Stretch amount", 0.1, 1024.0, 2.0, 0.1, 0.25)); 
+	addParameter(make_floatpar("fftsize0", "FFT size", 0.0, 1.0, 0.7, 0.01, 1.0));
+	addParameter(make_floatpar("pitchshift0", "Pitch shift", -24.0f, 24.0f, 0.0f, 0.1,1.0)); // 3
+	addParameter(make_floatpar("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f, 1.0, 1.0)); // 4
+	addParameter(make_floatpar("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f, 0.0001,1.0)); // 5
+	addParameter(make_floatpar("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f, 0.0001,1.0)); // 6
 	addParameter(new AudioParameterBool("freeze0", "Freeze", false)); // 7
-	addParameter(new AudioParameterFloat("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f)); // 8
-	addParameter(new AudioParameterFloat("compress0", "Compress", 0.0f, 1.0f, 0.0f)); // 9
-	addParameter(new AudioParameterFloat("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.01f)); // 10
+	addParameter(make_floatpar("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f, 0.001,1.0)); // 8
+	addParameter(make_floatpar("compress0", "Compress", 0.0f, 1.0f, 0.0f, 0.001,1.0)); // 9
+	addParameter(make_floatpar("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.01f, 0.001, 1.0)); // 10
     addParameter(new AudioParameterInt("numharmonics0", "Num harmonics", 1, 100, 10)); // 11
-	addParameter(new AudioParameterFloat("harmonicsfreq0", "Harmonics base freq", 
-		NormalisableRange<float>(1.0f, 5000.0f, 1.00f, 0.5), 128.0f)); // 12
-	addParameter(new AudioParameterFloat("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f)); // 13
+	addParameter(make_floatpar("harmonicsfreq0", "Harmonics base freq", 1.0, 5000.0, 128.0, 0.1, 0.5));
+	addParameter(make_floatpar("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f, 0.01, 1.0)); // 13
 	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
-	addParameter(new AudioParameterFloat("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f)); // 15
-	addParameter(new AudioParameterFloat("octavemixm1_0", "Octave down level", 0.0f, 1.0f, 0.0f)); // 16
-	addParameter(new AudioParameterFloat("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 1.0f)); // 17
-	addParameter(new AudioParameterFloat("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f)); // 18
-	addParameter(new AudioParameterFloat("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f)); // 19
-	addParameter(new AudioParameterFloat("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f)); // 20
-	addParameter(new AudioParameterFloat("tonalvsnoisebw_0", "Tonal vs Noise BW", 0.74f, 1.0f, 0.74f)); // 21
-	addParameter(new AudioParameterFloat("tonalvsnoisepreserve_0", "Tonal vs Noise preserve", -1.0f, 1.0f, 0.5f)); // 22
+	addParameter(make_floatpar("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 15
+	addParameter(make_floatpar("octavemixm1_0", "Octave down level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 16
+	addParameter(make_floatpar("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 1.0f, 0.001, 1.0)); // 17
+	addParameter(make_floatpar("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 18
+	addParameter(make_floatpar("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 19
+	addParameter(make_floatpar("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 20
+	addParameter(make_floatpar("tonalvsnoisebw_0", "Tonal vs Noise BW", 0.74f, 1.0f, 0.74f, 0.001, 1.0)); // 21
+	addParameter(make_floatpar("tonalvsnoisepreserve_0", "Tonal vs Noise preserve", -1.0f, 1.0f, 0.5f, 0.001, 1.0)); // 22
 	auto filt_convertFrom0To1Func = [](float rangemin, float rangemax, float value) 
 	{
 		if (value < 0.5f)
@@ -146,7 +149,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("filter_high_0", "Filter high",
                                          NormalisableRange<float>(20.0f, 20000.0f, 
 											 filt_convertFrom0To1Func,filt_convertTo0To1Func), 20000.0f));; // 24
-	addParameter(new AudioParameterFloat("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f)); // 25
+	addParameter(make_floatpar("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f, 0.01, 1.0)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
 	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2); // 27
 	addParameter(m_outchansparam); // 27

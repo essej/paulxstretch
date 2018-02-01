@@ -105,7 +105,6 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	startTimer(2, 1000);
 	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
-	
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
@@ -849,6 +848,7 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 		m_slider->setRange(floatpar->range.start, floatpar->range.end, floatpar->range.interval);
 		m_slider->setValue(*floatpar, dontSendNotification);
 		m_slider->addListener(this);
+		m_slider->setDoubleClickReturnValue(true, floatpar->range.convertFrom0to1(par->getDefaultValue()));
 		addAndMakeVisible(m_slider.get());
 	}
 	AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(par);
