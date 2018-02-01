@@ -51,6 +51,7 @@ History :
 	-No longer seeks to beginning of play range when changing FFT size
 	-Fixes to waveform display issues
 	-Double click on waveform selects whole waveform
+	-Double click on slider resets parameter to default value
 	-Show prebuffering ready amount graphically instead of text
 	-Highlight related parameters when spectral processing module clicked in the module chain
 

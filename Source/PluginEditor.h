@@ -88,6 +88,8 @@ public:
 		g.fillRect(0, 0, w, getHeight());
 		g.setColour(Colours::white);
 		g.drawRect(0, 0, getWidth(), getHeight());
+		g.setFont(10.0f);
+		g.drawText("PREBUFFER", 0, 0, getWidth(), getHeight(), Justification::centred);
 	}
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
 };
