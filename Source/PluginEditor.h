@@ -62,6 +62,8 @@ public:
 	void sliderDragEnded(Slider* slid) override;
 	void buttonClicked(Button* but) override;
 	void updateComponent();
+	void setHighLighted(bool b);
+	int m_group_id = -1;
 private:
 	Label m_label;
 	AudioProcessorParameter* m_par = nullptr;
@@ -70,6 +72,7 @@ private:
 	std::unique_ptr<ToggleButton> m_togglebut;
 	bool m_notify_only_on_release = false;
 	bool m_dragging = false;
+	Colour m_labeldefcolor;
 };
 
 class PerfMeterComponent : public Component
@@ -151,6 +154,7 @@ public:
 	void mouseDown(const MouseEvent& ev) override;
 	void mouseDrag(const MouseEvent& ev) override;
 	void mouseUp(const MouseEvent& ev) override;
+	std::function<void(int)> ModuleSelectedCallback;
 private:
 	StretchAudioSource * m_src = nullptr;
 	bool m_did_drag = false;

@@ -55,6 +55,25 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans"))
 			notifyonlyonrelease = true;
 		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
+		int group_id = -1;
+		if (i == cpi_harmonicsbw || i == cpi_harmonicsfreq || i == cpi_harmonicsgauss || i == cpi_numharmonics)
+			group_id = 0;
+		if (i == cpi_octavesm2 || i == cpi_octavesm1 || i == cpi_octaves0 || i == cpi_octaves1 || i == cpi_octaves15 ||
+			i == cpi_octaves2)
+			group_id = 4;
+		if (i == cpi_tonalvsnoisebw || i == cpi_tonalvsnoisepreserve)
+			group_id = 1;
+		if (i == cpi_filter_low || i == cpi_filter_high)
+			group_id = 6;
+		if (i == cpi_compress)
+			group_id = 7;
+		if (i == cpi_spreadamount)
+			group_id = 5;
+		if (i == cpi_frequencyshift)
+			group_id = 2;
+		if (i == cpi_pitchshift)
+			group_id = 3;
+		m_parcomps.back()->m_group_id = group_id;
 		addAndMakeVisible(m_parcomps.back().get());
 	}
 	
@@ -72,6 +91,16 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_wavecomponent.ShowFileCacheRange = true;
 	m_spec_order_ed.setSource(processor.getStretchSource());
 	addAndMakeVisible(&m_spec_order_ed);
+	m_spec_order_ed.ModuleSelectedCallback = [this](int id)
+	{
+		for (int i = 0; i < m_parcomps.size(); ++i)
+		{
+			if (m_parcomps[i]->m_group_id == id)
+				m_parcomps[i]->setHighLighted(true);
+			else
+				m_parcomps[i]->setHighLighted(false);
+		}
+	};
 	startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
@@ -94,7 +123,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_import_button.changeWidthToFitText();
 	m_settings_button.setBounds(m_import_button.getRight() + 1, 1, 60, 24);
 	m_settings_button.changeWidthToFitText();
-	m_perfmeter.setBounds(m_settings_button.getRight() + 1, 1, 200, 12);
+	m_perfmeter.setBounds(m_settings_button.getRight() + 1, 1, 150, 24);
 	m_info_label.setBounds(m_settings_button.getRight() + 1, m_settings_button.getY(), 
 		getWidth()-m_settings_button.getRight()-1, 24);
 	int w = getWidth();
@@ -724,6 +753,8 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 	m_cur_index = ev.x / box_w;
 	if (m_cur_index >= 0)
 	{
+		if (ModuleSelectedCallback)
+			ModuleSelectedCallback(m_order[m_cur_index].m_index);
 		juce::Rectangle<int> r(box_w*m_cur_index, 1, 12, 12);
 		if (r.contains(ev.x, ev.y))
 		{
@@ -808,6 +839,7 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notifyOnlyOnRelease) : m_par(par)
 {
 	addAndMakeVisible(&m_label);
+	m_labeldefcolor = m_label.findColour(Label::textColourId);
 	m_label.setText(par->getName(50), dontSendNotification);
 	AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(par);
 	if (floatpar)
@@ -911,6 +943,22 @@ void ParameterComponent::updateComponent()
 	if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
 	{
 		m_togglebut->setToggleState(*boolpar, dontSendNotification);
+	}
+}
+
+void ParameterComponent::setHighLighted(bool b)
+{
+	if (b == false)
+	{
+		m_label.setColour(Label::textColourId, m_labeldefcolor);
+		if (m_togglebut)
+			m_togglebut->setColour(ToggleButton::textColourId, m_labeldefcolor);
+	}
+	else
+	{
+		m_label.setColour(Label::textColourId, Colours::yellow);
+		if (m_togglebut)
+			m_togglebut->setColour(ToggleButton::textColourId, Colours::yellow);
 	}
 }
 
