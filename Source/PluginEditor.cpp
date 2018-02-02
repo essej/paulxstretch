@@ -979,3 +979,20 @@ double MySlider::valueToProportionOfLength(double x)
 		return m_range->convertTo0to1(x);
 	return Slider::valueToProportionOfLength(x);
 }
+
+PerfMeterComponent::PerfMeterComponent(PaulstretchpluginAudioProcessor * p) 
+	: m_proc(p) 
+{}
+
+void PerfMeterComponent::paint(Graphics & g)
+{
+	g.fillAll(Colours::grey);
+	double amt = m_proc->getPreBufferingPercent();
+	g.setColour(Colours::green);
+	int w = amt * getWidth();
+	g.fillRect(0, 0, w, getHeight());
+	g.setColour(Colours::white);
+	g.drawRect(0, 0, getWidth(), getHeight());
+	g.setFont(10.0f);
+	g.drawText("PREBUFFER", 0, 0, getWidth(), getHeight(), Justification::centred);
+}

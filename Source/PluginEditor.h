@@ -78,19 +78,8 @@ private:
 class PerfMeterComponent : public Component
 {
 public:
-	PerfMeterComponent(PaulstretchpluginAudioProcessor* p) : m_proc(p) {}
-	void paint(Graphics& g) override
-	{
-		g.fillAll(Colours::grey);
-		double amt = m_proc->getPreBufferingPercent();
-		g.setColour(Colours::green);
-		int w = amt * getWidth();
-		g.fillRect(0, 0, w, getHeight());
-		g.setColour(Colours::white);
-		g.drawRect(0, 0, getWidth(), getHeight());
-		g.setFont(10.0f);
-		g.drawText("PREBUFFER", 0, 0, getWidth(), getHeight(), Justification::centred);
-	}
+	PerfMeterComponent(PaulstretchpluginAudioProcessor* p);
+	void paint(Graphics& g) override;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
 };
 

@@ -44,8 +44,8 @@ History :
 	 provide the file name of the source of audio file, so audio clip/event/item specific audio won't be imported)
 	-Removed an unnecessary level of buffering (doesn't reduce latency but should help a bit with CPU usage)
 	-Added About window
-02-01-2018 1.0.0 preview 5
-	-Added buttons to enable/disable spectral processing steps
+02-02-2018 1.0.0 preview 5
+	-Added buttons to enable/disable spectral processing modules
 	-Restored ability to set capture buffer length (via the settings menu)
 	-Seek to play range beginning when audio file imported
 	-No longer seeks to beginning of play range when changing FFT size
