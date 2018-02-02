@@ -17,14 +17,23 @@ Requirements for building from source code :
 	
 History :
 
-12-15-2017 1.0.0 preview 1
-	-Very early public release. Various issues present.
-12-17-2017 1.0.0 preview 2
-	-Report only 2 input channels to host
-	-Fixes for using potentially invalid sample rates in internal initializations and calculations
-	-File import dialog allows importing file formats supported by JUCE, not just .wav
-12-17-2017 1.0.0 preview 2b
-	-Fix buffer channel count issue, seems to make AU validation pass consistently
+02-02-2018 1.0.0 preview 5
+	-Added buttons to enable/disable spectral processing modules
+	-Restored ability to set capture buffer length (via the settings menu)
+	-Seek to play range beginning when audio file imported
+	-No longer seeks to beginning of play range when changing FFT size
+	-Fixes to waveform display issues
+	-Double click on waveform selects whole waveform
+	-Double click on slider resets parameter to default value
+	-Show prebuffering ready amount graphically instead of text
+	-Highlight related parameters when spectral processing module clicked in the module chain
+01-05-2018 1.0.0 preview 4
+	-Added reset parameters (except main volume and input pass through) command to settings menu
+	-Added option to settings menu to ignore loading imported audio file when recalling state
+	-Added support for dropping audio files to GUI (available functionality depends on host, many will simply 
+	 provide the file name of the source of audio file, so audio clip/event/item specific audio won't be imported)
+	-Removed an unnecessary level of buffering (doesn't reduce latency but should help a bit with CPU usage)
+	-Added About window
 12-23-2017 1.0.0 preview 3
 	-Added parameter to set audio input capture buffer length (up to 120 seconds)
 	-Added parameter allow passing through audio from plugin input
@@ -37,21 +46,11 @@ History :
 	-Slightly better GUI layout but still mostly just 2 columns of sliders
 	-Remember last file import folder
 	-Added detection of invalid audio output sample values (infinities, NaN)
-01-05-2018 1.0.0 preview 4
-	-Added reset parameters (except main volume and input pass through) command to settings menu
-	-Added option to settings menu to ignore loading imported audio file when recalling state
-	-Added support for dropping audio files to GUI (available functionality depends on host, many will simply 
-	 provide the file name of the source of audio file, so audio clip/event/item specific audio won't be imported)
-	-Removed an unnecessary level of buffering (doesn't reduce latency but should help a bit with CPU usage)
-	-Added About window
-02-02-2018 1.0.0 preview 5
-	-Added buttons to enable/disable spectral processing modules
-	-Restored ability to set capture buffer length (via the settings menu)
-	-Seek to play range beginning when audio file imported
-	-No longer seeks to beginning of play range when changing FFT size
-	-Fixes to waveform display issues
-	-Double click on waveform selects whole waveform
-	-Double click on slider resets parameter to default value
-	-Show prebuffering ready amount graphically instead of text
-	-Highlight related parameters when spectral processing module clicked in the module chain
-
+12-17-2017 1.0.0 preview 2b
+	-Fix buffer channel count issue, seems to make AU validation pass consistently
+12-17-2017 1.0.0 preview 2
+	-Report only 2 input channels to host
+	-Fixes for using potentially invalid sample rates in internal initializations and calculations
+	-File import dialog allows importing file formats supported by JUCE, not just .wav
+12-15-2017 1.0.0 preview 1
+	-Very early public release. Various issues present.
