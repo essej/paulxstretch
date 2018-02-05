@@ -757,15 +757,8 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 	m_is_recording = false;
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	m_stretch_source->setPlayRange({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) }, true);
-	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
-	if (ed)
-	{
-		//ed->setAudioBuffer(&m_recbuffer, getSampleRate(), lenrecording);
-	}
 }
 
-//==============================================================================
-// This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new PaulstretchpluginAudioProcessor();
