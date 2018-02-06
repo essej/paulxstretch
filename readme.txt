@@ -17,6 +17,8 @@ Requirements for building from source code :
 	
 History :
 
+02-06-2018 1.0.0
+	-Control/Command click on waveform seeks (if click within active play range)
 02-02-2018 1.0.0 preview 5
 	-Added buttons to enable/disable spectral processing modules
 	-Restored ability to set capture buffer length (via the settings menu)
