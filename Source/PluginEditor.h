@@ -86,7 +86,7 @@ public:
 class MyThumbCache : public AudioThumbnailCache
 {
 public:
-	MyThumbCache() : AudioThumbnailCache(100) { /*Logger::writeToLog("Constructed AudioThumbNailCache");*/ }
+	MyThumbCache() : AudioThumbnailCache(200) { /*Logger::writeToLog("Constructed AudioThumbNailCache");*/ }
 	~MyThumbCache() { /*Logger::writeToLog("Destructed AudioThumbNailCache");*/ }
 };
 

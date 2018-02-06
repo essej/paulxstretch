@@ -65,15 +65,15 @@ public:
         
         PropertiesFile::Options poptions;
         poptions.applicationName = "PaulXStretch3";
-            poptions.folderName = "PaulXStretch3";
-            poptions.commonToAllUsers = false;
-            poptions.doNotSave = false;
-            poptions.storageFormat = PropertiesFile::storeAsXML;
-            poptions.millisecondsBeforeSaving = 1000;
-            poptions.ignoreCaseOfKeyNames = false;
-            poptions.processLock = nullptr;
-            poptions.filenameSuffix = ".xml";
-            poptions.osxLibrarySubFolder = "Application Support";
+        poptions.folderName = "PaulXStretch3";
+        poptions.commonToAllUsers = false;
+        poptions.doNotSave = false;
+        poptions.storageFormat = PropertiesFile::storeAsXML;
+        poptions.millisecondsBeforeSaving = 1000;
+        poptions.ignoreCaseOfKeyNames = false;
+        poptions.processLock = nullptr;
+        poptions.filenameSuffix = ".xml";
+        poptions.osxLibrarySubFolder = "Application Support";
         m_props_file = std::make_unique<PropertiesFile>(poptions);
         
     }
