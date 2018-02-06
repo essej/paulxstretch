@@ -496,7 +496,7 @@ void WaveformComponent::paint(Graphics & g)
 	}
 	g.setColour(Colours::aqua.darker());
 	g.drawText(GetFileCallback().getFileName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
-	g.drawText(secondsToString(thumblen), getWidth() - 100, m_topmargin + 2, 100, 20, Justification::topRight);
+	g.drawText(secondsToString(thumblen), getWidth() - 200, m_topmargin + 2, 200, 20, Justification::topRight);
 }
 
 void WaveformComponent::timerCallback()
