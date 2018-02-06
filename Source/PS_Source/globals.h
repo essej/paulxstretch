@@ -206,3 +206,22 @@ inline void callGUI(T* ap, F&& f, bool async)
 			MessageManager::callAsync([ed, f]() { f(ed); });
 	}
 }
+
+inline String secondsToString(double seconds)
+{
+	int64_t durintseconds = seconds;
+	int64_t durintminutes = seconds / 60.0;
+	int64_t durinthours = seconds / 3600.0;
+	int64_t durintdays = seconds / (3600 * 24.0);
+	String timestring;
+	if (durintminutes < 1)
+		timestring = String(seconds, 3) + " seconds";
+	if (durintminutes >= 1 && durinthours < 1)
+		timestring = String(durintminutes) + " mins " + String(durintseconds % 60) + " secs";
+	if (durinthours >= 1 && durintdays < 1)
+		timestring = String(durinthours) + " hours " + String(durintminutes % 60) + " mins " + String(durintseconds % 60) + " secs";
+	if (durintdays >= 1)
+		timestring = String(durintdays) + " days " + String(durinthours % 24) + " hours " +
+		String(durintminutes % 60) + " mins ";
+	return timestring;
+}
