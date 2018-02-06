@@ -88,6 +88,11 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	{
 		return processor.getStretchSource()->getInfilePositionPercent();
 	};
+	m_wavecomponent.SeekCallback = [this](double pos)
+	{
+		if (processor.getStretchSource()->getPlayRange().contains(pos))
+			processor.getStretchSource()->seekPercent(pos);
+	};
 	m_wavecomponent.ShowFileCacheRange = true;
 	m_spec_order_ed.setSource(processor.getStretchSource());
 	addAndMakeVisible(&m_spec_order_ed);
@@ -491,6 +496,7 @@ void WaveformComponent::paint(Graphics & g)
 	}
 	g.setColour(Colours::aqua.darker());
 	g.drawText(GetFileCallback().getFileName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
+	g.drawText(String(thumblen, 1), getWidth() - 100, m_topmargin + 2, 100, 20, Justification::topRight);
 }
 
 void WaveformComponent::timerCallback()
@@ -525,7 +531,7 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 	m_mousedown = true;
 	m_lock_timesel_set = true;
 	double pos = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
-	if (e.y < m_topmargin)
+	if (e.y < m_topmargin || e.mods.isCommandDown())
 	{
 		if (SeekCallback)
 			SeekCallback(pos);
