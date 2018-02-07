@@ -6,20 +6,13 @@ Copyright (C) 2017 Xenakios
 
 Released under GNU General Public License v.2 license.
 
-Source code at (currently missing GPL license for some of the source files, will be fixed later) :
-
-https://bitbucket.org/xenakios/paulstretchplugin/overview
-
-Requirements for building from source code :
-    -C++17 compiler and C++17 standard library
-    -JUCE 5.2 : https://github.com/WeAreROLI/JUCE
-    -FFTW3
-	
 History :
 
 02-07-2018 1.0.0
 	-Control/Command click on waveform seeks (if click within active play range)
 	-Moved prebuffering amount menu to prebuffering meter (click to show)
+	-Added dummy parameter to tell the host the plugin state has changed when the imported file has changed etc
+	-Removed the factory presets as they are not really that useful
 02-02-2018 1.0.0 preview 5
 	-Added buttons to enable/disable spectral processing modules
 	-Restored ability to set capture buffer length (via the settings menu)
@@ -57,3 +50,12 @@ History :
 	-File import dialog allows importing file formats supported by JUCE, not just .wav
 12-15-2017 1.0.0 preview 1
 	-Very early public release. Various issues present.
+
+Source code at :
+
+https://bitbucket.org/xenakios/paulstretchplugin/overview
+
+Requirements for building from source code :
+    -C++17 compiler and C++17 standard library
+    -JUCE 5.2 : https://github.com/WeAreROLI/JUCE
+    -FFTW3
