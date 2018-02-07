@@ -128,8 +128,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_settings_button.setBounds(m_import_button.getRight() + 1, 1, 60, 24);
 	m_settings_button.changeWidthToFitText();
 	m_perfmeter.setBounds(m_settings_button.getRight() + 1, 1, 150, 24);
-	m_info_label.setBounds(m_settings_button.getRight() + 1, m_settings_button.getY(), 
-		getWidth()-m_settings_button.getRight()-1, 24);
+	m_info_label.setBounds(m_perfmeter.getRight() + 1, m_settings_button.getY(),
+		getWidth()- m_perfmeter.getRight()-1, 24);
 	int w = getWidth();
 	int xoffs = 1;
 	int yoffs = 30;
@@ -307,16 +307,6 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
 	menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
 	
-	
-    PopupMenu bufferingmenu;
-    int curbufamount = processor.getPreBufferAmount();
-    bufferingmenu.addItem(100,"None",true,curbufamount == -1);
-    bufferingmenu.addItem(101,"Small",true,curbufamount == 1);
-    bufferingmenu.addItem(102,"Medium",true,curbufamount == 2);
-    bufferingmenu.addItem(103,"Large",true,curbufamount == 3);
-    bufferingmenu.addItem(104,"Very large",true,curbufamount == 4);
-    bufferingmenu.addItem(105,"Huge",true,curbufamount == 5);
-    menu.addSubMenu("Prebuffering", bufferingmenu);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
 	std::vector<int> capturelens{ 2,5,10,30,60,120 };
@@ -365,13 +355,7 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
 			this);
 
 	}
-    if (r >= 100 && r < 200)
-    {
-        if (r == 100)
-            processor.m_use_backgroundbuffering = false;
-        if (r > 100)
-            processor.setPreBufferAmount(r-100);
-    }
+    
 	if (r == 6)
 	{
 		ValueTree tree = processor.getStateTree(true,true);
@@ -1000,5 +984,28 @@ void PerfMeterComponent::paint(Graphics & g)
 	g.setColour(Colours::white);
 	g.drawRect(0, 0, getWidth(), getHeight());
 	g.setFont(10.0f);
-	g.drawText("PREBUFFER", 0, 0, getWidth(), getHeight(), Justification::centred);
+	if (m_proc->getPreBufferAmount()>0)
+		g.drawText("PREBUFFER", 0, 0, getWidth(), getHeight(), Justification::centred);
+	else
+		g.drawText("NO PREBUFFER", 0, 0, getWidth(), getHeight(), Justification::centred);
+}
+
+void PerfMeterComponent::mouseDown(const MouseEvent & ev)
+{
+	PopupMenu bufferingmenu;
+	int curbufamount = m_proc->getPreBufferAmount();
+	bufferingmenu.addItem(100, "None", true, curbufamount == -1);
+	bufferingmenu.addItem(101, "Small", true, curbufamount == 1);
+	bufferingmenu.addItem(102, "Medium", true, curbufamount == 2);
+	bufferingmenu.addItem(103, "Large", true, curbufamount == 3);
+	bufferingmenu.addItem(104, "Very large", true, curbufamount == 4);
+	bufferingmenu.addItem(105, "Huge", true, curbufamount == 5);
+	int r = bufferingmenu.show();
+	if (r >= 100 && r < 200)
+	{
+		if (r == 100)
+			m_proc->m_use_backgroundbuffering = false;
+		if (r > 100)
+			m_proc->setPreBufferAmount(r - 100);
+	}
 }

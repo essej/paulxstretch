@@ -80,6 +80,7 @@ class PerfMeterComponent : public Component
 public:
 	PerfMeterComponent(PaulstretchpluginAudioProcessor* p);
 	void paint(Graphics& g) override;
+	void mouseDown(const MouseEvent& ev) override;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
 };
 
