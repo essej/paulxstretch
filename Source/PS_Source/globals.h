@@ -207,6 +207,22 @@ inline void callGUI(T* ap, F&& f, bool async)
 	}
 }
 
+inline String secondsToString2(double secs)
+{
+	RelativeTime rt(secs);
+	String result;
+	result.preallocateBytes(32);
+	bool empty = true;
+	if ((int)rt.inHours()>0)
+		result << String((int)rt.inHours() % 24).paddedLeft('0', empty ? 1 : 2) << ':';
+	result << String((int)rt.inMinutes() % 60).paddedLeft('0', 2) << ':';
+	result << String((int)rt.inSeconds() % 60).paddedLeft('0', 2);
+	auto millis = (int)rt.inMilliseconds() % 1000;
+	if (millis > 0)
+		result << '.' << String(millis).paddedLeft('0', 3);
+	return result.trimEnd();
+}
+
 inline String secondsToString(double seconds)
 {
 	int64_t durintseconds = seconds;

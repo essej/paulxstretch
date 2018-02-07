@@ -494,9 +494,9 @@ void WaveformComponent::paint(Graphics & g)
 		double pos = jmap<double>(m_rec_pos, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		g.fillRect((int)pos, m_topmargin, 1, getHeight() - m_topmargin);
 	}
-	g.setColour(Colours::aqua.darker());
+	g.setColour(Colours::aqua);
 	g.drawText(GetFileCallback().getFileName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
-	g.drawText(secondsToString(thumblen), getWidth() - 200, m_topmargin + 2, 200, 20, Justification::topRight);
+	g.drawText(secondsToString2(thumblen), getWidth() - 200, m_topmargin + 2, 200, 20, Justification::topRight);
 }
 
 void WaveformComponent::timerCallback()
