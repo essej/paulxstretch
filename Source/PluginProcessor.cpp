@@ -156,6 +156,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
+	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -639,6 +640,11 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 	setStateFromTree(tree);
 }
 
+void PaulstretchpluginAudioProcessor::setDirty()
+{
+	*getBoolParameter(cpi_markdirty) = !(*getBoolParameter(cpi_markdirty));
+}
+
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 {
 	ScopedLock locker(m_cs);
@@ -671,10 +677,6 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 
 String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 {
-    //if (f==File())
-    //    return String();
-    //if (f==m_current_file && f.getLastModificationTime()==m_current_file_date)
-    //    return String();
     auto ai = unique_from_raw(m_afm->createReaderFor(f));
 	if (ai != nullptr)
 	{
@@ -697,6 +699,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		m_current_file = f;
         m_current_file_date = m_current_file.getLastModificationTime();
 		m_using_memory_buffer = false;
+		setDirty();
 		return String();
 		//MessageManager::callAsync([cb, file]() { cb(String()); });
 

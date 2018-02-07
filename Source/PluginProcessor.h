@@ -56,6 +56,7 @@ const int cpi_num_outchans = 27;
 const int cpi_pause_enabled = 28;
 const int cpi_max_capture_len = 29;
 const int cpi_passthrough = 30;
+const int cpi_markdirty = 31;
 
 class MyPropertiesFile
 {
@@ -130,6 +131,11 @@ public:
 	{
 		return dynamic_cast<AudioParameterInt*>(getParameters()[index]);
 	}
+	AudioParameterBool* getBoolParameter(int index)
+	{
+		return dynamic_cast<AudioParameterBool*>(getParameters()[index]);
+	}
+	void setDirty();
 	void setRecordingEnabled(bool b);
 	bool isRecordingEnabled() { return m_is_recording; }
 	double getRecordingPositionPercent();
