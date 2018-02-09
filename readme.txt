@@ -8,7 +8,7 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-02-07-2018 1.0.0
+02-09-2018 1.0.0
 	-Control/Command click on waveform seeks (if click within active play range)
 	-Moved prebuffering amount menu to prebuffering meter (click to show)
 	-Added dummy parameter to tell the host the plugin state has changed when the imported file has changed etc

@@ -106,6 +106,10 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 				m_parcomps[i]->setHighLighted(false);
 		}
 	};
+	m_spec_order_ed.ModuleOrderOrEnabledChangedCallback = [this]()
+	{
+		processor.setDirty();
+	};
 	startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
@@ -749,6 +753,8 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 		{
 			m_order[m_cur_index].m_enabled = !m_order[m_cur_index].m_enabled;
 			m_src->setSpectrumProcessOrder(m_order);
+			if (ModuleOrderOrEnabledChangedCallback)
+				ModuleOrderOrEnabledChangedCallback();
 			repaint();
             return;
 		}
@@ -774,6 +780,8 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 			m_cur_index = new_index;
 			m_did_drag = true;
 			m_src->setSpectrumProcessOrder(m_order);
+			if (ModuleOrderOrEnabledChangedCallback)
+				ModuleOrderOrEnabledChangedCallback();
 		}
 		m_drag_x = ev.x;
 		repaint();

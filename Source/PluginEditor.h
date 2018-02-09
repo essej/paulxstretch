@@ -147,6 +147,7 @@ public:
 	void mouseDrag(const MouseEvent& ev) override;
 	void mouseUp(const MouseEvent& ev) override;
 	std::function<void(int)> ModuleSelectedCallback;
+	std::function<void(void)> ModuleOrderOrEnabledChangedCallback;
 private:
 	StretchAudioSource * m_src = nullptr;
 	bool m_did_drag = false;
