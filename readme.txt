@@ -11,7 +11,8 @@ History :
 02-09-2018 1.0.0
 	-Control/Command click on waveform seeks (if click within active play range)
 	-Moved prebuffering amount menu to prebuffering meter (click to show)
-	-Added dummy parameter to tell the host the plugin state has changed when the imported file has changed etc
+	-Added dummy parameter to tell the host the plugin state has changed when importing files etc.
+	 (May not work properly for undo etc on all hosts.)
 	-Removed the factory presets as they are not really that useful
 02-02-2018 1.0.0 preview 5
 	-Added buttons to enable/disable spectral processing modules
