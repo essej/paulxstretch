@@ -243,6 +243,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			infotext += " (offline rendering)";
 		if (processor.m_playposinfo.isPlaying)
 			infotext += " "+String(processor.m_playposinfo.timeInSeconds,1);
+		infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count);
 		m_info_label.setText(infotext, dontSendNotification);
 		m_perfmeter.repaint();
 	}
@@ -394,8 +395,21 @@ WaveformComponent::~WaveformComponent()
 
 void WaveformComponent::changeListenerCallback(ChangeBroadcaster * /*cb*/)
 {
-	m_waveimage = Image();
-	repaint();
+	jassert(MessageManager::getInstance()->isThisTheMessageThread());
+	m_image_dirty = true;
+	//repaint();
+}
+
+void WaveformComponent::updateCachedImage()
+{
+	Graphics tempg(m_waveimage);
+	tempg.fillAll(Colours::black);
+	tempg.setColour(Colours::darkgrey);
+	double thumblen = m_thumbnail->getTotalLength();
+	m_thumbnail->drawChannels(tempg, { 0,0,getWidth(),getHeight() - m_topmargin },
+		thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
+	m_image_dirty = false;
+	++m_image_update_count;
 }
 
 void WaveformComponent::paint(Graphics & g)
@@ -425,16 +439,17 @@ void WaveformComponent::paint(Graphics & g)
 	bool m_use_cached_image = true;
 	if (m_use_cached_image == true)
 	{
-		if (m_waveimage.isValid() == false || m_waveimage.getWidth() != getWidth()
+		if (m_image_dirty == true || m_waveimage.getWidth() != getWidth()
 			|| m_waveimage.getHeight() != getHeight() - m_topmargin)
 		{
 			//Logger::writeToLog("updating cached waveform image");
-			m_waveimage = Image(Image::ARGB, getWidth(), getHeight() - m_topmargin, true);
-			Graphics tempg(m_waveimage);
-			tempg.fillAll(Colours::black);
-			tempg.setColour(Colours::darkgrey);
-			m_thumbnail->drawChannels(tempg, { 0,0,getWidth(),getHeight() - m_topmargin },
-				thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
+			if (m_waveimage.getWidth() != getWidth()
+				|| m_waveimage.getHeight() != getHeight() - m_topmargin)
+			{
+				m_waveimage = Image(Image::ARGB, getWidth(), getHeight() - m_topmargin, true);
+				++m_image_init_count;
+			}
+			updateCachedImage();
 		}
 		g.drawImage(m_waveimage, 0, m_topmargin, getWidth(), getHeight() - m_topmargin, 0, 0, getWidth(), getHeight() - m_topmargin);
 

@@ -115,6 +115,8 @@ public:
 	void setViewRange(Range<double> rng);
 	Value ShowFileCacheRange;
 	void setRecordingPosition(double pos) { m_rec_pos = pos; }
+	int m_image_init_count = 0;
+	int m_image_update_count = 0;
 private:
 	AudioThumbnail* m_thumbnail = nullptr;
 	Range<double> m_view_range{ 0.0,1.0 };
@@ -128,13 +130,14 @@ private:
 	int m_topmargin = 0;
 	int getTimeSelectionEdge(int x, int y);
 	std::pair<Range<double>, Range<double>> m_file_cached;
-	
+	bool m_image_dirty = false;
 	Image m_waveimage;
 	OpenGLContext m_ogl;
 	bool m_use_opengl = false;
 	double m_rec_pos = 0.0;
 	bool m_lock_timesel_set = false;
     bool m_using_audio_buffer = false;
+	void updateCachedImage();
 };
 
 class SpectralChainEditor : public Component
