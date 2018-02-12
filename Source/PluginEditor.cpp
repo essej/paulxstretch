@@ -52,8 +52,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		AudioProcessorParameterWithID* parid = dynamic_cast<AudioProcessorParameterWithID*>(pars[i]);
 		jassert(parid);
 		bool notifyonlyonrelease = false;
-		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans"))
-			notifyonlyonrelease = true;
+		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans") 
+			|| parid->paramID.startsWith("numinchans"))
+				notifyonlyonrelease = true;
 		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
 		int group_id = -1;
 		if (i == cpi_harmonicsbw || i == cpi_harmonicsfreq || i == cpi_harmonicsgauss || i == cpi_numharmonics)
@@ -149,10 +150,13 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_freeze]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs = 1;
 	yoffs += 25;
-	div = w / 2;
+	div = w / 3;
 	m_parcomps[cpi_main_volume]->setBounds(xoffs, yoffs, div-1, 24);
 	xoffs += div;
+	m_parcomps[cpi_num_inchans]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
 	m_parcomps[cpi_num_outchans]->setBounds(xoffs, yoffs, div-1, 24);
+	div = w / 2;
 	xoffs = 1;
 	yoffs += 25;
 	m_parcomps[cpi_fftsize]->setBounds(xoffs, yoffs, div - 1, 24);
@@ -239,6 +243,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			infotext += " (offline rendering)";
 		if (processor.m_playposinfo.isPlaying)
 			infotext += " "+String(processor.m_playposinfo.timeInSeconds,1);
+		infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count);
 		m_info_label.setText(infotext, dontSendNotification);
 		m_perfmeter.repaint();
 	}
@@ -390,8 +395,21 @@ WaveformComponent::~WaveformComponent()
 
 void WaveformComponent::changeListenerCallback(ChangeBroadcaster * /*cb*/)
 {
-	m_waveimage = Image();
-	repaint();
+	jassert(MessageManager::getInstance()->isThisTheMessageThread());
+	m_image_dirty = true;
+	//repaint();
+}
+
+void WaveformComponent::updateCachedImage()
+{
+	Graphics tempg(m_waveimage);
+	tempg.fillAll(Colours::black);
+	tempg.setColour(Colours::darkgrey);
+	double thumblen = m_thumbnail->getTotalLength();
+	m_thumbnail->drawChannels(tempg, { 0,0,getWidth(),getHeight() - m_topmargin },
+		thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
+	m_image_dirty = false;
+	++m_image_update_count;
 }
 
 void WaveformComponent::paint(Graphics & g)
@@ -421,16 +439,17 @@ void WaveformComponent::paint(Graphics & g)
 	bool m_use_cached_image = true;
 	if (m_use_cached_image == true)
 	{
-		if (m_waveimage.isValid() == false || m_waveimage.getWidth() != getWidth()
+		if (m_image_dirty == true || m_waveimage.getWidth() != getWidth()
 			|| m_waveimage.getHeight() != getHeight() - m_topmargin)
 		{
 			//Logger::writeToLog("updating cached waveform image");
-			m_waveimage = Image(Image::ARGB, getWidth(), getHeight() - m_topmargin, true);
-			Graphics tempg(m_waveimage);
-			tempg.fillAll(Colours::black);
-			tempg.setColour(Colours::darkgrey);
-			m_thumbnail->drawChannels(tempg, { 0,0,getWidth(),getHeight() - m_topmargin },
-				thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
+			if (m_waveimage.getWidth() != getWidth()
+				|| m_waveimage.getHeight() != getHeight() - m_topmargin)
+			{
+				m_waveimage = Image(Image::ARGB, getWidth(), getHeight() - m_topmargin, true);
+				++m_image_init_count;
+			}
+			updateCachedImage();
 		}
 		g.drawImage(m_waveimage, 0, m_topmargin, getWidth(), getHeight() - m_topmargin, 0, 0, getWidth(), getHeight() - m_topmargin);
 

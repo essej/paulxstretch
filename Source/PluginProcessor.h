@@ -57,6 +57,7 @@ const int cpi_pause_enabled = 28;
 const int cpi_max_capture_len = 29;
 const int cpi_passthrough = 30;
 const int cpi_markdirty = 31;
+const int cpi_num_inchans = 32;
 
 class MyPropertiesFile
 {
@@ -192,6 +193,7 @@ private:
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
 	AudioParameterInt* m_outchansparam = nullptr;
+	AudioParameterInt* m_inchansparam = nullptr;
 	int m_curmaxblocksize = 0;
 	double m_cur_sr = 0.0;
 	bool m_last_host_playing = false;

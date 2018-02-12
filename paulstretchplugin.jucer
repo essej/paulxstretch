@@ -7,9 +7,10 @@
               buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
               buildStandalone="1" enableIAA="0" pluginName="PaulXStretch" pluginDesc="PaulXStretch"
               pluginManufacturer="Xenakios" pluginManufacturerCode="XenS" pluginCode="Fn1r"
-              pluginChannelConfigs="{2,2},{2,4}, {2,8}" pluginIsSynth="0" pluginWantsMidiIn="0"
-              pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0"
-              pluginAUExportPrefix="paulxstretchAU" pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
+              pluginChannelConfigs="{2,4}, {2,8}, {8,8}, {2,2}" pluginIsSynth="0"
+              pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
+              pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
+              pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
               pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.1"
               headerPath="&#10;&#10;">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
