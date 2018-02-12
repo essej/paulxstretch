@@ -52,8 +52,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		AudioProcessorParameterWithID* parid = dynamic_cast<AudioProcessorParameterWithID*>(pars[i]);
 		jassert(parid);
 		bool notifyonlyonrelease = false;
-		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans"))
-			notifyonlyonrelease = true;
+		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans") 
+			|| parid->paramID.startsWith("numinchans"))
+				notifyonlyonrelease = true;
 		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
 		int group_id = -1;
 		if (i == cpi_harmonicsbw || i == cpi_harmonicsfreq || i == cpi_harmonicsgauss || i == cpi_numharmonics)
@@ -149,10 +150,13 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_freeze]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs = 1;
 	yoffs += 25;
-	div = w / 2;
+	div = w / 3;
 	m_parcomps[cpi_main_volume]->setBounds(xoffs, yoffs, div-1, 24);
 	xoffs += div;
+	m_parcomps[cpi_num_inchans]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
 	m_parcomps[cpi_num_outchans]->setBounds(xoffs, yoffs, div-1, 24);
+	div = w / 2;
 	xoffs = 1;
 	yoffs += 25;
 	m_parcomps[cpi_fftsize]->setBounds(xoffs, yoffs, div - 1, 24);

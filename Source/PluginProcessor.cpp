@@ -140,6 +140,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
+	m_inchansparam = new AudioParameterInt("numinchans0", "Num input channels", 2, 8, 2); // 32
+	addParameter(m_inchansparam); // 32
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -394,7 +396,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	ScopedLock locker(m_cs);
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
-	m_input_buffer.setSize(2, samplesPerBlock);
+	m_input_buffer.setSize(getMainBusNumInputChannels(), samplesPerBlock);
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
 		m_prebuffering_inited = false;
@@ -623,7 +625,7 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	{
 		m_using_memory_buffer = true;
 		m_current_file = File();
-		m_recbuffer.setSize(2, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
+		m_recbuffer.setSize(getMainBusNumInputChannels(), m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);
