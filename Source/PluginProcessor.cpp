@@ -147,6 +147,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 		m_reset_pars.push_back(p->getValue());
 	setPreBufferAmount(2);
     startTimer(1, 50);
+	m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()

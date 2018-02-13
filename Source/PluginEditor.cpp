@@ -388,6 +388,7 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
 	if (r == 7)
 	{
 		toggleBool(processor.m_show_technical_info);
+		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
 	}
 }
 
