@@ -625,7 +625,8 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	{
 		m_using_memory_buffer = true;
 		m_current_file = File();
-		m_recbuffer.setSize(getMainBusNumInputChannels(), m_max_reclen*getSampleRateChecked()+4096,false,false,true);
+		int numchans = *m_inchansparam;
+		m_recbuffer.setSize(numchans, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);
