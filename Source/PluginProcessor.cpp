@@ -615,7 +615,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 
 void PaulstretchpluginAudioProcessor::setDirty()
 {
-	*getBoolParameter(cpi_markdirty) = !(*getBoolParameter(cpi_markdirty));
+	toggleBool(getBoolParameter(cpi_markdirty));
 }
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)

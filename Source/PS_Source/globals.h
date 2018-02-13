@@ -246,3 +246,8 @@ inline void toggleBool(bool& b)
 {
 	b = !b;
 }
+
+inline void toggleBool(AudioParameterBool* b)
+{
+	*b = !(*b);
+}
