@@ -28,11 +28,14 @@ FFT::FFT(int nsamples_, bool no_inverse)
 		printf("WARNING: Odd sample size on FFT::FFT() (%d)",nsamples);
 	};
 	smp.resize(nsamples);
-	for (int i = 0; i < nsamples; i++) smp[i] = 0.0;
+	for (int i = 0; i < nsamples; i++) 
+		smp[i] = 0.0;
 	freq.resize(nsamples/2+1);
-	for (int i=0;i<nsamples/2+1;i++) freq[i]=0.0;
+	for (int i=0;i<nsamples/2+1;i++) 
+		freq[i]=0.0;
 	window.data.resize(nsamples);
-	for (int i=0;i<nsamples;i++) window.data[i]=0.707f;
+	for (int i=0;i<nsamples;i++) 
+		window.data[i]=0.707f;
 	window.type=W_RECTANGULAR;
 
 

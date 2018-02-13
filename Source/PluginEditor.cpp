@@ -458,7 +458,6 @@ void WaveformComponent::paint(Graphics & g)
 		if (m_image_dirty == true || m_waveimage.getWidth() != getWidth()
 			|| m_waveimage.getHeight() != getHeight() - m_topmargin)
 		{
-			//Logger::writeToLog("updating cached waveform image");
 			if (m_waveimage.getWidth() != getWidth()
 				|| m_waveimage.getHeight() != getHeight() - m_topmargin)
 			{
@@ -472,15 +471,11 @@ void WaveformComponent::paint(Graphics & g)
 	}
 	else
 	{
-		//g.fillAll(Colours::black);
 		g.setColour(Colours::darkgrey);
 		m_thumbnail->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight() - m_topmargin },
 			thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
 	}
 
-	//g.setColour(Colours::darkgrey);
-	//m_thumb->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight()-m_topmargin }, 
-	//	0.0, thumblen, 1.0f);
 	g.setColour(Colours::white.withAlpha(0.5f));
 	double sel_len = m_time_sel_end - m_time_sel_start;
 	//if (sel_len > 0.0 && sel_len < 1.0)
@@ -530,7 +525,6 @@ void WaveformComponent::timerCallback()
 void WaveformComponent::setFileCachedRange(std::pair<Range<double>, Range<double>> rng)
 {
 	m_file_cached = rng;
-	//repaint();
 }
 
 void WaveformComponent::setTimerEnabled(bool b)
