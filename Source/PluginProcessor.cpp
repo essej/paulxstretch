@@ -134,19 +134,20 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 											 filt_convertFrom0To1Func,filt_convertTo0To1Func), 20000.0f));; // 24
 	addParameter(make_floatpar("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f, 0.01, 1.0)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
-	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2); // 27
+	m_outchansparam = new AudioParameterInt("numoutchans0", "Num outs", 2, 8, 2); // 27
 	addParameter(m_outchansparam); // 27
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
-	m_inchansparam = new AudioParameterInt("numinchans0", "Num input channels", 2, 8, 2); // 32
+	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
 	addParameter(m_inchansparam); // 32
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
 	setPreBufferAmount(2);
     startTimer(1, 50);
+	m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -614,7 +615,7 @@ void PaulstretchpluginAudioProcessor::setStateInformation (const void* data, int
 
 void PaulstretchpluginAudioProcessor::setDirty()
 {
-	*getBoolParameter(cpi_markdirty) = !(*getBoolParameter(cpi_markdirty));
+	toggleBool(getBoolParameter(cpi_markdirty));
 }
 
 void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
@@ -625,7 +626,8 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	{
 		m_using_memory_buffer = true;
 		m_current_file = File();
-		m_recbuffer.setSize(getMainBusNumInputChannels(), m_max_reclen*getSampleRateChecked()+4096,false,false,true);
+		int numchans = *m_inchansparam;
+		m_recbuffer.setSize(numchans, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);

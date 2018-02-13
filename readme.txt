@@ -8,7 +8,7 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-02-12-2018 1.0.1
+02-13-2018 1.0.1
 	-Increased maximum number of input channels to 8
 	-GUI performance improvement/bug fix during capture mode
 02-09-2018 1.0.0

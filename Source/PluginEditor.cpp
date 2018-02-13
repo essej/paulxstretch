@@ -139,6 +139,9 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	int xoffs = 1;
 	int yoffs = 30;
 	int div = w / 4;
+	//std::vector<std::vector<int>> layout;
+	//layout.emplace_back(cpi_capture_enabled,	cpi_passthrough,	cpi_pause_enabled,	cpi_freeze);
+	//layout.emplace_back(cpi_main_volume,		cpi_num_inchans,	cpi_num_outchans);
 	m_parcomps[cpi_capture_enabled]->setBounds(xoffs, yoffs, div-1, 24);
 	//xoffs += div;
 	//m_parcomps[cpi_max_capture_len]->setBounds(xoffs, yoffs, div - 1, 24);
@@ -235,7 +238,13 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
-		String infotext = String(processor.getStretchSource()->m_param_change_count)+" param changes "+m_last_err+" FFT size "+
+		String infotext; 
+		if (processor.m_show_technical_info)
+		{
+			infotext += String(processor.getStretchSource()->m_param_change_count);
+			infotext += " param changes ";
+		}
+		infotext += m_last_err + " FFT size " +
 			String(processor.getStretchSource()->getFFTSize());
 		if (processor.m_abnormal_output_samples > 0)
 			infotext += " " + String(processor.m_abnormal_output_samples) + " invalid sample values";
@@ -243,7 +252,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			infotext += " (offline rendering)";
 		if (processor.m_playposinfo.isPlaying)
 			infotext += " "+String(processor.m_playposinfo.timeInSeconds,1);
-		infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count);
+		if (processor.m_show_technical_info)
+			infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count);
 		m_info_label.setText(infotext, dontSendNotification);
 		m_perfmeter.repaint();
 	}
@@ -326,6 +336,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 #ifdef JUCE_DEBUG
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
+	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
 	int r = menu.show();
 	if (r >= 200 && r < 210)
 	{
@@ -334,11 +345,11 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	}
 	if (r == 1)
 	{
-		processor.m_play_when_host_plays = !processor.m_play_when_host_plays;
+		toggleBool(processor.m_play_when_host_plays);
 	}
 	if (r == 2)
 	{
-		processor.m_capture_when_host_plays = !processor.m_capture_when_host_plays;
+		toggleBool(processor.m_capture_when_host_plays);
 	}
 	if (r == 4)
 	{
@@ -346,7 +357,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	}
 	if (r == 5)
 	{
-		processor.m_load_file_with_state = !processor.m_load_file_with_state;
+		toggleBool(processor.m_load_file_with_state);
 	}
 	if (r == 3)
 	{
@@ -373,6 +384,11 @@ String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + Str
 		tree.writeToStream(stream);
 		String txt = Base64::toBase64(destData.getData(), destData.getSize());
 		SystemClipboard::copyTextToClipboard(txt);
+	}
+	if (r == 7)
+	{
+		toggleBool(processor.m_show_technical_info);
+		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
 	}
 }
 
@@ -442,7 +458,6 @@ void WaveformComponent::paint(Graphics & g)
 		if (m_image_dirty == true || m_waveimage.getWidth() != getWidth()
 			|| m_waveimage.getHeight() != getHeight() - m_topmargin)
 		{
-			//Logger::writeToLog("updating cached waveform image");
 			if (m_waveimage.getWidth() != getWidth()
 				|| m_waveimage.getHeight() != getHeight() - m_topmargin)
 			{
@@ -456,15 +471,11 @@ void WaveformComponent::paint(Graphics & g)
 	}
 	else
 	{
-		//g.fillAll(Colours::black);
 		g.setColour(Colours::darkgrey);
 		m_thumbnail->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight() - m_topmargin },
 			thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
 	}
 
-	//g.setColour(Colours::darkgrey);
-	//m_thumb->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight()-m_topmargin }, 
-	//	0.0, thumblen, 1.0f);
 	g.setColour(Colours::white.withAlpha(0.5f));
 	double sel_len = m_time_sel_end - m_time_sel_start;
 	//if (sel_len > 0.0 && sel_len < 1.0)
@@ -514,7 +525,6 @@ void WaveformComponent::timerCallback()
 void WaveformComponent::setFileCachedRange(std::pair<Range<double>, Range<double>> rng)
 {
 	m_file_cached = rng;
-	//repaint();
 }
 
 void WaveformComponent::setTimerEnabled(bool b)
@@ -898,7 +908,10 @@ void ParameterComponent::resized()
 {
 	if (m_slider)
 	{
-		m_label.setBounds(0, 0, 200, 24);
+		int labw = 200;
+		if (getWidth() < 400)
+			labw = 100;
+		m_label.setBounds(0, 0, labw, 24);
 		m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
 	}
 	if (m_togglebut)

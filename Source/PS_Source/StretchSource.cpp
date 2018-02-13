@@ -529,7 +529,7 @@ void StretchAudioSource::setFFTSize(int size)
 		{
 			m_xfadetask.state = 1;
 			m_xfadetask.counter = 0;
-			m_xfadetask.xfade_len = 44100;
+			m_xfadetask.xfade_len = 16384;
 			m_xfadetask.requested_fft_size = size;
 		}
 		else
