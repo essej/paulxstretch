@@ -139,6 +139,9 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	int xoffs = 1;
 	int yoffs = 30;
 	int div = w / 4;
+	//std::vector<std::vector<int>> layout;
+	//layout.emplace_back(cpi_capture_enabled,	cpi_passthrough,	cpi_pause_enabled,	cpi_freeze);
+	//layout.emplace_back(cpi_main_volume,		cpi_num_inchans,	cpi_num_outchans);
 	m_parcomps[cpi_capture_enabled]->setBounds(xoffs, yoffs, div-1, 24);
 	//xoffs += div;
 	//m_parcomps[cpi_max_capture_len]->setBounds(xoffs, yoffs, div - 1, 24);
@@ -898,7 +901,10 @@ void ParameterComponent::resized()
 {
 	if (m_slider)
 	{
-		m_label.setBounds(0, 0, 200, 24);
+		int labw = 200;
+		if (getWidth() < 400)
+			labw = 100;
+		m_label.setBounds(0, 0, labw, 24);
 		m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), 24);
 	}
 	if (m_togglebut)

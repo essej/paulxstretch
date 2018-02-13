@@ -134,13 +134,13 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 											 filt_convertFrom0To1Func,filt_convertTo0To1Func), 20000.0f));; // 24
 	addParameter(make_floatpar("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f, 0.01, 1.0)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
-	m_outchansparam = new AudioParameterInt("numoutchans0", "Num output channels", 2, 8, 2); // 27
+	m_outchansparam = new AudioParameterInt("numoutchans0", "Num outs", 2, 8, 2); // 27
 	addParameter(m_outchansparam); // 27
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
-	m_inchansparam = new AudioParameterInt("numinchans0", "Num input channels", 2, 8, 2); // 32
+	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
 	addParameter(m_inchansparam); // 32
 	auto& pars = getParameters();
 	for (const auto& p : pars)
