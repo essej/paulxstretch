@@ -241,3 +241,8 @@ inline String secondsToString(double seconds)
 		String(durintminutes % 60) + " mins ";
 	return timestring;
 }
+
+inline void toggleBool(bool& b)
+{
+	b = !b;
+}
