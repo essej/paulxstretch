@@ -225,6 +225,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 			paramtree.setProperty("prebufamount", -1, nullptr);
 		paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
 	}
+	storeToTreeProperties(paramtree, nullptr, "waveviewrange", m_wave_view_range);
 	return paramtree;
 }
 
@@ -246,6 +247,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 				}
 				m_stretch_source->setSpectrumProcessOrder(order);
 			}
+			getFromTreeProperties(tree, "waveviewrange", m_wave_view_range);
 			for (int i = 0; i < getNumParameters(); ++i)
 			{
 				auto par = getFloatParameter(i);

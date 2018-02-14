@@ -8,8 +8,9 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-02-13-2018 1.0.1
+02-14-2018 1.0.1
 	-Increased maximum number of input channels to 8
+	-Added zoom/scroll bar for waveform
 	-GUI performance improvement/bug fix during capture mode
 02-09-2018 1.0.0
 	-Control/Command click on waveform seeks (if click within active play range)

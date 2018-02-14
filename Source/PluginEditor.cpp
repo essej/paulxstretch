@@ -83,7 +83,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_zs.RangeChanged = [this](Range<double> r)
 	{
 		m_wavecomponent.setViewRange(r);
+		processor.m_wave_view_range = r;
 	};
+	m_zs.setRange(processor.m_wave_view_range, true);
 	setSize (1000, 30+(pars.size()/2)*25+200+15);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
@@ -229,7 +231,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	int remain_h = getHeight() - 1 - yoffs -15;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
 	m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
-	m_zs.setBounds(1, m_wavecomponent.getBottom(), getWidth() - 2, 14);
+	m_zs.setBounds(1, m_wavecomponent.getBottom(), getWidth() - 2, 16);
 	//m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
 }
 
@@ -1132,6 +1134,8 @@ void zoom_scrollbar::paint(Graphics &g)
 
 void zoom_scrollbar::setRange(Range<double> rng, bool docallback)
 {
+	if (rng.isEmpty())
+		return;
 	m_therange = rng.constrainRange({ 0.0,1.0 });
 	if (RangeChanged && docallback)
 		RangeChanged(m_therange);
