@@ -251,3 +251,9 @@ inline void toggleBool(AudioParameterBool* b)
 {
 	*b = !(*b);
 }
+
+template<typename T>
+inline bool is_in_range(T val, T start, T end)
+{
+	return val >= start && val <= end;
+}

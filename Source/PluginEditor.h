@@ -25,6 +25,34 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include <memory>
 #include <vector>
 
+class zoom_scrollbar : public Component
+{
+public:
+	enum hot_area
+	{
+		ha_none,
+		ha_left_edge,
+		ha_right_edge,
+		ha_handle
+	};
+	void mouseDown(const MouseEvent& e) override;
+	void mouseMove(const MouseEvent& e) override;
+	void mouseDrag(const MouseEvent& e) override;
+	void mouseEnter(const MouseEvent &event) override;
+	void mouseExit(const MouseEvent &event) override;
+	void paint(Graphics &g) override;
+	std::function<void(Range<double>)> RangeChanged;
+	Range<double> get_range() const { return m_therange; }
+	void setRange(Range<double> rng, bool docallback);
+private:
+	Range<double> m_therange{ 0.0,1.0 };
+
+	hot_area m_hot_area = ha_none;
+	hot_area get_hot_area(int x, int y);
+	int m_drag_start_x = 0;
+};
+
+
 class SpectralVisualizer : public Component
 {
 public:
@@ -160,36 +188,6 @@ private:
 	void drawBox(Graphics& g, int index, int x, int y, int w, int h);
 };
 
-class MyDynamicObject : public DynamicObject
-{
-public:
-	bool hasMethod(const Identifier& methodName) const override
-	{
-		if (methodName == Identifier("setLabelBounds") ||
-			methodName == Identifier("setComponentBounds"))
-			return true;
-		return false;
-	}
-	var invokeMethod(Identifier methodName,
-		const var::NativeFunctionArgs& args) override
-	{
-		return var();
-	}
-};
-
-class ParamLayoutInfo
-{
-public:
-	ParamLayoutInfo() {}
-	ParamLayoutInfo(int c, int x, int y, int w, int h) :
-		m_comp(c), m_col(x), m_row(y), m_w(w), m_h(h) {}
-	int m_comp = 0;
-	int m_col = 0;
-	int m_row = 0;
-	int m_w = 1;
-	int m_h = 1;
-};
-
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {
@@ -217,6 +215,7 @@ private:
 	void chooseFile();
 	void showSettingsMenu();
     String m_last_err;
+	zoom_scrollbar m_zs;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

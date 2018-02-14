@@ -79,7 +79,12 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	}
 	
 	//addAndMakeVisible(&m_specvis);
-	setSize (1000, 30+(pars.size()/2)*25+200);
+	addAndMakeVisible(&m_zs);
+	m_zs.RangeChanged = [this](Range<double> r)
+	{
+		m_wavecomponent.setViewRange(r);
+	};
+	setSize (1000, 30+(pars.size()/2)*25+200+15);
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
 		*processor.getFloatParameter(cpi_soundstart) = range.getStart();
@@ -221,9 +226,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	xoffs += div;
 	m_parcomps[cpi_onsetdetection]->setBounds(xoffs, yoffs, div - 1, 24);
 	yoffs += 25;
-	int remain_h = getHeight() - 1 - yoffs;
+	int remain_h = getHeight() - 1 - yoffs -15;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
 	m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
+	m_zs.setBounds(1, m_wavecomponent.getBottom(), getWidth() - 2, 14);
 	//m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
 }
 
@@ -1048,4 +1054,99 @@ void PerfMeterComponent::mouseDown(const MouseEvent & ev)
 		if (r > 100)
 			m_proc->setPreBufferAmount(r - 100);
 	}
+}
+
+void zoom_scrollbar::mouseDown(const MouseEvent &e)
+{
+	m_drag_start_x = e.x;
+}
+
+void zoom_scrollbar::mouseMove(const MouseEvent &e)
+{
+	auto ha = get_hot_area(e.x, e.y);
+	if (ha == ha_left_edge || m_hot_area == ha_right_edge)
+		setMouseCursor(MouseCursor::LeftRightResizeCursor);
+	else
+		setMouseCursor(MouseCursor::NormalCursor);
+	if (ha != m_hot_area)
+	{
+		m_hot_area = ha;
+		repaint();
+	}
+}
+
+void zoom_scrollbar::mouseDrag(const MouseEvent &e)
+{
+	if (m_hot_area == ha_none)
+		return;
+	if (m_hot_area == ha_left_edge)
+	{
+		double new_left_edge = 1.0 / getWidth()*e.x;
+		m_therange.setStart(jlimit(0.0, m_therange.getEnd() - 0.01, new_left_edge));
+		repaint();
+	}
+	if (m_hot_area == ha_right_edge)
+	{
+		double new_right_edge = 1.0 / getWidth()*e.x;
+		m_therange.setEnd(jlimit(m_therange.getStart() + 0.01, 1.0, new_right_edge));
+		repaint();
+	}
+	if (m_hot_area == ha_handle)
+	{
+		double delta = 1.0 / getWidth()*(e.x - m_drag_start_x);
+		//double old_start = m_start;
+		//double old_end = m_end;
+		double old_len = m_therange.getLength();
+		m_therange.setStart(jlimit(0.0, 1.0 - old_len, m_therange.getStart() + delta));
+		m_therange.setEnd(jlimit(old_len, m_therange.getStart() + old_len, m_therange.getEnd() + delta));
+		m_drag_start_x = e.x;
+		repaint();
+	}
+	if (RangeChanged)
+		RangeChanged(m_therange);
+}
+
+void zoom_scrollbar::mouseEnter(const MouseEvent & event)
+{
+	m_hot_area = get_hot_area(event.x, event.y);
+	repaint();
+}
+
+void zoom_scrollbar::mouseExit(const MouseEvent &)
+{
+	m_hot_area = ha_none;
+	repaint();
+}
+
+void zoom_scrollbar::paint(Graphics &g)
+{
+	g.setColour(Colours::darkgrey);
+	g.fillRect(0, 0, getWidth(), getHeight());
+	int x0 = (int)(getWidth()*m_therange.getStart());
+	int x1 = (int)(getWidth()*m_therange.getEnd());
+	if (m_hot_area != ha_none)
+		g.setColour(Colours::white);
+	else g.setColour(Colours::lightgrey);
+	g.fillRect(x0, 0, x1 - x0, getHeight());
+}
+
+void zoom_scrollbar::setRange(Range<double> rng, bool docallback)
+{
+	m_therange = rng.constrainRange({ 0.0,1.0 });
+	if (RangeChanged && docallback)
+		RangeChanged(m_therange);
+	repaint();
+}
+
+zoom_scrollbar::hot_area zoom_scrollbar::get_hot_area(int x, int)
+{
+	int x0 = (int)(getWidth()*m_therange.getStart());
+	int x1 = (int)(getWidth()*m_therange.getEnd());
+	if (is_in_range(x, x0 - 5, x0 + 5))
+		return ha_left_edge;
+	if (is_in_range(x, x1 - 5, x1 + 5))
+		return ha_right_edge;
+	if (is_in_range(x, x0 + 5, x1 - 5))
+		return ha_handle;
+	return ha_none;
 }
