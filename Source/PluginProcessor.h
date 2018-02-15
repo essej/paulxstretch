@@ -58,6 +58,7 @@ const int cpi_max_capture_len = 29;
 const int cpi_passthrough = 30;
 const int cpi_markdirty = 31;
 const int cpi_num_inchans = 32;
+const int cpi_playrangeoffset = 33;
 
 class MyPropertiesFile
 {
@@ -203,7 +204,7 @@ private:
 	std::vector<float> m_reset_pars;
 	int m_cur_program = 0;
 	void setParameters(const std::vector<double>& pars);
-	
+	float m_cur_playrangeoffset = 0.0;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

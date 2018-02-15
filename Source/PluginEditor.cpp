@@ -214,19 +214,27 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_tonalvsnoisepreserve]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs = 1;
 	yoffs += 25;
-	m_parcomps[cpi_soundstart]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_soundend]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs = 1;
-	yoffs += 25;
+	// filter here
 	m_parcomps[cpi_filter_low]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_filter_high]->setBounds(xoffs, yoffs, div - 1, 24);
+	
 	xoffs = 1;
 	yoffs += 25;
+	
 	m_parcomps[cpi_loopxfadelen]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_onsetdetection]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs = 1;
+	yoffs += 25;
+	m_parcomps[cpi_soundstart]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
+	m_parcomps[cpi_soundend]->setBounds(xoffs, yoffs, div - 1, 24);
+#ifdef SOUNDRANGE_OFFSET_ENABLED
+	yoffs += 25;
+	xoffs = 1;
+	m_parcomps[cpi_playrangeoffset]->setBounds(xoffs, yoffs, getWidth() - 2, 24);
+#endif
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs -15;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
@@ -370,9 +378,13 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	if (r == 3)
 	{
 		String fftlib = fftwf_version;
-String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
+		String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
+		String title = g_plugintitle;
+#ifdef JUCE_DEBUG
+		title += " (DEBUG)";
+#endif
 		AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon,
-			g_plugintitle,
+			title,
 			"Plugin for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
 			"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
 			"(C) 2017-2018 Xenakios\n\n"

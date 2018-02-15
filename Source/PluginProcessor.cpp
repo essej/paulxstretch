@@ -142,6 +142,9 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
 	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
 	addParameter(m_inchansparam); // 32
+#ifdef SOUNDRANGE_OFFSET_ENABLED
+	addParameter(new AudioParameterFloat("playrangeoffset_0", "Play offset", 0.0f, 1.0f, 0.0f)); // 33
+#endif
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -478,6 +481,14 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 	}
 }
 
+inline void sanitizeTimeRange(double& t0, double& t1)
+{
+	if (t0 > t1)
+		std::swap(t0, t1);
+	if (t1 - t0 < 0.001)
+		t1 = t0 + 0.001;
+}
+
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 	ScopedLock locker(m_cs);
@@ -555,10 +566,20 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
 	double t0 = *getFloatParameter(cpi_soundstart);
 	double t1 = *getFloatParameter(cpi_soundend);
-	if (t0 > t1)
-		std::swap(t0, t1);
-	if (t1 - t0 < 0.001)
-		t1 = t0 + 0.001;
+	sanitizeTimeRange(t0, t1);
+#ifdef SOUNDRANGE_OFFSET_ENABLED
+	if (m_cur_playrangeoffset != (*getFloatParameter(cpi_playrangeoffset)))
+	{
+		double prlen = t1 - t0;
+		m_cur_playrangeoffset = jlimit<float>(0.0f,1.0f-prlen,(float)*getFloatParameter(cpi_playrangeoffset));
+		t0 = m_cur_playrangeoffset;
+		t1 = t0 + prlen;
+		sanitizeTimeRange(t0, t1);
+		getFloatParameter(cpi_soundstart)->setValueNotifyingHost(t0);
+		getFloatParameter(cpi_soundend)->setValueNotifyingHost(t1);
+
+	}
+#endif
 	m_stretch_source->setPlayRange({ t0,t1 }, true);
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
