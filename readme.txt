@@ -2,7 +2,7 @@ PaulXStretch - Plugin for extreme time stretching and other spectral processing 
 
 Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 
-Copyright (C) 2017 Xenakios
+Copyright (C) 2017-2018 Xenakios
 
 Released under GNU General Public License v.2 license.
 
