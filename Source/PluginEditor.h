@@ -110,6 +110,8 @@ public:
 	void paint(Graphics& g) override;
 	void mouseDown(const MouseEvent& ev) override;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
+private:
+    ColourGradient m_gradient;
 };
 
 class MyThumbCache : public AudioThumbnailCache

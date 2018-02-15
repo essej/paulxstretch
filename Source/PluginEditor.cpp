@@ -1032,15 +1032,24 @@ double MySlider::valueToProportionOfLength(double x)
 
 PerfMeterComponent::PerfMeterComponent(PaulstretchpluginAudioProcessor * p) 
 	: m_proc(p) 
-{}
+{
+    m_gradient.isRadial = false;
+    m_gradient.addColour(0.0, Colours::red);
+    m_gradient.addColour(0.25, Colours::yellow);
+    m_gradient.addColour(1.0, Colours::green);
+    
+}
 
 void PerfMeterComponent::paint(Graphics & g)
 {
-	g.fillAll(Colours::grey);
+    m_gradient.point1 = {0.0f,0.0f};
+    m_gradient.point2 = {(float)getWidth(),0.0f};
+    g.fillAll(Colours::grey);
 	double amt = m_proc->getPreBufferingPercent();
 	g.setColour(Colours::green);
 	int w = amt * getWidth();
-	g.fillRect(0, 0, w, getHeight());
+    g.setGradientFill(m_gradient);
+    g.fillRect(0, 0, w, getHeight());
 	g.setColour(Colours::white);
 	g.drawRect(0, 0, getWidth(), getHeight());
 	g.setFont(10.0f);
