@@ -1048,7 +1048,7 @@ void PerfMeterComponent::paint(Graphics & g)
 	double amt = m_proc->getPreBufferingPercent();
 	g.setColour(Colours::green);
 	int w = amt * getWidth();
-    g.setGradientFill(m_gradient);
+    //g.setGradientFill(m_gradient);
     g.fillRect(0, 0, w, getHeight());
 	g.setColour(Colours::white);
 	g.drawRect(0, 0, getWidth(), getHeight());
