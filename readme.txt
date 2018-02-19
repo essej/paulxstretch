@@ -8,6 +8,8 @@ Released under GNU General Public License v.2 license.
 
 History :
 
+02-19-2018 1.0.2
+	-Show approximate stretched output duration in info label (only valid if the stretch amount is not automated in the host)
 02-16-2018 1.0.1
 	-Increased maximum number of input channels to 8
 	-Added zoom/scroll bar for waveform
