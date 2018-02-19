@@ -413,7 +413,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 		m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, 
 			getSampleRateChecked(), 
 			len);
-		m_thumb->reset(m_recbuffer.getNumChannels(), sampleRate, len);
+		//m_thumb->reset(m_recbuffer.getNumChannels(), sampleRate, len);
 	}
 	if (m_prebuffering_inited == false)
 	{
