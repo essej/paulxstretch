@@ -55,7 +55,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans") 
 			|| parid->paramID.startsWith("numinchans"))
 				notifyonlyonrelease = true;
-		m_parcomps.push_back(std::make_shared<ParameterComponent>(pars[i],notifyonlyonrelease));
+		m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i],notifyonlyonrelease));
 		int group_id = -1;
 		if (i == cpi_harmonicsbw || i == cpi_harmonicsfreq || i == cpi_harmonicsgauss || i == cpi_numharmonics)
 			group_id = 0;

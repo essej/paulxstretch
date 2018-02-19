@@ -207,7 +207,7 @@ public:
 	WaveformComponent m_wavecomponent;
 private:
     PaulstretchpluginAudioProcessor& processor;
-	std::vector<std::shared_ptr<ParameterComponent>> m_parcomps;
+	std::vector<std::unique_ptr<ParameterComponent>> m_parcomps;
 	//SpectralVisualizer m_specvis;
 	PerfMeterComponent m_perfmeter;
 	TextButton m_import_button;
