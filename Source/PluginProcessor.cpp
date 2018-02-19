@@ -677,14 +677,12 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
     auto ai = unique_from_raw(m_afm->createReaderFor(f));
 	if (ai != nullptr)
 	{
-		if (ai->numChannels > 32)
+		if (ai->numChannels > 8)
 		{
-			//MessageManager::callAsync([cb, file]() { cb("Too many channels in file " + file.getFullPathName()); });
 			return "Too many channels in file "+f.getFullPathName();
 		}
 		if (ai->bitsPerSample>32)
 		{
-			//MessageManager::callAsync([cb, file]() { cb("Too high bit depth in file " + file.getFullPathName()); });
 			return "Too high bit depth in file " + f.getFullPathName();
 		}
 		m_thumb->setSource(new FileInputSource(f));
@@ -698,10 +696,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		m_using_memory_buffer = false;
 		setDirty();
 		return String();
-		//MessageManager::callAsync([cb, file]() { cb(String()); });
-
 	}
-	
 	return "Could not open file " + f.getFullPathName();
 }
 
