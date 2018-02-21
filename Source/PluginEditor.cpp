@@ -259,7 +259,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		String infotext; 
 		if (processor.m_show_technical_info)
 		{
-			infotext += String(processor.getStretchSource()->m_param_change_count);
+            infotext += String(processor.m_prepare_count)+" ";
+            infotext += String(processor.getStretchSource()->m_param_change_count);
 			infotext += " param changes ";
 		}
 		infotext += m_last_err + " [FFT size " +

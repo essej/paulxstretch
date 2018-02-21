@@ -403,7 +403,8 @@ double PaulstretchpluginAudioProcessor::getSampleRateChecked()
 
 void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-	ScopedLock locker(m_cs);
+    ++m_prepare_count;
+    ScopedLock locker(m_cs);
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
 	m_input_buffer.setSize(getMainBusNumInputChannels(), samplesPerBlock);

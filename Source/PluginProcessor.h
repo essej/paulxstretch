@@ -165,6 +165,7 @@ public:
 	std::unique_ptr<AudioThumbnail> m_thumb;
 	bool m_show_technical_info = false;
 	Range<double> m_wave_view_range;
+    int m_prepare_count = 0;
 private:
 	
 	
