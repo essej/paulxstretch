@@ -167,6 +167,7 @@ void StretchAudioSource::setPreviewDry(bool b)
 		return;
 	if (m_cs.tryEnter())
 	{
+		m_resampler->Reset();
 		m_preview_dry = b;
 		++m_param_change_count;
 		m_cs.exit();
@@ -185,10 +186,17 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	if (m_preview_dry == true && m_inputfile!=nullptr && m_inputfile->info.nsamples>0)
 	{
 		m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
-		m_inputfile->readNextBlock(m_drypreviewbuf, bufferToFill.numSamples, m_num_outchans);
+		double* rsinbuf = nullptr;
+		m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
+		int wanted = m_resampler->ResamplePrepare(bufferToFill.numSamples, m_num_outchans, &rsinbuf);
+		m_inputfile->readNextBlock(m_drypreviewbuf, wanted, m_num_outchans);
+		for (int i = 0; i < wanted; ++i)
+			for (int j = 0; j < m_num_outchans; ++j)
+				rsinbuf[i*m_num_outchans + j] = m_drypreviewbuf.getSample(j, i);
+		m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, bufferToFill.numSamples, m_num_outchans);
 		for (int i = 0; i < m_num_outchans; ++i)
-			bufferToFill.buffer->copyFrom(i, bufferToFill.startSample, m_drypreviewbuf, i, 0, bufferToFill.numSamples);
-		bufferToFill.buffer->applyGain(bufferToFill.startSample, bufferToFill.numSamples, maingain);
+			for (int j = 0; j < bufferToFill.numSamples; ++j)
+				bufferToFill.buffer->setSample(i, j+bufferToFill.startSample, maingain * m_resampler_outbuf[j*m_num_outchans + i]);
 		return;
 	}
 	if (m_pause_state == 2)
