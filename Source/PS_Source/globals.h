@@ -90,6 +90,16 @@ inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, juce::Ident
 	dest.setProperty(varname+"_end", x.getEnd(), uman);
 }
 
+inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParameterBool* par)
+{
+    if (par) dest.setProperty(par->paramID,(bool)*par,uman);
+}
+
+inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParameterInt* par)
+{
+    if (par) dest.setProperty(par->paramID,(int)*par,uman);
+}
+
 template<typename T>
 inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, T& val)
 {
@@ -113,6 +123,15 @@ inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, Range
 		rng.setStart(src.getProperty(varname + "_start"));
 		rng.setEnd(src.getProperty(varname + "_end"));
 	}
+}
+
+template<typename T>
+inline void getFromTreeProperties(ValueTree src, T par)
+{
+    if (par!=nullptr && src.hasProperty(par->paramID))
+    {
+        *par = src.getProperty(par->paramID);
+    }
 }
 
 template<typename F>
