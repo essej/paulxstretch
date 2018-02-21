@@ -99,6 +99,8 @@ public:
 	double getMainVolume() const { return m_main_volume; }
 	void setLoopXFadeLength(double lenseconds);
 	double getLoopXFadeLengtj() const { return m_loopxfadelen; }
+	void setPreviewDry(bool b);
+	bool isPreviewingDry() const;
 	int m_param_change_count = 0;
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
@@ -153,4 +155,6 @@ private:
 		File requested_file;
 	} m_xfadetask;
 	int m_pause_fade_counter = 0;
+	bool m_preview_dry = false;
+	AudioBuffer<float> m_drypreviewbuf;
 };

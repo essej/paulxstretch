@@ -23,7 +23,7 @@ StretchAudioSource::~StretchAudioSource()
 	
 }
 
-void StretchAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate)
+void StretchAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
 	m_outsr = sampleRate;
 	m_vol_smoother.reset(sampleRate, 0.5);
@@ -34,7 +34,7 @@ void StretchAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double s
 	m_stream_end_reached = false;
 	m_firstbuffer = true;
 	m_output_has_begun = false;
-	
+	m_drypreviewbuf.setSize(m_num_outchans, 65536);
 	initObjects();
 	
 }
@@ -161,9 +161,36 @@ void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 	}
 }
 
+void StretchAudioSource::setPreviewDry(bool b)
+{
+	if (b == m_preview_dry)
+		return;
+	if (m_cs.tryEnter())
+	{
+		m_preview_dry = b;
+		++m_param_change_count;
+		m_cs.exit();
+	}
+}
+
+bool StretchAudioSource::isPreviewingDry() const
+{
+	return m_preview_dry;
+}
+
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
+	double maingain = Decibels::decibelsToGain(m_main_volume);
+	if (m_preview_dry == true && m_inputfile!=nullptr && m_inputfile->info.nsamples>0)
+	{
+		m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
+		m_inputfile->readNextBlock(m_drypreviewbuf, bufferToFill.numSamples, m_num_outchans);
+		for (int i = 0; i < m_num_outchans; ++i)
+			bufferToFill.buffer->copyFrom(i, bufferToFill.startSample, m_drypreviewbuf, i, 0, bufferToFill.numSamples);
+		bufferToFill.buffer->applyGain(bufferToFill.startSample, bufferToFill.numSamples, maingain);
+		return;
+	}
 	if (m_pause_state == 2)
 	{
 		bufferToFill.buffer->clear(bufferToFill.startSample,bufferToFill.numSamples);
@@ -181,7 +208,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			e->set_freezing(m_freezing);
 	}
     
-	double maingain = Decibels::decibelsToGain(m_main_volume);
+	
 	if (m_vol_smoother.getTargetValue() != maingain)
 		m_vol_smoother.setValue(maingain);
 	FloatVectorOperations::disableDenormalisedNumberSupport();
