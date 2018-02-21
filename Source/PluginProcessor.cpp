@@ -142,6 +142,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
 	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
 	addParameter(m_inchansparam); // 32
+	addParameter(new AudioParameterBool("bypass_stretch0", "Bypass stretch", false)); // 33
 #ifdef SOUNDRANGE_OFFSET_ENABLED
 	addParameter(new AudioParameterFloat("playrangeoffset_0", "Play offset", 0.0f, 1.0f, 0.0f)); // 33
 #endif
@@ -151,7 +152,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	setPreBufferAmount(2);
     startTimer(1, 50);
 	m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
-	m_stretch_source->setPreviewDry(true);
+	
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -537,7 +538,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		return;
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
-
+	m_stretch_source->setPreviewDry(*getBoolParameter(cpi_bypass_stretch));
 	setFFTSize(*getFloatParameter(cpi_fftsize));
 	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
 	m_ppar.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);

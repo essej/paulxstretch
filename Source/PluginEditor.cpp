@@ -145,7 +145,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	int w = getWidth();
 	int xoffs = 1;
 	int yoffs = 30;
-	int div = w / 4;
+	int div = w / 5;
 	//std::vector<std::vector<int>> layout;
 	//layout.emplace_back(cpi_capture_enabled,	cpi_passthrough,	cpi_pause_enabled,	cpi_freeze);
 	//layout.emplace_back(cpi_main_volume,		cpi_num_inchans,	cpi_num_outchans);
@@ -158,6 +158,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_pause_enabled]->setBounds(xoffs, yoffs, div-1, 24);
 	xoffs += div;
 	m_parcomps[cpi_freeze]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
+	m_parcomps[cpi_bypass_stretch]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs = 1;
 	yoffs += 25;
 	div = w / 3;
