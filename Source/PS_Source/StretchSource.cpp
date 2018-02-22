@@ -613,7 +613,9 @@ double StretchAudioSource::getOutputDurationSecondsForRange(Range<double> range,
 {
 	if (m_inputfile == nullptr || m_inputfile->info.nsamples == 0)
 		return 0.0;
-	int64_t play_end_pos = (fftsize * 2)+range.getLength()*m_playrate*m_inputfile->info.nsamples;
+	if (m_preview_dry==true)
+        return (double)range.getLength()*m_inputfile->info.nsamples/m_inputfile->info.samplerate;
+    int64_t play_end_pos = (fftsize * 2)+range.getLength()*m_playrate*m_inputfile->info.nsamples;
 	return (double)play_end_pos / m_inputfile->info.samplerate;
 }
 
