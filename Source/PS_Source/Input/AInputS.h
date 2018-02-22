@@ -328,13 +328,20 @@ public:
 	void setActiveRange(Range<double> rng) override
 	{
 		std::lock_guard<std::mutex> locker(m_mutex);
+		/*
+		if (rng.contains(getCurrentPositionPercent()))
+		{
+			setActiveRangeImpl(rng);
+			return;
+		}
+		*/
 		m_seekfade.requestedrange = rng;
 		if (m_seekfade.state == 0)
 		{
 			m_seekfade.counter = 0;
 			m_seekfade.state = 1;
 		}
-		m_seekfade.length = 16384;
+		m_seekfade.length = 2048;
     }
 	void setLoopEnabled(bool b) override
 	{
