@@ -505,8 +505,8 @@ void WaveformComponent::paint(Graphics & g)
 	double sel_len = m_time_sel_end - m_time_sel_start;
 	//if (sel_len > 0.0 && sel_len < 1.0)
 	{
-		int xcorleft = (int)jmap<double>(m_time_sel_start, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-		int xcorright = (int)jmap<double>(m_time_sel_end, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
+		int xcorleft = normalizedToViewX<int>(m_time_sel_start); 
+		int xcorright = normalizedToViewX<int>(m_time_sel_end);
 		g.fillRect(xcorleft, m_topmargin, xcorright - xcorleft, getHeight() - m_topmargin);
 	}
 	if (m_file_cached.first.getLength() > 0.0 &&
@@ -528,14 +528,12 @@ void WaveformComponent::paint(Graphics & g)
 	g.setColour(Colours::white);
 	if (CursorPosCallback)
 	{
-		double pos = jmap<double>(CursorPosCallback(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-		g.fillRect((int)pos, m_topmargin, 1, getHeight() - m_topmargin);
+		g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	if (m_rec_pos >= 0.0)
 	{
 		g.setColour(Colours::lightpink);
-		double pos = jmap<double>(m_rec_pos, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-		g.fillRect((int)pos, m_topmargin, 1, getHeight() - m_topmargin);
+		g.fillRect(normalizedToViewX<int>(m_rec_pos), m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	g.setColour(Colours::aqua);
 	g.drawText(GetFileCallback().getFileName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
@@ -572,7 +570,7 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 {
 	m_mousedown = true;
 	m_lock_timesel_set = true;
-	double pos = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+	double pos = viewXToNormalized(e.x);
 	if (e.y < m_topmargin || e.mods.isCommandDown())
 	{
 		if (SeekCallback)
@@ -612,27 +610,27 @@ void WaveformComponent::mouseDrag(const MouseEvent & e)
 	if (m_time_sel_drag_target == 0)
 	{
 		m_time_sel_start = m_drag_time_start;
-		m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+		m_time_sel_end = viewXToNormalized(e.x);
 	}
     double curlen = m_time_sel_end-m_time_sel_start;
 	
     if (m_time_sel_drag_target == 1)
 	{
 		if (e.mods.isShiftDown()==false)
-            m_time_sel_start = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+            m_time_sel_start = viewXToNormalized(e.x);
         else
         {
-            m_time_sel_start = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+            m_time_sel_start = viewXToNormalized(e.x);
             m_time_sel_end = m_time_sel_start+curlen;
         }
 	}
 	if (m_time_sel_drag_target == 2)
 	{
 		if (e.mods.isShiftDown()==false)
-            m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+            m_time_sel_end = viewXToNormalized(e.x);
         else
         {
-            m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+            m_time_sel_end = viewXToNormalized(e.x);
             m_time_sel_start = m_time_sel_end-curlen;
         }
 	}

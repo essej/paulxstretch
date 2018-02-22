@@ -168,6 +168,15 @@ private:
 	bool m_lock_timesel_set = false;
     bool m_using_audio_buffer = false;
 	void updateCachedImage();
+	double viewXToNormalized(double xcor)
+	{
+		return jmap<double>(xcor, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+	}
+	template<typename T>
+	inline T normalizedToViewX(double norm)
+	{
+		return static_cast<T>(jmap<double>(norm, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth()));
+	}
 };
 
 class SpectralChainEditor : public Component
@@ -218,6 +227,6 @@ private:
 	void showSettingsMenu();
     String m_last_err;
 	zoom_scrollbar m_zs;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
