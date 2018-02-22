@@ -821,7 +821,7 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
             return;
 		}
 	}
-	m_drag_x = -1;
+	m_drag_x = ev.x;
 	repaint();
 }
 
@@ -845,7 +845,8 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 			if (ModuleOrderOrEnabledChangedCallback)
 				ModuleOrderOrEnabledChangedCallback();
 		}
-		m_drag_x = ev.x;
+		int diff = m_drag_x - ev.x;
+		m_drag_x -= diff;
 		repaint();
 	}
 }
