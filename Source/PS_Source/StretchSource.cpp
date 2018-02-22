@@ -605,6 +605,7 @@ void StretchAudioSource::seekPercent(double pos)
 {
 	ScopedLock locker(m_cs);
 	m_seekpos = pos;
+	//m_resampler->Reset();
 	m_inputfile->seek(pos);
 	++m_param_change_count;
 }

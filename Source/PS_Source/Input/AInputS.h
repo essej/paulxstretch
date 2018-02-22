@@ -167,6 +167,37 @@ public:
 			if (inchans == 1 && numchans > 0)
 			{
 				float sig = getCrossFadedSampleLambda(m_currentsample, 0, subsect_t0, subsect_t1, xfadelen);
+				if (m_seekfade.state == 1)
+				{
+					//Logger::writeToLog("Seek requested to pos " + String(m_seekfade.requestedpos));
+					m_seekfade.state = 2;
+				}
+				if (m_seekfade.state == 2)
+				{
+					float seekfadegain = 1.0-(1.0 / m_seekfade.length*m_seekfade.counter);
+					sig *= seekfadegain;
+					++m_seekfade.counter;
+					if (m_seekfade.counter >= m_seekfade.length)
+					{
+						//Logger::writeToLog("Doing seek " + String(m_seekfade.requestedpos));
+						m_seekfade.counter = 0;
+						m_seekfade.state = 3;
+						seekImpl(m_seekfade.requestedpos);
+					}
+				}
+				if (m_seekfade.state == 3)
+				{
+					float seekfadegain = 1.0 / m_seekfade.length*m_seekfade.counter;
+					sig *= seekfadegain;
+					++m_seekfade.counter;
+					if (m_seekfade.counter >= m_seekfade.length)
+					{
+						//Logger::writeToLog("Seek cycle finished");
+						m_seekfade.counter = 0;
+						m_seekfade.state = 0;
+						m_seekfade.requestedpos = 0.0;
+					}
+				}
 				for (int j = 0; j < numchans; ++j)
 				{
 					smps[j][i] = sig;
@@ -204,11 +235,11 @@ public:
 		
 		return nsmps;
 	}
-	void seek(double pos) override //0=start,1.0=end
-    {
+	void seekImpl(double pos)
+	{
 		if (m_using_memory_buffer == true)
 		{
-			jassert(m_readbuf.getNumSamples() > 0 && m_afreader==nullptr);
+			jassert(m_readbuf.getNumSamples() > 0 && m_afreader == nullptr);
 			m_loopcount = 0;
 			m_silenceoutputted = 0;
 			m_cache_misses = 0;
@@ -217,9 +248,9 @@ public:
 			m_cached_file_range = { 0,m_readbuf.getNumSamples() };
 			return;
 		}
-        //jassert(m_afreader!=nullptr);
-        if (m_afreader==nullptr)
-            return;
+		//jassert(m_afreader!=nullptr);
+		if (m_afreader == nullptr)
+			return;
 		m_loopcount = 0;
 		m_silenceoutputted = 0;
 		m_cache_misses = 0;
@@ -229,7 +260,20 @@ public:
 		//if (m_cached_file_range.contains(info.currentsample)==false)
 		m_cached_file_range = Range<int64_t>();
 		updateXFadeCache();
-        //m_cached_crossfade_range = Range<int64_t>();
+		//m_cached_crossfade_range = Range<int64_t>();
+	}
+	void seek(double pos) override //0=start,1.0=end
+    {
+		std::lock_guard<std::mutex> locker(m_mutex);
+		if (m_seekfade.state == 0)
+		{
+			m_seekfade.state = 1;
+			m_seekfade.counter = 0;
+		}
+		m_seekfade.length = 16384;
+		m_seekfade.requestedpos = pos;
+		
+		
 	}
 	std::pair<Range<double>,Range<double>> getCachedRangesNormalized()
 	{
@@ -312,4 +356,11 @@ private:
 	bool m_using_memory_buffer = true;
 	AudioFormatManager* m_manager = nullptr;
     std::mutex m_mutex;
+	struct
+	{
+		int state = 0; // 0 inactive, 1 seek requested, 2 fade out, 3 fade in
+		int counter = 0;
+		int length = 44100;
+		double requestedpos = 0.0;
+	} m_seekfade;
 };

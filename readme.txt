@@ -12,7 +12,7 @@ History :
 	-Show approximate stretched output duration in info label (only valid if the stretch amount is not automated in the host)
 	-Added stretch processing bypass parameter (to play the original sound looped like it is passed into the stretcher)
 	-Waveform selection can be moved by dragging with shift pressed
-	-Waveform should no longer disappear when not intended
+	-Fixes for the waveform graphics disappearing unexpectedly (this probably still isn't entirely fixed, though)
 02-16-2018 1.0.1
 	-Increased maximum number of input channels to 8
 	-Added zoom/scroll bar for waveform
