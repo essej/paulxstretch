@@ -614,13 +614,27 @@ void WaveformComponent::mouseDrag(const MouseEvent & e)
 		m_time_sel_start = m_drag_time_start;
 		m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
 	}
-	if (m_time_sel_drag_target == 1)
+    double curlen = m_time_sel_end-m_time_sel_start;
+	
+    if (m_time_sel_drag_target == 1)
 	{
-		m_time_sel_start = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+		if (e.mods.isShiftDown()==false)
+            m_time_sel_start = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+        else
+        {
+            m_time_sel_start = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+            m_time_sel_end = m_time_sel_start+curlen;
+        }
 	}
 	if (m_time_sel_drag_target == 2)
 	{
-		m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+		if (e.mods.isShiftDown()==false)
+            m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+        else
+        {
+            m_time_sel_end = jmap<double>(e.x, 0, getWidth(), m_view_range.getStart(), m_view_range.getEnd());
+            m_time_sel_start = m_time_sel_end-curlen;
+        }
 	}
 	if (m_time_sel_start > m_time_sel_end)
 	{
