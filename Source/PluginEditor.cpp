@@ -607,33 +607,28 @@ void WaveformComponent::mouseDrag(const MouseEvent & e)
 {
 	if (m_didseek == true)
 		return;
-	if (m_time_sel_drag_target == 0)
+	if (m_time_sel_drag_target == 0 && e.mods.isAnyModifierKeyDown()==false)
 	{
 		m_time_sel_start = m_drag_time_start;
 		m_time_sel_end = viewXToNormalized(e.x);
 	}
-    double curlen = m_time_sel_end-m_time_sel_start;
+	if (m_time_sel_drag_target == 0 && e.mods.isShiftDown())
+	{
+		double diff = m_drag_time_start - viewXToNormalized(e.x);
+		m_time_sel_start -= diff;
+		m_time_sel_end -= diff;
+		m_drag_time_start -= diff;
+	}
+	double curlen = m_time_sel_end-m_time_sel_start;
 	
     if (m_time_sel_drag_target == 1)
 	{
-		if (e.mods.isShiftDown()==false)
-            m_time_sel_start = viewXToNormalized(e.x);
-        else
-        {
-            m_time_sel_start = viewXToNormalized(e.x);
-            m_time_sel_end = m_time_sel_start+curlen;
-        }
-	}
+		m_time_sel_start = viewXToNormalized(e.x);
+    }
 	if (m_time_sel_drag_target == 2)
 	{
-		if (e.mods.isShiftDown()==false)
-            m_time_sel_end = viewXToNormalized(e.x);
-        else
-        {
-            m_time_sel_end = viewXToNormalized(e.x);
-            m_time_sel_start = m_time_sel_end-curlen;
-        }
-	}
+		m_time_sel_end = viewXToNormalized(e.x);
+    }
 	if (m_time_sel_start > m_time_sel_end)
 	{
 		std::swap(m_time_sel_start, m_time_sel_end);
