@@ -117,12 +117,20 @@ public:
 		if (m_afreader)
 			inchans = m_afreader->numChannels;
 		else inchans = m_readbuf.getNumChannels();
-		int64_t subsect_t0 = (int64_t)(m_activerange.getStart()*info.nsamples);
-		int64_t subsect_t1 = (int64_t)(m_activerange.getEnd()*info.nsamples);
-		int64_t subsectlen = subsect_t1 - subsect_t0;
-		int xfadelen = m_xfadelen;
-		if (xfadelen >= subsectlen)
-			xfadelen = int(subsectlen - 2);
+		int64_t subsect_t0 = 0;
+		int64_t subsect_t1 = 0;
+		int64_t subsectlen = 0;
+		int xfadelen = 0;
+		auto updatesamplepositions = [&,this]()
+		{
+			subsect_t0 = (int64_t)(m_activerange.getStart()*info.nsamples);
+			subsect_t1 = (int64_t)(m_activerange.getEnd()*info.nsamples);
+			subsectlen = subsect_t1 - subsect_t0;
+			xfadelen = m_xfadelen;
+			if (xfadelen >= subsectlen)
+				xfadelen = int(subsectlen - 2);
+		};
+		updatesamplepositions();
 		auto getSampleLambda=[this](int64_t pos, int ch)
 		{
 			if (m_cached_file_range.contains(pos))
@@ -182,7 +190,14 @@ public:
 						//Logger::writeToLog("Doing seek " + String(m_seekfade.requestedpos));
 						m_seekfade.counter = 0;
 						m_seekfade.state = 3;
-						seekImpl(m_seekfade.requestedpos);
+						if (m_seekfade.requestedrange.isEmpty() == false)
+						{
+							setActiveRangeImpl(m_seekfade.requestedrange);
+							updatesamplepositions();
+							if (m_activerange.contains(getCurrentPositionPercent()) == false)
+								seekImpl(m_activerange.getStart());
+						}
+						
 					}
 				}
 				if (m_seekfade.state == 3)
@@ -196,6 +211,7 @@ public:
 						m_seekfade.counter = 0;
 						m_seekfade.state = 0;
 						m_seekfade.requestedpos = 0.0;
+						m_seekfade.requestedrange = Range<double>();
 					}
 				}
 				for (int j = 0; j < numchans; ++j)
@@ -299,7 +315,7 @@ public:
 		m_cached_crossfade_range =
             Range<int64_t>((int64_t)(m_activerange.getStart()*info.nsamples),(int64_t)(m_activerange.getStart()*info.nsamples+m_xfadelen));
     }
-	void setActiveRange(Range<double> rng) override
+	void setActiveRangeImpl(Range<double> rng)
 	{
 		if (rng.getEnd() < rng.getStart())
 			rng = { 0.0,1.0 };
@@ -307,7 +323,18 @@ public:
 			rng = { 0.0,1.0 };
 		m_activerange = rng;
 		m_loopcount = 0;
-        updateXFadeCache();
+		updateXFadeCache();
+	}
+	void setActiveRange(Range<double> rng) override
+	{
+		std::lock_guard<std::mutex> locker(m_mutex);
+		m_seekfade.requestedrange = rng;
+		if (m_seekfade.state == 0)
+		{
+			m_seekfade.counter = 0;
+			m_seekfade.state = 1;
+		}
+		m_seekfade.length = 16384;
     }
 	void setLoopEnabled(bool b) override
 	{
@@ -362,5 +389,6 @@ private:
 		int counter = 0;
 		int length = 44100;
 		double requestedpos = 0.0;
+		Range<double> requestedrange;
 	} m_seekfade;
 };

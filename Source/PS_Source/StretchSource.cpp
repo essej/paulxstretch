@@ -649,8 +649,8 @@ void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 		m_stream_end_reached = false;
 		m_inputfile->setActiveRange(m_playrange);
 		m_inputfile->setLoopEnabled(isloop);
-		if (m_playrange.contains(m_seekpos) == false)
-			m_inputfile->seek(m_playrange.getStart());
+		//if (m_playrange.contains(m_seekpos) == false)
+		//	m_inputfile->seek(m_playrange.getStart());
 		m_seekpos = m_playrange.getStart();
 		++m_param_change_count;
 		m_cs.exit();
