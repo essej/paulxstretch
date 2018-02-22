@@ -612,14 +612,15 @@ void WaveformComponent::mouseDrag(const MouseEvent & e)
 		m_time_sel_start = m_drag_time_start;
 		m_time_sel_end = viewXToNormalized(e.x);
 	}
+	double curlen = m_time_sel_end - m_time_sel_start;
 	if (m_time_sel_drag_target == 0 && e.mods.isShiftDown())
 	{
 		double diff = m_drag_time_start - viewXToNormalized(e.x);
-		m_time_sel_start -= diff;
-		m_time_sel_end -= diff;
+		m_time_sel_start = jlimit<double>(0.0, 1.0-curlen, m_time_sel_start - diff);
+		m_time_sel_end = jlimit<double>(curlen, 1.0, m_time_sel_end - diff);
 		m_drag_time_start -= diff;
 	}
-	double curlen = m_time_sel_end-m_time_sel_start;
+	curlen = m_time_sel_end - m_time_sel_start;
 	
     if (m_time_sel_drag_target == 1)
 	{
