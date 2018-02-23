@@ -280,6 +280,8 @@ public:
 	}
 	void seek(double pos) override //0=start,1.0=end
     {
+		seekImpl(pos);
+		/*
 		std::lock_guard<std::mutex> locker(m_mutex);
 		if (m_seekfade.state == 0)
 		{
@@ -288,9 +290,9 @@ public:
 		}
 		m_seekfade.length = 16384;
 		m_seekfade.requestedpos = pos;
-		
-		
+		*/
 	}
+
 	std::pair<Range<double>,Range<double>> getCachedRangesNormalized()
 	{
 		if (m_afreader == nullptr)

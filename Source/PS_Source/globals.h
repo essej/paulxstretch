@@ -71,6 +71,12 @@ const int g_maxnumoutchans = 32;
 //#define USE_LUA_SCRIPTING
 #endif
 
+template<typename... Args>
+inline bool hasProperties(ValueTree src, Args&&... args)
+{
+	return (src.hasProperty(args) && ...);
+}
+
 inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, juce::Identifier varname, var val)
 {
 	dest.setProperty(varname, val, uman);
@@ -123,10 +129,13 @@ inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, T& va
 template<typename T>
 inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, Range<T>& rng)
 {
-	if (src.hasProperty(varname + "_start") && src.hasProperty(varname + "_end"))
+	if (hasProperties(src, varname + "_start", varname + "_end"))
 	{
-		rng.setStart(src.getProperty(varname + "_start"));
-		rng.setEnd(src.getProperty(varname + "_end"));
+		rng = { src.getProperty(varname + "_start") , src.getProperty(varname + "_end") };
+	}
+	else
+	{
+		jassert(false);
 	}
 }
 
@@ -150,6 +159,12 @@ inline void timeCall(String msgprefix,F&& f)
 	Logger::writeToLog(formatted(msgprefix, " took " , t1 - t0 , " ms"));
 }
 
+template<typename Cont, typename T>
+inline void fill_container(Cont& c, const T& x)
+{
+	std::fill(std::begin(c), std::end(c), x);
+}
+
 template<typename T>
 class CircularBuffer final
 {
@@ -163,7 +178,7 @@ public:
 		m_avail = 0;
 		m_readpos = 0;
 		m_writepos = 0;
-		std::fill(m_buf.begin(), m_buf.end(), T());
+		fill_container(m_buf, T());
 	}
 	void push(T x)
 	{
@@ -213,12 +228,6 @@ private:
 	int m_avail = 0;
 	std::vector<T> m_buf;
 };
-
-template<typename Cont,typename T>
-inline void fill_container(Cont& c, const T& x)
-{
-	std::fill(std::begin(c), std::end(c), x);
-}
 
 template<typename T, typename F>
 inline void callGUI(T* ap, F&& f, bool async)
