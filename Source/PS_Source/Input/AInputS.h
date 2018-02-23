@@ -171,52 +171,51 @@ public:
 			readinc = -1;
 		for (int i = 0; i < nsmps; ++i)
 		{
-			
+			float seekfadegain = 1.0f;
+			if (m_seekfade.state == 1)
+			{
+				//Logger::writeToLog("Seek requested to pos " + String(m_seekfade.requestedpos));
+				m_seekfade.state = 2;
+			}
+			if (m_seekfade.state == 2)
+			{
+				seekfadegain = 1.0 - (1.0 / m_seekfade.length*m_seekfade.counter);
+				++m_seekfade.counter;
+				if (m_seekfade.counter >= m_seekfade.length)
+				{
+					//Logger::writeToLog("Doing seek " + String(m_seekfade.requestedpos));
+					m_seekfade.counter = 0;
+					m_seekfade.state = 3;
+					if (m_seekfade.requestedrange.isEmpty() == false)
+					{
+						setActiveRangeImpl(m_seekfade.requestedrange);
+						updatesamplepositions();
+						if (m_activerange.contains(getCurrentPositionPercent()) == false)
+							seekImpl(m_activerange.getStart());
+					}
+
+				}
+			}
+			if (m_seekfade.state == 3)
+			{
+				seekfadegain = 1.0 / m_seekfade.length*m_seekfade.counter;
+				++m_seekfade.counter;
+				if (m_seekfade.counter >= m_seekfade.length)
+				{
+					//Logger::writeToLog("Seek cycle finished");
+					m_seekfade.counter = 0;
+					m_seekfade.state = 0;
+					m_seekfade.requestedpos = 0.0;
+					m_seekfade.requestedrange = Range<double>();
+				}
+			}
+			jassert(seekfadegain >= 0.0f && seekfadegain<=1.0f);
 			if (inchans == 1 && numchans > 0)
 			{
 				float sig = getCrossFadedSampleLambda(m_currentsample, 0, subsect_t0, subsect_t1, xfadelen);
-				if (m_seekfade.state == 1)
-				{
-					//Logger::writeToLog("Seek requested to pos " + String(m_seekfade.requestedpos));
-					m_seekfade.state = 2;
-				}
-				if (m_seekfade.state == 2)
-				{
-					float seekfadegain = 1.0-(1.0 / m_seekfade.length*m_seekfade.counter);
-					sig *= seekfadegain;
-					++m_seekfade.counter;
-					if (m_seekfade.counter >= m_seekfade.length)
-					{
-						//Logger::writeToLog("Doing seek " + String(m_seekfade.requestedpos));
-						m_seekfade.counter = 0;
-						m_seekfade.state = 3;
-						if (m_seekfade.requestedrange.isEmpty() == false)
-						{
-							setActiveRangeImpl(m_seekfade.requestedrange);
-							updatesamplepositions();
-							if (m_activerange.contains(getCurrentPositionPercent()) == false)
-								seekImpl(m_activerange.getStart());
-						}
-						
-					}
-				}
-				if (m_seekfade.state == 3)
-				{
-					float seekfadegain = 1.0 / m_seekfade.length*m_seekfade.counter;
-					sig *= seekfadegain;
-					++m_seekfade.counter;
-					if (m_seekfade.counter >= m_seekfade.length)
-					{
-						//Logger::writeToLog("Seek cycle finished");
-						m_seekfade.counter = 0;
-						m_seekfade.state = 0;
-						m_seekfade.requestedpos = 0.0;
-						m_seekfade.requestedrange = Range<double>();
-					}
-				}
 				for (int j = 0; j < numchans; ++j)
 				{
-					smps[j][i] = sig;
+					smps[j][i] = sig*seekfadegain;
 				}
 			}
 			else if (inchans > 1 && numchans > 1)
@@ -224,7 +223,8 @@ public:
 				for (int j = 0; j < numchans; ++j)
 				{
 					int inchantouse = j % inchans;
-					smps[j][i] = getCrossFadedSampleLambda(m_currentsample, inchantouse, subsect_t0, subsect_t1,xfadelen);
+					smps[j][i] = seekfadegain*getCrossFadedSampleLambda(m_currentsample, inchantouse, 
+						subsect_t0, subsect_t1,xfadelen);
 				}
 
 			}
