@@ -142,7 +142,7 @@ inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, Range
 template<typename T>
 inline void getFromTreeProperties(ValueTree src, T par)
 {
-	static_assert(std::is_base_of<AudioProcessorParameterWithID,std::remove_pointer<T>::type>::value,
+	static_assert(std::is_base_of<AudioProcessorParameterWithID,typename std::remove_pointer<T>::type>::value,
 		"T must inherit from AudioProcessorParameterWithID");
 	if (par!=nullptr && src.hasProperty(par->paramID))
     {
