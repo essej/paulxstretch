@@ -8,10 +8,10 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-02-22-2018 1.0.2
+02-23-2018 1.0.2
 	-Show approximate stretched output duration in info label (only valid if the stretch amount is not automated in the host)
 	-Added stretch processing bypass parameter (to play the original sound looped like it is passed into the stretcher)
-	-Waveform selection can be moved by dragging with shift pressed
+	-Waveform selection can be moved by dragging the selection top area
 	-Smoothed playback with fades when changing waveform selection
 	-Fixes for the waveform graphics disappearing unexpectedly (this probably still isn't entirely fixed, though)
 02-16-2018 1.0.1

@@ -157,4 +157,5 @@ private:
 	int m_pause_fade_counter = 0;
 	bool m_preview_dry = false;
 	AudioBuffer<float> m_drypreviewbuf;
+	void playDrySound(const AudioSourceChannelInfo & bufferToFill);
 };

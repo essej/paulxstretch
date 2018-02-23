@@ -500,8 +500,11 @@ void WaveformComponent::paint(Graphics & g)
 		m_thumbnail->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight() - m_topmargin },
 			thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
 	}
+	if (m_is_at_selection_drag_area)
+		g.setColour(Colours::white.withAlpha(0.6f));
+	else
+		g.setColour(Colours::white.withAlpha(0.5f));
 
-	g.setColour(Colours::white.withAlpha(0.5f));
 	double sel_len = m_time_sel_end - m_time_sel_start;
 	//if (sel_len > 0.0 && sel_len < 1.0)
 	{
@@ -607,13 +610,13 @@ void WaveformComponent::mouseDrag(const MouseEvent & e)
 {
 	if (m_didseek == true)
 		return;
-	if (m_time_sel_drag_target == 0 && (e.mods.isAnyModifierKeyDown()==false && e.y>=50))
+	if (m_time_sel_drag_target == 0 && e.y>=50)
 	{
 		m_time_sel_start = m_drag_time_start;
 		m_time_sel_end = viewXToNormalized(e.x);
 	}
 	double curlen = m_time_sel_end - m_time_sel_start;
-	if (m_time_sel_drag_target == 0 && (e.mods.isShiftDown() || e.y<50))
+	if (m_time_sel_drag_target == 0 && e.y<50 && m_is_at_selection_drag_area)
 	{
 		double diff = m_drag_time_start - viewXToNormalized(e.x);
 		m_time_sel_start = jlimit<double>(0.0, 1.0-curlen, m_time_sel_start - diff);
@@ -661,7 +664,8 @@ void WaveformComponent::mouseMove(const MouseEvent & e)
 		setMouseCursor(MouseCursor::LeftRightResizeCursor);
 	if (m_time_sel_drag_target == 2)
 		setMouseCursor(MouseCursor::LeftRightResizeCursor);
-
+	Range<int> temp(normalizedToViewX<int>(m_time_sel_start), normalizedToViewX<int>(m_time_sel_end));
+	m_is_at_selection_drag_area = temp.contains(e.x) == true && e.y < 50;
 }
 
 void WaveformComponent::mouseDoubleClick(const MouseEvent & e)

@@ -182,23 +182,12 @@ bool StretchAudioSource::isPreviewingDry() const
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
-	double maingain = Decibels::decibelsToGain(m_main_volume);
 	if (m_preview_dry == true && m_inputfile!=nullptr && m_inputfile->info.nsamples>0)
 	{
-		m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
-		double* rsinbuf = nullptr;
-		m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
-		int wanted = m_resampler->ResamplePrepare(bufferToFill.numSamples, m_num_outchans, &rsinbuf);
-		m_inputfile->readNextBlock(m_drypreviewbuf, wanted, m_num_outchans);
-		for (int i = 0; i < wanted; ++i)
-			for (int j = 0; j < m_num_outchans; ++j)
-				rsinbuf[i*m_num_outchans + j] = m_drypreviewbuf.getSample(j, i);
-		m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, bufferToFill.numSamples, m_num_outchans);
-		for (int i = 0; i < m_num_outchans; ++i)
-			for (int j = 0; j < bufferToFill.numSamples; ++j)
-				bufferToFill.buffer->setSample(i, j+bufferToFill.startSample, maingain * m_resampler_outbuf[j*m_num_outchans + i]);
+		playDrySound(bufferToFill);
 		return;
 	}
+	double maingain = Decibels::decibelsToGain(m_main_volume);
 	if (m_pause_state == 2)
 	{
 		bufferToFill.buffer->clear(bufferToFill.startSample,bufferToFill.numSamples);
@@ -472,6 +461,23 @@ void StretchAudioSource::initObjects()
 	}
 	m_file_inbuf.setSize(m_num_outchans, 3 * inbufsize);
 	int poolsize = m_stretchers[0]->get_max_bufsize();
+}
+
+void StretchAudioSource::playDrySound(const AudioSourceChannelInfo & bufferToFill)
+{
+	double maingain = Decibels::decibelsToGain(m_main_volume);
+	m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
+	double* rsinbuf = nullptr;
+	m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
+	int wanted = m_resampler->ResamplePrepare(bufferToFill.numSamples, m_num_outchans, &rsinbuf);
+	m_inputfile->readNextBlock(m_drypreviewbuf, wanted, m_num_outchans);
+	for (int i = 0; i < wanted; ++i)
+		for (int j = 0; j < m_num_outchans; ++j)
+			rsinbuf[i*m_num_outchans + j] = m_drypreviewbuf.getSample(j, i);
+	m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, bufferToFill.numSamples, m_num_outchans);
+	for (int i = 0; i < m_num_outchans; ++i)
+		for (int j = 0; j < bufferToFill.numSamples; ++j)
+			bufferToFill.buffer->setSample(i, j + bufferToFill.startSample, maingain * m_resampler_outbuf[j*m_num_outchans + i]);
 }
 
 double StretchAudioSource::getInfilePositionPercent()
