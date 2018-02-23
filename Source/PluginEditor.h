@@ -168,6 +168,7 @@ private:
 	bool m_lock_timesel_set = false;
     bool m_using_audio_buffer = false;
 	bool m_is_at_selection_drag_area = false;
+	bool m_is_dragging_selection = false;
 	void updateCachedImage();
 	double viewXToNormalized(double xcor)
 	{

@@ -596,6 +596,7 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 
 void WaveformComponent::mouseUp(const MouseEvent & /*e*/)
 {
+	m_is_dragging_selection = false;
 	m_lock_timesel_set = false;
 	m_mousedown = false;
 	m_didseek = false;
@@ -610,14 +611,15 @@ void WaveformComponent::mouseDrag(const MouseEvent & e)
 {
 	if (m_didseek == true)
 		return;
-	if (m_time_sel_drag_target == 0 && e.y>=50)
+	if (m_time_sel_drag_target == 0 && e.y>=50 && m_is_dragging_selection==false)
 	{
 		m_time_sel_start = m_drag_time_start;
 		m_time_sel_end = viewXToNormalized(e.x);
 	}
 	double curlen = m_time_sel_end - m_time_sel_start;
-	if (m_time_sel_drag_target == 0 && e.y<50 && m_is_at_selection_drag_area)
+	if (m_time_sel_drag_target == 0 && m_is_at_selection_drag_area)
 	{
+		m_is_dragging_selection = true;
 		double diff = m_drag_time_start - viewXToNormalized(e.x);
 		m_time_sel_start = jlimit<double>(0.0, 1.0-curlen, m_time_sel_start - diff);
 		m_time_sel_end = jlimit<double>(curlen, 1.0, m_time_sel_end - diff);
