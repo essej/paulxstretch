@@ -90,6 +90,11 @@ inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, juce::Ident
 	dest.setProperty(varname+"_end", x.getEnd(), uman);
 }
 
+inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParameterFloat* par)
+{
+	if (par) dest.setProperty(par->paramID, (float)*par, uman);
+}
+
 inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParameterBool* par)
 {
     if (par) dest.setProperty(par->paramID,(bool)*par,uman);
@@ -128,7 +133,9 @@ inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, Range
 template<typename T>
 inline void getFromTreeProperties(ValueTree src, T par)
 {
-    if (par!=nullptr && src.hasProperty(par->paramID))
+	static_assert(std::is_base_of<AudioProcessorParameterWithID,std::remove_pointer<T>::type>::value,
+		"T must inherit from AudioProcessorParameterWithID");
+	if (par!=nullptr && src.hasProperty(par->paramID))
     {
         *par = src.getProperty(par->paramID);
     }

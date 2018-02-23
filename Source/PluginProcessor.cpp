@@ -204,11 +204,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 	ValueTree paramtree("paulstretch3pluginstate");
 	for (int i = 0; i<getNumParameters(); ++i)
 	{
-		auto par = getFloatParameter(i);
-		if (par != nullptr)
-		{
-			paramtree.setProperty(par->paramID, (double)*par, nullptr);
-		}
+		storeToTreeProperties(paramtree, nullptr, getFloatParameter(i));
 	}
 	storeToTreeProperties(paramtree, nullptr, m_outchansparam);
     storeToTreeProperties(paramtree, nullptr, m_inchansparam);
@@ -257,12 +253,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			getFromTreeProperties(tree, "waveviewrange", m_wave_view_range);
 			for (int i = 0; i < getNumParameters(); ++i)
 			{
-				auto par = getFloatParameter(i);
-				if (par != nullptr)
-				{
-					double parval = tree.getProperty(par->paramID, (double)*par);
-					*par = parval;
-				}
+				getFromTreeProperties(tree,getFloatParameter(i));
 			}
             getFromTreeProperties(tree, m_outchansparam);
             getFromTreeProperties(tree, m_inchansparam);
