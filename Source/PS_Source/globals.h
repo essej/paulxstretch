@@ -74,6 +74,8 @@ const int g_maxnumoutchans = 32;
 template<typename... Args>
 inline bool hasProperties(ValueTree src, Args&&... args)
 {
+	if (sizeof...(args) == 0)
+		return false;
 	return (src.hasProperty(args) && ...);
 }
 
