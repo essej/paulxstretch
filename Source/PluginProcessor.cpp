@@ -204,6 +204,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 	{
 		storeToTreeProperties(paramtree, nullptr, getFloatParameter(i));
 	}
+	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_numharmonics));
 	storeToTreeProperties(paramtree, nullptr, m_outchansparam);
     storeToTreeProperties(paramtree, nullptr, m_inchansparam);
     storeToTreeProperties(paramtree, nullptr, getBoolParameter(cpi_bypass_stretch));
@@ -253,7 +254,8 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			{
 				getFromTreeProperties(tree,getFloatParameter(i));
 			}
-            getFromTreeProperties(tree, m_outchansparam);
+			getFromTreeProperties(tree, getIntParameter(cpi_numharmonics));
+			getFromTreeProperties(tree, m_outchansparam);
             getFromTreeProperties(tree, m_inchansparam);
             getFromTreeProperties(tree, getBoolParameter(cpi_bypass_stretch));
         }
