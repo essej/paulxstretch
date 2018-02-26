@@ -422,7 +422,11 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	}
 	if (r == 8)
 	{
-		processor.offlineRender(File("C:\\MusicAudio\\sourcesamples\\paultesmaus\\plugin_offline_test\\out.wav"));
+#ifdef JUCE_WINDOWS
+        processor.offlineRender(File("C:\\MusicAudio\\sourcesamples\\paultesmaus\\plugin_offline_test\\out.wav"));
+#else
+        processor.offlineRender(File("/Users/teemu/AudioProjects/sourcesamples/paultests/pspout.wav"));
+#endif
 	}
 	if (r == 9)
 	{

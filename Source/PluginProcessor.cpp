@@ -21,6 +21,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <set>
+#include <thread>
 
 #ifdef WIN32
 #undef min
