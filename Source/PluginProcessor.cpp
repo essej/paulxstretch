@@ -411,9 +411,60 @@ void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameter
 	pars.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
 }
 
+String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
+{
+	File outputfiletouse = outputfile.getNonexistentSibling();
+	int numoutchans = *getIntParameter(cpi_num_outchans);
+	auto ss = std::make_shared<StretchAudioSource>(numoutchans,m_afm);
+	int blocksize = 2048;
+	int64_t outlen = 10 * getSampleRateChecked();
+	int64_t outcounter = 0;
+	ss->setFFTSize(m_fft_size_to_use);
+	ss->setAudioFile(m_current_file);
+	ProcessParameters renderpars;
+	updateStretchParametersFromPluginParameters(renderpars);
+	ss->setProcessParameters(&renderpars);
+	double t0 = *getFloatParameter(cpi_soundstart);
+	double t1 = *getFloatParameter(cpi_soundend);
+	sanitizeTimeRange(t0, t1);
+	ss->setRate(*getFloatParameter(cpi_stretchamount));
+	ss->setPlayRange({ t0,t1 }, true);
+	ss->setLoopingEnabled(true);
+	ss->setNumOutChannels(numoutchans);
+	ss->setFFTWindowingType(1);
+	ss->setPreviewDry(true);
+	ss->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
+	ss->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
+	ss->setFreezing(getParameter(cpi_freeze));
+	ss->setPaused(getParameter(cpi_pause_enabled));
+	ss->prepareToPlay(blocksize, getSampleRateChecked());
+	AudioBuffer<float> renderbuffer(numoutchans, blocksize);
+	
+	WavAudioFormat wavformat;
+	FileOutputStream* outstream = outputfiletouse.createOutputStream();
+	if (outstream == nullptr)
+		return "Could not create output file";
+	auto writer = wavformat.createWriterFor(outstream, getSampleRateChecked(), numoutchans, 32, StringPairArray(), 0);
+	if (writer == nullptr)
+	{
+		delete outstream;
+		return "Could not create WAV writer";
+	}
+	AudioSourceChannelInfo asci(renderbuffer);
+	while (outcounter < outlen)
+	{
+		ss->setMainVolume(*getFloatParameter(cpi_main_volume));
+		ss->getNextAudioBlock(asci);
+		writer->writeFromAudioSampleBuffer(renderbuffer,0,blocksize);
+		outcounter += blocksize;
+	}
+	delete writer;
+	return "Rendered OK";
+}
+
 double PaulstretchpluginAudioProcessor::getSampleRateChecked()
 {
-	if (m_cur_sr < 1.0)
+	if (m_cur_sr < 1.0 || m_cur_sr>1000000.0)
 		return 44100.0;
 	return m_cur_sr;
 }
@@ -501,14 +552,6 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 			dest.copyFrom(channel_to_copy, destbufpos, src, channel_to_copy, 0, src.getNumSamples());
 		}
 	}
-}
-
-inline void sanitizeTimeRange(double& t0, double& t1)
-{
-	if (t0 > t1)
-		std::swap(t0, t1);
-	if (t1 - t0 < 0.001)
-		t1 = t0 + 0.001;
 }
 
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)

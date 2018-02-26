@@ -358,6 +358,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
+	menu.addItem(8, "Offline render...", true, false);
 	int r = menu.show();
 	if (r >= 200 && r < 210)
 	{
@@ -414,6 +415,10 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	{
 		toggleBool(processor.m_show_technical_info);
 		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
+	}
+	if (r == 8)
+	{
+		processor.offlineRender(File("C:\\MusicAudio\\sourcesamples\\paultesmaus\\plugin_offline_test\\out.wav"));
 	}
 }
 

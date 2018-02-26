@@ -161,6 +161,7 @@ public:
 	bool m_load_file_with_state = true;
 	ValueTree getStateTree(bool ignoreoptions, bool ignorefile);
 	void setStateFromTree(ValueTree tree);
+	String offlineRender(File outputfile);
 	bool m_state_dirty = false;
 	std::unique_ptr<AudioThumbnail> m_thumb;
 	bool m_show_technical_info = false;
@@ -207,6 +208,7 @@ private:
 	void setParameters(const std::vector<double>& pars);
 	float m_cur_playrangeoffset = 0.0;
 	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
+	
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

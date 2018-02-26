@@ -294,3 +294,11 @@ inline bool is_in_range(T val, T start, T end)
 {
 	return val >= start && val <= end;
 }
+
+inline void sanitizeTimeRange(double& t0, double& t1)
+{
+	if (t0 > t1)
+		std::swap(t0, t1);
+	if (t1 - t0 < 0.001)
+		t1 = t0 + 0.001;
+}
