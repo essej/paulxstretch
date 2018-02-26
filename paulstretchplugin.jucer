@@ -15,6 +15,10 @@
               headerPath="&#10;&#10;">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
+      <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
+            file="Source/envelope_component.cpp"/>
+      <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
+            file="Source/envelope_component.h"/>
       <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
         <FILE id="bnWZA4" name="BinauralBeats.cpp" compile="1" resource="0"

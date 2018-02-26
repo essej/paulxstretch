@@ -1,0 +1,367 @@
+#include "envelope_component.h"
+
+EnvelopeComponent::EnvelopeComponent()
+{
+	OnEnvelopeEdited = [](breakpoint_envelope*) {};
+	setWantsKeyboardFocus(true);
+	ValueFromNormalized = [](double x) { return x; };
+	TimeFromNormalized = [](double x) { return x; };
+	addChildComponent(&m_bubble);
+    setOpaque(true);
+}
+
+EnvelopeComponent::~EnvelopeComponent()
+{
+	
+}
+
+void EnvelopeComponent::show_bubble(int x, int y, const envelope_node& node)
+{
+	double scaledtime = TimeFromNormalized(node.Time);
+	double scaledvalue = ValueFromNormalized(node.Value);
+	x -= 50;
+	if (x < 0)
+		x = 0;
+	if (x + 100 > getWidth())
+		x = getWidth() - 100;
+	if (y < 0)
+		y = 0;
+	if (y + 20 > getHeight())
+		y = getHeight() - 20;
+	AttributedString temp(String::formatted("%.2f %.2f", scaledtime, scaledvalue));
+	temp.setColour(Colours::white);
+	m_bubble.showAt({ x,y,100,20 }, temp , 5000);
+}
+
+
+void EnvelopeComponent::paint(Graphics& g)
+{
+	if (!EnvelopeUnderlayDraw)
+	{
+		g.fillAll(Colours::black);
+		g.setColour(Colours::white.darker());
+		juce::Rectangle<int> rect(0, 0, getWidth(), getHeight());
+        
+		g.setFont(15.0);
+		
+	}
+	else
+	{
+		g.saveState();
+		EnvelopeUnderlayDraw(this, g);
+		g.restoreState();
+	}
+	
+	if (m_envelope == nullptr)
+	{
+		g.drawText("No envelope set", 10, 10, getWidth(), getHeight(), Justification::centred);
+		return;
+	}
+	if (m_envelope.unique() == true)
+	{
+		g.drawText("Envelope is orphaned (may be a bug)", 10, 10, getWidth(), getHeight(), Justification::centred);
+		return;
+	}
+	String name = m_name;
+	if (name.isEmpty() == true)
+		name = "Untitled envelope";
+	g.drawText(name, 10, 10, getWidth(), getHeight(), Justification::topLeft);
+	const float linethickness = 1.0f;
+	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
+	{
+		const envelope_node& pt = m_envelope->GetNodeAtIndex(i);
+		double xcor = jmap(pt.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
+		double ycor = (double)getHeight()-jmap(pt.Value, m_view_start_value, m_view_end_value, 0.0,(double)getHeight());
+		g.setColour(Colours::white);
+		if (pt.Status==0)
+			g.drawRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f, 1.0f);
+		else g.fillRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f);
+		m_envelope->resamplePointToLinearSegments(i,0.0, 1.0, 0.0, 1.0, [&g,linethickness,this](double pt_x0, double pt_y0, double pt_x1, double pt_y1)
+		{
+			double foo_x0 = jmap<double>(pt_x0, m_view_start_time, m_view_end_time, 0.0, getWidth());
+			double foo_x1 = jmap<double>(pt_x1, m_view_start_time, m_view_end_time, 0.0, getWidth());
+			double foo_y0 = (double)getHeight() - jmap<double>(pt_y0, m_view_start_value, m_view_end_value, 0.0, getHeight());
+			double foo_y1 = (double)getHeight() - jmap<double>(pt_y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
+			g.setColour(m_env_color);
+			g.drawLine((float)foo_x0, (float)foo_y0, (float)foo_x1, (float)foo_y1, linethickness);
+			//g.setColour(Colours::white);
+			//g.drawLine(foo_x0, foo_y0 - 8.0, foo_x0, foo_y0 + 8.0, 1.0);
+		}, [this](double xdiff) 
+		{ 
+			return std::max((int)(xdiff*getWidth() / 16), 8);
+		});
+		
+		/*
+		envelope_node pt1;
+		if (i + 1 < m_envelope->GetNumNodes())
+		{
+			g.setColour(m_env_color);
+			pt1 = m_envelope->GetNodeAtIndex(i + 1);
+			double xcor1 = jmap(pt1.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
+			double ycor1 = (double)getHeight() - jmap(pt1.Value, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
+			g.drawLine((float)xcor, (float)ycor, (float)xcor1, (float)ycor1, linethickness);
+		}
+		if (i == 0 && pt.Time >= 0.0)
+		{
+			g.setColour(m_env_color);
+            g.drawLine(0.0f, (float)ycor, (float)xcor, float(ycor), linethickness);
+		}
+		if (i == m_envelope->GetNumNodes()-1 && pt.Time < 1.0)
+		{
+			g.setColour(m_env_color);
+            g.drawLine((float)xcor, (float)ycor, (float)getWidth(), float(ycor), linethickness);
+		}
+		*/
+	}
+#ifdef ENVELOPEDRAWDERIVATIVE
+	g.setColour(Colours::green);
+	//double prevderiv = derivative([this](double xx) { return m_envelope->GetInterpolatedNodeValue(xx); }, 0.0);
+	for (int i = 0; i < getWidth()/8; ++i)
+	{
+		double x = 1.0 / getWidth()*(i*8);
+		double derv = derivative([this](double xx) { return m_envelope->GetInterpolatedNodeValue(xx); }, x);
+		double y = getHeight()-jmap<double>(derv, -10.0, 10.0, 0.0, getHeight());
+		g.fillEllipse(i*8, y, 5.0f, 5.0f);
+	}
+#endif
+}
+
+void EnvelopeComponent::changeListenerCallback(ChangeBroadcaster*)
+{
+	repaint();
+}
+
+void EnvelopeComponent::timerCallback(int)
+{
+	
+}
+
+void EnvelopeComponent::set_envelope(std::shared_ptr<breakpoint_envelope> env, String name)
+{
+	m_envelope = env;
+	m_name = name;
+	repaint();
+}
+
+void EnvelopeComponent::mouseDrag(const MouseEvent& ev)
+{
+	if (m_envelope == nullptr)
+		return;
+	if (m_segment_drag_info.first >= 0 && ev.mods.isAltDown())
+	{
+		double dist = jmap<double>(ev.getDistanceFromDragStartX(), -300.0, 300.0, -1.0, 1.0);
+		m_envelope->performRelativeTransformation([dist, this](int index, envelope_node& point) 
+		{ 
+			if (index == m_segment_drag_info.first)
+			{
+				point.ShapeParam1 += dist;
+				m_segment_drag_info.second = true;
+			}
+		});
+		repaint();
+		return;
+	}
+	if (m_segment_drag_info.first >= 0)
+	{
+		double dist = jmap<double>(ev.getDistanceFromDragStartY(), -getHeight(), getHeight(), -1.0, 1.0);
+		m_envelope->adjustEnvelopeSegmentValues(m_segment_drag_info.first, -dist);
+		repaint();
+		return;
+	}
+	if (m_node_to_drag >= 0)
+	{
+		//Logger::writeToLog("trying to move pt " + String(m_node_to_drag));
+		envelope_node& pt = m_envelope->GetNodeAtIndex(m_node_to_drag);
+		double left_bound = m_view_start_time;
+		double right_bound = m_view_end_time;
+		if (m_node_to_drag > 0 )
+		{
+			left_bound = m_envelope->GetNodeAtIndex(m_node_to_drag - 1).Time;
+		}
+		if (m_node_to_drag < m_envelope->GetNumNodes() - 1)
+		{
+			right_bound = m_envelope->GetNodeAtIndex(m_node_to_drag + 1).Time;
+		}
+		double normx = jmap((double)ev.x, 0.0, (double)getWidth(), m_view_start_time, m_view_end_time);
+		double normy = jmap((double)getHeight() - ev.y, 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
+		pt.Time=jlimit(left_bound+0.001, right_bound - 0.001, normx);
+		pt.Value=jlimit(0.0,1.0,normy);
+		m_last_tip = String(pt.Time, 2) + " " + String(pt.Value, 2);
+		show_bubble(ev.x, ev.y, pt);
+		m_node_that_was_dragged = m_node_to_drag;
+		repaint();
+		return;
+	}
+}
+
+void EnvelopeComponent::mouseMove(const MouseEvent & ev)
+{
+	if (m_envelope == nullptr)
+		return;
+	m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
+	if (m_node_to_drag >= 0)
+	{
+		if (m_mouse_down == false)
+		{
+			show_bubble(ev.x, ev.y, m_envelope->GetNodeAtIndex(m_node_to_drag));
+			setMouseCursor(MouseCursor::PointingHandCursor);
+		}
+	}
+	else
+	{
+		setMouseCursor(MouseCursor::NormalCursor);
+		m_bubble.setVisible(false);
+	}
+}
+
+void EnvelopeComponent::mouseDown(const MouseEvent & ev)
+{
+	if (m_envelope == nullptr)
+		return;
+	if (ev.mods.isRightButtonDown() == true)
+	{
+		PopupMenu menu;
+		menu.addItem(1, "Reset");
+		menu.addItem(2, "Invert");
+		int r = menu.show();
+		if (r == 1)
+		{
+			m_envelope->ResetEnvelope();
+		}
+		if (r == 2)
+		{
+			for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
+			{
+				double val = 1.0 - m_envelope->GetNodeAtIndex(i).Value;
+				m_envelope->GetNodeAtIndex(i).Value = val;
+			}
+		}
+		repaint();
+		return;
+	}
+	m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
+	m_mouse_down = true;
+	m_segment_drag_info = { findHotEnvelopeSegment(ev.x, ev.y, true),false };
+	if (m_segment_drag_info.first >= 0)
+	{
+		m_envelope->beginRelativeTransformation();
+		return;
+	}
+	if (m_node_to_drag >= 0 && ev.mods.isAltDown() == true)
+	{
+		if (m_envelope->GetNumNodes() < 2)
+		{
+			m_bubble.showAt({ ev.x,ev.y, 0,0 }, AttributedString("Can't remove last node"), 3000, false, false);
+			return;
+		}
+		m_envelope->DeleteNode(m_node_to_drag);
+		m_node_to_drag = -1;
+		OnEnvelopeEdited(m_envelope.get());
+		repaint();
+		return;
+	}
+	if (m_node_to_drag >= 0 && ev.mods.isShiftDown()==true)
+	{
+		int oldstatus = m_envelope->GetNodeAtIndex(m_node_to_drag).Status;
+		if (oldstatus==0)
+			m_envelope->GetNodeAtIndex(m_node_to_drag).Status=1;
+		else m_envelope->GetNodeAtIndex(m_node_to_drag).Status=0;
+		repaint();
+		return;
+	}
+	if (m_node_to_drag == -1)
+	{
+		double normx = jmap((double)ev.x, 0.0, (double)getWidth(), m_view_start_time, m_view_end_time);
+		double normy = jmap((double)getHeight() - ev.y, 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
+		m_envelope->AddNode ({ normx,normy, 0.5});
+		m_envelope->SortNodes();
+		m_mouse_down = false;
+		OnEnvelopeEdited(m_envelope.get());
+		repaint();
+	}
+}
+
+void EnvelopeComponent::mouseUp(const MouseEvent &ev)
+{
+	if (ev.mods == ModifierKeys::noModifiers)
+		m_bubble.setVisible(false);
+	if (m_node_that_was_dragged >= 0 || m_segment_drag_info.second==true)
+	{
+		OnEnvelopeEdited(m_envelope.get());
+	}
+	m_mouse_down = false;
+	m_node_that_was_dragged = -1;
+	m_node_to_drag = -1;
+	if (m_segment_drag_info.second == true)
+	{
+		m_segment_drag_info = { -1,false };
+		m_envelope->endRelativeTransformation();
+	}
+}
+
+bool EnvelopeComponent::keyPressed(const KeyPress & ev)
+{
+	if (ev == KeyPress::deleteKey && m_envelope!=nullptr)
+	{
+		m_node_to_drag = -1;
+		//m_envelope->ClearAllNodes();
+		m_envelope->removePointsConditionally([](const envelope_node& pt) { return pt.Status == 1; });
+		if (m_envelope->GetNumNodes()==0)
+			m_envelope->AddNode({ 0.0,0.5 });
+		repaint();
+		OnEnvelopeEdited(m_envelope.get());
+		
+		return true;
+	}
+	return false;
+}
+
+int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
+{
+	if (m_envelope == nullptr)
+		return -1;
+	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
+	{
+		const envelope_node& pt = m_envelope->GetNodeAtIndex(i);
+		double ptxcor = jmap(pt.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
+		double ptycor = (double)getHeight() - jmap(pt.Value, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
+		juce::Rectangle<double> target(ptxcor - 4.0, ptycor - 4.0, 8.0, 8.0);
+		if (target.contains(xcor, ycor) == true)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool detectsegment)
+{
+	if (m_envelope == nullptr)
+		return -1;
+	for (int i = 0; i < m_envelope->GetNumNodes()-1; ++i)
+	{
+		const envelope_node& pt0 = m_envelope->GetNodeAtIndex(i);
+		const envelope_node& pt1 = m_envelope->GetNodeAtIndex(i+1);
+		float xcor0 = (float)jmap<double>(pt0.Time, m_view_start_time, m_view_end_time, 0.0, getWidth());
+		float xcor1 = (float)jmap<double>(pt1.Time, m_view_start_time, m_view_end_time, 0.0, getWidth());
+		float segwidth = xcor1 - xcor0;
+		juce::Rectangle<float> segrect(xcor0+8.0f, 0.0f, segwidth-16.0f, (float)getHeight());
+		if (segrect.contains((float)xcor, (float)ycor))
+		{
+			if (detectsegment == false)
+				return i;
+			else
+			{
+				double normx = jmap<double>(xcor, 0.0, getWidth(), m_view_start_time, m_view_end_time);
+				double yval = m_envelope->GetInterpolatedNodeValue(normx);
+				float ycor0 = (float)(getHeight()-jmap<double>(yval, 0.0, 1.0, 0.0, getHeight()));
+				juce::Rectangle<float> segrect2((float)(xcor - 20), (float)(ycor - 20), 40, 40);
+				if (segrect2.contains((float)xcor, ycor0))
+					return i;
+			}
+		}
+		
+		
+	}
+	return -1;
+}
