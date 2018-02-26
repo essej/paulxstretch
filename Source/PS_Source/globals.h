@@ -294,5 +294,3 @@ inline bool is_in_range(T val, T start, T end)
 {
 	return val >= start && val <= end;
 }
-
-//#define SOUNDRANGE_OFFSET_ENABLED

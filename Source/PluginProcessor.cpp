@@ -143,9 +143,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
 	addParameter(m_inchansparam); // 32
 	addParameter(new AudioParameterBool("bypass_stretch0", "Bypass stretch", false)); // 33
-#ifdef SOUNDRANGE_OFFSET_ENABLED
-	addParameter(new AudioParameterFloat("playrangeoffset_0", "Play offset", 0.0f, 1.0f, 0.0f)); // 33
-#endif
+
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -385,6 +383,34 @@ void PaulstretchpluginAudioProcessor::setParameters(const std::vector<double>& p
 	}
 }
 
+void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameters(ProcessParameters & pars)
+{
+	pars.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
+	pars.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
+
+	pars.spread.bandwidth = *getFloatParameter(cpi_spreadamount);
+
+	pars.compressor.power = *getFloatParameter(cpi_compress);
+
+	pars.harmonics.nharmonics = *getIntParameter(cpi_numharmonics);
+	pars.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
+	pars.harmonics.bandwidth = *getFloatParameter(cpi_harmonicsbw);
+	pars.harmonics.gauss = getParameter(cpi_harmonicsgauss);
+
+	pars.octave.om2 = *getFloatParameter(cpi_octavesm2);
+	pars.octave.om1 = *getFloatParameter(cpi_octavesm1);
+	pars.octave.o0 = *getFloatParameter(cpi_octaves0);
+	pars.octave.o1 = *getFloatParameter(cpi_octaves1);
+	pars.octave.o15 = *getFloatParameter(cpi_octaves15);
+	pars.octave.o2 = *getFloatParameter(cpi_octaves2);
+
+	pars.filter.low = *getFloatParameter(cpi_filter_low);
+	pars.filter.high = *getFloatParameter(cpi_filter_high);
+
+	pars.tonal_vs_noise.bandwidth = *getFloatParameter(cpi_tonalvsnoisebw);
+	pars.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
+}
+
 double PaulstretchpluginAudioProcessor::getSampleRateChecked()
 {
 	if (m_cur_sr < 1.0)
@@ -534,48 +560,15 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 	m_stretch_source->setPreviewDry(*getBoolParameter(cpi_bypass_stretch));
 	setFFTSize(*getFloatParameter(cpi_fftsize));
-	m_ppar.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
-	m_ppar.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
 	
-	m_ppar.spread.bandwidth = *getFloatParameter(cpi_spreadamount);
-    
-    m_ppar.compressor.power = *getFloatParameter(cpi_compress);
-	
-	m_ppar.harmonics.nharmonics = *getIntParameter(cpi_numharmonics);
-	m_ppar.harmonics.freq = *getFloatParameter(cpi_harmonicsfreq);
-    m_ppar.harmonics.bandwidth = *getFloatParameter(cpi_harmonicsbw);
-    m_ppar.harmonics.gauss = getParameter(cpi_harmonicsgauss);
-	
-	m_ppar.octave.om2 = *getFloatParameter(cpi_octavesm2);
-	m_ppar.octave.om1 = *getFloatParameter(cpi_octavesm1);
-	m_ppar.octave.o0 = *getFloatParameter(cpi_octaves0);
-	m_ppar.octave.o1 = *getFloatParameter(cpi_octaves1);
-	m_ppar.octave.o15 = *getFloatParameter(cpi_octaves15);
-	m_ppar.octave.o2 = *getFloatParameter(cpi_octaves2);
-	
-	m_ppar.filter.low = *getFloatParameter(cpi_filter_low);
-	m_ppar.filter.high = *getFloatParameter(cpi_filter_high);
-	
-	m_ppar.tonal_vs_noise.bandwidth = *getFloatParameter(cpi_tonalvsnoisebw);
-	m_ppar.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
+	updateStretchParametersFromPluginParameters(m_ppar);
+
 	m_stretch_source->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
 	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
 	double t0 = *getFloatParameter(cpi_soundstart);
 	double t1 = *getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
-#ifdef SOUNDRANGE_OFFSET_ENABLED
-	if (m_cur_playrangeoffset != (*getFloatParameter(cpi_playrangeoffset)))
-	{
-		double prlen = t1 - t0;
-		m_cur_playrangeoffset = jlimit<float>(0.0f,1.0f-prlen,(float)*getFloatParameter(cpi_playrangeoffset));
-		t0 = m_cur_playrangeoffset;
-		t1 = t0 + prlen;
-		sanitizeTimeRange(t0, t1);
-		getFloatParameter(cpi_soundstart)->setValueNotifyingHost(t0);
-		getFloatParameter(cpi_soundend)->setValueNotifyingHost(t1);
 
-	}
-#endif
 	m_stretch_source->setPlayRange({ t0,t1 }, true);
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));

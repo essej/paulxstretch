@@ -206,6 +206,7 @@ private:
 	int m_cur_program = 0;
 	void setParameters(const std::vector<double>& pars);
 	float m_cur_playrangeoffset = 0.0;
+	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
