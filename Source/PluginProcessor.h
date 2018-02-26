@@ -163,6 +163,7 @@ public:
 	void setStateFromTree(ValueTree tree);
 	String offlineRender(File outputfile);
 	std::atomic<int> m_offline_render_state{ -1 };
+	std::atomic<bool> m_offline_render_cancel_requested{ false };
 	bool m_state_dirty = false;
 	std::unique_ptr<AudioThumbnail> m_thumb;
 	bool m_show_technical_info = false;

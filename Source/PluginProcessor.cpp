@@ -453,12 +453,15 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	auto rendertask = [ss,writer,blocksize,numoutchans, outsr, this]()
 	{
 		AudioBuffer<float> renderbuffer(numoutchans, blocksize);
-		int64_t outlen = 50 * outsr;
+		int64_t outlen = 250 * outsr;
 		int64_t outcounter = 0;
 		AudioSourceChannelInfo asci(renderbuffer);
 		m_offline_render_state = 0;
+		m_offline_render_cancel_requested = false;
 		while (outcounter < outlen)
 		{
+			if (m_offline_render_cancel_requested == true)
+				break;
 			ss->getNextAudioBlock(asci);
 			writer->writeFromAudioSampleBuffer(renderbuffer, 0, blocksize);
 			outcounter += blocksize;

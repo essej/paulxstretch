@@ -360,8 +360,9 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
-	menu.addItem(8, "Offline render...", 
-		processor.m_offline_render_state == 200 || processor.m_offline_render_state == -1, false);
+	if (processor.m_offline_render_state==-1 || processor.m_offline_render_state == 200)
+		menu.addItem(8, "Offline render...", true, false);
+	else menu.addItem(9, "Cancel render", true, false);
 	int r = menu.show();
 	if (r >= 200 && r < 210)
 	{
@@ -422,6 +423,10 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	if (r == 8)
 	{
 		processor.offlineRender(File("C:\\MusicAudio\\sourcesamples\\paultesmaus\\plugin_offline_test\\out.wav"));
+	}
+	if (r == 9)
+	{
+		processor.m_offline_render_cancel_requested = true;
 	}
 }
 
