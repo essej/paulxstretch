@@ -419,7 +419,6 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	int blocksize = 2048;
 	int64_t outlen = 10 * getSampleRateChecked();
 	int64_t outcounter = 0;
-	ss->setFFTSize(m_fft_size_to_use);
 	ss->setAudioFile(m_current_file);
 	ProcessParameters renderpars;
 	updateStretchParametersFromPluginParameters(renderpars);
@@ -432,11 +431,13 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	ss->setLoopingEnabled(true);
 	ss->setNumOutChannels(numoutchans);
 	ss->setFFTWindowingType(1);
-	ss->setPreviewDry(true);
+	//ss->setPreviewDry(true);
 	ss->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
 	ss->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
 	ss->setFreezing(getParameter(cpi_freeze));
 	ss->setPaused(getParameter(cpi_pause_enabled));
+	ss->setSpectrumProcessOrder(m_stretch_source->getSpectrumProcessOrder());
+	ss->setFFTSize(m_fft_size_to_use);
 	ss->prepareToPlay(blocksize, getSampleRateChecked());
 	AudioBuffer<float> renderbuffer(numoutchans, blocksize);
 	
