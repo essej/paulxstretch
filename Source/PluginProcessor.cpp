@@ -417,8 +417,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	int numoutchans = *getIntParameter(cpi_num_outchans);
 	auto ss = std::make_shared<StretchAudioSource>(numoutchans,m_afm);
 	int blocksize = 2048;
-	int64_t outlen = 10 * getSampleRateChecked();
-	int64_t outcounter = 0;
+	
 	ss->setAudioFile(m_current_file);
 	ProcessParameters renderpars;
 	updateStretchParametersFromPluginParameters(renderpars);
@@ -438,9 +437,9 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	ss->setPaused(getParameter(cpi_pause_enabled));
 	ss->setSpectrumProcessOrder(m_stretch_source->getSpectrumProcessOrder());
 	ss->setFFTSize(m_fft_size_to_use);
-	ss->prepareToPlay(blocksize, getSampleRateChecked());
-	AudioBuffer<float> renderbuffer(numoutchans, blocksize);
-	
+	ss->setMainVolume(*getFloatParameter(cpi_main_volume));
+	double outsr = getSampleRateChecked();
+	ss->prepareToPlay(blocksize, outsr);
 	WavAudioFormat wavformat;
 	FileOutputStream* outstream = outputfiletouse.createOutputStream();
 	if (outstream == nullptr)
@@ -451,15 +450,25 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 		delete outstream;
 		return "Could not create WAV writer";
 	}
-	AudioSourceChannelInfo asci(renderbuffer);
-	while (outcounter < outlen)
+	auto rendertask = [ss,writer,blocksize,numoutchans, outsr, this]()
 	{
-		ss->setMainVolume(*getFloatParameter(cpi_main_volume));
-		ss->getNextAudioBlock(asci);
-		writer->writeFromAudioSampleBuffer(renderbuffer,0,blocksize);
-		outcounter += blocksize;
-	}
-	delete writer;
+		AudioBuffer<float> renderbuffer(numoutchans, blocksize);
+		int64_t outlen = 50 * outsr;
+		int64_t outcounter = 0;
+		AudioSourceChannelInfo asci(renderbuffer);
+		m_offline_render_state = 0;
+		while (outcounter < outlen)
+		{
+			ss->getNextAudioBlock(asci);
+			writer->writeFromAudioSampleBuffer(renderbuffer, 0, blocksize);
+			outcounter += blocksize;
+			m_offline_render_state = 100.0 / outlen * outcounter;
+		}
+		m_offline_render_state = 200;
+		delete writer;
+	};
+	std::thread th(rendertask);
+	th.detach();
 	return "Rendered OK";
 }
 

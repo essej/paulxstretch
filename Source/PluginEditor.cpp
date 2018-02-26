@@ -274,7 +274,9 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		if (processor.m_playposinfo.isPlaying)
 			infotext += " "+String(processor.m_playposinfo.timeInSeconds,1);
 		if (processor.m_show_technical_info)
-			infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count);
+			infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count)+ " ";
+		if (processor.m_offline_render_state >= 0 && processor.m_offline_render_state <= 100)
+			infotext += String(processor.m_offline_render_state)+"%";
 		m_info_label.setText(infotext, dontSendNotification);
 		m_perfmeter.repaint();
 	}
@@ -358,7 +360,8 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
-	menu.addItem(8, "Offline render...", true, false);
+	menu.addItem(8, "Offline render...", 
+		processor.m_offline_render_state == 200 || processor.m_offline_render_state == -1, false);
 	int r = menu.show();
 	if (r >= 200 && r < 210)
 	{
