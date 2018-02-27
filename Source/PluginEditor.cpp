@@ -28,10 +28,15 @@ extern String g_plugintitle;
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
 	m_wavecomponent(p.m_afm,p.m_thumb.get()),
-	processor(p), m_perfmeter(&p)
+	processor(p), m_perfmeter(&p),
+    m_wavefilter_tab(TabbedButtonBar::TabsAtTop)
 
 {
-	addAndMakeVisible(&m_perfmeter);
+    //addAndMakeVisible(&m_free_filter_component);
+    m_free_filter_component.set_envelope(processor.m_free_filter_envelope);
+    m_wavefilter_tab.setTabBarDepth(17);
+    
+    addAndMakeVisible(&m_perfmeter);
 	
 	addAndMakeVisible(&m_import_button);
 	m_import_button.setButtonText("Import file...");
@@ -45,8 +50,11 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_info_label.setJustificationType(Justification::centredRight);
 
 	m_wavecomponent.GetFileCallback = [this]() { return processor.getAudioFile(); };
-	addAndMakeVisible(&m_wavecomponent);
-	const auto& pars = processor.getParameters();
+	//addAndMakeVisible(&m_wavecomponent);
+    
+    
+    
+    const auto& pars = processor.getParameters();
 	for (int i=0;i<pars.size();++i)
 	{
 		AudioProcessorParameterWithID* parid = dynamic_cast<AudioProcessorParameterWithID*>(pars[i]);
@@ -86,7 +94,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		processor.m_wave_view_range = r;
 	};
 	m_zs.setRange(processor.m_wave_view_range, true);
-	setSize (1000, 30+(pars.size()/2)*25+200+15);
+	
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
 		*processor.getFloatParameter(cpi_soundstart) = range.getStart();
@@ -118,7 +126,12 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	{
 		processor.setDirty();
 	};
-	startTimer(1, 100);
+    m_wavefilter_tab.addTab("Waveform", Colours::white, &m_wavecomponent, false);
+    m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
+    
+    addAndMakeVisible(&m_wavefilter_tab);
+    setSize (1000, 30+(pars.size()/2)*25+200+15);
+    startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
@@ -240,9 +253,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs -15;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
-	m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
-	m_zs.setBounds(1, m_wavecomponent.getBottom(), getWidth() - 2, 16);
-	//m_specvis.setBounds(1, yoffs, getWidth() - 2, getHeight() - 1 - yoffs);
+	//m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
+	
+    m_wavefilter_tab.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
+    m_zs.setBounds(1, m_wavefilter_tab.getBottom(), getWidth() - 2, 16);
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)

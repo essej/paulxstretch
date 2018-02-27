@@ -80,7 +80,10 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	
     g_activeprocessors.insert(this);
 	m_playposinfo.timeInSeconds = 0.0;
-	m_recbuffer.setSize(2, 44100);
+	
+    m_free_filter_envelope = std::make_shared<breakpoint_envelope>();
+    
+    m_recbuffer.setSize(2, 44100);
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();

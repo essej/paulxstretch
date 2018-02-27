@@ -22,6 +22,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PS_Source/PaulStretchControl.h"
+#include "jcdp_envelope.h"
 
 class MyThumbCache;
 
@@ -169,6 +170,7 @@ public:
 	bool m_show_technical_info = false;
 	Range<double> m_wave_view_range;
     int m_prepare_count = 0;
+    std::shared_ptr<breakpoint_envelope> m_free_filter_envelope;
 private:
 	
 	

@@ -24,6 +24,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "PluginProcessor.h"
 #include <memory>
 #include <vector>
+#include "envelope_component.h"
 
 class zoom_scrollbar : public Component
 {
@@ -229,6 +230,8 @@ private:
 	void showSettingsMenu();
     String m_last_err;
 	zoom_scrollbar m_zs;
+    EnvelopeComponent m_free_filter_component;
+    TabbedComponent m_wavefilter_tab;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
