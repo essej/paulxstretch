@@ -423,8 +423,8 @@ inline void spectrum_do_free_filter(shared_envelope& env, int nfreq, double samp
 		double binhz = (samplerate / 2.0) / nfreq * i;
 		if (binhz >= 30.0)
 		{
-			double norm = jmap<double>(binhz, 0.0, samplerate / 2.0, 0.0, 1.0);
-			double db = jmap<double>(env->GetInterpolatedNodeValue(pow(norm, 0.25)), 0.0, 1.0, -36.0, 12.0);
+			double norm = 0.150542*log(0.0333333*binhz);
+			double db = jmap<double>(env->GetInterpolatedNodeValue(norm), 0.0, 1.0, -36.0, 12.0);
 			freq2[i] = freq1[i] * Decibels::decibelsToGain(db);
 		}
 		else
