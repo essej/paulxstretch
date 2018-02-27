@@ -29,8 +29,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	: AudioProcessorEditor(&p),
 	m_wavecomponent(p.m_afm,p.m_thumb.get()),
 	processor(p), m_perfmeter(&p),
-    m_wavefilter_tab(TabbedButtonBar::TabsAtTop)
-
+    m_wavefilter_tab(TabbedButtonBar::TabsAtTop),
+	m_free_filter_component(p.getStretchSource()->getMutex())
 {
     //addAndMakeVisible(&m_free_filter_component);
     m_free_filter_component.set_envelope(processor.m_free_filter_envelope);

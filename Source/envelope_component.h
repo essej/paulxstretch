@@ -32,7 +32,7 @@ class EnvelopeComponent : public Component,
 	//public TooltipClient
 {
 public:
-	EnvelopeComponent();
+	EnvelopeComponent(CriticalSection* cs);
 	~EnvelopeComponent();
 	void paint(Graphics& g) override;
 	void set_envelope(std::shared_ptr<breakpoint_envelope> env, String name = String());
@@ -72,5 +72,6 @@ private:
 	String m_last_tip;
 	BubbleMessageComponent m_bubble;
 	void show_bubble(int x, int y, const envelope_node &node);
+	CriticalSection* m_cs = nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EnvelopeComponent)
 };

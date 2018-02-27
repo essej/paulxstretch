@@ -20,7 +20,7 @@
 
 #include "envelope_component.h"
 
-EnvelopeComponent::EnvelopeComponent()
+EnvelopeComponent::EnvelopeComponent(CriticalSection* cs) : m_cs(cs)
 {
 	OnEnvelopeEdited = [](breakpoint_envelope*) {};
 	setWantsKeyboardFocus(true);
@@ -246,7 +246,9 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		int r = menu.show();
 		if (r == 1)
 		{
+			m_cs->enter();
 			m_envelope->ResetEnvelope();
+			m_cs->exit();
 		}
 		if (r == 2)
 		{
@@ -274,7 +276,9 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 			m_bubble.showAt({ ev.x,ev.y, 0,0 }, AttributedString("Can't remove last node"), 3000, false, false);
 			return;
 		}
+		m_cs->enter();
 		m_envelope->DeleteNode(m_node_to_drag);
+		m_cs->exit();
 		m_node_to_drag = -1;
 		OnEnvelopeEdited(m_envelope.get());
 		repaint();
@@ -293,8 +297,10 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 	{
 		double normx = jmap((double)ev.x, 0.0, (double)getWidth(), m_view_start_time, m_view_end_time);
 		double normy = jmap((double)getHeight() - ev.y, 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
+		m_cs->enter();
 		m_envelope->AddNode ({ normx,normy, 0.5});
 		m_envelope->SortNodes();
+		m_cs->exit();
 		m_mouse_down = false;
 		OnEnvelopeEdited(m_envelope.get());
 		repaint();

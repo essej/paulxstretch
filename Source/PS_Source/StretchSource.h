@@ -104,6 +104,7 @@ public:
 	void setPreviewDry(bool b);
 	bool isPreviewingDry() const;
 	int m_param_change_count = 0;
+	CriticalSection* getMutex() { return &m_cs; }
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
 	AudioBuffer<float> m_file_inbuf;
