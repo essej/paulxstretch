@@ -82,6 +82,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_playposinfo.timeInSeconds = 0.0;
 	
     m_free_filter_envelope = std::make_shared<breakpoint_envelope>();
+	m_free_filter_envelope->SetName("Free filter");
 	m_free_filter_envelope->AddNode({ 0.0,0.75 });
 	m_free_filter_envelope->AddNode({ 1.0,0.75 });
 	m_free_filter_envelope->set_reset_nodes(m_free_filter_envelope->get_all_nodes());

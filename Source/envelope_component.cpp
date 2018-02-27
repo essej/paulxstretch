@@ -321,6 +321,10 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 		m_envelope->m_transform_y_shift += 0.01;
 	if (ev == 'D')
 		m_envelope->m_transform_y_shift -= 0.01;
+	if (ev == 'R')
+		m_envelope->m_transform_y_scale += 0.05;
+	if (ev == 'F')
+		m_envelope->m_transform_y_scale -= 0.05;
 	repaint();
 
 	if (ev == KeyPress::deleteKey)
