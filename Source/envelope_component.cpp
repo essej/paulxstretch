@@ -313,19 +313,30 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 {
 	if (m_envelope == nullptr)
 		return false;
-	if (ev == 'Q')
-		m_envelope->m_transform_x_shift -= 0.01;
-	if (ev == 'W')
-		m_envelope->m_transform_x_shift += 0.01;
+	auto f = [this](auto& env_var, double amt)
+    {
+        env_var+=amt;
+        return true;
+    };
+    bool r = false;
+    if (ev == 'Q')
+        r = f(m_envelope->m_transform_x_shift,-0.01);
+    if (ev == 'W')
+		r = f(m_envelope->m_transform_x_shift,0.01);
 	if (ev == 'E')
-		m_envelope->m_transform_y_shift += 0.01;
+        r = f(m_envelope->m_transform_y_shift,0.01);
 	if (ev == 'D')
-		m_envelope->m_transform_y_shift -= 0.01;
+		r = f(m_envelope->m_transform_y_shift,-0.01);
 	if (ev == 'R')
-		m_envelope->m_transform_y_scale += 0.05;
+		r = f(m_envelope->m_transform_y_scale,0.05);
 	if (ev == 'F')
-		m_envelope->m_transform_y_scale -= 0.05;
-	repaint();
+		r = f(m_envelope->m_transform_y_scale,-0.05);
+	if (r==true)
+    {
+        repaint();
+        return true;
+    }
+    
 
 	if (ev == KeyPress::deleteKey)
 	{
