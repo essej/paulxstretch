@@ -274,7 +274,8 @@ inline void spectrum_do_tonal_vs_noise(const ProcessParameters& pars, int nfreq,
 
 };
 
-inline void spectrum_do_harmonics(const ProcessParameters& pars, std::vector<REALTYPE>& tmpfreq1, int nfreq, double samplerate, REALTYPE *freq1, REALTYPE *freq2) {
+inline void spectrum_do_harmonics(const ProcessParameters& pars, std::vector<REALTYPE>& tmpfreq1, 
+	int nfreq, double samplerate, REALTYPE *freq1, REALTYPE *freq2) {
 	REALTYPE freq = pars.harmonics.freq;
 	REALTYPE bandwidth = pars.harmonics.bandwidth;
 	int nharmonics = pars.harmonics.nharmonics;
@@ -330,7 +331,8 @@ inline void spectrum_zero(int nfreq,REALTYPE *freq1) {
 	for (int i = 0; i<nfreq; i++) freq1[i] = 0.0;
 };
 
-inline void spectrum_do_freq_shift(const ProcessParameters& pars, int nfreq, double samplerate, REALTYPE *freq1, REALTYPE *freq2) {
+inline void spectrum_do_freq_shift(const ProcessParameters& pars, int nfreq, double samplerate, 
+	REALTYPE *freq1, REALTYPE *freq2) {
 	spectrum_zero(nfreq, freq2);
 	int ifreq = (int)(pars.freq_shift.Hz / (samplerate*0.5)*nfreq);
 	for (int i = 0; i<nfreq; i++) {
@@ -357,7 +359,7 @@ inline void spectrum_do_pitch_shift(const ProcessParameters& pars, int nfreq, RE
 	};
 };
 
-inline void spectrum_do_octave(const ProcessParameters& pars, int nfreq, double samplerate, 
+inline void spectrum_do_octave(const ProcessParameters& pars, int nfreq, double /*samplerate*/, 
 	std::vector<REALTYPE>& sumfreq, 
 	std::vector<REALTYPE>& tmpfreq1,
 	REALTYPE *freq1, REALTYPE *freq2) {
