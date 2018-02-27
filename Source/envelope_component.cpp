@@ -94,63 +94,27 @@ void EnvelopeComponent::paint(Graphics& g)
 		name = "Untitled envelope";
 	g.drawText(name, 10, 10, getWidth(), getHeight(), Justification::topLeft);
 	const float linethickness = 1.0f;
+	g.setColour(m_env_color);
+	double y0 = m_envelope->GetInterpolatedNodeValue(0.0);
+	const int drawstep = 1;
+	for (int i = 1; i < getWidth(); ++i)
+	{
+		double y1 = m_envelope->GetInterpolatedNodeValue(1.0/getWidth()*i);
+		double foo_y0 = (double)getHeight() - jmap<double>(y0, m_view_start_value, m_view_end_value, 0.0, getHeight());
+		double foo_y1 = (double)getHeight() - jmap<double>(y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
+		g.drawLine((float)i, foo_y0, (float)i + 1, foo_y1, linethickness);
+		y0 = y1;
+	}
 	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
 	{
 		const envelope_node& pt = m_envelope->GetNodeAtIndex(i);
 		double xcor = jmap(pt.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
-		double ycor = (double)getHeight()-jmap(pt.Value, m_view_start_value, m_view_end_value, 0.0,(double)getHeight());
+		double ycor = (double)getHeight() - jmap(pt.Value, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
 		g.setColour(Colours::white);
-		if (pt.Status==0)
+		if (pt.Status == 0)
 			g.drawRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f, 1.0f);
 		else g.fillRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f);
-		m_envelope->resamplePointToLinearSegments(i,0.0, 1.0, 0.0, 1.0, [&g,linethickness,this](double pt_x0, double pt_y0, double pt_x1, double pt_y1)
-		{
-			double foo_x0 = jmap<double>(pt_x0, m_view_start_time, m_view_end_time, 0.0, getWidth());
-			double foo_x1 = jmap<double>(pt_x1, m_view_start_time, m_view_end_time, 0.0, getWidth());
-			double foo_y0 = (double)getHeight() - jmap<double>(pt_y0, m_view_start_value, m_view_end_value, 0.0, getHeight());
-			double foo_y1 = (double)getHeight() - jmap<double>(pt_y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
-			g.setColour(m_env_color);
-			g.drawLine((float)foo_x0, (float)foo_y0, (float)foo_x1, (float)foo_y1, linethickness);
-			//g.setColour(Colours::white);
-			//g.drawLine(foo_x0, foo_y0 - 8.0, foo_x0, foo_y0 + 8.0, 1.0);
-		}, [this](double xdiff) 
-		{ 
-			return std::max((int)(xdiff*getWidth() / 16), 8);
-		});
-		
-		/*
-		envelope_node pt1;
-		if (i + 1 < m_envelope->GetNumNodes())
-		{
-			g.setColour(m_env_color);
-			pt1 = m_envelope->GetNodeAtIndex(i + 1);
-			double xcor1 = jmap(pt1.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
-			double ycor1 = (double)getHeight() - jmap(pt1.Value, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
-			g.drawLine((float)xcor, (float)ycor, (float)xcor1, (float)ycor1, linethickness);
-		}
-		if (i == 0 && pt.Time >= 0.0)
-		{
-			g.setColour(m_env_color);
-            g.drawLine(0.0f, (float)ycor, (float)xcor, float(ycor), linethickness);
-		}
-		if (i == m_envelope->GetNumNodes()-1 && pt.Time < 1.0)
-		{
-			g.setColour(m_env_color);
-            g.drawLine((float)xcor, (float)ycor, (float)getWidth(), float(ycor), linethickness);
-		}
-		*/
 	}
-#ifdef ENVELOPEDRAWDERIVATIVE
-	g.setColour(Colours::green);
-	//double prevderiv = derivative([this](double xx) { return m_envelope->GetInterpolatedNodeValue(xx); }, 0.0);
-	for (int i = 0; i < getWidth()/8; ++i)
-	{
-		double x = 1.0 / getWidth()*(i*8);
-		double derv = derivative([this](double xx) { return m_envelope->GetInterpolatedNodeValue(xx); }, x);
-		double y = getHeight()-jmap<double>(derv, -10.0, 10.0, 0.0, getHeight());
-		g.fillEllipse(i*8, y, 5.0f, 5.0f);
-	}
-#endif
 }
 
 void EnvelopeComponent::changeListenerCallback(ChangeBroadcaster*)
