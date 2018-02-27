@@ -82,6 +82,13 @@ void EnvelopeComponent::paint(Graphics& g)
 		g.drawText("Envelope is orphaned (may be a bug)", 10, 10, getWidth(), getHeight(), Justification::centred);
 		return;
 	}
+	for (int i = 0; i < 10; ++i)
+	{
+		double norm = 1.0 / 10 * i;
+		double hz = TimeFromNormalized(norm);
+		int xcor = getWidth() / 10 * i;
+		g.drawText(String(hz, 1), xcor, getHeight() - 20, 100, 20, Justification::topLeft);
+	}
 	String name = m_name;
 	if (name.isEmpty() == true)
 		name = "Untitled envelope";
@@ -331,9 +338,11 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 	{
 		m_node_to_drag = -1;
 		//m_envelope->ClearAllNodes();
+		m_cs->enter();
 		m_envelope->removePointsConditionally([](const envelope_node& pt) { return pt.Status == 1; });
 		if (m_envelope->GetNumNodes()==0)
 			m_envelope->AddNode({ 0.0,0.5 });
+		m_cs->exit();
 		repaint();
 		OnEnvelopeEdited(m_envelope.get());
 		
