@@ -576,6 +576,7 @@ private:
     nodes_t m_old_nodes;
     nodes_t m_repeater_nodes;
     grid_t m_value_grid;
+	JUCE_LEAK_DETECTOR(breakpoint_envelope)
 };
 
 template<typename F, typename... Args>
@@ -586,5 +587,6 @@ inline double derivative(const F& f, double x, const Args&... func_args)
 	return (f(x + epsilon, func_args...) - f(x, func_args...)) / epsilon;
 }
 
+using shared_envelope = std::shared_ptr<breakpoint_envelope>;
 
 #endif // JCDP_ENVELOPE_H

@@ -80,6 +80,16 @@ std::pair<Range<double>, Range<double>> StretchAudioSource::getFileCachedRangesN
 	return m_inputfile->getCachedRangesNormalized();
 }
 
+void StretchAudioSource::setFreeFilterEnvelope(shared_envelope env)
+{
+	ScopedLock locker(m_cs);
+	m_free_filter_envelope = env;
+	for (int i = 0; i < m_stretchers.size(); ++i)
+	{
+		m_stretchers[i]->setFreeFilterEnvelope(env);
+	}
+}
+
 ValueTree StretchAudioSource::getStateTree()
 {
 	ValueTree tree("stretchsourcestate");
@@ -456,6 +466,7 @@ void StretchAudioSource::initObjects()
 		m_stretchers[i]->set_onset_detection_sensitivity(onsetsens);
 		m_stretchers[i]->set_parameters(&m_ppar);
 		m_stretchers[i]->set_freezing(m_freezing);
+		m_stretchers[i]->setFreeFilterEnvelope(m_free_filter_envelope);
 		fill_container(m_stretchers[i]->out_buf, 0.0f);
 		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
 	}

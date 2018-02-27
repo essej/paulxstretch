@@ -82,7 +82,9 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_playposinfo.timeInSeconds = 0.0;
 	
     m_free_filter_envelope = std::make_shared<breakpoint_envelope>();
-    
+	m_free_filter_envelope->AddNode({ 0.0,0.5 });
+	m_free_filter_envelope->AddNode({ 1.0,0.5 });
+
     m_recbuffer.setSize(2, 44100);
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
@@ -364,7 +366,7 @@ void PaulstretchpluginAudioProcessor::setFFTSize(double size)
 void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err)
 {
 	m_stretch_source->setPlayRange(playrange, true);
-
+	m_stretch_source->setFreeFilterEnvelope(m_free_filter_envelope);
 	int bufamt = m_bufamounts[m_prebuffer_amount];
 
 	if (m_buffering_source != nullptr && numoutchans != m_buffering_source->getNumberOfChannels())

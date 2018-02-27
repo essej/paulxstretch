@@ -170,7 +170,7 @@ public:
 	bool m_show_technical_info = false;
 	Range<double> m_wave_view_range;
     int m_prepare_count = 0;
-    std::shared_ptr<breakpoint_envelope> m_free_filter_envelope;
+    shared_envelope m_free_filter_envelope;
 private:
 	
 	

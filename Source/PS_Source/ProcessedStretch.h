@@ -21,6 +21,7 @@
 
 #include "FreeEdit.h"
 #include "Stretch.h"
+#include "../jcdp_envelope.h"
 
 struct ProcessParameters
 {
@@ -413,6 +414,25 @@ inline void spectrum_do_filter(const ProcessParameters& pars, int nfreq, double 
 	};
 };
 
+inline void spectrum_do_free_filter(shared_envelope& env, int nfreq, double samplerate,
+	REALTYPE *freq1, REALTYPE *freq2) 
+{
+	jassert(env != nullptr);
+	for (int i = 0; i<nfreq; i++) 
+	{
+		double binhz = (samplerate / 2.0) / nfreq * i;
+		if (binhz >= 30.0)
+		{
+			double norm = jmap<double>(binhz, 0.0, samplerate / 2.0, 0.0, 1.0);
+			double db = jmap<double>(env->GetInterpolatedNodeValue(pow(norm, 0.25)), 0.0, 1.0, -36.0, 12.0);
+			freq2[i] = freq1[i] * Decibels::decibelsToGain(db);
+		}
+		else
+			freq2[i] = freq1[i];
+	};
+};
+
+
 class SpectrumProcess
 {
 public:
@@ -430,13 +450,14 @@ public:
     ProcessedStretch(REALTYPE rap_,int in_bufsize_,FFTWindow w=W_HAMMING,bool bypass_=false,REALTYPE samplerate_=44100.0f,int stereo_mode=0);
     ~ProcessedStretch();
     void set_parameters(ProcessParameters *ppar);
+	void setFreeFilterEnvelope(shared_envelope env);
 	std::vector<SpectrumProcess> m_spectrum_processes;
 	void setBufferSize(int sz) override;
 private:
     REALTYPE get_stretch_multiplier(REALTYPE pos_percents) override;
 //		void process_output(REALTYPE *smps,int nsmps);
     void process_spectrum(REALTYPE *freq) override;
-    
+	shared_envelope m_free_filter_envelope;
 
     //void copy(const realvector& freq1,realvector& freq2);
     void copy(REALTYPE* freq1, REALTYPE* freq2);

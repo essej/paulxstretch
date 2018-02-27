@@ -34,7 +34,15 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 {
     //addAndMakeVisible(&m_free_filter_component);
     m_free_filter_component.set_envelope(processor.m_free_filter_envelope);
-    m_wavefilter_tab.setTabBarDepth(17);
+	m_free_filter_component.TimeFromNormalized = [this](double x) 
+	{ 
+		return jmap<double>(pow(x, 4.0), 0.0, 1.0, 30.0, processor.getSampleRateChecked()/2.0);
+	};
+	m_free_filter_component.ValueFromNormalized = [this](double x)
+	{
+		return jmap<double>(x, 0.0, 1.0, -36.0, 12.0);
+	};
+	m_wavefilter_tab.setTabBarDepth(20);
     
     addAndMakeVisible(&m_perfmeter);
 	
@@ -822,9 +830,9 @@ void SpectralChainEditor::paint(Graphics & g)
 	for (int i = 0; i < m_order.size(); ++i)
 	{
 		//if (i!=m_cur_index)
-			drawBox(g, i, i*box_w, 0, box_w - 30, box_h);
+			drawBox(g, i, i*box_w, 0, box_w - 20, box_h);
 		if (i<m_order.size() - 1)
-			g.drawArrow(juce::Line<float>(i*box_w + (box_w - 30), box_h / 2, i*box_w + box_w, box_h / 2), 2.0f, 15.0f, 15.0f);
+			g.drawArrow(juce::Line<float>(i*box_w + (box_w - 20), box_h / 2, i*box_w + box_w, box_h / 2), 2.0f, 12.0f, 12.0f);
 	}
 	if (m_drag_x>=0 && m_drag_x<getWidth() && m_cur_index>=0)
 		drawBox(g, m_cur_index, m_drag_x, 0, box_w - 30, box_h);

@@ -39,6 +39,12 @@ void ProcessedStretch::set_parameters(ProcessParameters *ppar)
 	pars=*ppar;
 	//update_free_filter();
 }
+
+void ProcessedStretch::setFreeFilterEnvelope(shared_envelope env)
+{
+	m_free_filter_envelope = env;
+}
+
 void ProcessedStretch::setBufferSize(int sz)
 {
 	jassert(sz > 0);
@@ -125,6 +131,8 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 			spectrum_do_filter(pars,nfreq,samplerate,infreq.data(), freq);
 		if (e.m_index == 7 && e.m_enabled == true)
 			spectrum_do_compressor(pars,nfreq, infreq.data(), freq);
+		if (e.m_index == 8 && e.m_enabled == true)
+			spectrum_do_free_filter(m_free_filter_envelope, nfreq, samplerate, infreq.data(), freq);
 	}
 
 #ifdef USE_OLD_SPEC_PROC

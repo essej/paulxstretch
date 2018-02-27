@@ -88,6 +88,8 @@ public:
     int getFFTWindowingType() { return m_fft_window_type; }
     std::pair<Range<double>,Range<double>> getFileCachedRangesNormalized();
 	
+	void setFreeFilterEnvelope(shared_envelope env);
+
 	ValueTree getStateTree();
 	void setStateTree(ValueTree state);
 	void setClippingEnabled(bool b) { m_clip_output = b; }
@@ -144,6 +146,7 @@ private:
 	int64_t m_output_length = 0;
 	bool m_clip_output = true;
 	void initObjects();
+	shared_envelope m_free_filter_envelope;
 	AudioFormatManager* m_afm = nullptr;
 	struct
 	{
