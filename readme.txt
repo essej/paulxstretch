@@ -12,6 +12,7 @@ History :
 	-Added free filter spectral processing module
 	-Basic feature to allow offline rendering of the output of the plugin into a new file
 	-Fixed bug with the number of harmonics parameter not getting saved and recalled
+	-Fixed bugs with calculations involving samplerate
 02-23-2018 1.0.2
 	-Added stretch processing bypass parameter (to play the original sound looped like it is passed into the stretcher)
 	-Show approximate stretched output duration in info label (only valid if the stretch amount is not automated in the host)
