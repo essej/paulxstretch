@@ -914,6 +914,8 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 		txt = "Filter";
 	if (m_order[index].m_index == 7)
 		txt = "Compressor";
+    if (m_order[index].m_index == 8)
+        txt = "Free filter";
 	if (index == m_cur_index)
 	{
 		g.setColour(Colours::darkgrey);

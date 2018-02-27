@@ -12,7 +12,7 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManage
 	m_resampler = std::make_unique<WDL_Resampler>();
 	m_resampler_outbuf.resize(1024*1024);
 	m_inputfile = std::make_unique<AInputS>(m_afm);
-	m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true} };
+    m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true},{8,false} };
 	setNumOutChannels(initialnumoutchans);
 	m_xfadetask.buffer.setSize(8, 65536);
 	m_xfadetask.buffer.clear();

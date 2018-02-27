@@ -255,6 +255,8 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 					bool step_enabled = tree.getProperty("specstepenabled" + String(i));
 					order.push_back({ (int)tree.getProperty("specorder" + String(i)), step_enabled });
 				}
+                if (ordersize<m_stretch_source->getSpectrumProcessOrder().size())
+                    order.emplace_back(8,false);
 				m_stretch_source->setSpectrumProcessOrder(order);
 			}
 			getFromTreeProperties(tree, "waveviewrange", m_wave_view_range);
