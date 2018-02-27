@@ -210,9 +210,9 @@ public:
     double GetDefValue() { return m_defvalue; }
     void SetDefValue(double value) { m_defvalue=value; }
     int GetDefShape() { return m_defshape; }
-	ValueTree saveState()
+	ValueTree saveState(Identifier id)
 	{
-		ValueTree result("envelope");
+		ValueTree result(id);
 		for (int i = 0; i < m_nodes.size(); ++i)
 		{
 			ValueTree pt_tree("pt");
@@ -224,7 +224,9 @@ public:
 	}
 	void restoreState(ValueTree state)
 	{
-		int numnodes = state.getNumChildren();
+		if (state.isValid()==false)
+            return;
+        int numnodes = state.getNumChildren();
 		if (numnodes > 0)
 		{
 			m_nodes.clear();
