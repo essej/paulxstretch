@@ -53,7 +53,6 @@ void EnvelopeComponent::show_bubble(int x, int y, const envelope_node& node)
 	m_bubble.showAt({ x,y,100,20 }, temp , 5000);
 }
 
-
 void EnvelopeComponent::paint(Graphics& g)
 {
 	if (!EnvelopeUnderlayDraw)
@@ -104,6 +103,20 @@ void EnvelopeComponent::paint(Graphics& g)
 		double foo_y1 = (double)getHeight() - jmap<double>(y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
 		g.drawLine((float)i, foo_y0, (float)i + 1, foo_y1, linethickness);
 		y0 = y1;
+	}
+	if (m_envelope->isTransformed())
+	{
+		g.setColour(Colours::aliceblue.darker());
+		y0 = m_envelope->getTransformedValue(0.0);
+		for (int i = 1; i < getWidth(); ++i)
+		{
+			double env_x = 1.0 / getWidth()*i;
+			double y1 = m_envelope->getTransformedValue(env_x);
+			double foo_y0 = (double)getHeight() - jmap<double>(y0, m_view_start_value, m_view_end_value, 0.0, getHeight());
+			double foo_y1 = (double)getHeight() - jmap<double>(y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
+			g.drawLine((float)i, foo_y0, (float)i + 1, foo_y1, linethickness);
+			y0 = y1;
+		}
 	}
 	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
 	{
@@ -298,7 +311,19 @@ void EnvelopeComponent::mouseUp(const MouseEvent &ev)
 
 bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 {
-	if (ev == KeyPress::deleteKey && m_envelope!=nullptr)
+	if (m_envelope == nullptr)
+		return false;
+	if (ev == 'Q')
+		m_envelope->m_transform_x_shift -= 0.01;
+	if (ev == 'W')
+		m_envelope->m_transform_x_shift += 0.01;
+	if (ev == 'E')
+		m_envelope->m_transform_y_shift += 0.01;
+	if (ev == 'D')
+		m_envelope->m_transform_y_shift -= 0.01;
+	repaint();
+
+	if (ev == KeyPress::deleteKey)
 	{
 		m_node_to_drag = -1;
 		//m_envelope->ClearAllNodes();

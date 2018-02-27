@@ -559,6 +559,21 @@ public:
 		
 	}
 	String m_script;
+	double m_transform_x_shift = 0.0;
+	double m_transform_y_shift = 0.0;
+	inline double getTransformedValue(double x)
+	{
+		if (isTransformed() == false)
+			return x;
+		double temp = fmod(x - m_transform_x_shift, 1.0);
+		if (temp < 0.0)
+			temp += 1.0;
+		return jlimit(0.0,1.0,GetInterpolatedNodeValue(temp) + m_transform_y_shift);
+	}
+	bool isTransformed() const
+	{
+		return m_transform_x_shift != 0.0 || m_transform_y_shift != 0.0;
+	}
 private:
     nodes_t m_nodes;
     double m_playoffset=0.0;
