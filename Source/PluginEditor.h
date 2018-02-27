@@ -232,6 +232,7 @@ private:
 	zoom_scrollbar m_zs;
     EnvelopeComponent m_free_filter_component;
     TabbedComponent m_wavefilter_tab;
+	Component* m_wave_container=nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
