@@ -140,7 +140,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
     
     addAndMakeVisible(&m_wavefilter_tab);
-    setSize (1000, 30+(pars.size()/2)*25+200+15);
+    setSize (1200, 30+(pars.size()/2)*25+200+15);
     startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
