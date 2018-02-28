@@ -22,9 +22,6 @@
       <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="Source/jcdp_envelope.h"/>
       <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
-        <FILE id="bnWZA4" name="BinauralBeats.cpp" compile="1" resource="0"
-              file="Source/PS_Source/BinauralBeats.cpp"/>
-        <FILE id="qAo4mG" name="FreeEdit.cpp" compile="1" resource="0" file="Source/PS_Source/FreeEdit.cpp"/>
         <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
               file="Source/PS_Source/ProcessedStretch.h"/>

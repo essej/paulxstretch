@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "FreeEdit.h"
+//#include "FreeEdit.h"
 #include "Stretch.h"
 #include "../jcdp_envelope.h"
 

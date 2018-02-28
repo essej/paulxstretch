@@ -23,7 +23,6 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Input/AInputS.h"
 #include "ProcessedStretch.h"
-#include "BinauralBeats.h"
 #include <mutex>
 #include "../WDL/resample.h"
 
@@ -111,7 +110,7 @@ private:
 	LinearSmoothedValue<double> m_vol_smoother;
 	std::unique_ptr<AInputS> m_inputfile;
 	std::vector<std::shared_ptr<ProcessedStretch>> m_stretchers;
-	std::unique_ptr<BinauralBeats> m_binaubeats;
+	
 	std::function<void(StretchAudioSource*)> SourceEndedCallback;
 	bool m_firstbuffer = false;
 	bool m_output_has_begun = false;
@@ -122,7 +121,7 @@ private:
 	double m_main_volume = 0.0;
 	double m_loopxfadelen = 0.0;
 	ProcessParameters m_ppar;
-	BinauralBeatsParameters	m_bbpar;
+	
 	double m_playrate = 1.0;
 	double m_lastplayrate = 0.0;
 	double m_onsetdetection = 0.0;
