@@ -166,6 +166,7 @@ void EnvelopeComponent::mouseDrag(const MouseEvent& ev)
 	{
 		double dist = jmap<double>(ev.getDistanceFromDragStartY(), -getHeight(), getHeight(), -1.0, 1.0);
 		m_envelope->adjustEnvelopeSegmentValues(m_segment_drag_info.first, -dist);
+		m_envelope->updateMinMaxValues();
 		repaint();
 		return;
 	}
@@ -187,6 +188,7 @@ void EnvelopeComponent::mouseDrag(const MouseEvent& ev)
 		double normy = jmap((double)getHeight() - ev.y, 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
 		pt.Time=jlimit(left_bound+0.001, right_bound - 0.001, normx);
 		pt.Value=jlimit(0.0,1.0,normy);
+		m_envelope->updateMinMaxValues();
 		m_last_tip = String(pt.Time, 2) + " " + String(pt.Value, 2);
 		show_bubble(ev.x, ev.y, pt);
 		m_node_that_was_dragged = m_node_to_drag;
@@ -264,6 +266,7 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		m_cs->enter();
 		m_envelope->DeleteNode(m_node_to_drag);
 		m_cs->exit();
+		m_envelope->updateMinMaxValues();
 		m_node_to_drag = -1;
 		OnEnvelopeEdited(m_envelope.get());
 		repaint();
@@ -286,6 +289,7 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		m_envelope->AddNode ({ normx,normy, 0.5});
 		m_envelope->SortNodes();
 		m_cs->exit();
+		m_envelope->updateMinMaxValues();
 		m_mouse_down = false;
 		OnEnvelopeEdited(m_envelope.get());
 		repaint();
