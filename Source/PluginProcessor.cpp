@@ -152,6 +152,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterBool("bypass_stretch0", "Bypass stretch", false)); // 33
 	addParameter(new AudioParameterFloat("freefilter_shiftx_0", "Free filter shift X", -1.0f, 1.0f, 0.0f)); // 34
 	addParameter(new AudioParameterFloat("freefilter_shifty_0", "Free filter shift Y", -1.0f, 1.0f, 0.0f)); // 35
+	addParameter(new AudioParameterFloat("freefilter_scaley_0", "Free filter scale Y", -1.0f, 1.0f, 1.0f)); // 36
+	addParameter(new AudioParameterFloat("freefilter_tilty_0", "Free filter tilt Y", -1.0f, 1.0f, 0.0f)); // 37
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -630,6 +632,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		return;
 	m_free_filter_envelope->m_transform_x_shift = *getFloatParameter(cpi_freefilter_shiftx);
 	m_free_filter_envelope->m_transform_y_shift = *getFloatParameter(cpi_freefilter_shifty);
+	m_free_filter_envelope->m_transform_y_scale = *getFloatParameter(cpi_freefilter_scaley);
+	m_free_filter_envelope->m_transform_y_tilt = *getFloatParameter(cpi_freefilter_tilty);
+	
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 	m_stretch_source->setPreviewDry(*getBoolParameter(cpi_bypass_stretch));
