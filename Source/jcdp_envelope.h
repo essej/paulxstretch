@@ -579,7 +579,7 @@ public:
             sin(2*3.141592653*(x-m_transform_x_shift)*m_transform_y_sinus_freq);
         double tiltline = 0.5+m_transform_y_tilt*x;
         double tilted = shifted+tiltline;
-        return jlimit(0.0,1.0,tilted);
+        return jlimit(0.0,1.0,shifted);
 	}
 	bool isTransformed() const
 	{

@@ -92,32 +92,29 @@ void EnvelopeComponent::paint(Graphics& g)
 	if (name.isEmpty() == true)
 		name = "Untitled envelope";
 	g.drawText(name, 10, 10, getWidth(), getHeight(), Justification::topLeft);
-	const float linethickness = 1.0f;
-	g.setColour(m_env_color);
-	double y0 = m_envelope->GetInterpolatedNodeValue(0.0);
-	const int drawstep = 1;
-	for (int i = 1; i < getWidth(); ++i)
+	auto draw_env = [this, &g](Colour envcolor, bool drawTransformed, float linethickness)
 	{
-		double y1 = m_envelope->GetInterpolatedNodeValue(1.0/getWidth()*i);
-		double foo_y0 = (double)getHeight() - jmap<double>(y0, m_view_start_value, m_view_end_value, 0.0, getHeight());
-		double foo_y1 = (double)getHeight() - jmap<double>(y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
-		g.drawLine((float)i, foo_y0, (float)i + 1, foo_y1, linethickness);
-		y0 = y1;
-	}
-	if (m_envelope->isTransformed())
-	{
-		g.setColour(Colours::aliceblue.darker());
-		y0 = m_envelope->getTransformedValue(0.0);
+		g.setColour(envcolor);
+		double y0 = 0.0;
+		if (drawTransformed==false)
+			y0 = m_envelope->GetInterpolatedNodeValue(0.0);
+		else y0 = m_envelope->getTransformedValue(0.0);
+		const int drawstep = 1;
 		for (int i = 1; i < getWidth(); ++i)
 		{
 			double env_x = 1.0 / getWidth()*i;
-			double y1 = m_envelope->getTransformedValue(env_x);
+			double y1 = 0.0;
+			if (drawTransformed==false)
+				y1 = m_envelope->GetInterpolatedNodeValue(env_x);
+			else y1 = m_envelope->getTransformedValue(env_x);
 			double foo_y0 = (double)getHeight() - jmap<double>(y0, m_view_start_value, m_view_end_value, 0.0, getHeight());
 			double foo_y1 = (double)getHeight() - jmap<double>(y1, m_view_start_value, m_view_end_value, 0.0, getHeight());
 			g.drawLine((float)i, foo_y0, (float)i + 1, foo_y1, linethickness);
 			y0 = y1;
 		}
-	}
+	};
+	draw_env(m_env_color, false, 1.0f);
+	draw_env(Colours::aquamarine.darker(), true, 1.0f);
 	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
 	{
 		const envelope_node& pt = m_envelope->GetNodeAtIndex(i);
