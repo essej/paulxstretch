@@ -60,6 +60,8 @@ const int cpi_passthrough = 30;
 const int cpi_markdirty = 31;
 const int cpi_num_inchans = 32;
 const int cpi_bypass_stretch = 33;
+const int cpi_freefilter_shiftx = 34;
+const int cpi_freefilter_shifty = 35;
 
 class MyPropertiesFile
 {

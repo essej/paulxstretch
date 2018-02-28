@@ -252,11 +252,11 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_soundstart]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_soundend]->setBounds(xoffs, yoffs, div - 1, 24);
-#ifdef SOUNDRANGE_OFFSET_ENABLED
-	yoffs += 25;
 	xoffs = 1;
-	m_parcomps[cpi_playrangeoffset]->setBounds(xoffs, yoffs, getWidth() - 2, 24);
-#endif
+	yoffs += 25;
+	m_parcomps[cpi_freefilter_shiftx]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
+	m_parcomps[cpi_freefilter_shifty]->setBounds(xoffs, yoffs, div - 1, 24);
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
@@ -316,8 +316,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	}
 	if (id == 3)
 	{
-		//m_specvis.setState(processor.getStretchSource()->getProcessParameters(), processor.getStretchSource()->getFFTSize() / 2,
-		//	processor.getSampleRate());
+		m_free_filter_component.repaint();
 	}
 }
 

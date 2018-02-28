@@ -226,7 +226,7 @@ public:
 	{
 		if (state.isValid()==false)
             return;
-        int numnodes = state.getNumChildren();
+		int numnodes = state.getNumChildren();
 		if (numnodes > 0)
 		{
 			m_nodes.clear();

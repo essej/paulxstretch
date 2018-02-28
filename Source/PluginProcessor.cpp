@@ -150,7 +150,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
 	addParameter(m_inchansparam); // 32
 	addParameter(new AudioParameterBool("bypass_stretch0", "Bypass stretch", false)); // 33
-
+	addParameter(new AudioParameterFloat("freefilter_shiftx_0", "Free filter shift X", -1.0f, 1.0f, 0.0f)); // 34
+	addParameter(new AudioParameterFloat("freefilter_shifty_0", "Free filter shift Y", -1.0f, 1.0f, 0.0f)); // 35
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -627,6 +628,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	}
 	if (m_play_when_host_plays == true && m_playposinfo.isPlaying == false)
 		return;
+	m_free_filter_envelope->m_transform_x_shift = *getFloatParameter(cpi_freefilter_shiftx);
+	m_free_filter_envelope->m_transform_y_shift = *getFloatParameter(cpi_freefilter_shifty);
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 	m_stretch_source->setPreviewDry(*getBoolParameter(cpi_bypass_stretch));
