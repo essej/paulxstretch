@@ -577,7 +577,7 @@ public:
 		double scaled = 0.5 - m_transform_y_scale * diff;
 		double shifted = scaled + m_transform_y_shift + m_transform_y_sinus*
             sin(2*3.141592653*(x-m_transform_x_shift)*m_transform_y_sinus_freq);
-        double tiltline = m_transform_y_tilt*x;
+        double tiltline = m_transform_y_tilt-(2.0*m_transform_y_tilt*x);
         double tilted = shifted+tiltline;
         return jlimit(0.0,1.0,tilted);
 	}

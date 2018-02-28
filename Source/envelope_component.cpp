@@ -210,7 +210,11 @@ void EnvelopeComponent::mouseMove(const MouseEvent & ev)
 	}
 	else
 	{
-		setMouseCursor(MouseCursor::NormalCursor);
+		int temp = findHotEnvelopeSegment(ev.x, ev.y, true);
+		if (temp>=0)
+			setMouseCursor(MouseCursor::UpDownResizeCursor);
+		else
+			setMouseCursor(MouseCursor::NormalCursor);
 		m_bubble.setVisible(false);
 	}
 }
@@ -412,7 +416,7 @@ int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool det
 				double normx = jmap<double>(xcor, 0.0, getWidth(), m_view_start_time, m_view_end_time);
 				double yval = m_envelope->GetInterpolatedNodeValue(normx);
 				float ycor0 = (float)(getHeight()-jmap<double>(yval, 0.0, 1.0, 0.0, getHeight()));
-				juce::Rectangle<float> segrect2((float)(xcor - 20), (float)(ycor - 20), 40, 40);
+				juce::Rectangle<float> segrect2((float)(xcor - 20), (float)(ycor - 10), 40, 20);
 				if (segrect2.contains((float)xcor, ycor0))
 					return i;
 			}
