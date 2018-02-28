@@ -52,26 +52,15 @@ void ProcessedStretch::setBufferSize(int sz)
 	//if (nfreq != sz)
 	{
 		nfreq = bufsize;
-		infreq = floatvector(nfreq);
-		sumfreq = floatvector(nfreq);
-		tmpfreq1 = floatvector(nfreq);
-		tmpfreq2 = floatvector(nfreq);
+		m_infreq = floatvector(nfreq);
+		m_sumfreq = floatvector(nfreq);
+		m_tmpfreq1 = floatvector(nfreq);
+		m_tmpfreq2 = floatvector(nfreq);
 		//fbfreq=new REALTYPE[nfreq];
-		free_filter_freqs = floatvector(nfreq);
-		for (int i = 0; i < nfreq; i++) {
-			free_filter_freqs[i] = 1.0;
-			//	fbfreq[i]=0.0;
-		};
+		m_free_filter_freqs = floatvector(nfreq);
+		fill_container(m_free_filter_freqs, 1.0f);
 	}
 }
-
-
-/*
-void ProcessedStretch::copy(const realvector& freq1,realvector& freq2)
-{
-	for (int i=0;i<nfreq;i++) freq2[i]=freq1[i];
-};
-*/
 
 void ProcessedStretch::copy(REALTYPE* freq1, REALTYPE* freq2)
 {
@@ -114,73 +103,26 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 {
 	for (auto& e : m_spectrum_processes)
     {
-		spectrum_copy(nfreq, freq, infreq.data());
+		spectrum_copy(nfreq, freq, m_infreq.data());
 		if (e.m_index == 0 && e.m_enabled == true)
-			spectrum_do_harmonics(pars, tmpfreq1, nfreq, samplerate, infreq.data(), freq);
+			spectrum_do_harmonics(pars, m_tmpfreq1, nfreq, samplerate, m_infreq.data(), freq);
 		if (e.m_index == 1 && e.m_enabled == true)
-			spectrum_do_tonal_vs_noise(pars,nfreq,samplerate,tmpfreq1, infreq.data(), freq);
+			spectrum_do_tonal_vs_noise(pars,nfreq,samplerate,m_tmpfreq1, m_infreq.data(), freq);
 		if (e.m_index == 2 && e.m_enabled == true)
-			spectrum_do_freq_shift(pars,nfreq,samplerate,infreq.data(), freq);
+			spectrum_do_freq_shift(pars,nfreq,samplerate,m_infreq.data(), freq);
 		if (e.m_index == 3 && e.m_enabled == true)
-			spectrum_do_pitch_shift(pars,nfreq,infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
+			spectrum_do_pitch_shift(pars,nfreq,m_infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
 		if (e.m_index == 4 && e.m_enabled == true)
-			spectrum_do_octave(pars,nfreq,samplerate, sumfreq, tmpfreq1, infreq.data(), freq);
+			spectrum_do_octave(pars,nfreq,samplerate, m_sumfreq, m_tmpfreq1, m_infreq.data(), freq);
 		if (e.m_index == 5 && e.m_enabled == true)
-			spectrum_spread(nfreq,samplerate,tmpfreq1,infreq.data(), freq, pars.spread.bandwidth);
+			spectrum_spread(nfreq,samplerate,m_tmpfreq1,m_infreq.data(), freq, pars.spread.bandwidth);
 		if (e.m_index == 6 && e.m_enabled == true)
-			spectrum_do_filter(pars,nfreq,samplerate,infreq.data(), freq);
+			spectrum_do_filter(pars,nfreq,samplerate,m_infreq.data(), freq);
 		if (e.m_index == 7 && e.m_enabled == true)
-			spectrum_do_compressor(pars,nfreq, infreq.data(), freq);
+			spectrum_do_compressor(pars,nfreq, m_infreq.data(), freq);
 		if (e.m_index == 8 && e.m_enabled == true)
-			spectrum_do_free_filter(m_free_filter_envelope, nfreq, samplerate, infreq.data(), freq);
+			spectrum_do_free_filter(m_free_filter_envelope, nfreq, samplerate, m_infreq.data(), freq);
 	}
-
-#ifdef USE_OLD_SPEC_PROC
-    if (pars.harmonics.enabled) {
-		copy(freq,infreq.data());
-		do_harmonics(infreq.data(),freq);
-	};
-
-	if (pars.tonal_vs_noise.enabled){
-		copy(freq,infreq.data());
-		do_tonal_vs_noise(infreq.data(),freq);
-	};
-
-	if (pars.freq_shift.enabled) {
-		copy(freq,infreq.data());
-		do_freq_shift(infreq.data(),freq);
-	};
-	if (pars.pitch_shift.enabled) {
-		copy(freq,infreq.data());
-		do_pitch_shift(infreq.data(),freq,pow(2.0,pars.pitch_shift.cents/1200.0));
-	};
-	if (pars.octave.enabled){
-		copy(freq,infreq.data());
-		do_octave(infreq.data(),freq);
-	};
-
-
-	if (pars.spread.enabled){
-		copy(freq,infreq.data());
-		do_spread(infreq.data(),freq);
-	};
-
-
-	if (pars.filter.enabled){
-		copy(freq,infreq.data());
-		do_filter(infreq.data(),freq);
-	};
-	
-	if (pars.free_filter.get_enabled()){
-		copy(freq,infreq.data());
-		do_free_filter(infreq.data(),freq);
-	};
-
-	if (pars.compressor.enabled){
-		copy(freq,infreq.data());
-		do_compressor(infreq.data(),freq);
-	};
-#endif
 };
 
 //void ProcessedStretch::process_output(REALTYPE *smps,int nsmps){

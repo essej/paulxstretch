@@ -461,7 +461,6 @@ private:
     void process_spectrum(REALTYPE *freq) override;
 	shared_envelope m_free_filter_envelope;
 
-    //void copy(const realvector& freq1,realvector& freq2);
     void copy(REALTYPE* freq1, REALTYPE* freq2);
     void add(REALTYPE *freq2,REALTYPE *freq1,REALTYPE a=1.0);
     void mul(REALTYPE *freq1,REALTYPE a);
@@ -471,10 +470,10 @@ private:
     void update_free_filter();
     int nfreq=0;
 
-    std::vector<REALTYPE> free_filter_freqs;
+    std::vector<REALTYPE> m_free_filter_freqs;
     ProcessParameters pars;
     
-    std::vector<REALTYPE> infreq,sumfreq,tmpfreq1,tmpfreq2;
+    std::vector<REALTYPE> m_infreq,m_sumfreq,m_tmpfreq1,m_tmpfreq2;
     
 		//REALTYPE *fbfreq;
 };
