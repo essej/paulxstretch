@@ -88,7 +88,7 @@ void EnvelopeComponent::paint(Graphics& g)
 		int xcor = getWidth() / 10 * i;
 		g.drawText(String(hz, 1), xcor, getHeight() - 20, 100, 20, Justification::topLeft);
 	}
-	String name = m_name;
+	String name = m_envelope->GetName();
 	if (name.isEmpty() == true)
 		name = "Untitled envelope";
 	g.drawText(name, 10, 10, getWidth(), getHeight(), Justification::topLeft);
