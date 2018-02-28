@@ -331,6 +331,10 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 		r = f(m_envelope->m_transform_y_scale,0.05);
 	if (ev == 'F')
 		r = f(m_envelope->m_transform_y_scale,-0.05);
+    if (ev == 'T')
+        r = f(m_envelope->m_transform_y_sinus,0.01);
+    if (ev == 'G')
+        r = f(m_envelope->m_transform_y_sinus,-0.01);
 	if (r==true)
     {
         repaint();

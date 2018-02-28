@@ -562,22 +562,24 @@ public:
 	double m_transform_x_shift = 0.0;
 	double m_transform_y_shift = 0.0;
 	double m_transform_y_scale = 1.0;
+    double m_transform_y_sinus = 0.0;
 	inline double getTransformedValue(double x)
 	{
 		if (isTransformed() == false)
-			return x;
+			return GetInterpolatedNodeValue(x);
 		double temp = fmod(x - m_transform_x_shift, 1.0);
 		if (temp < 0.0)
 			temp += 1.0;
 		double v = GetInterpolatedNodeValue(temp);
 		double diff = 0.5 - v;
 		double scaled = 0.5 - m_transform_y_scale * diff;
-		double shifted = scaled + m_transform_y_shift;
-		return jlimit(0.0,1.0,shifted);
+		double shifted = scaled + m_transform_y_shift + m_transform_y_sinus*sin(2*3.141592653*(x-m_transform_x_shift)*8.0);
+        return jlimit(0.0,1.0,shifted);
 	}
 	bool isTransformed() const
 	{
-		return m_transform_x_shift != 0.0 || m_transform_y_shift != 0.0 || m_transform_y_scale!=1.0;
+		return m_transform_x_shift != 0.0 || m_transform_y_shift != 0.0
+        || m_transform_y_scale!=1.0 || m_transform_y_sinus!=0.0;
 	}
 private:
     nodes_t m_nodes;
