@@ -565,6 +565,8 @@ public:
     double m_transform_y_sinus = 0.0;
     double m_transform_y_sinus_freq = 8.0;
     double m_transform_y_tilt = 0.0;
+	double m_min_pt_value = 0.0;
+	double m_max_pt_value = 0.0;
 	inline double getTransformedValue(double x)
 	{
 		if (isTransformed() == false)
@@ -573,8 +575,9 @@ public:
 		if (temp < 0.0)
 			temp += 1.0;
 		double v = GetInterpolatedNodeValue(temp);
-		double diff = 0.5 - v;
-		double scaled = 0.5 - m_transform_y_scale * diff;
+		double center_v = m_minvalue + (m_maxvalue - m_minvalue) / 2.0;
+		double diff = center_v - v;
+		double scaled = center_v - m_transform_y_scale * diff;
 		double shifted = scaled + m_transform_y_shift + m_transform_y_sinus*
             sin(2*3.141592653*(x-m_transform_x_shift)*m_transform_y_sinus_freq);
         double tiltline = m_transform_y_tilt-(2.0*m_transform_y_tilt*x);
@@ -585,6 +588,18 @@ public:
 	{
 		return m_transform_x_shift != 0.0 || m_transform_y_shift != 0.0
         || m_transform_y_scale!=1.0 || m_transform_y_sinus!=0.0 || m_transform_y_tilt!=0.0;
+	}
+	void updateMinMaxValues()
+	{
+		double minv = 1.0;
+		double maxv = 0.0;
+		for (auto& e : m_nodes)
+		{
+			minv = std::min(minv, e.Value);
+			maxv = std::max(maxv, e.Value);
+		}
+		m_minvalue = minv;
+		m_maxvalue = maxv;
 	}
 private:
     nodes_t m_nodes;

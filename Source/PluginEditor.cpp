@@ -321,6 +321,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	}
 	if (id == 3)
 	{
+		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 	}
 }
