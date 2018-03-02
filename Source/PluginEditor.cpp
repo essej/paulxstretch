@@ -757,8 +757,11 @@ void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDet
 	double normt = viewXToNormalized(e.x);
 	double curlen = m_view_range.getLength();
 	double newlen = curlen * factor;
-	double t0 = jlimit(0.0,1.0, normt - newlen / 2.0);
-	double t1 = jlimit(t0,1.0, t0 + newlen);
+	double oldt0 = m_view_range.getStart();
+	double oldt1 = m_view_range.getEnd();
+	double t0 = jlimit(0.0,1.0, normt + (curlen - newlen));
+	double t1 = jlimit(0.0,1.0, t0+newlen);
+	jassert(t1 > t0);
 	m_view_range = { t0,t1 };
 	//m_view_range = m_view_range.constrainRange({ 0.0, 1.0 });
 	jassert(m_view_range.getStart() >= 0.0 && m_view_range.getEnd() <= 1.0);
