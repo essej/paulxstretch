@@ -133,6 +133,21 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_spec_order_ed.ModuleOrderOrEnabledChangedCallback = [this]()
 	{
+		/*
+		const auto& specord = processor.getStretchSource()->getSpectrumProcessOrder();
+		for (int i = 0; i < specord.size(); ++i)
+		{
+			int grtofind = specord[i].m_index;
+			for (int j = 0; j < m_parcomps.size(); ++j)
+			{
+				int gid = m_parcomps[j]->m_group_id;
+				if (gid == grtofind)
+				{
+					m_parcomps[j]->setEnabled(specord[i].m_enabled);
+				}
+			}
+		}
+		*/
 		processor.setDirty();
 	};
 	m_wave_container->addAndMakeVisible(&m_wavecomponent);
@@ -282,8 +297,10 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 {
 	if (id == 1)
 	{
-		for (auto& e : m_parcomps)
-			e->updateComponent();
+		for (int i = 0; i < m_parcomps.size(); ++i)
+		{
+			m_parcomps[i]->updateComponent();
+		}
 		if (processor.isRecordingEnabled())
 		{
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
