@@ -134,11 +134,13 @@ public:
 	std::function<void(double)> SeekCallback;
 	std::function<void(Range<double>, int)> TimeSelectionChangedCallback;
 	std::function<File()> GetFileCallback;
+	std::function<void(Range<double>)> ViewRangeChangedCallback;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const MouseEvent& e) override;
 	void mouseDrag(const MouseEvent& e) override;
 	void mouseMove(const MouseEvent& e) override;
 	void mouseDoubleClick(const MouseEvent& e) override;
+	void mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wd) override;
 	Range<double> getTimeSelection();
 	void setTimeSelection(Range<double> rng);
 	void setFileCachedRange(std::pair<Range<double>, Range<double>> rng);

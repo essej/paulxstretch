@@ -104,6 +104,10 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_zs.setRange(processor.m_wave_view_range, true);
 	
+	m_wavecomponent.ViewRangeChangedCallback = [this](Range<double> rng)
+	{
+		m_zs.setRange(rng, false);
+	};
 	m_wavecomponent.TimeSelectionChangedCallback = [this](Range<double> range, int which)
 	{
 		*processor.getFloatParameter(cpi_soundstart) = range.getStart();
@@ -742,6 +746,25 @@ void WaveformComponent::mouseDoubleClick(const MouseEvent & e)
 	m_time_sel_start = 0.0;
 	m_time_sel_end = 1.0;
 	TimeSelectionChangedCallback({ 0.0,1.0 }, 0);
+	repaint();
+}
+
+void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & wd)
+{
+	double factor = 0.9;
+	if (wd.deltaY < 0.0)
+		factor = 1.11111;
+	double normt = viewXToNormalized(e.x);
+	double curlen = m_view_range.getLength();
+	double newlen = curlen * factor;
+	double t0 = jlimit(0.0,1.0, normt - newlen / 2.0);
+	double t1 = jlimit(0.0,1.0, normt + newlen / 2.0);
+	m_view_range = { t0,t1 };
+	//m_view_range = m_view_range.constrainRange({ 0.0, 1.0 });
+	jassert(m_view_range.getStart() >= 0.0 && m_view_range.getEnd() <= 1.0);
+	if (ViewRangeChangedCallback)
+		ViewRangeChangedCallback(m_view_range);
+	m_image_dirty = true;
 	repaint();
 }
 
