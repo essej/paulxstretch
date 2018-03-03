@@ -41,7 +41,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_free_filter_component.ValueFromNormalized = [this](double x)
 	{
-		return jmap<double>(x, 0.0, 1.0, -36.0, 12.0);
+		return jmap<double>(x, 0.0, 1.0, -48.0, 12.0);
 	};
 	m_wavefilter_tab.setTabBarDepth(20);
     

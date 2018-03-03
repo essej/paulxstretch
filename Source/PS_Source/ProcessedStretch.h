@@ -19,7 +19,6 @@
 
 #pragma once
 
-//#include "FreeEdit.h"
 #include "Stretch.h"
 #include "../jcdp_envelope.h"
 
@@ -426,7 +425,7 @@ inline void spectrum_do_free_filter(shared_envelope& env, int nfreq, double samp
 		if (binhz >= 30.0)
 		{
 			double norm = 0.150542*log(0.0333333*binhz);
-			double db = jmap<double>(env->getTransformedValue(norm), 0.0, 1.0, -36.0, 12.0);
+			double db = jmap<double>(env->getTransformedValue(norm), 0.0, 1.0, -48.0, 12.0);
 			freq2[i] = freq1[i] * Decibels::decibelsToGain(db);
 		}
 		else
