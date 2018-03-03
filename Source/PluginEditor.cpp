@@ -414,9 +414,11 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
+	/*
 	if (processor.m_offline_render_state==-1 || processor.m_offline_render_state == 200)
 		menu.addItem(8, "Offline render...", true, false);
 	else menu.addItem(9, "Cancel render", true, false);
+	*/
 	int r = menu.show();
 	if (r >= 200 && r < 210)
 	{
