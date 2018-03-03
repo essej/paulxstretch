@@ -8,7 +8,7 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-03-03-2018 1.0.3
+03-05-2018 1.0.3
 	-Added free filter spectral processing module
 	-Fixed bug with the number of harmonics parameter not getting saved and recalled
 	-Fixed bugs with calculations involving samplerate
