@@ -302,3 +302,5 @@ inline void sanitizeTimeRange(double& t0, double& t1)
 	if (t1 - t0 < 0.001)
 		t1 = t0 + 0.001;
 }
+
+inline double fractpart(double x) { return x - (int)x; };

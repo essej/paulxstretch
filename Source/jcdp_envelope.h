@@ -226,6 +226,7 @@ public:
 			result.addChild(pt_tree, -1, nullptr);
 		}
 		result.setProperty("wrapxtransform", m_transform_wrap_x, nullptr);
+		result.setProperty("yrandlerp", m_transform_y_random_linear_interpolation, nullptr);
 		return result;
 	}
 	void restoreState(ValueTree state)
@@ -233,6 +234,7 @@ public:
 		if (state.isValid()==false)
             return;
 		m_transform_wrap_x = state.getProperty("wrapxtransform", false);
+		m_transform_y_random_linear_interpolation = state.getProperty("yrandlerp", false);
 		int numnodes = state.getNumChildren();
 		if (numnodes > 0)
 		{
@@ -574,6 +576,7 @@ public:
     double m_transform_y_tilt = 0.0;
 	double m_transform_y_random_amount = 0.2;
 	double m_transform_y_random_rate = 2.0;
+	bool m_transform_y_random_linear_interpolation = false;
 	int m_transform_y_random_bands = 32;
 	bool m_transform_wrap_x = false;
 	double m_min_pt_value = 0.0;
@@ -599,17 +602,31 @@ public:
         double tilted = shifted+tiltline;
 		if (m_transform_y_random_amount > 0.0)
 		{
-			
-			int tableindex = jlimit<int>(0,m_randbuf.size()-1, floor(x * (m_transform_y_random_bands)));
-			double randamt = jmap(m_randbuf[tableindex], 0.0, 1.0, -m_transform_y_random_amount, m_transform_y_random_amount);
-			tilted += randamt;
+			if (m_transform_y_random_linear_interpolation == false)
+			{
+				int tableindex = jlimit<int>(0, m_randbuf.size() - 1, floor(x * (m_transform_y_random_bands)));
+				double randamt = jmap(m_randbuf[tableindex], 0.0, 1.0, -m_transform_y_random_amount, m_transform_y_random_amount);
+				tilted += randamt;
+			}
+			else
+			{
+				double fracindex = x * m_transform_y_random_bands;
+				int tableindex0 = jlimit<int>(0, m_randbuf.size() - 1, floor(fracindex));
+				int tableindex1 = tableindex0 + 1;
+				double y0 = m_randbuf[tableindex0];
+				double y1 = m_randbuf[tableindex1];
+				double interpolated = y0 + (y1 - y0)*fractpart(fracindex);
+				double randamt = jmap(interpolated, 0.0, 1.0, -m_transform_y_random_amount, m_transform_y_random_amount);
+				tilted += randamt;
+			}
 		}
 		return jlimit(0.0,1.0,tilted);
 	}
 	bool isTransformed() const
 	{
 		return m_transform_x_shift != 0.0 || m_transform_y_shift != 0.0
-        || m_transform_y_scale!=1.0 || m_transform_y_sinus!=0.0 || m_transform_y_tilt!=0.0 || m_transform_y_random_amount!=0.0;
+        || m_transform_y_scale!=1.0 || m_transform_y_sinus!=0.0 || m_transform_y_tilt!=0.0 
+		|| m_transform_y_random_amount>0.0;
 	}
 	void updateMinMaxValues()
 	{

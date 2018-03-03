@@ -89,7 +89,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (i == cpi_pitchshift)
 			group_id = 3;
 		if (i == cpi_freefilter_scaley || i == cpi_freefilter_shiftx || i == cpi_freefilter_shifty ||
-			i == cpi_freefilter_tilty)
+			i == cpi_freefilter_tilty || i == cpi_freefilter_randomy_amount || i == cpi_freefilter_randomy_numbands
+			|| i == cpi_freefilter_randomy_rate)
 			group_id = 8;
 		m_parcomps.back()->m_group_id = group_id;
 		addAndMakeVisible(m_parcomps.back().get());

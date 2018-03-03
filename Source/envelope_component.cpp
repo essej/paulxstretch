@@ -231,6 +231,7 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		menu.addItem(1, "Reset");
 		menu.addItem(2, "Invert");
 		menu.addItem(3, "Wrap envelope X transform", true, m_envelope->m_transform_wrap_x);
+		menu.addItem(4, "Envelope Y random linear interpolation", true, m_envelope->m_transform_y_random_linear_interpolation);
 		int r = menu.show();
 		if (r == 1)
 		{
@@ -249,6 +250,10 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		if (r == 3)
 		{
 			toggleBool(m_envelope->m_transform_wrap_x);
+		}
+		if (r == 4)
+		{
+			toggleBool(m_envelope->m_transform_y_random_linear_interpolation);
 		}
 		repaint();
 		return;

@@ -220,6 +220,8 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_numharmonics));
 	storeToTreeProperties(paramtree, nullptr, m_outchansparam);
     storeToTreeProperties(paramtree, nullptr, m_inchansparam);
+	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_freefilter_randomy_numbands));
+	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_freefilter_randomy_rate));
     storeToTreeProperties(paramtree, nullptr, getBoolParameter(cpi_bypass_stretch));
     if (m_current_file != File() && ignorefile == false)
 	{
@@ -277,6 +279,8 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			getFromTreeProperties(tree, m_outchansparam);
             getFromTreeProperties(tree, m_inchansparam);
             getFromTreeProperties(tree, getBoolParameter(cpi_bypass_stretch));
+			getFromTreeProperties(tree, getIntParameter(cpi_freefilter_randomy_numbands));
+			getFromTreeProperties(tree, getIntParameter(cpi_freefilter_randomy_rate));
         }
 		int prebufamt = tree.getProperty("prebufamount", 2);
 		if (prebufamt == -1)
