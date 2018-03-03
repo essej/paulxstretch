@@ -67,7 +67,7 @@ const int cpi_freefilter_tilty = 37;
 const int cpi_freefilter_randomy_numbands = 38;
 const int cpi_freefilter_randomy_rate = 39;
 const int cpi_freefilter_randomy_amount = 40;
-const int cpi_import_file = 41;
+const int cpi_select_spec_module = 41;
 
 class MyPropertiesFile
 {

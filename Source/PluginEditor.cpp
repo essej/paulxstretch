@@ -354,6 +354,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	}
 	if (id == 3)
 	{
+		m_spec_order_ed.setModuleSelected(*processor.getIntParameter(cpi_select_spec_module));
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 	}
@@ -383,7 +384,6 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
-	toFront(true);
 	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
                                                 File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
     File initialloc(initiallocfn);
@@ -403,7 +403,7 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
         processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
         m_last_err = processor.setAudioFile(resu);
 	}
-	processor.m_import_dlg_open = false;
+	
 }
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
@@ -969,6 +969,15 @@ void SpectralChainEditor::mouseUp(const MouseEvent & ev)
 	m_drag_x = -1;
 	//m_cur_index = -1;
 	repaint();
+}
+
+void SpectralChainEditor::setModuleSelected(int id)
+{
+	if (id != m_cur_index)
+	{
+		m_cur_index = id;
+		repaint();
+	}
 }
 
 void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, int h)

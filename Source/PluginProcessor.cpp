@@ -157,7 +157,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterInt("freefilter_randomybands0", "Random bands", 2, 128, 16)); // 38
 	addParameter(new AudioParameterInt("freefilter_randomyrate0", "Random rate", 1, 32, 2)); // 39
 	addParameter(new AudioParameterFloat("freefilter_randomyamount0", "Random amount", 0.0, 1.0, 0.0)); // 40
-	addParameter(new AudioParameterBool("importfiletrigger0", "Import file", false)); // 41
+	addParameter(new AudioParameterInt("select_specmodule0", "Select module", 0, 8, 1)); // 41
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -795,18 +795,6 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 {
 	if (id == 1)
 	{
-		if (*getBoolParameter(cpi_import_file)==true && m_import_dlg_open == false)
-		{
-			m_import_dlg_open = true;
-			*getBoolParameter(cpi_import_file) = false;
-			{
-				callGUI(this, [](PaulstretchpluginAudioProcessorEditor* ed)
-				{
-					ed->chooseFile();
-				}, true);
-				return;
-			}
-		}
 		bool capture = getParameter(cpi_capture_enabled);
 		if (capture == false && m_max_reclen != *getFloatParameter(cpi_max_capture_len))
 		{
