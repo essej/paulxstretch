@@ -8,9 +8,8 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-02-28-2018 1.0.3
+03-03-2018 1.0.3
 	-Added free filter spectral processing module
-	-Basic feature to allow offline rendering of the output of the plugin into a new file
 	-Fixed bug with the number of harmonics parameter not getting saved and recalled
 	-Fixed bugs with calculations involving samplerate
 02-23-2018 1.0.2
