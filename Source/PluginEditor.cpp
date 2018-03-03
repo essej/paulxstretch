@@ -383,14 +383,14 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
-	processor.m_import_dlg_open = true;
+	toFront(true);
 	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
                                                 File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
     File initialloc(initiallocfn);
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
-		filterstring,true);
+		filterstring,false);
 	if (myChooser.browseForFileToOpen())
 	{
         File resu = myChooser.getResult();

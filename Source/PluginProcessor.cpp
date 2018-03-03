@@ -795,10 +795,10 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 {
 	if (id == 1)
 	{
-		if (*getBoolParameter(cpi_import_file)==true)
+		if (*getBoolParameter(cpi_import_file)==true && m_import_dlg_open == false)
 		{
+			m_import_dlg_open = true;
 			*getBoolParameter(cpi_import_file) = false;
-			if (m_import_dlg_open == false)
 			{
 				callGUI(this, [](PaulstretchpluginAudioProcessorEditor* ed)
 				{
