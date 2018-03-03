@@ -158,6 +158,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterInt("freefilter_randomyrate0", "Random rate", 1, 32, 2)); // 39
 	addParameter(new AudioParameterFloat("freefilter_randomyamount0", "Random amount", 0.0, 1.0, 0.0)); // 40
 	addParameter(new AudioParameterInt("select_specmodule0", "Select module", 0, 8, 1)); // 41
+	addParameter(new AudioParameterInt("move_specmodule0", "Move module", 0, 8, 1)); // 42
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());

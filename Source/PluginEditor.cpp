@@ -355,6 +355,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	if (id == 3)
 	{
 		m_spec_order_ed.setModuleSelected(*processor.getIntParameter(cpi_select_spec_module));
+		m_spec_order_ed.moveModule(*processor.getIntParameter(cpi_select_spec_module), *
+			processor.getIntParameter(cpi_move_spec_module));
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 	}
@@ -978,6 +980,18 @@ void SpectralChainEditor::setModuleSelected(int id)
 		m_cur_index = id;
 		repaint();
 	}
+}
+
+void SpectralChainEditor::moveModule(int old_id, int new_id)
+{
+	if (old_id == m_cur_index)
+		return;
+	std::swap(m_order[old_id], m_order[new_id]);
+	m_cur_index = new_id;
+	m_src->setSpectrumProcessOrder(m_order);
+	repaint();
+	if (ModuleOrderOrEnabledChangedCallback)
+		ModuleOrderOrEnabledChangedCallback();
 }
 
 void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, int h)

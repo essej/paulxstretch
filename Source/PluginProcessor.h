@@ -68,6 +68,7 @@ const int cpi_freefilter_randomy_numbands = 38;
 const int cpi_freefilter_randomy_rate = 39;
 const int cpi_freefilter_randomy_amount = 40;
 const int cpi_select_spec_module = 41;
+const int cpi_move_spec_module = 42;
 
 class MyPropertiesFile
 {

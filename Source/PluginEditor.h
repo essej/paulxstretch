@@ -197,6 +197,7 @@ public:
 	std::function<void(void)> ModuleOrderOrEnabledChangedCallback;
 	const std::vector <SpectrumProcess>& getOrder() const { return m_order; }
 	void setModuleSelected(int id);
+	void moveModule(int old_id, int new_id);
 private:
 	StretchAudioSource * m_src = nullptr;
 	bool m_did_drag = false;
