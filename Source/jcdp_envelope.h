@@ -220,12 +220,14 @@ public:
 				"x", m_nodes[i].Time, "y", m_nodes[i].Value, "p1", m_nodes[i].ShapeParam1, "p2", m_nodes[i].ShapeParam2);
 			result.addChild(pt_tree, -1, nullptr);
 		}
+		result.setProperty("wrapxtransform", m_transform_wrap_x, nullptr);
 		return result;
 	}
 	void restoreState(ValueTree state)
 	{
 		if (state.isValid()==false)
             return;
+		m_transform_wrap_x = state.getProperty("wrapxtransform", false);
 		int numnodes = state.getNumChildren();
 		if (numnodes > 0)
 		{
@@ -565,15 +567,20 @@ public:
     double m_transform_y_sinus = 0.0;
     double m_transform_y_sinus_freq = 8.0;
     double m_transform_y_tilt = 0.0;
+	bool m_transform_wrap_x = false;
 	double m_min_pt_value = 0.0;
 	double m_max_pt_value = 0.0;
 	inline double getTransformedValue(double x)
 	{
 		if (isTransformed() == false)
 			return GetInterpolatedNodeValue(x);
-		double temp = fmod(x - m_transform_x_shift, 1.0);
-		if (temp < 0.0)
-			temp += 1.0;
+		double temp = x-m_transform_x_shift;
+		if (m_transform_wrap_x == true)
+		{
+			temp = fmod(x - m_transform_x_shift, 1.0);
+			if (temp < 0.0)
+				temp += 1.0;
+		}
 		double v = GetInterpolatedNodeValue(temp);
 		double center_v = m_minvalue + (m_maxvalue - m_minvalue) / 2.0;
 		double diff = center_v - v;

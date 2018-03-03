@@ -230,6 +230,7 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		PopupMenu menu;
 		menu.addItem(1, "Reset");
 		menu.addItem(2, "Invert");
+		menu.addItem(3, "Wrap envelope X transform", true, m_envelope->m_transform_wrap_x);
 		int r = menu.show();
 		if (r == 1)
 		{
@@ -244,6 +245,10 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 				double val = 1.0 - m_envelope->GetNodeAtIndex(i).Value;
 				m_envelope->GetNodeAtIndex(i).Value = val;
 			}
+		}
+		if (r == 3)
+		{
+			toggleBool(m_envelope->m_transform_wrap_x);
 		}
 		repaint();
 		return;
