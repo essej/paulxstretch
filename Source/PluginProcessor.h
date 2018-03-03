@@ -67,6 +67,7 @@ const int cpi_freefilter_tilty = 37;
 const int cpi_freefilter_randomy_numbands = 38;
 const int cpi_freefilter_randomy_rate = 39;
 const int cpi_freefilter_randomy_amount = 40;
+const int cpi_import_file = 41;
 
 class MyPropertiesFile
 {
@@ -178,6 +179,7 @@ public:
 	Range<double> m_wave_view_range;
     int m_prepare_count = 0;
     shared_envelope m_free_filter_envelope;
+	bool m_import_dlg_open = false;
 private:
 	
 	

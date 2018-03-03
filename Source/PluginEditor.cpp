@@ -383,6 +383,7 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
+	processor.m_import_dlg_open = true;
 	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
                                                 File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
     File initialloc(initiallocfn);
@@ -402,6 +403,7 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
         processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
         m_last_err = processor.setAudioFile(resu);
 	}
+	processor.m_import_dlg_open = false;
 }
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()

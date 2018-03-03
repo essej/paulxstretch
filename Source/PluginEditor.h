@@ -220,6 +220,7 @@ public:
 	void filesDropped(const StringArray &files, int x, int y) override;
 
 	WaveformComponent m_wavecomponent;
+	void chooseFile();
 private:
     PaulstretchpluginAudioProcessor& processor;
 	std::vector<std::unique_ptr<ParameterComponent>> m_parcomps;
@@ -229,7 +230,7 @@ private:
 	TextButton m_settings_button;
 	Label m_info_label;
 	SpectralChainEditor m_spec_order_ed;
-	void chooseFile();
+	
 	void showSettingsMenu();
     String m_last_err;
 	zoom_scrollbar m_zs;
