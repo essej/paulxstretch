@@ -20,6 +20,7 @@ along with CDP front-end.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 #include <algorithm>
+#include <random>
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PS_Source/globals.h"
 
@@ -193,7 +194,10 @@ inline double interpolate_foo(double atime,double t0, double v0, double t1, doub
 class breakpoint_envelope
 {
 public:
-    breakpoint_envelope() : m_name("Untitled") {}
+    breakpoint_envelope() : m_name("Untitled") 
+	{
+		m_randbuf.resize(1024);
+	}
     breakpoint_envelope(String name, double minv=0.0, double maxv=1.0)
         : m_minvalue(minv), m_maxvalue(maxv), m_name(name)
     {
@@ -202,6 +206,7 @@ public:
         m_defvalue=0.5;
         m_updateopinprogress=false;
         m_value_grid={0.0,0.25,0.5,0.75,1.0};
+		m_randbuf.resize(1024);
     }
 
 
@@ -567,6 +572,9 @@ public:
     double m_transform_y_sinus = 0.0;
     double m_transform_y_sinus_freq = 8.0;
     double m_transform_y_tilt = 0.0;
+	double m_transform_y_random_amount = 0.2;
+	double m_transform_y_random_rate = 2.0;
+	int m_transform_y_random_bands = 32;
 	bool m_transform_wrap_x = false;
 	double m_min_pt_value = 0.0;
 	double m_max_pt_value = 0.0;
@@ -589,12 +597,19 @@ public:
             sin(2*3.141592653*(x-m_transform_x_shift)*m_transform_y_sinus_freq);
         double tiltline = m_transform_y_tilt-(2.0*m_transform_y_tilt*x);
         double tilted = shifted+tiltline;
-        return jlimit(0.0,1.0,tilted);
+		if (m_transform_y_random_amount > 0.0)
+		{
+			
+			int tableindex = jlimit<int>(0,m_randbuf.size()-1, floor(x * (m_transform_y_random_bands)));
+			double randamt = jmap(m_randbuf[tableindex], 0.0, 1.0, -m_transform_y_random_amount, m_transform_y_random_amount);
+			tilted += randamt;
+		}
+		return jlimit(0.0,1.0,tilted);
 	}
 	bool isTransformed() const
 	{
 		return m_transform_x_shift != 0.0 || m_transform_y_shift != 0.0
-        || m_transform_y_scale!=1.0 || m_transform_y_sinus!=0.0 || m_transform_y_tilt!=0.0;
+        || m_transform_y_scale!=1.0 || m_transform_y_sinus!=0.0 || m_transform_y_tilt!=0.0 || m_transform_y_random_amount!=0.0;
 	}
 	void updateMinMaxValues()
 	{
@@ -607,6 +622,13 @@ public:
 		}
 		m_minvalue = minv;
 		m_maxvalue = maxv;
+	}
+	void updateRandomState()
+	{
+		//Logger::writeToLog("updating envelope random state");
+		std::uniform_real_distribution<double> dist(0.0,1.0);
+		for (int i = 0; i < m_transform_y_random_bands+1; ++i)
+			m_randbuf[i] = dist(m_randgen);
 	}
 private:
     nodes_t m_nodes;
@@ -625,6 +647,8 @@ private:
     nodes_t m_old_nodes;
     nodes_t m_repeater_nodes;
     grid_t m_value_grid;
+	std::mt19937 m_randgen;
+	std::vector<double> m_randbuf;
 	JUCE_LEAK_DETECTOR(breakpoint_envelope)
 };
 

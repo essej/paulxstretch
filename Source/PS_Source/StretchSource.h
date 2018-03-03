@@ -131,7 +131,7 @@ private:
 	
 	int m_pause_state = 0;
 	Range<double> m_playrange{ 0.0,1.0 };
-	
+	int64_t m_rand_count = 0;
 	bool m_stream_end_reached = false;
 	int64_t m_output_silence_counter = 0;
 	File m_curfile;

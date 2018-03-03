@@ -253,6 +253,11 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			{
 				readed = m_inputfile->readNextBlock(m_file_inbuf, readsize, m_num_outchans);
 			}
+			if (m_rand_count % (int)m_free_filter_envelope->m_transform_y_random_rate == 0)
+			{
+				m_free_filter_envelope->updateRandomState();
+			}
+			++m_rand_count;
 			auto inbufptrs = m_file_inbuf.getArrayOfWritePointers();
 			REALTYPE onset_max = std::numeric_limits<REALTYPE>::min();
 #ifdef USE_PPL_TO_PROCESS_STRETCHERS

@@ -284,6 +284,14 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_freefilter_scaley]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_freefilter_tilty]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs = 1;
+	yoffs += 25;
+	div = w / 3;
+	m_parcomps[cpi_freefilter_randomy_numbands]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
+	m_parcomps[cpi_freefilter_randomy_rate]->setBounds(xoffs, yoffs, div - 1, 24);
+	xoffs += div;
+	m_parcomps[cpi_freefilter_randomy_amount]->setBounds(xoffs, yoffs, div - 1, 24);
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);

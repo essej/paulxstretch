@@ -154,6 +154,9 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("freefilter_shifty_0", "Free filter shift Y", -1.0f, 1.0f, 0.0f)); // 35
 	addParameter(new AudioParameterFloat("freefilter_scaley_0", "Free filter scale Y", -1.0f, 1.0f, 1.0f)); // 36
 	addParameter(new AudioParameterFloat("freefilter_tilty_0", "Free filter tilt Y", -1.0f, 1.0f, 0.0f)); // 37
+	addParameter(new AudioParameterInt("freefilter_randomybands0", "Random bands", 2, 128, 16)); // 38
+	addParameter(new AudioParameterInt("freefilter_randomyrate0", "Random rate", 1, 32, 2)); // 39
+	addParameter(new AudioParameterFloat("freefilter_randomyamount0", "Random amount", 0.0, 1.0, 0.0)); // 40
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -634,7 +637,10 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_free_filter_envelope->m_transform_y_shift = *getFloatParameter(cpi_freefilter_shifty);
 	m_free_filter_envelope->m_transform_y_scale = *getFloatParameter(cpi_freefilter_scaley);
 	m_free_filter_envelope->m_transform_y_tilt = *getFloatParameter(cpi_freefilter_tilty);
-	
+	m_free_filter_envelope->m_transform_y_random_bands = *getIntParameter(cpi_freefilter_randomy_numbands);
+	m_free_filter_envelope->m_transform_y_random_rate = *getIntParameter(cpi_freefilter_randomy_rate);
+	m_free_filter_envelope->m_transform_y_random_amount = *getFloatParameter(cpi_freefilter_randomy_amount);
+
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 	m_stretch_source->setPreviewDry(*getBoolParameter(cpi_bypass_stretch));

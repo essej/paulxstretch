@@ -64,6 +64,9 @@ const int cpi_freefilter_shiftx = 34;
 const int cpi_freefilter_shifty = 35;
 const int cpi_freefilter_scaley = 36;
 const int cpi_freefilter_tilty = 37;
+const int cpi_freefilter_randomy_numbands = 38;
+const int cpi_freefilter_randomy_rate = 39;
+const int cpi_freefilter_randomy_amount = 40;
 
 class MyPropertiesFile
 {
