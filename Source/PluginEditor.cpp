@@ -354,9 +354,6 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	}
 	if (id == 3)
 	{
-		m_spec_order_ed.setModuleSelected(*processor.getIntParameter(cpi_select_spec_module));
-		m_spec_order_ed.moveModule(*processor.getIntParameter(cpi_select_spec_module), *
-			processor.getIntParameter(cpi_move_spec_module));
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 	}

@@ -159,6 +159,35 @@ void StretchAudioSource::setMainVolume(double decibels)
 	}
 }
 
+void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params)
+{
+	jassert(params.size() == m_specproc_order.size());
+	bool changed = false;
+	for (int i = 0; i < m_specproc_order.size(); ++i)
+	{
+		if (*params[i] != m_specproc_order[i].m_enabled)
+		{
+			changed = true;
+			break;
+		}
+	}
+	if (changed == false)
+		return;
+	if (m_cs.tryEnter())
+	{
+		for (int i = 0; i < m_specproc_order.size(); ++i)
+		{
+			m_specproc_order[i].m_enabled = *params[i];
+		}
+		for (int i = 0; i < m_stretchers.size(); ++i)
+		{
+			m_stretchers[i]->m_spectrum_processes = m_specproc_order;
+		}
+		++m_param_change_count;
+		m_cs.exit();
+	}
+}
+
 void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 {
 	if (lenseconds == m_loopxfadelen)

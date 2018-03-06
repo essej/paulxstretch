@@ -23,6 +23,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PS_Source/PaulStretchControl.h"
 #include "jcdp_envelope.h"
+#include <array>
 
 class MyThumbCache;
 
@@ -67,8 +68,15 @@ const int cpi_freefilter_tilty = 37;
 const int cpi_freefilter_randomy_numbands = 38;
 const int cpi_freefilter_randomy_rate = 39;
 const int cpi_freefilter_randomy_amount = 40;
-const int cpi_select_spec_module = 41;
-const int cpi_move_spec_module = 42;
+const int cpi_enable_spec_module0 = 41;
+const int cpi_enable_spec_module1 = 42;
+const int cpi_enable_spec_module2 = 43;
+const int cpi_enable_spec_module3 = 44;
+const int cpi_enable_spec_module4 = 45;
+const int cpi_enable_spec_module5 = 46;
+const int cpi_enable_spec_module6 = 47;
+const int cpi_enable_spec_module7 = 48;
+const int cpi_enable_spec_module8 = 49;
 
 class MyPropertiesFile
 {
@@ -222,7 +230,7 @@ private:
 	void setParameters(const std::vector<double>& pars);
 	float m_cur_playrangeoffset = 0.0;
 	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
-	
+	std::array<AudioParameterBool*, 9> m_sm_enab_pars;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

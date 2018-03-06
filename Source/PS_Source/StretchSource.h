@@ -24,6 +24,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "Input/AInputS.h"
 #include "ProcessedStretch.h"
 #include <mutex>
+#include <array>
 #include "../WDL/resample.h"
 
 class StretchAudioSource final : public PositionableAudioSource
@@ -98,6 +99,7 @@ public:
 	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
 	void setMainVolume(double decibels);
 	double getMainVolume() const { return m_main_volume; }
+	void setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params);
 	void setLoopXFadeLength(double lenseconds);
 	double getLoopXFadeLengtj() const { return m_loopxfadelen; }
 	void setPreviewDry(bool b);

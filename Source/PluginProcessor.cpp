@@ -157,8 +157,11 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterInt("freefilter_randomybands0", "Random bands", 2, 128, 16)); // 38
 	addParameter(new AudioParameterInt("freefilter_randomyrate0", "Random rate", 1, 32, 2)); // 39
 	addParameter(new AudioParameterFloat("freefilter_randomyamount0", "Random amount", 0.0, 1.0, 0.0)); // 40
-	addParameter(new AudioParameterInt("select_specmodule0", "Select module", 0, 8, 1)); // 41
-	addParameter(new AudioParameterInt("move_specmodule0", "Move module", 0, 8, 1)); // 42
+	for (int i = 0; i < 9; ++i) // 41-49
+	{
+		m_sm_enab_pars[i] = new AudioParameterBool("enab_specmodule"+String(i), "Enable spectral module "+String(i+1), false);
+		addParameter(m_sm_enab_pars[i]);
+	}
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -646,6 +649,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_free_filter_envelope->m_transform_y_random_bands = *getIntParameter(cpi_freefilter_randomy_numbands);
 	m_free_filter_envelope->m_transform_y_random_rate = *getIntParameter(cpi_freefilter_randomy_rate);
 	m_free_filter_envelope->m_transform_y_random_amount = *getFloatParameter(cpi_freefilter_randomy_amount);
+
+	m_stretch_source->setSpectralModulesEnabled(m_sm_enab_pars);
 
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
