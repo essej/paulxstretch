@@ -93,7 +93,11 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
 	// The default priority of 2 is a bit too low in some cases, it seems...
 	m_thumbcache->getTimeSliceThread().setPriority(3);
-	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm);
+	for (int i = 0; i < 9; ++i) // 41-49
+	{
+		m_sm_enab_pars[i] = new AudioParameterBool("enab_specmodule" + String(i), "Enable spectral module " + String(i + 1), false);
+	}
+	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm,m_sm_enab_pars);
 	
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
@@ -159,7 +163,6 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("freefilter_randomyamount0", "Random amount", 0.0, 1.0, 0.0)); // 40
 	for (int i = 0; i < 9; ++i) // 41-49
 	{
-		m_sm_enab_pars[i] = new AudioParameterBool("enab_specmodule"+String(i), "Enable spectral module "+String(i+1), false);
 		addParameter(m_sm_enab_pars[i]);
 	}
 	auto& pars = getParameters();
@@ -237,7 +240,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 	for (int i = 0; i < specorder.size(); ++i)
 	{
 		paramtree.setProperty("specorder" + String(i), specorder[i].m_index, nullptr);
-		paramtree.setProperty("specstepenabled" + String(i), specorder[i].m_enabled, nullptr);
+		//paramtree.setProperty("specstepenabled" + String(i), specorder[i].m_enabled, nullptr);
 	}
 	if (ignoreoptions == false)
 	{
@@ -264,16 +267,18 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
 			if (tree.hasProperty("numspectralstages"))
 			{
+				/*
 				std::vector<SpectrumProcess> order;
 				int ordersize = tree.getProperty("numspectralstages");
 				for (int i = 0; i < ordersize; ++i)
 				{
 					bool step_enabled = tree.getProperty("specstepenabled" + String(i));
-					order.push_back({ (int)tree.getProperty("specorder" + String(i)), step_enabled });
+					//order.push_back({ (int)tree.getProperty("specorder" + String(i)), step_enabled });
 				}
                 if (ordersize<m_stretch_source->getSpectrumProcessOrder().size())
-                    order.emplace_back(8,false);
+                    order.emplace_back(8,m_sm_enab_pars[8]);
 				m_stretch_source->setSpectrumProcessOrder(order);
+				*/
 			}
 			getFromTreeProperties(tree, "waveviewrange", m_wave_view_range);
 			for (int i = 0; i < getNumParameters(); ++i)
@@ -445,7 +450,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 {
 	File outputfiletouse = outputfile.getNonexistentSibling();
 	int numoutchans = *getIntParameter(cpi_num_outchans);
-	auto ss = std::make_shared<StretchAudioSource>(numoutchans,m_afm);
+	auto ss = std::make_shared<StretchAudioSource>(numoutchans,m_afm,m_sm_enab_pars);
 	int blocksize = 2048;
 	
 	ss->setAudioFile(m_current_file);

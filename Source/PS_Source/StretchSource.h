@@ -31,7 +31,7 @@ class StretchAudioSource final : public PositionableAudioSource
 {
 public:
 	StretchAudioSource() {}
-	StretchAudioSource(int initialnumoutchans, AudioFormatManager* afm);
+	StretchAudioSource(int initialnumoutchans, AudioFormatManager* afm, std::array<AudioParameterBool*, 9>& enab_pars);
 	~StretchAudioSource();
 	// Inherited via PositionableAudioSource
 	void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override;

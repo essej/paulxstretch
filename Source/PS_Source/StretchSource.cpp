@@ -1,4 +1,5 @@
 #include "StretchSource.h"
+#include <set>
 
 #ifdef WIN32
 #include <ppl.h>
@@ -7,12 +8,16 @@
 #undef max
 #endif
 
-StretchAudioSource::StretchAudioSource(int initialnumoutchans, AudioFormatManager* afm) : m_afm(afm)
+StretchAudioSource::StretchAudioSource(int initialnumoutchans, 
+	AudioFormatManager* afm,
+	std::array<AudioParameterBool*,9>& enab_pars) : m_afm(afm)
 {
 	m_resampler = std::make_unique<WDL_Resampler>();
 	m_resampler_outbuf.resize(1024*1024);
 	m_inputfile = std::make_unique<AInputS>(m_afm);
-    m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true},{8,false} };
+	for (int i = 0; i < enab_pars.size(); ++i)
+		m_specproc_order.emplace_back(i, enab_pars[i]);
+	//m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true},{8,false} };
 	setNumOutChannels(initialnumoutchans);
 	m_xfadetask.buffer.setSize(8, 65536);
 	m_xfadetask.buffer.clear();
@@ -162,10 +167,14 @@ void StretchAudioSource::setMainVolume(double decibels)
 void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params)
 {
 	jassert(params.size() == m_specproc_order.size());
+	std::set<AudioParameterBool*> foo;
+	for (auto& e : params)
+		foo.insert(e);
+	jassert(foo.size() == params.size());
 	bool changed = false;
 	for (int i = 0; i < m_specproc_order.size(); ++i)
 	{
-		if (*params[i] != m_specproc_order[i].m_enabled)
+		if (*params[i] != *m_specproc_order[i].m_enabled)
 		{
 			changed = true;
 			break;
@@ -177,7 +186,7 @@ void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParamet
 	{
 		for (int i = 0; i < m_specproc_order.size(); ++i)
 		{
-			m_specproc_order[i].m_enabled = *params[i];
+			*m_specproc_order[i].m_enabled = (bool)(*params[i]);
 		}
 		for (int i = 0; i < m_stretchers.size(); ++i)
 		{

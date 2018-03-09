@@ -438,9 +438,9 @@ class SpectrumProcess
 {
 public:
 	SpectrumProcess() {}
-	SpectrumProcess(int index, bool enabled) : m_index(index), m_enabled(enabled) {}
+	SpectrumProcess(int index, AudioParameterBool* enabled) : m_index(index), m_enabled(enabled) {}
 	int m_index = -1;
-	bool m_enabled = true;
+	AudioParameterBool* m_enabled = nullptr;
 };
 
 class ProcessedStretch final : public Stretch
