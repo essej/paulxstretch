@@ -443,6 +443,18 @@ public:
 	AudioParameterBool* m_enabled = nullptr;
 };
 
+// Special function to swap the modules. We don't want to mess up the AudioParameterBool pointers,
+// just swap the boolean states...
+
+inline void swapSpectrumProcesses(SpectrumProcess& a, SpectrumProcess& b)
+{
+	bool aenab = *b.m_enabled;
+	bool benab = *a.m_enabled;
+	std::swap(a.m_index, b.m_index);
+	*a.m_enabled = aenab;
+	*b.m_enabled = benab;
+}
+
 class ProcessedStretch final : public Stretch
 {
 public:

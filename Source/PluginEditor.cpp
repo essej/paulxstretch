@@ -348,7 +348,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		m_wavecomponent.setTimeSelection(processor.getTimeSelection());
 		if (processor.m_state_dirty)
 		{
-			m_spec_order_ed.setSource(processor.getStretchSource());
+			//m_spec_order_ed.setSource(processor.getStretchSource());
 			processor.m_state_dirty = false;
 		}
 	}
@@ -950,7 +950,8 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 		int new_index = ev.x / box_w;
 		if (new_index >= 0 && new_index < m_order.size() && new_index != m_cur_index)
 		{
-			std::swap(m_order[m_cur_index], m_order[new_index]);
+			swapSpectrumProcesses(m_order[m_cur_index], m_order[new_index]);
+			
 			m_cur_index = new_index;
 			m_did_drag = true;
 			m_src->setSpectrumProcessOrder(m_order);
@@ -1025,7 +1026,7 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 	//g.drawFittedText(m_order[index].m_enabled->name, x, y, w, h, Justification::centred, 3);
 	g.setColour(Colours::gold);
 	g.drawRect(x + 2, y + 2, 12, 12);
-	if (*m_order[index].m_enabled == true)
+	if ((bool)*m_order[index].m_enabled == true)
 	{
 		g.drawLine(x+2, y+2, x+14, y+14);
 		g.drawLine(x+2, y+14, x+14, y+2);
