@@ -160,7 +160,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
     
     addAndMakeVisible(&m_wavefilter_tab);
-    setSize (1200, 30+(pars.size()/2)*25+200+15);
+    setSize (1200, 30+(pars.size()/2)*25+100+15);
     startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
@@ -295,8 +295,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_freefilter_randomy_amount]->setBounds(xoffs, yoffs, div - 1, 24);
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs;
-	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 5 * 1);
-	m_wavefilter_tab.setBounds(1, m_spec_order_ed.getBottom() + 1, getWidth() - 2, remain_h / 5 * 4);
+	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 9 * 1);
+	m_wavefilter_tab.setBounds(1, m_spec_order_ed.getBottom() + 1, getWidth() - 2, remain_h / 9 * 8);
 	m_wavecomponent.setBounds(m_wave_container->getX(), 0, m_wave_container->getWidth(),
 		m_wave_container->getHeight()-16);
 	m_zs.setBounds(m_wave_container->getX(), m_wavecomponent.getBottom(), m_wave_container->getWidth(), 15);
@@ -1022,7 +1022,7 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 	}
 	g.setColour(Colours::white);
 	g.drawRect(x, y, w, h);
-	g.drawFittedText(txt, x,y,w,h, Justification::centred, 3);
+	g.drawFittedText(txt, x,y,w,h-5, Justification::centredBottom, 3);
 	//g.drawFittedText(m_order[index].m_enabled->name, x, y, w, h, Justification::centred, 3);
 	g.setColour(Colours::gold);
 	g.drawRect(x + 2, y + 2, 12, 12);
