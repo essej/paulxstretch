@@ -67,8 +67,7 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	: m_bufferingthread("pspluginprebufferthread")
 {
-	
-    g_activeprocessors.insert(this);
+	g_activeprocessors.insert(this);
 	m_playposinfo.timeInSeconds = 0.0;
 	
     m_free_filter_envelope = std::make_shared<breakpoint_envelope>();

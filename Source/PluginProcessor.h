@@ -189,6 +189,7 @@ public:
     int m_prepare_count = 0;
     shared_envelope m_free_filter_envelope;
 	bool m_import_dlg_open = false;
+	
 private:
 	
 	
