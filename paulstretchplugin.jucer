@@ -11,7 +11,7 @@
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.2.1"
+              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.3.0"
               headerPath="&#10;&#10;">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
