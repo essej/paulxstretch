@@ -8,7 +8,7 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-03-05-2018 1.0.3
+03-17-2018 1.1.0
 	-Added free filter spectral processing module
 	-Fixed bug with the number of harmonics parameter not getting saved and recalled
 	-Fixed bugs with calculations involving samplerate
@@ -73,5 +73,5 @@ https://bitbucket.org/xenakios/paulstretchplugin/overview
 
 Requirements for building from source code :
     -C++17 compiler and C++17 standard library
-    -JUCE 5.2 : https://github.com/WeAreROLI/JUCE
-    -FFTW3
+    -JUCE 5.3 : https://github.com/WeAreROLI/JUCE
+    -FFTW3.3.6
