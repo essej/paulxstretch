@@ -11,12 +11,13 @@ History :
 03-21-2018 1.1.0
 	-Added free filter spectral processing module
 	 *Yellow envelope line is the editable envelope, blue line is the envelope transformed with the 
-	 free filter plugin parameters
+	 free filter plugin parameters, used for the audio processing. (These are initially overlapped, 
+	 tweak the free filter parameters to see them separated.)
 	 *Click on envelope view to add point
 	 *Alt-click on envelope point to remove point
 	 *Alt-drag envelope line to change curvature
 	 *Drag envelope line to move line up/down
-	 *Right-click envelope view to show some actions/options
+	 *Right-click envelope view to show additional actions/options
 	-Made spectral module on/off states plugin parameters
 	-Fixed bug with the number of harmonics parameter not getting saved and recalled.
 	-Fixed bugs with calculations involving samplerate
