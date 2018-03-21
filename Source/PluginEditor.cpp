@@ -764,6 +764,7 @@ void WaveformComponent::mouseDoubleClick(const MouseEvent & e)
 
 void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & wd)
 {
+	return;
 	double factor = 0.9;
 	if (wd.deltaY < 0.0)
 		factor = 1.11111;
