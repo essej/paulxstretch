@@ -172,7 +172,8 @@ inline void spectrum_copy(int nfreq, REALTYPE* freq1, REALTYPE* freq2)
 
 inline void spectrum_spread(int nfreq, double samplerate, 
 	std::vector<REALTYPE>& tmpfreq1,
-	REALTYPE *freq1, REALTYPE *freq2, REALTYPE spread_bandwidth) {
+	REALTYPE *freq1, REALTYPE *freq2, REALTYPE spread_bandwidth) 
+{
 	//convert to log spectrum
 	REALTYPE minfreq = 20.0f;
 	REALTYPE maxfreq = 0.5f*samplerate;

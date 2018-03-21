@@ -88,7 +88,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_sm_enab_pars[2] = new AudioParameterBool("enab_specmodule2", "Enable spectral module 3", true);
 	m_sm_enab_pars[3] = new AudioParameterBool("enab_specmodule3", "Enable spectral module 4", true);
 	m_sm_enab_pars[4] = new AudioParameterBool("enab_specmodule4", "Enable spectral module 5", false);
-	m_sm_enab_pars[5] = new AudioParameterBool("enab_specmodule5", "Enable spectral module 6", true);
+	m_sm_enab_pars[5] = new AudioParameterBool("enab_specmodule5", "Enable spectral module 6", false);
 	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable spectral module 7", true);
 	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable spectral module 8", true);
 	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable spectral module 9", false);
@@ -217,26 +217,16 @@ int PaulstretchpluginAudioProcessor::getPreBufferAmount()
 ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool ignorefile)
 {
 	ValueTree paramtree("paulstretch3pluginstate");
-	for (int i = 0; i<getNumParameters(); ++i)
-	{
-		storeToTreeProperties(paramtree, nullptr, getFloatParameter(i));
-	}
-	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_numharmonics));
-	storeToTreeProperties(paramtree, nullptr, m_outchansparam);
-    storeToTreeProperties(paramtree, nullptr, m_inchansparam);
-	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_freefilter_randomy_numbands));
-	storeToTreeProperties(paramtree, nullptr, getIntParameter(cpi_freefilter_randomy_rate));
-    storeToTreeProperties(paramtree, nullptr, getBoolParameter(cpi_bypass_stretch));
+	storeToTreeProperties(paramtree, nullptr, getParameters());
     if (m_current_file != File() && ignorefile == false)
 	{
 		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
 	}
 	auto specorder = m_stretch_source->getSpectrumProcessOrder();
-	paramtree.setProperty("numspectralstages", (int)specorder.size(), nullptr);
+	paramtree.setProperty("numspectralstagesb", (int)specorder.size(), nullptr);
 	for (int i = 0; i < specorder.size(); ++i)
 	{
-		paramtree.setProperty("specorder" + String(i), specorder[i].m_index, nullptr);
-		//paramtree.setProperty("specstepenabled" + String(i), specorder[i].m_enabled, nullptr);
+		paramtree.setProperty("specorderb" + String(i), specorder[i].m_index, nullptr);
 	}
 	if (ignoreoptions == false)
 	{
@@ -261,32 +251,23 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             ValueTree freefilterstate = tree.getChildWithName("freefilter_envelope");
             m_free_filter_envelope->restoreState(freefilterstate);
             m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
-			if (tree.hasProperty("numspectralstages"))
+			if (tree.hasProperty("numspectralstagesb"))
 			{
-				/*
-				std::vector<SpectrumProcess> order;
-				int ordersize = tree.getProperty("numspectralstages");
-				for (int i = 0; i < ordersize; ++i)
+				std::vector<SpectrumProcess> old_order = m_stretch_source->getSpectrumProcessOrder();
+				std::vector<SpectrumProcess> new_order;
+				int ordersize = tree.getProperty("numspectralstagesb");
+				if (ordersize == old_order.size())
 				{
-					bool step_enabled = tree.getProperty("specstepenabled" + String(i));
-					//order.push_back({ (int)tree.getProperty("specorder" + String(i)), step_enabled });
+					for (int i = 0; i < ordersize; ++i)
+					{
+						new_order.push_back({ (int)tree.getProperty("specorderb" + String(i)), old_order[i].m_enabled });
+					}
+					m_stretch_source->setSpectrumProcessOrder(new_order);
 				}
-                if (ordersize<m_stretch_source->getSpectrumProcessOrder().size())
-                    order.emplace_back(8,m_sm_enab_pars[8]);
-				m_stretch_source->setSpectrumProcessOrder(order);
-				*/
 			}
 			getFromTreeProperties(tree, "waveviewrange", m_wave_view_range);
-			for (int i = 0; i < getNumParameters(); ++i)
-			{
-				getFromTreeProperties(tree,getFloatParameter(i));
-			}
-			getFromTreeProperties(tree, getIntParameter(cpi_numharmonics));
-			getFromTreeProperties(tree, m_outchansparam);
-            getFromTreeProperties(tree, m_inchansparam);
-            getFromTreeProperties(tree, getBoolParameter(cpi_bypass_stretch));
-			getFromTreeProperties(tree, getIntParameter(cpi_freefilter_randomy_numbands));
-			getFromTreeProperties(tree, getIntParameter(cpi_freefilter_randomy_rate));
+			getFromTreeProperties(tree, getParameters());
+			
         }
 		int prebufamt = tree.getProperty("prebufamount", 2);
 		if (prebufamt == -1)

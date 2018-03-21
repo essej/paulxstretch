@@ -113,6 +113,22 @@ inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParame
     if (par) dest.setProperty(par->paramID,(int)*par,uman);
 }
 
+inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, const OwnedArray<AudioProcessorParameter>& pars)
+{
+	for (auto& e : pars)
+	{
+		auto parf = dynamic_cast<AudioParameterFloat*>(e);
+		if (parf != nullptr)
+			storeToTreeProperties(dest, nullptr, parf);
+		auto pari = dynamic_cast<AudioParameterInt*>(e);
+		if (pari != nullptr)
+			storeToTreeProperties(dest, nullptr, pari);
+		auto parb = dynamic_cast<AudioParameterBool*>(e);
+		if (parb != nullptr)
+			storeToTreeProperties(dest, nullptr, parb);
+	}
+}
+
 template<typename T>
 inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, T& val)
 {
@@ -150,6 +166,22 @@ inline void getFromTreeProperties(ValueTree src, T par)
     {
         *par = src.getProperty(par->paramID);
     }
+}
+
+inline void getFromTreeProperties(ValueTree src, const OwnedArray<AudioProcessorParameter>& pars)
+{
+	for (auto& e : pars)
+	{
+		auto parf = dynamic_cast<AudioParameterFloat*>(e);
+		if (parf != nullptr && src.hasProperty(parf->paramID))
+			*parf = src.getProperty(parf->paramID);
+		auto pari = dynamic_cast<AudioParameterInt*>(e);
+		if (pari != nullptr && src.hasProperty(pari->paramID))
+			*pari = src.getProperty(pari->paramID);
+		auto parb = dynamic_cast<AudioParameterBool*>(e);
+		if (parb != nullptr && src.hasProperty(parb->paramID))
+			*parb = src.getProperty(parb->paramID);
+	}
 }
 
 template<typename F>
