@@ -8,8 +8,14 @@ Released under GNU General Public License v.2 license.
 
 History :
 
-03-17-2018 1.1.0
+03-21-2018 1.1.0
 	-Added free filter spectral processing module
+	 *Click on envelope view to add point
+	 *Alt-click on envelope point to remove point
+	 *Alt-drag envelope line to change curvature
+	 *Drag envelope line to move line up/down
+	 *Right-click envelope view to show some actions/options
+	-Made spectral module on/off states plugin parameters
 	-Fixed bug with the number of harmonics parameter not getting saved and recalled
 	-Fixed bugs with calculations involving samplerate
 02-23-2018 1.0.2
