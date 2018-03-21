@@ -356,6 +356,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	{
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
+		m_spec_order_ed.repaint();
 	}
 }
 
@@ -926,9 +927,9 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 		if (r.contains(ev.x, ev.y))
 		{
 			toggleBool(m_order[m_cur_index].m_enabled);
-			m_src->setSpectrumProcessOrder(m_order);
-			if (ModuleOrderOrEnabledChangedCallback)
-				ModuleOrderOrEnabledChangedCallback();
+			//m_src->setSpectrumProcessOrder(m_order);
+			//if (ModuleOrderOrEnabledChangedCallback)
+			//	ModuleOrderOrEnabledChangedCallback();
 			repaint();
             return;
 		}
