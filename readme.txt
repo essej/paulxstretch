@@ -10,6 +10,8 @@ History :
 
 03-21-2018 1.1.0
 	-Added free filter spectral processing module
+	 *Yellow envelope line is the editable envelope, blue line is the envelope transformed with the 
+	 free filter plugin parameters
 	 *Click on envelope view to add point
 	 *Alt-click on envelope point to remove point
 	 *Alt-drag envelope line to change curvature

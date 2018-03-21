@@ -389,7 +389,7 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
-		filterstring,false);
+		filterstring,true);
 	if (myChooser.browseForFileToOpen())
 	{
         File resu = myChooser.getResult();
