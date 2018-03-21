@@ -166,11 +166,13 @@ void StretchAudioSource::setMainVolume(double decibels)
 
 void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params)
 {
+	/*
 	jassert(params.size() == m_specproc_order.size());
 	std::set<AudioParameterBool*> foo;
 	for (auto& e : params)
 		foo.insert(e);
 	jassert(foo.size() == params.size());
+	*/
 	bool changed = false;
 	for (int i = 0; i < m_specproc_order.size(); ++i)
 	{
