@@ -81,7 +81,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (i == cpi_filter_low || i == cpi_filter_high)
 			group_id = 6;
 		if (i == cpi_compress)
-			group_id = 7;
+			group_id = 8;
 		if (i == cpi_spreadamount)
 			group_id = 5;
 		if (i == cpi_frequencyshift)
@@ -91,7 +91,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (i == cpi_freefilter_scaley || i == cpi_freefilter_shiftx || i == cpi_freefilter_shifty ||
 			i == cpi_freefilter_tilty || i == cpi_freefilter_randomy_amount || i == cpi_freefilter_randomy_numbands
 			|| i == cpi_freefilter_randomy_rate)
-			group_id = 8;
+			group_id = 7;
 		m_parcomps.back()->m_group_id = group_id;
 		addAndMakeVisible(m_parcomps.back().get());
 	}
@@ -1010,9 +1010,9 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 		txt = "Spread";
 	if (m_order[index].m_index == 6)
 		txt = "Filter";
-	if (m_order[index].m_index == 7)
+	if (m_order[index].m_index == 8)
 		txt = "Compressor";
-    if (m_order[index].m_index == 8)
+    if (m_order[index].m_index == 7)
         txt = "Free filter";
 	if (index == m_cur_index)
 	{

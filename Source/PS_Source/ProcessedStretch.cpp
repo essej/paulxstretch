@@ -118,9 +118,9 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 			spectrum_spread(nfreq,samplerate,m_tmpfreq1,m_infreq.data(), freq, pars.spread.bandwidth);
 		if (e.m_index == 6 && *e.m_enabled == true)
 			spectrum_do_filter(pars,nfreq,samplerate,m_infreq.data(), freq);
-		if (e.m_index == 7 && *e.m_enabled == true)
-			spectrum_do_compressor(pars,nfreq, m_infreq.data(), freq);
 		if (e.m_index == 8 && *e.m_enabled == true)
+			spectrum_do_compressor(pars,nfreq, m_infreq.data(), freq);
+		if (e.m_index == 7 && *e.m_enabled == true)
 			spectrum_do_free_filter(m_free_filter_envelope, nfreq, samplerate, m_infreq.data(), freq);
 	}
 };
