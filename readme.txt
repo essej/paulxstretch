@@ -8,6 +8,8 @@ Released under GNU General Public License v.2 license.
 
 History :
 
+03-21-2018 1.1.1
+	-Removed code that accidentally got included in 1.1.0
 03-21-2018 1.1.0
 	-Added free filter spectral processing module
 	 *Yellow envelope line is the editable envelope, blue line is the envelope transformed with the 
