@@ -18,7 +18,7 @@ History :
 	 *Drag envelope line to move line up/down
 	 *Right-click envelope view to show some actions/options
 	-Made spectral module on/off states plugin parameters
-	-Fixed bug with the number of harmonics parameter not getting saved and recalled
+	-Fixed bug with the number of harmonics parameter not getting saved and recalled.
 	-Fixed bugs with calculations involving samplerate
 02-23-2018 1.0.2
 	-Added stretch processing bypass parameter (to play the original sound looped like it is passed into the stretcher)
