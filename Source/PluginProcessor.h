@@ -104,7 +104,7 @@ public:
 class PaulstretchpluginAudioProcessorEditor;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
-	public MultiTimer
+	public MultiTimer, public VSTCallbackHandler
 {
 public:
 	using EditorType = PaulstretchpluginAudioProcessorEditor;
@@ -118,6 +118,11 @@ public:
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
+
+	pointer_sized_int handleVstManufacturerSpecific(int32 index,
+		pointer_sized_int value,
+		void* ptr,
+		float opt) override;
 
     void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
 

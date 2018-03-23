@@ -328,7 +328,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		}
 		infotext += m_last_err + " [FFT size " +
 			String(processor.getStretchSource()->getFFTSize())+"]";
-		double outlen = processor.getStretchSource()->getOutputDurationSecondsForRange(processor.getStretchSource()->getPlayRange(), processor.getStretchSource()->getFFTSize());
+		double outlen = processor.getStretchSource()->getOutputDurationSecondsForRange(processor.getStretchSource()->getPlayRange(), 
+			processor.getStretchSource()->getFFTSize());
 		infotext += " [Output length " + secondsToString2(outlen)+"]";
 		if (processor.m_abnormal_output_samples > 0)
 			infotext += " " + String(processor.m_abnormal_output_samples) + " invalid sample values";

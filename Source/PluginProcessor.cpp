@@ -67,6 +67,7 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	: m_bufferingthread("pspluginprebufferthread")
 {
+	getProperties().set("isgenerator", true);
 	g_activeprocessors.insert(this);
 	m_playposinfo.timeInSeconds = 0.0;
 	
@@ -579,6 +580,16 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 	}
 }
 
+pointer_sized_int PaulstretchpluginAudioProcessor::handleVstManufacturerSpecific(int32 index, pointer_sized_int value, void * ptr, float opt)
+{
+	if (index == 10000)
+	{
+		*((double*)(ptr)) = 6.66;
+		return 1;
+	}
+	return pointer_sized_int();
+}
+
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 	ScopedLock locker(m_cs);
@@ -783,6 +794,9 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 {
 	if (id == 1)
 	{
+		double outlen = m_stretch_source->getOutputDurationSecondsForRange(m_stretch_source->getPlayRange(),
+			m_stretch_source->getFFTSize());
+		getProperties().set("outputlength", outlen);
 		bool capture = getParameter(cpi_capture_enabled);
 		if (capture == false && m_max_reclen != *getFloatParameter(cpi_max_capture_len))
 		{
