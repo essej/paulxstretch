@@ -94,7 +94,7 @@ void FFT::smp2freq()
 
 void FFT::freq2smp()
 {
-	REALTYPE inv_2p15_2pi=1.0f/16384.0f*(float)M_PI;
+	REALTYPE inv_2p15_2pi=1.0f/16384.0f*(float)c_PI;
 	for (int i=1;i<nsamples/2;i++)
     {
 		unsigned int rand = m_randdist(m_randgen);
@@ -120,16 +120,16 @@ void FFT::applywindow(FFTWindow type)
 				for (int i=0;i<nsamples;i++) window.data[i]=0.707f;
 				break;
 			case W_HAMMING:
-				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.53836-0.46164*cos(2.0*M_PI*i/(nsamples+1.0)));
+				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.53836-0.46164*cos(2.0*c_PI*i/(nsamples+1.0)));
 				break;
 			case W_HANN:
-				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.5*(1.0-cos(2*M_PI*i/(nsamples-1.0))));
+				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.5*(1.0-cos(2*c_PI*i/(nsamples-1.0))));
 				break;
 			case W_BLACKMAN:
-				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.42-0.5*cos(2*M_PI*i/(nsamples-1.0))+0.08*cos(4*M_PI*i/(nsamples-1.0)));
+				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.42-0.5*cos(2*c_PI*i/(nsamples-1.0))+0.08*cos(4*c_PI*i/(nsamples-1.0)));
 				break;
 			case W_BLACKMAN_HARRIS:
-				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.35875-0.48829*cos(2*M_PI*i/(nsamples-1.0))+0.14128*cos(4*M_PI*i/(nsamples-1.0))-0.01168*cos(6*M_PI*i/(nsamples-1.0)));
+				for (int i=0;i<nsamples;i++) window.data[i]=(float)(0.35875-0.48829*cos(2*c_PI*i/(nsamples-1.0))+0.14128*cos(4*c_PI*i/(nsamples-1.0))-0.01168*cos(6*c_PI*i/(nsamples-1.0)));
 				break;
 
 		};
@@ -305,7 +305,7 @@ REALTYPE Stretch::process(REALTYPE *smps,int nsmps)
 		outfft->freq2smp();
 
 		//make the output buffer
-		REALTYPE tmp=(float)(1.0/(float) bufsize*M_PI);
+		REALTYPE tmp=(float)(1.0/(float) bufsize*c_PI);
 		REALTYPE hinv_sqrt2=0.853553390593f;//(1.0+1.0/sqrt(2))*0.5;
 
 		REALTYPE ampfactor=2.0f;

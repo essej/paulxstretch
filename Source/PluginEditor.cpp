@@ -843,7 +843,7 @@ void SpectralVisualizer::setState(const ProcessParameters & pars, int nfreqs, do
 			for (int j = 0; j < numharmonics; ++j)
 			{
 				double oscgain = 1.0 - (1.0 / numharmonics)*j;
-				m_insamples[i] += scaler * oscgain * sin(2 * 3.141592653 / samplerate * i* (hz + hz * j));
+				m_insamples[i] += scaler * oscgain * sin(2 * c_PI / samplerate * i* (hz + hz * j));
 			}
 		}
 	}

@@ -596,8 +596,9 @@ public:
 		double center_v = m_minvalue + (m_maxvalue - m_minvalue) / 2.0;
 		double diff = center_v - v;
 		double scaled = center_v - m_transform_y_scale * diff;
-		double shifted = scaled + m_transform_y_shift + m_transform_y_sinus*
-            sin(2*3.141592653*(x-m_transform_x_shift)*m_transform_y_sinus_freq);
+		double shifted = scaled + m_transform_y_shift;
+		if (m_transform_y_sinus>0.0)
+			shifted+=m_transform_y_sinus * sin(2*c_PI*(x-m_transform_x_shift)*m_transform_y_sinus_freq);
         double tiltline = m_transform_y_tilt-(2.0*m_transform_y_tilt*x);
         double tilted = shifted+tiltline;
 		if (m_transform_y_random_amount > 0.0)

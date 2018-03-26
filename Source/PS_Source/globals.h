@@ -61,9 +61,7 @@ inline String formatted(Args... args)
 #define NULL 0
 #endif
 
-#ifndef M_PI
-#define M_PI 3.14159265359
-#endif
+const double c_PI = 3.14159265359;
 
 const int g_maxnumoutchans = 32;
 
