@@ -104,7 +104,7 @@ public:
 class PaulstretchpluginAudioProcessorEditor;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
-	public MultiTimer, public VSTCallbackHandler
+	public MultiTimer
 {
 public:
 	using EditorType = PaulstretchpluginAudioProcessorEditor;
@@ -119,12 +119,7 @@ public:
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
    #endif
 
-	pointer_sized_int handleVstManufacturerSpecific(int32 index,
-		pointer_sized_int value,
-		void* ptr,
-		float opt) override;
-
-    void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
+	void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
 
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
