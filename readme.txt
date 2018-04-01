@@ -8,6 +8,9 @@ Released under GNU General Public License v.2 license.
 
 History :
 
+04-01-2018 1.1.2 
+	-Rebuilt with latest JUCE to fix parameter automation issue for example in Ableton Live
+	-Optimization in calculation of transformed free filter envelope
 03-21-2018 1.1.1
 	-Removed code that accidentally got included in 1.1.0
 03-21-2018 1.1.0
