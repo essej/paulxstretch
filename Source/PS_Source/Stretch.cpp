@@ -95,13 +95,12 @@ void FFT::smp2freq()
 void FFT::freq2smp()
 {
 	REALTYPE inv_2p15_2pi=1.0f/16384.0f*(float)c_PI;
-	for (int i=1;i<nsamples/2;i++)
+    for (int i=1;i<nsamples/2;i++)
     {
 		unsigned int rand = m_randdist(m_randgen);
         REALTYPE phase=rand*inv_2p15_2pi;
-
-		data[i]=freq[i]*cos(phase);
-		data[nsamples-i]=freq[i]*sin(phase);
+        data[i]=freq[i]*cos(phase);
+        data[nsamples-i]=freq[i]*sin(phase);
 
 	};
 	data[0]=data[nsamples/2+1]=data[nsamples/2]=0.0;
