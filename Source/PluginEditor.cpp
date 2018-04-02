@@ -505,8 +505,10 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb)
 {
 	TimeSelectionChangedCallback = [](Range<double>, int) {};
+#ifdef JUCE_MODULE_AVAILABLE_juce_opengl
 	if (m_use_opengl == true)
 		m_ogl.attachTo(*this);
+#endif
 	m_thumbnail = thumb;
 	m_thumbnail->addChangeListener(this);
 	setOpaque(true);
@@ -514,8 +516,10 @@ WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* th
 
 WaveformComponent::~WaveformComponent()
 {
+#ifdef JUCE_MODULE_AVAILABLE_juce_opengl
 	if (m_use_opengl == true)
 		m_ogl.detach();
+#endif
 	m_thumbnail->removeChangeListener(this);
 }
 

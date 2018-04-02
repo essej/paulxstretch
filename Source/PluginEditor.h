@@ -165,8 +165,10 @@ private:
 	std::pair<Range<double>, Range<double>> m_file_cached;
 	bool m_image_dirty = false;
 	Image m_waveimage;
+#ifdef JUCE_MODULE_AVAILABLE_juce_opengl
 	OpenGLContext m_ogl;
 	bool m_use_opengl = false;
+#endif
 	double m_rec_pos = 0.0;
 	bool m_lock_timesel_set = false;
     bool m_using_audio_buffer = false;
