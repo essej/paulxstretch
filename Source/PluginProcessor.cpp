@@ -30,8 +30,6 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 String g_plugintitle{ "PaulXStretch 1.1.3" };
 
-std::set<PaulstretchpluginAudioProcessor*> g_activeprocessors;
-
 int get_optimized_updown(int n, bool up) {
 	int orig_n = n;
 	while (true) {
@@ -67,8 +65,6 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	: m_bufferingthread("pspluginprebufferthread")
 {
-	
-	g_activeprocessors.insert(this);
 	m_playposinfo.timeInSeconds = 0.0;
 	
     m_free_filter_envelope = std::make_shared<breakpoint_envelope>();
@@ -173,7 +169,6 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
-	g_activeprocessors.erase(this);
 	m_thumb->removeAllChangeListeners();
 	m_thumb = nullptr;
 	m_bufferingthread.stopThread(1000);
