@@ -241,6 +241,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 		else
 			paramtree.setProperty("prebufamount", -1, nullptr);
 		paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
+		storeToTreeProperties(paramtree, nullptr, "playwhenhostrunning", m_play_when_host_plays, "capturewhenhostrunning", m_capture_when_host_plays);
 	}
 	storeToTreeProperties(paramtree, nullptr, "waveviewrange", m_wave_view_range);
     ValueTree freefilterstate = m_free_filter_envelope->saveState(Identifier("freefilter_envelope"));
@@ -257,6 +258,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             ValueTree freefilterstate = tree.getChildWithName("freefilter_envelope");
             m_free_filter_envelope->restoreState(freefilterstate);
             m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
+			getFromTreeProperties(tree, "playwhenhostrunning", m_play_when_host_plays, "capturewhenhostrunning", m_capture_when_host_plays);
 			if (tree.hasProperty("numspectralstagesb"))
 			{
 				std::vector<SpectrumProcess> old_order = m_stretch_source->getSpectrumProcessOrder();
