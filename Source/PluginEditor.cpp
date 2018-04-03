@@ -1415,7 +1415,7 @@ void RatioMixerEditor::resized()
 	int slidw = getWidth() / nsliders;
 	for (int i = 0; i < nsliders; ++i)
 	{
-		m_ratio_level_sliders[i]->setBounds(slidw/2+ slidw * i, 1, 20, getHeight() - 50);
+		m_ratio_level_sliders[i]->setBounds(slidw/2+slidw * i-10, 1, 20, getHeight() - 50);
 		m_ratio_sliders[i]->setBounds(slidw * i, getHeight() - 48, slidw - 5, 47);
 	}
 }
