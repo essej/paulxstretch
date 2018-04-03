@@ -412,6 +412,13 @@ void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameter
 	pars.octave.o15 = *getFloatParameter(cpi_octaves15);
 	pars.octave.o2 = *getFloatParameter(cpi_octaves2);
 
+	pars.ratiomix.ratiolevels[0]= *getFloatParameter(cpi_octavesm2);
+	pars.ratiomix.ratiolevels[1] = *getFloatParameter(cpi_octavesm1);
+	pars.ratiomix.ratiolevels[2] = *getFloatParameter(cpi_octaves0);
+	pars.ratiomix.ratiolevels[3] = *getFloatParameter(cpi_octaves1);
+	pars.ratiomix.ratiolevels[4] = *getFloatParameter(cpi_octaves15);
+	pars.ratiomix.ratiolevels[5] = *getFloatParameter(cpi_octaves2);
+
 	pars.filter.low = *getFloatParameter(cpi_filter_low);
 	pars.filter.high = *getFloatParameter(cpi_filter_high);
 

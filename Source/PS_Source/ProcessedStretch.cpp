@@ -112,8 +112,10 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 			spectrum_do_freq_shift(pars,nfreq,samplerate,m_infreq.data(), freq);
 		if (e.m_index == 3 && *e.m_enabled == true)
 			spectrum_do_pitch_shift(pars,nfreq,m_infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
+		//if (e.m_index == 4 && *e.m_enabled == true)
+		//	spectrum_do_octave(pars,nfreq,samplerate, m_sumfreq, m_tmpfreq1, m_infreq.data(), freq);
 		if (e.m_index == 4 && *e.m_enabled == true)
-			spectrum_do_octave(pars,nfreq,samplerate, m_sumfreq, m_tmpfreq1, m_infreq.data(), freq);
+			spectrum_do_ratiomix(pars,nfreq,samplerate, m_sumfreq, m_tmpfreq1, m_infreq.data(), freq);
 		if (e.m_index == 5 && *e.m_enabled == true)
 			spectrum_spread(nfreq,samplerate,m_tmpfreq1,m_infreq.data(), freq, pars.spread.bandwidth);
 		if (e.m_index == 6 && *e.m_enabled == true)

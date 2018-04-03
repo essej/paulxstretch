@@ -155,9 +155,48 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		*/
 		processor.setDirty();
 	};
+	
+	m_ratiomixeditor.GetParameterValue = [this](int which, int index)
+	{
+		if (which == 0)
+			return processor.getStretchSource()->getProcessParameters().ratiomix.ratios[index];
+		if (which == 1)
+		{
+			if (index == 0)
+				return (double)*processor.getFloatParameter(cpi_octavesm2);
+			if (index == 1)
+				return (double)*processor.getFloatParameter(cpi_octavesm1);
+			if (index == 2)
+				return (double)*processor.getFloatParameter(cpi_octaves0);
+			if (index == 3)
+				return (double)*processor.getFloatParameter(cpi_octaves1);
+			if (index == 4)
+				return (double)*processor.getFloatParameter(cpi_octaves15);
+			if (index == 5)
+				return (double)*processor.getFloatParameter(cpi_octaves2);
+		}
+			
+		return 0.0;
+	};
+	m_ratiomixeditor.OnRatioLevelChanged = [this](int index, double val)
+	{
+		if (index == 0)
+			*processor.getFloatParameter(cpi_octavesm2) = val;
+		if (index == 1)
+			*processor.getFloatParameter(cpi_octavesm1) = val;
+		if (index == 2)
+			*processor.getFloatParameter(cpi_octaves0) = val;
+		if (index == 3)
+			*processor.getFloatParameter(cpi_octaves1) = val;
+		if (index == 4)
+			*processor.getFloatParameter(cpi_octaves15) = val;
+		if (index == 5)
+			*processor.getFloatParameter(cpi_octaves2) = val;
+	};
 	m_wave_container->addAndMakeVisible(&m_wavecomponent);
 	m_wavefilter_tab.addTab("Waveform", Colours::white, m_wave_container, true);
-    m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
+	m_wavefilter_tab.addTab("Ratio mixer", Colours::grey, &m_ratiomixeditor, false);
+	m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
     
     addAndMakeVisible(&m_wavefilter_tab);
     setSize (1200, 30+(pars.size()/2)*25+100+15);
@@ -1333,4 +1372,47 @@ zoom_scrollbar::hot_area zoom_scrollbar::get_hot_area(int x, int)
 	if (is_in_range(x, x0 + 5, x1 - 5))
 		return ha_handle;
 	return ha_none;
+}
+
+RatioMixerEditor::RatioMixerEditor(int numratios)
+{
+	for (int i = 0; i < numratios; ++i)
+	{
+		auto ratslid = std::make_unique<Slider>(Slider::LinearHorizontal,Slider::TextBoxBelow);
+		ratslid->setRange(0.125, 8.0);
+		ratslid->onValueChange = [this]() {};
+		addAndMakeVisible(ratslid.get());
+		m_ratio_sliders.emplace_back(std::move(ratslid));
+		
+		auto ratlevslid = std::make_unique<Slider>();
+		ratlevslid->setRange(0.0, 1.0);
+		ratlevslid->setSliderStyle(Slider::LinearVertical);
+		if (i==3)
+			ratlevslid->setValue(1.0,dontSendNotification);
+		else ratlevslid->setValue(0.0,dontSendNotification);
+		ratlevslid->onValueChange = [this, i]() { OnRatioLevelChanged(i, m_ratio_level_sliders[i]->getValue()); };
+		addAndMakeVisible(ratlevslid.get());
+		m_ratio_level_sliders.emplace_back(std::move(ratlevslid));
+	}
+	startTimer(200);
+}
+
+void RatioMixerEditor::resized()
+{
+	int nsliders = m_ratio_sliders.size();
+	int slidw = getWidth() / nsliders;
+	for (int i = 0; i < nsliders; ++i)
+	{
+		m_ratio_level_sliders[i]->setBounds(slidw/2+ slidw * i, 1, 20, getHeight() - 50);
+		m_ratio_sliders[i]->setBounds(slidw * i, getHeight() - 48, slidw - 5, 47);
+	}
+}
+
+void RatioMixerEditor::timerCallback()
+{
+	for (int i = 0; i < m_ratio_level_sliders.size(); ++i)
+	{
+		m_ratio_sliders[i]->setValue(GetParameterValue(0, i), dontSendNotification);
+		m_ratio_level_sliders[i]->setValue(GetParameterValue(1, i), dontSendNotification);
+	}
 }

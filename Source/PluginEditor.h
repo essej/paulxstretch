@@ -209,6 +209,20 @@ private:
 	void drawBox(Graphics& g, int index, int x, int y, int w, int h);
 };
 
+class RatioMixerEditor : public Component, public Timer
+{
+public:
+	RatioMixerEditor(int numratios);
+	void resized() override;
+	std::function<void(int, double)> OnRatioChanged;
+	std::function<void(int, double)> OnRatioLevelChanged;
+	std::function<double(int which, int index)> GetParameterValue;
+	void timerCallback() override;
+private:
+	uptrvec<Slider> m_ratio_sliders;
+	uptrvec<Slider> m_ratio_level_sliders;
+};
+
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {
@@ -227,7 +241,7 @@ public:
 	void chooseFile();
 private:
     PaulstretchpluginAudioProcessor& processor;
-	std::vector<std::unique_ptr<ParameterComponent>> m_parcomps;
+	uptrvec<ParameterComponent> m_parcomps;
 	//SpectralVisualizer m_specvis;
 	PerfMeterComponent m_perfmeter;
 	TextButton m_import_button;
@@ -238,8 +252,9 @@ private:
 	void showSettingsMenu();
     String m_last_err;
 	zoom_scrollbar m_zs;
-    EnvelopeComponent m_free_filter_component;
-    TabbedComponent m_wavefilter_tab;
+	RatioMixerEditor m_ratiomixeditor{ 8 };
+	EnvelopeComponent m_free_filter_component;
+	TabbedComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

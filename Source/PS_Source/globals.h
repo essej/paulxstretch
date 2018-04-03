@@ -28,6 +28,12 @@ using float2dvector = std::vector<std::vector<float>>;
 using float3dvector = std::vector<std::vector<std::vector<float>>>;
 
 template<typename T>
+using uptrvec = std::vector<std::unique_ptr<T>>;
+
+template<typename T>
+using sptrvec = std::vector<std::shared_ptr<T>>;
+
+template<typename T>
 inline std::unique_ptr<T> unique_from_raw(T* ptr)
 {
 	return std::unique_ptr<T>(ptr);

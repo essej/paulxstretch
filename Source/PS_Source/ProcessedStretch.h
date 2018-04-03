@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Stretch.h"
+#include <array>
 #include "../jcdp_envelope.h"
 
 struct ProcessParameters
@@ -27,6 +28,8 @@ struct ProcessParameters
 	ProcessParameters()
 	{
 		pitch_shift.cents=0;
+
+		ratiomix.ratios = { 0.25,0.5,1.0,2.0,3.0,4.0,0.0,0.0 };
 
 		octave.om2=octave.om1=octave.o1=octave.o15=octave.o2=0.0f;
 		octave.o0=1.0f;
@@ -58,9 +61,17 @@ struct ProcessParameters
 		int cents;
 	}pitch_shift;
 
+	
 	struct{
 		REALTYPE om2,om1,o0,o1,o15,o2;
 	}octave;
+	
+
+	struct
+	{
+		std::array<double, 8> ratios;
+		std::array<double, 8> ratiolevels;
+	} ratiomix;
 
 	struct{
 		int Hz;
@@ -152,7 +163,9 @@ struct ProcessParameters
 			filter.hdamp == other.filter.hdamp &&
 			filter.high == other.filter.high &&
 			filter.low == other.filter.low &&
-			filter.stop == other.filter.stop;
+			filter.stop == other.filter.stop &&
+			ratiomix.ratiolevels == other.ratiomix.ratiolevels &&
+			ratiomix.ratios == other.ratiomix.ratios;
 	}
 };
 
@@ -391,6 +404,30 @@ inline void spectrum_do_octave(const ProcessParameters& pars, int nfreq, double 
 	REALTYPE sum = 0.01f + pars.octave.om2 + pars.octave.om1 + pars.octave.o0 + pars.octave.o1 + pars.octave.o15 + pars.octave.o2;
 	if (sum<0.5f) sum = 0.5f;
 	for (int i = 0; i<nfreq; i++) freq2[i] = sumfreq[i] / sum;
+};
+
+inline void spectrum_do_ratiomix(const ProcessParameters& pars, int nfreq, double /*samplerate*/,
+	std::vector<REALTYPE>& sumfreq,
+	std::vector<REALTYPE>& tmpfreq1,
+	REALTYPE *freq1, REALTYPE *freq2) 
+{
+	spectrum_zero(nfreq, sumfreq.data());
+	double ratiolevelsum = 0.01;
+	for (int i = 0; i < pars.ratiomix.ratios.size(); ++i)
+	{
+		double ratiolevel = pars.ratiomix.ratiolevels[i];
+		double ratio = pars.ratiomix.ratios[i];
+		ratiolevelsum += ratiolevel;
+		if (ratiolevel > 1e-3 && ratio > 0.0)
+		{
+			spectrum_do_pitch_shift(pars, nfreq, freq1, tmpfreq1.data(), ratio);
+			spectrum_add(nfreq, sumfreq.data(), tmpfreq1.data(), ratiolevel);
+		}
+	}
+	if (ratiolevelsum<0.5f) 
+		ratiolevelsum = 0.5f;
+	for (int i = 0; i<nfreq; i++) 
+		freq2[i] = sumfreq[i] / ratiolevelsum;
 };
 
 inline void spectrum_do_filter(const ProcessParameters& pars, int nfreq, double samplerate, REALTYPE *freq1, REALTYPE *freq2) {
