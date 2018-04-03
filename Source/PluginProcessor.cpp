@@ -158,6 +158,16 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	{
 		addParameter(m_sm_enab_pars[i]);
 	}
+
+	addParameter(make_floatpar("octavemix_extra0_0", "Ratio mix 7 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 50
+	addParameter(make_floatpar("octavemix_extra1_0", "Ratio mix 8 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 51
+
+	// 52-59
+	for (int i = 0; i < 8; ++i)
+	{
+		addParameter(make_floatpar("ratiomix_ratio_"+String(i)+"_0", "Ratio mix ratio "+String(i+1), 0.125f, 8.0f, 1.0f, 0.001, 1.0)); 
+	}
+
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -418,6 +428,11 @@ void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameter
 	pars.ratiomix.ratiolevels[3] = *getFloatParameter(cpi_octaves1);
 	pars.ratiomix.ratiolevels[4] = *getFloatParameter(cpi_octaves15);
 	pars.ratiomix.ratiolevels[5] = *getFloatParameter(cpi_octaves2);
+	pars.ratiomix.ratiolevels[6] = *getFloatParameter(cpi_octaves_extra1);
+	pars.ratiomix.ratiolevels[7] = *getFloatParameter(cpi_octaves_extra2);
+
+	for (int i = 0; i < 8; ++i)
+		pars.ratiomix.ratios[i] = *getFloatParameter((int)cpi_octaves_ratio0 + i);
 
 	pars.filter.low = *getFloatParameter(cpi_filter_low);
 	pars.filter.high = *getFloatParameter(cpi_filter_high);

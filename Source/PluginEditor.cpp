@@ -159,7 +159,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_ratiomixeditor.GetParameterValue = [this](int which, int index)
 	{
 		if (which == 0)
-			return processor.getStretchSource()->getProcessParameters().ratiomix.ratios[index];
+			return (double)*processor.getFloatParameter((int)cpi_octaves_ratio0 + index);
 		if (which == 1)
 		{
 			if (index == 0)
@@ -174,6 +174,10 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 				return (double)*processor.getFloatParameter(cpi_octaves15);
 			if (index == 5)
 				return (double)*processor.getFloatParameter(cpi_octaves2);
+			if (index == 6)
+				return (double)*processor.getFloatParameter(cpi_octaves_extra1);
+			if (index == 7)
+				return (double)*processor.getFloatParameter(cpi_octaves_extra2);
 		}
 			
 		return 0.0;
@@ -192,6 +196,14 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 			*processor.getFloatParameter(cpi_octaves15) = val;
 		if (index == 5)
 			*processor.getFloatParameter(cpi_octaves2) = val;
+		if (index == 6)
+			*processor.getFloatParameter(cpi_octaves_extra1) = val;
+		if (index == 7)
+			*processor.getFloatParameter(cpi_octaves_extra2) = val;
+	};
+	m_ratiomixeditor.OnRatioChanged = [this](int index, double val)
+	{
+		*processor.getFloatParameter((int)cpi_octaves_ratio0 + index) = val;
 	};
 	m_wave_container->addAndMakeVisible(&m_wavecomponent);
 	m_wavefilter_tab.addTab("Waveform", Colours::white, m_wave_container, true);
@@ -1380,7 +1392,7 @@ RatioMixerEditor::RatioMixerEditor(int numratios)
 	{
 		auto ratslid = std::make_unique<Slider>(Slider::LinearHorizontal,Slider::TextBoxBelow);
 		ratslid->setRange(0.125, 8.0);
-		ratslid->onValueChange = [this]() {};
+		ratslid->onValueChange = [this,i]() {OnRatioChanged(i, m_ratio_sliders[i]->getValue()); };
 		addAndMakeVisible(ratslid.get());
 		m_ratio_sliders.emplace_back(std::move(ratslid));
 		
@@ -1412,7 +1424,11 @@ void RatioMixerEditor::timerCallback()
 {
 	for (int i = 0; i < m_ratio_level_sliders.size(); ++i)
 	{
-		m_ratio_sliders[i]->setValue(GetParameterValue(0, i), dontSendNotification);
-		m_ratio_level_sliders[i]->setValue(GetParameterValue(1, i), dontSendNotification);
+		double v = GetParameterValue(0, i);
+		if (v!=m_ratio_sliders[i]->getValue())
+			m_ratio_sliders[i]->setValue(v, dontSendNotification);
+		v = GetParameterValue(1, i);
+		if (v!=m_ratio_level_sliders[i]->getValue())
+			m_ratio_level_sliders[i]->setValue(v, dontSendNotification);
 	}
 }

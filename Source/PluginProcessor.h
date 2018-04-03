@@ -77,6 +77,17 @@ const int cpi_enable_spec_module5 = 46;
 const int cpi_enable_spec_module6 = 47;
 const int cpi_enable_spec_module7 = 48;
 const int cpi_enable_spec_module8 = 49;
+const int cpi_octaves_extra1 = 50;
+const int cpi_octaves_extra2 = 51;
+const int cpi_octaves_ratio0 = 52;
+const int cpi_octaves_ratio1 = 53;
+const int cpi_octaves_ratio2 = 54;
+const int cpi_octaves_ratio3 = 55;
+const int cpi_octaves_ratio4 = 56;
+const int cpi_octaves_ratio5 = 57;
+const int cpi_octaves_ratio6 = 58;
+const int cpi_octaves_ratio7 = 59;
+
 
 class MyPropertiesFile
 {

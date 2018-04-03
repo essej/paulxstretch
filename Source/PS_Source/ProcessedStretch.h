@@ -29,7 +29,7 @@ struct ProcessParameters
 	{
 		pitch_shift.cents=0;
 
-		ratiomix.ratios = { 0.25,0.5,1.0,2.0,3.0,4.0,0.0,0.0 };
+		ratiomix.ratios = { 0.25,0.5,1.0,2.0,3.0,4.0,1.5,1.0/1.5 };
 
 		octave.om2=octave.om1=octave.o1=octave.o15=octave.o2=0.0f;
 		octave.o0=1.0f;
