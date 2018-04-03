@@ -207,7 +207,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_wave_container->addAndMakeVisible(&m_wavecomponent);
 	m_wavefilter_tab.addTab("Waveform", Colours::white, m_wave_container, true);
-	m_wavefilter_tab.addTab("Ratio mixer", Colours::grey, &m_ratiomixeditor, false);
+	m_wavefilter_tab.addTab("Ratio mixer", Colours::white, &m_ratiomixeditor, false);
 	m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
     
     addAndMakeVisible(&m_wavefilter_tab);
@@ -1407,6 +1407,7 @@ RatioMixerEditor::RatioMixerEditor(int numratios)
 		m_ratio_level_sliders.emplace_back(std::move(ratlevslid));
 	}
 	startTimer(200);
+	setOpaque(true);
 }
 
 void RatioMixerEditor::resized()
@@ -1431,4 +1432,9 @@ void RatioMixerEditor::timerCallback()
 		if (v!=m_ratio_level_sliders[i]->getValue())
 			m_ratio_level_sliders[i]->setValue(v, dontSendNotification);
 	}
+}
+
+void RatioMixerEditor::paint(Graphics & g)
+{
+	g.fillAll(Colours::grey);
 }

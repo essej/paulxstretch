@@ -218,6 +218,7 @@ public:
 	std::function<void(int, double)> OnRatioLevelChanged;
 	std::function<double(int which, int index)> GetParameterValue;
 	void timerCallback() override;
+	void paint(Graphics& g) override;
 private:
 	uptrvec<Slider> m_ratio_sliders;
 	uptrvec<Slider> m_ratio_level_sliders;
