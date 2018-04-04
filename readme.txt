@@ -7,7 +7,8 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.2 license.
 
 History :
-
+04-06-2018 1.1.3
+	-
 04-01-2018 1.1.2 
 	-Rebuilt with latest JUCE to fix parameter automation issue for example in Ableton Live
 	-Optimization in calculation of transformed free filter envelope
