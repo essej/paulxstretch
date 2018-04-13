@@ -162,10 +162,14 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(make_floatpar("octavemix_extra0_0", "Ratio mix 7 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 50
 	addParameter(make_floatpar("octavemix_extra1_0", "Ratio mix 8 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 51
 
+	std::array<double,8> initialratios{ 0.25,0.5,1.0,2.0,3.0,4.0,1.5,1.0 / 1.5 };
 	// 52-59
 	for (int i = 0; i < 8; ++i)
 	{
-		addParameter(make_floatpar("ratiomix_ratio_"+String(i)+"_0", "Ratio mix ratio "+String(i+1), 0.125f, 8.0f, 1.0f, 0.001, 1.0)); 
+		addParameter(make_floatpar("ratiomix_ratio_"+String(i)+"_0", "Ratio mix ratio "+String(i+1), 0.125f, 8.0f, 
+			initialratios[i], 
+			0.001, 
+			1.0)); 
 	}
 
 	auto& pars = getParameters();
