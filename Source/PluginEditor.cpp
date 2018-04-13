@@ -69,13 +69,16 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans") 
 			|| parid->paramID.startsWith("numinchans"))
 				notifyonlyonrelease = true;
-		m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i],notifyonlyonrelease));
 		int group_id = -1;
 		if (i == cpi_harmonicsbw || i == cpi_harmonicsfreq || i == cpi_harmonicsgauss || i == cpi_numharmonics)
 			group_id = 0;
 		if (i == cpi_octavesm2 || i == cpi_octavesm1 || i == cpi_octaves0 || i == cpi_octaves1 || i == cpi_octaves15 ||
-			i == cpi_octaves2)
-			group_id = 4;
+			i == cpi_octaves2 || i==cpi_octaves_extra1 || i==cpi_octaves_extra2)
+			group_id = -2; // -2 for not included in the main parameters page
+		if (i >= (int)cpi_octaves_ratio0 && i <= (int)cpi_octaves_ratio7)
+			group_id = -2;
+		if (i >= (int)cpi_enable_spec_module0 && i <= (int)cpi_enable_spec_module8)
+			group_id = -2;
 		if (i == cpi_tonalvsnoisebw || i == cpi_tonalvsnoisepreserve)
 			group_id = 1;
 		if (i == cpi_filter_low || i == cpi_filter_high)
@@ -92,8 +95,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 			i == cpi_freefilter_tilty || i == cpi_freefilter_randomy_amount || i == cpi_freefilter_randomy_numbands
 			|| i == cpi_freefilter_randomy_rate)
 			group_id = 7;
+		
+		
+		m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
 		m_parcomps.back()->m_group_id = group_id;
-		addAndMakeVisible(m_parcomps.back().get());
+		if (group_id>=-1)
+			addAndMakeVisible(m_parcomps.back().get());
+		
 	}
 	
 	//addAndMakeVisible(&m_specvis);
@@ -211,7 +219,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
     
     addAndMakeVisible(&m_wavefilter_tab);
-    setSize (1200, 30+(pars.size()/2)*25+100+15);
+    setSize (1200, 320+14*25);
     startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
@@ -273,6 +281,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_pitchshift]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_frequencyshift]->setBounds(xoffs, yoffs, div - 1, 24);
+	/*
 	xoffs = 1;
 	yoffs += 25;
 	m_parcomps[cpi_octavesm2]->setBounds(xoffs, yoffs, div - 1, 24);
@@ -288,6 +297,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_octaves15]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_octaves2]->setBounds(xoffs, yoffs, div - 1, 24);
+	*/
 	xoffs = 1;
 	yoffs += 25;
 	m_parcomps[cpi_numharmonics]->setBounds(xoffs, yoffs, div - 1, 24);
@@ -1063,7 +1073,7 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 	if (m_order[index].m_index == 3)
 		txt = "Pitch shift";
 	if (m_order[index].m_index == 4)
-		txt = "Octaves";
+		txt = "Ratios";
 	if (m_order[index].m_index == 5)
 		txt = "Spread";
 	if (m_order[index].m_index == 6)

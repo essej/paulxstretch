@@ -9,7 +9,8 @@ Released under GNU General Public License v.2 license.
 History :
 04-13-2018 1.1.3
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
-	 Octaves module and allows changing the pitch ratios in a separate tabbed page in the GUI.
+	 Octaves module and allows changing the pitch ratios (and the shifters mix) 
+	 in a separate tabbed page in the GUI.
 04-01-2018 1.1.2 
 	-Rebuilt with latest JUCE to fix parameter automation issue for example in Ableton Live
 	-Optimization in calculation of transformed free filter envelope
