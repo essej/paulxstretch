@@ -131,7 +131,8 @@ public:
    #endif
 
 	void processBlock (AudioSampleBuffer&, MidiBuffer&) override;
-
+    //void processBlock (AudioBuffer<double>&, MidiBuffer&) override;
+    //bool supportsDoublePrecisionProcessing() const override { return true; }
     //==============================================================================
     AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;

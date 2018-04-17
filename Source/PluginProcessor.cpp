@@ -603,6 +603,13 @@ void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<
 	}
 }
 
+/*
+void PaulstretchpluginAudioProcessor::processBlock (AudioBuffer<double>& buffer, MidiBuffer&)
+{
+    jassert(false);
+}
+*/
+
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
 	ScopedLock locker(m_cs);
