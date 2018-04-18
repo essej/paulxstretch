@@ -10,9 +10,8 @@
               pluginChannelConfigs="{2,2},{2,4}, {2,8}, {8,8} " pluginIsSynth="0"
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
-              pluginRTASCategory="" aaxIdentifier="com.yourcompany.paulstretchplugin"
-              pluginAAXCategory="AAX_ePlugInCategory_Dynamics" jucerVersion="5.3.0"
-              headerPath="&#10;&#10;">
+              aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
+              jucerVersion="5.3.1" headerPath="&#10;&#10;" pluginFormats="buildVST,buildAU,buildStandalone">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
@@ -147,4 +146,7 @@
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
+  <LIVE_SETTINGS>
+    <OSX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>
