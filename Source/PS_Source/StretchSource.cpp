@@ -246,12 +246,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	if (m_stretchoutringbuf.available() > 0)
 		m_output_has_begun = true;
 	bool freezing = m_freezing;
-	if (m_do_freeze_seek == true)
-	{
-		freezing = false;
-		m_stretchoutringbuf.clear();
-		m_firstbuffer = true;
-	}
+	
 	if (m_stretchers[0]->isFreezing() != freezing)
 	{
 		if (freezing == true && m_inputfile!=nullptr)
@@ -388,12 +383,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		//Logger::writeToLog("Rerunning resampler task");
 		resamplertask();
 	}
-	if (m_do_freeze_seek == true)
-	{
-		for (auto& e : m_stretchers)
-			e->set_freezing(true);
-		m_do_freeze_seek = false;
-	}
+	
 	bool source_ended = m_inputfile->hasEnded();
 	double samplelimit = 16384.0;
 	if (m_clip_output == true)
@@ -679,8 +669,6 @@ bool StretchAudioSource::isPaused() const
 void StretchAudioSource::seekPercent(double pos)
 {
 	ScopedLock locker(m_cs);
-	if (m_freezing == true)
-		m_do_freeze_seek = true;
 	m_seekpos = pos;
 	//m_resampler->Reset();
 	m_inputfile->seek(pos);

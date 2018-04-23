@@ -130,7 +130,7 @@ private:
 	double m_seekpos = 0.0;
 	
 	bool m_freezing = false;
-	bool m_do_freeze_seek = false;
+	
 	int m_pause_state = 0;
 	Range<double> m_playrange{ 0.0,1.0 };
 	int64_t m_rand_count = 0;
