@@ -115,7 +115,7 @@ public:
 class PaulstretchpluginAudioProcessorEditor;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
-	public MultiTimer
+	public MultiTimer, public VSTCallbackHandler
 {
 public:
 	using EditorType = PaulstretchpluginAudioProcessorEditor;
@@ -202,6 +202,16 @@ public:
     shared_envelope m_free_filter_envelope;
 	bool m_import_dlg_open = false;
 	
+	pointer_sized_int handleVstPluginCanDo(int32 index,
+		pointer_sized_int value,
+		void* ptr,
+		float opt) override;
+
+	pointer_sized_int handleVstManufacturerSpecific(int32 index,
+		pointer_sized_int value,
+		void* ptr,
+		float opt) override;
+
 private:
 	
 	
@@ -244,6 +254,7 @@ private:
 	float m_cur_playrangeoffset = 0.0;
 	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
 	std::array<AudioParameterBool*, 9> m_sm_enab_pars;
+	double m_outlen = 0.0;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
