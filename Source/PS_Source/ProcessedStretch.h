@@ -486,6 +486,8 @@ public:
 
 inline void swapSpectrumProcesses(SpectrumProcess& a, SpectrumProcess& b)
 {
+	std::swap(a, b);
+	return;
 	bool aenab = *b.m_enabled;
 	bool benab = *a.m_enabled;
 	std::swap(a.m_index, b.m_index);

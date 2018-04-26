@@ -80,15 +80,15 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	// The default priority of 2 is a bit too low in some cases, it seems...
 	m_thumbcache->getTimeSliceThread().setPriority(3);
 	
-	m_sm_enab_pars[0] = new AudioParameterBool("enab_specmodule0", "Enable spectral module 1", false);
-	m_sm_enab_pars[1] = new AudioParameterBool("enab_specmodule1", "Enable spectral module 2", false);
-	m_sm_enab_pars[2] = new AudioParameterBool("enab_specmodule2", "Enable spectral module 3", true);
-	m_sm_enab_pars[3] = new AudioParameterBool("enab_specmodule3", "Enable spectral module 4", true);
-	m_sm_enab_pars[4] = new AudioParameterBool("enab_specmodule4", "Enable spectral module 5", false);
-	m_sm_enab_pars[5] = new AudioParameterBool("enab_specmodule5", "Enable spectral module 6", false);
-	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable spectral module 7", true);
-	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable spectral module 8", true);
-	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable spectral module 9", false);
+	m_sm_enab_pars[0] = new AudioParameterBool("enab_specmodule0", "Enable harmonics", false);
+	m_sm_enab_pars[1] = new AudioParameterBool("enab_specmodule1", "Enable tonal vs noise", false);
+	m_sm_enab_pars[2] = new AudioParameterBool("enab_specmodule2", "Enable frequency shift", true);
+	m_sm_enab_pars[3] = new AudioParameterBool("enab_specmodule3", "Enable pitch shift", true);
+	m_sm_enab_pars[4] = new AudioParameterBool("enab_specmodule4", "Enable ratios", false);
+	m_sm_enab_pars[5] = new AudioParameterBool("enab_specmodule5", "Enable spread", false);
+	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable filter", true);
+	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable free filter", true);
+	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable compressor", false);
 
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm,m_sm_enab_pars);
 	

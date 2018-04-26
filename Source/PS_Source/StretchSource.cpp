@@ -16,7 +16,10 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans,
 	m_resampler_outbuf.resize(1024*1024);
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	for (int i = 0; i < enab_pars.size(); ++i)
+	{
 		m_specproc_order.emplace_back(i, enab_pars[i]);
+		m_specprocmap[i] = i;
+	}
 	//m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true},{8,false} };
 	setNumOutChannels(initialnumoutchans);
 	m_xfadetask.buffer.setSize(8, 65536);
@@ -71,6 +74,9 @@ std::vector<SpectrumProcess> StretchAudioSource::getSpectrumProcessOrder()
 void StretchAudioSource::setSpectrumProcessOrder(std::vector<SpectrumProcess> order)
 {
 	ScopedLock locker(m_cs);
+	m_specprocmap.clear();
+	for (int i = 0; i < order.size(); ++i)
+		m_specprocmap[i] = order[i].m_index;
 	m_specproc_order = order;
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
@@ -166,17 +172,13 @@ void StretchAudioSource::setMainVolume(double decibels)
 
 void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params)
 {
+	jassert(m_specprocmap.size() > 0);
 	/*
-	jassert(params.size() == m_specproc_order.size());
-	std::set<AudioParameterBool*> foo;
-	for (auto& e : params)
-		foo.insert(e);
-	jassert(foo.size() == params.size());
-	*/
 	bool changed = false;
 	for (int i = 0; i < m_specproc_order.size(); ++i)
 	{
-		if (*params[i] != *m_specproc_order[i].m_enabled)
+		int index = m_specprocmap[i];
+		if (*params[index] != *m_specproc_order[i].m_enabled)
 		{
 			changed = true;
 			break;
@@ -184,11 +186,13 @@ void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParamet
 	}
 	if (changed == false)
 		return;
+	*/
 	if (m_cs.tryEnter())
 	{
 		for (int i = 0; i < m_specproc_order.size(); ++i)
 		{
-			*m_specproc_order[i].m_enabled = (bool)(*params[i]);
+			int index = m_specprocmap[i];
+			*m_specproc_order[i].m_enabled = (bool)(*params[index]);
 		}
 		for (int i = 0; i < m_stretchers.size(); ++i)
 		{
