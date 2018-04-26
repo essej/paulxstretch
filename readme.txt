@@ -7,10 +7,12 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.2 license.
 
 History :
-04-13-2018 1.1.3
+04-27-2018 1.1.3
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
 	 Octaves module and allows changing the pitch ratios (and the shifters mix) 
 	 in a separate tabbed page in the GUI.
+	-Save and restore some additional settings
+	-Added support for some custom VST opcodes (currently not supported by any publicly available host, though)
 04-01-2018 1.1.2 
 	-Rebuilt with latest JUCE to fix parameter automation issue for example in Ableton Live
 	-Optimization in calculation of transformed free filter envelope
@@ -89,6 +91,6 @@ Source code at :
 https://bitbucket.org/xenakios/paulstretchplugin/overview
 
 Requirements for building from source code :
-    -C++17 compiler and C++17 standard library
-    -JUCE 5.3 : https://github.com/WeAreROLI/JUCE
+    -A modern C++ compiler and standard library (C++14, some C++17 needs to be supported)
+    -JUCE 5.3.1 : https://github.com/WeAreROLI/JUCE
     -FFTW3.3.6
