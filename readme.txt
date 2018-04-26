@@ -11,8 +11,8 @@ History :
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
 	 Octaves module and allows changing the pitch ratios (and the shifters mix) 
 	 in a separate tabbed page in the GUI.
+	-Spectral module enabled parameters changed to target named modules instead of chain slots
 	-Save and restore some additional settings
-	-Added support for some custom VST opcodes (currently not supported by any publicly available host, though)
 04-01-2018 1.1.2 
 	-Rebuilt with latest JUCE to fix parameter automation issue for example in Ableton Live
 	-Optimization in calculation of transformed free filter envelope
