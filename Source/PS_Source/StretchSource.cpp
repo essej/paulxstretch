@@ -18,7 +18,6 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans,
 	for (int i = 0; i < enab_pars.size(); ++i)
 	{
 		m_specproc_order.emplace_back(i, enab_pars[i]);
-		m_specprocmap[i] = i;
 	}
 	//m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true},{8,false} };
 	setNumOutChannels(initialnumoutchans);
@@ -74,9 +73,6 @@ std::vector<SpectrumProcess> StretchAudioSource::getSpectrumProcessOrder()
 void StretchAudioSource::setSpectrumProcessOrder(std::vector<SpectrumProcess> order)
 {
 	ScopedLock locker(m_cs);
-	m_specprocmap.clear();
-	for (int i = 0; i < order.size(); ++i)
-		m_specprocmap[i] = order[i].m_index;
 	m_specproc_order = order;
 	Logger::writeToLog("<**");
 	for (auto& e : m_specproc_order)

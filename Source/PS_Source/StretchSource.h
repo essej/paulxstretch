@@ -143,7 +143,7 @@ private:
 	std::vector<double> m_resampler_outbuf;
 	CriticalSection m_cs;
 	std::vector<SpectrumProcess> m_specproc_order;
-	std::unordered_map<int, int> m_specprocmap;
+	
 	bool m_stop_play_requested = false;
 	double m_freeze_pos = 0.0;
 	int64_t m_output_counter = 0;
