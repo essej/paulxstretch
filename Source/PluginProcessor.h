@@ -254,7 +254,6 @@ private:
 	float m_cur_playrangeoffset = 0.0;
 	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
 	std::array<AudioParameterBool*, 9> m_sm_enab_pars;
-	double m_outlen = 0.0;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

@@ -849,20 +849,21 @@ pointer_sized_int PaulstretchpluginAudioProcessor::handleVstPluginCanDo(int32 in
 {
 	if (strcmp((char*)ptr, "xenakios") == 0)
 	{
-		if (index == 0)
+		if (index == 0 && (void*)value!=nullptr)
 		{
 			double t0 = *getFloatParameter(cpi_soundstart);
 			double t1 = *getFloatParameter(cpi_soundend);
-			m_outlen = (t1-t0)*m_stretch_source->getInfileLengthSeconds()*(*getFloatParameter(cpi_stretchamount));
-			std::cout << "host requested output length, result " << m_outlen << "\n";
-			return pointer_sized_int(&m_outlen);
+			double outlen = (t1-t0)*m_stretch_source->getInfileLengthSeconds()*(*getFloatParameter(cpi_stretchamount));
+			//std::cout << "host requested output length, result " << outlen << "\n";
+			*((double*)value) = outlen;
 		}
 		if (index == 1 && (void*)value!=nullptr)
 		{
 			String fn(CharPointer_UTF8((char*)value));
-			std::cout << "host requested to set audio file " << fn << "\n";
+			//std::cout << "host requested to set audio file " << fn << "\n";
 			auto err = setAudioFile(File(fn));
-			std::cout << err << "\n";
+			if (err.isEmpty()==false)
+				std::cout << err << "\n";
 		}
 		return 1;
 	}
