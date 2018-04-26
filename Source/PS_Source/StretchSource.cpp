@@ -78,6 +78,10 @@ void StretchAudioSource::setSpectrumProcessOrder(std::vector<SpectrumProcess> or
 	for (int i = 0; i < order.size(); ++i)
 		m_specprocmap[i] = order[i].m_index;
 	m_specproc_order = order;
+	Logger::writeToLog("<**");
+	for (auto& e : m_specproc_order)
+		Logger::writeToLog(e.m_enabled->name + " " + String(e.m_index));
+	Logger::writeToLog("**>");
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
 		m_stretchers[i]->m_spectrum_processes = order;
@@ -170,6 +174,7 @@ void StretchAudioSource::setMainVolume(double decibels)
 	}
 }
 
+#ifdef OLDMODULE_ENAB
 void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params)
 {
 	jassert(m_specprocmap.size() > 0);
@@ -202,7 +207,17 @@ void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParamet
 		m_cs.exit();
 	}
 }
-
+#endif
+void StretchAudioSource::setSpectralModuleEnabled(int index, bool b)
+{
+	Logger::writeToLog(String(index));
+	ScopedLock locker(m_cs);
+	for (int i = 0; i < m_stretchers.size(); ++i)
+	{
+		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
+	}
+	++m_param_change_count;
+}
 void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 {
 	if (lenseconds == m_loopxfadelen)

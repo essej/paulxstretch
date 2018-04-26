@@ -99,7 +99,8 @@ public:
 	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
 	void setMainVolume(double decibels);
 	double getMainVolume() const { return m_main_volume; }
-	void setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params);
+	//void setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params);
+	void setSpectralModuleEnabled(int index, bool b);
 	void setLoopXFadeLength(double lenseconds);
 	double getLoopXFadeLengtj() const { return m_loopxfadelen; }
 	void setPreviewDry(bool b);

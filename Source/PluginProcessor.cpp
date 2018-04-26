@@ -89,6 +89,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable filter", true);
 	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable free filter", true);
 	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable compressor", false);
+	
 
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm,m_sm_enab_pars);
 	
@@ -157,6 +158,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	for (int i = 0; i < 9; ++i) // 41-49
 	{
 		addParameter(m_sm_enab_pars[i]);
+		m_sm_enab_pars[i]->addListener(this);
 	}
 
 	addParameter(make_floatpar("octavemix_extra0_0", "Ratio mix 7 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 50
@@ -359,6 +361,18 @@ const String PaulstretchpluginAudioProcessor::getProgramName (int index)
 }
 
 void PaulstretchpluginAudioProcessor::changeProgramName (int index, const String& newName)
+{
+}
+
+void PaulstretchpluginAudioProcessor::parameterValueChanged(int parameterIndex, float newValue)
+{
+	if (parameterIndex >= cpi_enable_spec_module0 && parameterIndex <= cpi_enable_spec_module8)
+	{
+		m_stretch_source->setSpectralModuleEnabled(parameterIndex - cpi_enable_spec_module0, newValue >= 0.5);
+	}
+}
+
+void PaulstretchpluginAudioProcessor::parameterGestureChanged(int parameterIndex, bool gestureIsStarting)
 {
 }
 
@@ -663,7 +677,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_free_filter_envelope->m_transform_y_random_rate = *getIntParameter(cpi_freefilter_randomy_rate);
 	m_free_filter_envelope->m_transform_y_random_amount = *getFloatParameter(cpi_freefilter_randomy_amount);
 
-	m_stretch_source->setSpectralModulesEnabled(m_sm_enab_pars);
+	//m_stretch_source->setSpectralModulesEnabled(m_sm_enab_pars);
 
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));

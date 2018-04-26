@@ -115,7 +115,7 @@ public:
 class PaulstretchpluginAudioProcessorEditor;
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
-	public MultiTimer, public VSTCallbackHandler
+	public MultiTimer, public VSTCallbackHandler, public AudioProcessorParameter::Listener
 {
 public:
 	using EditorType = PaulstretchpluginAudioProcessorEditor;
@@ -151,6 +151,9 @@ public:
     void setCurrentProgram (int index) override;
     const String getProgramName (int index) override;
     void changeProgramName (int index, const String& newName) override;
+
+	void parameterValueChanged(int parameterIndex, float newValue) override;
+	void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
 
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
