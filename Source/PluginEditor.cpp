@@ -95,13 +95,10 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 			i == cpi_freefilter_tilty || i == cpi_freefilter_randomy_amount || i == cpi_freefilter_randomy_numbands
 			|| i == cpi_freefilter_randomy_rate)
 			group_id = 7;
-		
-		
 		m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
 		m_parcomps.back()->m_group_id = group_id;
-		if (group_id>=-1)
+		if (group_id >= -1)
 			addAndMakeVisible(m_parcomps.back().get());
-		
 	}
 	
 	//addAndMakeVisible(&m_specvis);
@@ -138,10 +135,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	{
 		for (int i = 0; i < m_parcomps.size(); ++i)
 		{
-			if (m_parcomps[i]->m_group_id == id)
-				m_parcomps[i]->setHighLighted(true);
-			else
-				m_parcomps[i]->setHighLighted(false);
+			if (m_parcomps[i] != nullptr)
+			{
+				if (m_parcomps[i]->m_group_id == id)
+					m_parcomps[i]->setHighLighted(true);
+				else
+					m_parcomps[i]->setHighLighted(false);
+			}
 		}
 	};
 	m_spec_order_ed.ModuleOrderOrEnabledChangedCallback = [this]()
@@ -373,7 +373,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 	{
 		for (int i = 0; i < m_parcomps.size(); ++i)
 		{
-			m_parcomps[i]->updateComponent();
+			if (m_parcomps[i]!=nullptr)
+				m_parcomps[i]->updateComponent();
 		}
 		if (processor.isRecordingEnabled())
 		{
@@ -1445,6 +1446,7 @@ void RatioMixerEditor::resized()
 
 void RatioMixerEditor::timerCallback()
 {
+	jassert(GetParameterValue != false);
 	for (int i = 0; i < m_ratio_level_sliders.size(); ++i)
 	{
 		double v = GetParameterValue(0, i);
