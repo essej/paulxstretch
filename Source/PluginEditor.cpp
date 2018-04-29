@@ -95,10 +95,17 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 			i == cpi_freefilter_tilty || i == cpi_freefilter_randomy_amount || i == cpi_freefilter_randomy_numbands
 			|| i == cpi_freefilter_randomy_rate)
 			group_id = 7;
-		m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
-		m_parcomps.back()->m_group_id = group_id;
 		if (group_id >= -1)
-			addAndMakeVisible(m_parcomps.back().get());
+		{
+			m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
+			m_parcomps.back()->m_group_id = group_id;
+			if (group_id >= -1)
+				addAndMakeVisible(m_parcomps.back().get());
+		}
+		else
+		{
+			m_parcomps.push_back(nullptr);
+		}
 	}
 	
 	//addAndMakeVisible(&m_specvis);
@@ -1446,7 +1453,8 @@ void RatioMixerEditor::resized()
 
 void RatioMixerEditor::timerCallback()
 {
-	jassert(GetParameterValue != false);
+	if (!GetParameterValue)
+		return;
 	for (int i = 0; i < m_ratio_level_sliders.size(); ++i)
 	{
 		double v = GetParameterValue(0, i);
