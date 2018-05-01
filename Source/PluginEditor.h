@@ -104,12 +104,13 @@ private:
 	Colour m_labeldefcolor;
 };
 
-class PerfMeterComponent : public Component
+class PerfMeterComponent : public Component, public Timer
 {
 public:
 	PerfMeterComponent(PaulstretchpluginAudioProcessor* p);
 	void paint(Graphics& g) override;
 	void mouseDown(const MouseEvent& ev) override;
+	void timerCallback() override;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
 private:
     ColourGradient m_gradient;

@@ -411,7 +411,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		if (processor.m_offline_render_state >= 0 && processor.m_offline_render_state <= 100)
 			infotext += String(processor.m_offline_render_state)+"%";
 		m_info_label.setText(infotext, dontSendNotification);
-		m_perfmeter.repaint();
+		
 	}
 	if (id == 2)
 	{
@@ -1277,6 +1277,7 @@ PerfMeterComponent::PerfMeterComponent(PaulstretchpluginAudioProcessor * p)
     m_gradient.addColour(0.0, Colours::red);
     m_gradient.addColour(0.25, Colours::yellow);
     m_gradient.addColour(1.0, Colours::green);
+	startTimer(30);
 }
 
 void PerfMeterComponent::paint(Graphics & g)
@@ -1316,6 +1317,11 @@ void PerfMeterComponent::mouseDown(const MouseEvent & ev)
 		if (r > 100)
 			m_proc->setPreBufferAmount(r - 100);
 	}
+}
+
+void PerfMeterComponent::timerCallback()
+{
+	repaint();
 }
 
 void zoom_scrollbar::mouseDown(const MouseEvent &e)
