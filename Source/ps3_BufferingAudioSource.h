@@ -1,25 +1,28 @@
 /*
-  ==============================================================================
+==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+This file is part of the JUCE library.
+Copyright (c) 2017 - ROLI Ltd.
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+JUCE is an open source library subject to commercial or open-source
+licensing.
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+The code included in this file is provided under the terms of the ISC license
+http://www.isc.org/downloads/software-support-policy/isc-license. Permission
+To use, copy, modify, and/or distribute this software for any purpose with or
+without fee is hereby granted provided that the above copyright notice and
+this permission notice appear in all copies.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
+EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
+DISCLAIMED.
 
-  ==============================================================================
+==============================================================================
 */
 
+#pragma once
+
+#include "../JuceLibraryCode/JuceHeader.h"
 //==============================================================================
 /**
     An AudioSource which takes another source as input, and buffers it using a thread.
@@ -29,11 +32,10 @@
     directly, or use it indirectly using an AudioTransportSource.
 
     @see PositionableAudioSource, AudioTransportSource
+
+    @tags{Audio}
 */
-
-#include "../JuceLibraryCode/JuceHeader.h"
-
-class MyBufferingAudioSource  : public PositionableAudioSource,
+class JUCE_API  MyBufferingAudioSource  : public PositionableAudioSource,
                                         private TimeSliceClient
 {
 public:
@@ -104,9 +106,9 @@ private:
     AudioBuffer<float> buffer;
     CriticalSection bufferStartPosLock;
     WaitableEvent bufferReadyEvent;
-    int64 volatile bufferValidStart, bufferValidEnd, nextPlayPos;
-    double volatile sampleRate;
-    bool wasSourceLooping, isPrepared, prefillBuffer;
+    std::atomic<int64> bufferValidStart { 0 }, bufferValidEnd { 0 }, nextPlayPos { 0 };
+    double sampleRate = 0;
+    bool wasSourceLooping = false, isPrepared = false, prefillBuffer;
 
     bool readNextBufferChunk();
     void readBufferSection (int64 start, int length, int bufferOffset);
