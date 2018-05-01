@@ -1277,7 +1277,7 @@ PerfMeterComponent::PerfMeterComponent(PaulstretchpluginAudioProcessor * p)
     m_gradient.addColour(0.0, Colours::red);
     m_gradient.addColour(0.25, Colours::yellow);
     m_gradient.addColour(1.0, Colours::green);
-    
+	m_smoother.setSlope(0.9, 10.0);
 }
 
 void PerfMeterComponent::paint(Graphics & g)
@@ -1285,7 +1285,7 @@ void PerfMeterComponent::paint(Graphics & g)
     m_gradient.point1 = {0.0f,0.0f};
     m_gradient.point2 = {(float)getWidth(),0.0f};
     g.fillAll(Colours::grey);
-	double amt = m_proc->getPreBufferingPercent();
+	double amt = m_smoother.process(m_proc->getPreBufferingPercent());
 	g.setColour(Colours::green);
 	int w = amt * getWidth();
     //g.setGradientFill(m_gradient);

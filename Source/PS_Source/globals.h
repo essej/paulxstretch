@@ -340,3 +340,33 @@ inline void sanitizeTimeRange(double& t0, double& t1)
 }
 
 inline double fractpart(double x) { return x - (int)x; };
+
+class SignalSmoother
+{
+public:
+	SignalSmoother()
+	{
+		m_a = 0.5;
+		m_slope = m_a;
+		m_b = 1.0 - m_a;
+		m_z = 0;
+	}
+	inline double process(double in)
+	{
+		double result = in + m_a * (m_z - in);
+		m_z = result;
+		return result; 
+	}
+	void setSlope(double x, double sr)
+	{
+		m_slope = x;
+		double srCompensate = srCompensate = sr / 100.0;
+		double compensated_a = powf(x, (1.0 / srCompensate));
+		m_a = compensated_a;
+		m_b = 1.0 - m_a;
+	}
+	double slope() const { return m_slope; }
+private:
+	double m_a, m_b, m_z;
+	double m_slope;
+};

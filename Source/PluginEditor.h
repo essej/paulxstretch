@@ -113,6 +113,7 @@ public:
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
 private:
     ColourGradient m_gradient;
+	SignalSmoother m_smoother;
 };
 
 class MyThumbCache : public AudioThumbnailCache
