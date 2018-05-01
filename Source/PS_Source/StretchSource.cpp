@@ -204,16 +204,12 @@ void StretchAudioSource::setSpectralModulesEnabled(const std::array<AudioParamet
 	}
 }
 #endif
+
 void StretchAudioSource::setSpectralModuleEnabled(int index, bool b)
 {
-	Logger::writeToLog(String(index));
-	ScopedLock locker(m_cs);
-	for (int i = 0; i < m_stretchers.size(); ++i)
-	{
-		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
-	}
 	++m_param_change_count;
 }
+
 void StretchAudioSource::setLoopXFadeLength(double lenseconds)
 {
 	if (lenseconds == m_loopxfadelen)
