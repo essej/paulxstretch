@@ -639,7 +639,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	double srtemp = getSampleRate();
 	if (srtemp != m_cur_sr)
 		m_cur_sr = srtemp;
-    const int totalNumInputChannels  = getTotalNumInputChannels();
+	m_prebufsmoother.setSlope(0.9, srtemp / buffer.getNumSamples());
+	m_smoothed_prebuffer_ready = m_prebufsmoother.process(m_buffering_source->getPercentReady());
+	const int totalNumInputChannels  = getTotalNumInputChannels();
     const int totalNumOutputChannels = getTotalNumOutputChannels();
 	for (int i = 0; i < totalNumInputChannels; ++i)
 		m_input_buffer.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
@@ -822,7 +824,7 @@ double PaulstretchpluginAudioProcessor::getPreBufferingPercent()
 {
 	if (m_buffering_source==nullptr)
 		return 0.0;
-	return m_buffering_source->getPercentReady();
+	return m_smoothed_prebuffer_ready;
 }
 
 void PaulstretchpluginAudioProcessor::timerCallback(int id)

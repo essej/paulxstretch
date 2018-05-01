@@ -235,7 +235,8 @@ private:
 	std::unique_ptr<MyBufferingAudioSource> m_buffering_source;
 	int m_prebuffer_amount = 1;
 	bool m_recreate_buffering_source = true;
-	
+	double m_smoothed_prebuffer_ready = 0.0;
+	SignalSmoother m_prebufsmoother;
 	int m_fft_size_to_use = 1024;
 	double m_last_outpos_pos = 0.0;
 	double m_last_in_pos = 0.0;

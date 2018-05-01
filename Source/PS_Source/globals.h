@@ -359,14 +359,20 @@ public:
 	}
 	void setSlope(double x, double sr)
 	{
-		m_slope = x;
-		double srCompensate = srCompensate = sr / 100.0;
-		double compensated_a = powf(x, (1.0 / srCompensate));
-		m_a = compensated_a;
-		m_b = 1.0 - m_a;
+		if (x != m_slope || sr != m_sr)
+		{
+			m_slope = x;
+			m_sr = sr;
+			double srCompensate = srCompensate = sr / 100.0;
+			double compensated_a = powf(x, (1.0 / srCompensate));
+			m_a = compensated_a;
+			m_b = 1.0 - m_a;
+		}
 	}
-	double slope() const { return m_slope; }
+	double getSlope() const { return m_slope; }
+	double getSamplerate() const { return m_sr; }
 private:
 	double m_a, m_b, m_z;
 	double m_slope;
+	double m_sr = 0.0;
 };
