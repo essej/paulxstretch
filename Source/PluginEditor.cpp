@@ -1451,7 +1451,7 @@ void RatioMixerEditor::resized()
 	int slidw = getWidth() / nsliders;
 	for (int i = 0; i < nsliders; ++i)
 	{
-		m_ratio_level_sliders[i]->setBounds(slidw/2+slidw * i-10, 1, 20, getHeight() - 50);
+		m_ratio_level_sliders[i]->setBounds(slidw/2+slidw * i-10, 15, 20, getHeight() - 55);
 		m_ratio_sliders[i]->setBounds(slidw * i, getHeight() - 48, slidw - 5, 47);
 	}
 }
@@ -1474,4 +1474,9 @@ void RatioMixerEditor::timerCallback()
 void RatioMixerEditor::paint(Graphics & g)
 {
 	g.fillAll(Colours::grey);
+	g.setColour(Colours::white);
+	int nsliders = m_ratio_sliders.size();
+	int slidw = getWidth() / nsliders;
+	for (int i = 0; i < 8; ++i)
+		g.drawText(String(i + 1), slidw / 2 + slidw * i - 8, 1, 15, 15, Justification::centred);
 }
