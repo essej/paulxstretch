@@ -7,7 +7,7 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.2 license.
 
 History :
-05-01-2018 1.1.3
+05-03-2018 1.2.0
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
 	 Octaves module and allows changing the pitch ratios (and the shifters mix) 
 	 in a separate tabbed page in the GUI.
