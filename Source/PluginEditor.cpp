@@ -21,6 +21,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include <array>
+#include "RenderSettingsComponent.h"
 
 extern String g_plugintitle;
 
@@ -246,6 +247,9 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
+	auto content = new RenderSettingsComponent(&processor);
+	CallOutBox& myBox
+		= CallOutBox::launchAsynchronously(content, getScreenBounds(), nullptr);
 }
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)

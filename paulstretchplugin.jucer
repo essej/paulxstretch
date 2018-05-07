@@ -14,6 +14,8 @@
               jucerVersion="5.3.1" headerPath="&#10;&#10;" pluginFormats="buildVST,buildAU,buildStandalone">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
+      <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
+            file="Source/RenderSettingsComponent.cpp"/>
       <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
             file="Source/envelope_component.cpp"/>
       <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
