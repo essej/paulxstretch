@@ -1003,20 +1003,7 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 		juce::Rectangle<int> r(box_w*m_cur_index, 1, 12, 12);
 		if (r.contains(ev.x, ev.y))
 		{
-			for (int i = 0; i < m_order.size(); ++i)
-			{
-				if (m_order[i].m_index == m_cur_index)
-				{
-					//Logger::writeToLog("SpectralChainEditor::mouseDown "+m_order[i].m_enabled->name);
-					
-					//return;
-				}
-			}
 			toggleBool(m_order[m_cur_index].m_enabled);
-			Logger::writeToLog("SpectralChainEditor::mouseDown " + m_order[m_cur_index].m_enabled->name);
-			//m_src->setSpectrumProcessOrder(m_order);
-			//if (ModuleOrderOrEnabledChangedCallback)
-			//	ModuleOrderOrEnabledChangedCallback();
 			repaint();
             return;
 		}
