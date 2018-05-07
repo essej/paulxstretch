@@ -55,6 +55,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_settings_button.setButtonText("Settings...");
 	m_settings_button.onClick = [this]() { showSettingsMenu(); };
 	
+	if (processor.wrapperType == AudioProcessor::wrapperType_Standalone)
+	{
+		addAndMakeVisible(&m_render_button);
+		m_render_button.setButtonText("Render...");
+		m_render_button.onClick = [this]() { showRenderDialog(); };
+	}
+
 	addAndMakeVisible(&m_info_label);
 	m_info_label.setJustificationType(Justification::centredRight);
 
@@ -237,6 +244,10 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 {
 }
 
+void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
+{
+}
+
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
 	g.fillAll(Colours::darkgrey);
@@ -248,12 +259,19 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_import_button.changeWidthToFitText();
 	m_settings_button.setBounds(m_import_button.getRight() + 1, 1, 60, 24);
 	m_settings_button.changeWidthToFitText();
-	m_perfmeter.setBounds(m_settings_button.getRight() + 1, 1, 150, 24);
+	int yoffs = m_settings_button.getRight() + 1;
+	if (processor.wrapperType == AudioProcessor::wrapperType_Standalone)
+	{
+		m_render_button.setBounds(yoffs, 1, 60, 24);
+		m_render_button.changeWidthToFitText();
+		yoffs = m_render_button.getRight() + 1;
+	}
+	m_perfmeter.setBounds(yoffs, 1, 150, 24);
 	m_info_label.setBounds(m_perfmeter.getRight() + 1, m_settings_button.getY(),
 		getWidth()- m_perfmeter.getRight()-1, 24);
 	int w = getWidth();
 	int xoffs = 1;
-	int yoffs = 30;
+	yoffs = 30;
 	int div = w / 5;
 	//std::vector<std::vector<int>> layout;
 	//layout.emplace_back(cpi_capture_enabled,	cpi_passthrough,	cpi_pause_enabled,	cpi_freeze);
@@ -490,16 +508,12 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	for (int i=0;i<capturelens.size();++i)
 		capturelenmenu.addItem(200+i, String(capturelens[i])+" seconds", true, capturelen == capturelens[i]);
 	menu.addSubMenu("Capture buffer length", capturelenmenu);
+	
 	menu.addItem(3, "About...", true, false);
 #ifdef JUCE_DEBUG
 	menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
-	/*
-	if (processor.m_offline_render_state==-1 || processor.m_offline_render_state == 200)
-		menu.addItem(8, "Offline render...", true, false);
-	else menu.addItem(9, "Cancel render", true, false);
-	*/
 	int r = menu.show();
 	if (r >= 200 && r < 210)
 	{
@@ -557,18 +571,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 		toggleBool(processor.m_show_technical_info);
 		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
 	}
-	if (r == 8)
-	{
-#ifdef JUCE_WINDOWS
-        processor.offlineRender(File("C:\\MusicAudio\\sourcesamples\\paultesmaus\\plugin_offline_test\\out.wav"));
-#else
-        processor.offlineRender(File("/Users/teemu/AudioProjects/sourcesamples/paultests/pspout.wav"));
-#endif
-	}
-	if (r == 9)
-	{
-		processor.m_offline_render_cancel_requested = true;
-	}
+	
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb)
