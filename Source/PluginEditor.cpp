@@ -248,8 +248,8 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
 	auto content = new RenderSettingsComponent(&processor);
-	CallOutBox& myBox
-		= CallOutBox::launchAsynchronously(content, getScreenBounds(), nullptr);
+	content->setSize(content->getWidth(), content->getPreferredHeight());
+	CallOutBox& myBox = CallOutBox::launchAsynchronously(content, m_render_button.getBounds(), this);
 }
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
