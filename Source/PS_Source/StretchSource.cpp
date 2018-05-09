@@ -472,6 +472,7 @@ String StretchAudioSource::setAudioFile(File file)
 	if (m_inputfile->openAudioFile(file))
 	{
 		m_curfile = file;
+		m_firstbuffer = true;
 		return String();
 	}
 	return "Could not open file";
