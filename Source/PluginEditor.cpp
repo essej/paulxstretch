@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (C) 2006-2011 Nasca Octavian Paul
 Author: Nasca Octavian Paul
 
@@ -62,6 +62,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		m_render_button.setButtonText("Render...");
 		m_render_button.onClick = [this]() { showRenderDialog(); };
 	}
+
+	addAndMakeVisible(m_rewind_button);
+	m_rewind_button.setButtonText("<<");
+	m_rewind_button.onClick = [this]() 
+	{
+		processor.getStretchSource()->seekPercent(processor.getStretchSource()->getPlayRange().getStart());
+	};
 
 	addAndMakeVisible(&m_info_label);
 	m_info_label.setJustificationType(Justification::centredRight);
@@ -270,6 +277,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 		m_render_button.changeWidthToFitText();
 		yoffs = m_render_button.getRight() + 1;
 	}
+	m_rewind_button.setBounds(yoffs, 1, 30, 24);
+	yoffs = m_rewind_button.getRight() + 1;
 	m_perfmeter.setBounds(yoffs, 1, 150, 24);
 	m_info_label.setBounds(m_perfmeter.getRight() + 1, m_settings_button.getY(),
 		getWidth()- m_perfmeter.getRight()-1, 24);

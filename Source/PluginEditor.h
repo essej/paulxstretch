@@ -250,6 +250,7 @@ private:
 	TextButton m_import_button;
 	TextButton m_settings_button;
 	TextButton m_render_button;
+	TextButton m_rewind_button;
 	Label m_info_label;
 	SpectralChainEditor m_spec_order_ed;
 	
