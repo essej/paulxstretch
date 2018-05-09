@@ -9,6 +9,7 @@ Released under GNU General Public License v.2 license.
 History :
 05-09-2018 1.2.1
 	-Added looping enabled parameter
+	-Added button to rewind to beginning of selected time range
 	-Flush old stretched audio faster when source audio is changed
 05-07-2018 1.2.0
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
