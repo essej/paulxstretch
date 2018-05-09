@@ -142,6 +142,8 @@ void StretchAudioSource::setLoopingEnabled(bool b)
 	ScopedLock locker(m_cs);
 	if (m_inputfile != nullptr)
 	{
+		if (m_inputfile->isLooping() == false && b == true)
+			seekPercent(m_inputfile->getActiveRange().getStart());
 		m_inputfile->setLoopEnabled(b);
 	}
 }

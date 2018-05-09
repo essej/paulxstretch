@@ -87,7 +87,7 @@ const int cpi_octaves_ratio4 = 56;
 const int cpi_octaves_ratio5 = 57;
 const int cpi_octaves_ratio6 = 58;
 const int cpi_octaves_ratio7 = 59;
-
+const int cpi_looping_enabled = 60;
 
 class MyPropertiesFile
 {

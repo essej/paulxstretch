@@ -174,6 +174,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 			1.0)); 
 	}
 
+	addParameter(new AudioParameterBool("loop_enabled0", "Loop", true)); // 60
+
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -681,6 +683,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_free_filter_envelope->m_transform_y_random_amount = *getFloatParameter(cpi_freefilter_randomy_amount);
 
 	//m_stretch_source->setSpectralModulesEnabled(m_sm_enab_pars);
+
+	if (m_stretch_source->isLoopEnabled() != *getBoolParameter(cpi_looping_enabled))
+		m_stretch_source->setLoopingEnabled(*getBoolParameter(cpi_looping_enabled));
 
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
