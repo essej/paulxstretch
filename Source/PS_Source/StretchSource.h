@@ -106,6 +106,7 @@ public:
 	void setPreviewDry(bool b);
 	bool isPreviewingDry() const;
 	int m_param_change_count = 0;
+	double getLastSeekPos() const { return m_seekpos; }
 	CriticalSection* getMutex() { return &m_cs; }
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };

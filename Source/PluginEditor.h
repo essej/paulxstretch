@@ -142,6 +142,7 @@ public:
 	void mouseMove(const MouseEvent& e) override;
 	void mouseDoubleClick(const MouseEvent& e) override;
 	void mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wd) override;
+	void setAudioInfo(double sr, double seekpos, int fftsize);
 	Range<double> getTimeSelection();
 	void setTimeSelection(Range<double> rng);
 	void setFileCachedRange(std::pair<Range<double>, Range<double>> rng);
@@ -165,6 +166,9 @@ private:
 	int getTimeSelectionEdge(int x, int y);
 	std::pair<Range<double>, Range<double>> m_file_cached;
 	bool m_image_dirty = false;
+	double m_sr = 0.0;
+	int m_fft_size = 0;
+	double m_last_startpos = 0.0;
 	Image m_waveimage;
 #ifdef JUCE_MODULE_AVAILABLE_juce_opengl
 	OpenGLContext m_ogl;

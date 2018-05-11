@@ -421,6 +421,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
+		m_wavecomponent.setAudioInfo(processor.getSampleRateChecked(), processor.getStretchSource()->getLastSeekPos(),
+			processor.getStretchSource()->getFFTSize());
 		String infotext; 
 		if (processor.m_show_technical_info)
 		{
@@ -653,6 +655,8 @@ void WaveformComponent::paint(Graphics & g)
 			thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 0.0f, (float)getWidth());
 		g.drawLine(tickxcor, 0.0, tickxcor, (float)m_topmargin, 1.0f);
 	}
+	
+	
 	bool m_use_cached_image = true;
 	if (m_use_cached_image == true)
 	{
@@ -675,6 +679,18 @@ void WaveformComponent::paint(Graphics & g)
 		g.setColour(Colours::darkgrey);
 		m_thumbnail->drawChannels(g, { 0,m_topmargin,getWidth(),getHeight() - m_topmargin },
 			thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 1.0f);
+	}
+	if (m_sr > 0.0 && m_fft_size > 0 && m_time_sel_start>=0.0)
+	{
+		tick_interval = 1.0 / m_sr * m_fft_size;
+		/*
+		for (double secs = m_time_sel_start*thumblen; secs < m_time_sel_end*thumblen; secs += tick_interval)
+		{
+			float tickxcor = (float)jmap<double>(fmod(secs, thumblen),
+				thumblen*m_view_range.getStart(), thumblen*m_view_range.getEnd(), 0.0f, (float)getWidth());
+			g.drawLine(tickxcor, (float)m_topmargin, tickxcor, (float)50, 2.0f);
+		}
+		*/
 	}
 	if (m_is_at_selection_drag_area)
 		g.setColour(Colours::white.withAlpha(0.6f));
@@ -753,7 +769,10 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 	if (e.y < m_topmargin || e.mods.isCommandDown())
 	{
 		if (SeekCallback)
+		{
 			SeekCallback(pos);
+			m_last_startpos = pos;
+		}
 		m_didseek = true;
 	}
 	else
@@ -878,6 +897,13 @@ void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDet
 	m_image_dirty = true;
 	repaint();
 	*/
+}
+
+void WaveformComponent::setAudioInfo(double sr, double seekpos, int fftsize)
+{
+	m_sr = sr;
+	m_fft_size = fftsize;
+	m_last_startpos = seekpos;
 }
 
 Range<double> WaveformComponent::getTimeSelection()
