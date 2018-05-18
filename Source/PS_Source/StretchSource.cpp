@@ -74,10 +74,12 @@ void StretchAudioSource::setSpectrumProcessOrder(std::vector<SpectrumProcess> or
 {
 	ScopedLock locker(m_cs);
 	m_specproc_order = order;
+	/*
 	Logger::writeToLog("<**");
 	for (auto& e : m_specproc_order)
 		Logger::writeToLog(e.m_enabled->name + " " + String(e.m_index));
 	Logger::writeToLog("**>");
+	*/
 	for (int i = 0; i < m_stretchers.size(); ++i)
 	{
 		m_stretchers[i]->m_spectrum_processes = order;
