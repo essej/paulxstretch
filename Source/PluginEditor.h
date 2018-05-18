@@ -119,8 +119,12 @@ private:
 class MyThumbCache : public AudioThumbnailCache
 {
 public:
-	MyThumbCache() : AudioThumbnailCache(200) { /*Logger::writeToLog("Constructed AudioThumbNailCache");*/ }
-	~MyThumbCache() { /*Logger::writeToLog("Destructed AudioThumbNailCache");*/ }
+	MyThumbCache() : AudioThumbnailCache(200) 
+	{ 
+		// The default priority of 2 is a bit too low in some cases, it seems...
+		getTimeSliceThread().setPriority(3);
+	}
+	~MyThumbCache() {}
 };
 
 class WaveformComponent : public Component, public ChangeListener, public Timer

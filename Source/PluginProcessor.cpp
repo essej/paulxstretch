@@ -77,8 +77,6 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();
 	m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
-	// The default priority of 2 is a bit too low in some cases, it seems...
-	m_thumbcache->getTimeSliceThread().setPriority(3);
 	
 	m_sm_enab_pars[0] = new AudioParameterBool("enab_specmodule0", "Enable harmonics", false);
 	m_sm_enab_pars[1] = new AudioParameterBool("enab_specmodule1", "Enable tonal vs noise", false);
