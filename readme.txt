@@ -9,8 +9,9 @@ Released under GNU General Public License v.2 license.
 History :
 05-18-2018 1.2.1
 	-Added looping enabled parameter
-	-Added button to rewind to beginning of selected time range
+	-Added button and parameter to rewind to beginning of selected time range
 	-Flush old stretched audio faster when source audio is changed
+	-Fix time range not being recalled properly when loading host project
 05-07-2018 1.2.0
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
 	 Octaves module and allows changing the pitch ratios (and the shifters mix) 

@@ -156,7 +156,7 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 
 	m_curfile = File();
 	if (m_playrange.isEmpty())
-		setPlayRange({ 0.0,1.0 }, true);
+		setPlayRange({ 0.0,1.0 });
 	++m_param_change_count;
 }
 
@@ -684,6 +684,7 @@ void StretchAudioSource::seekPercent(double pos)
 {
 	ScopedLock locker(m_cs);
 	m_seekpos = pos;
+	//m_firstbuffer = true;
 	//m_resampler->Reset();
 	m_inputfile->seek(pos);
 	++m_param_change_count;
@@ -715,7 +716,7 @@ void StretchAudioSource::setOnsetDetection(double x)
 	}
 }
 
-void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
+void StretchAudioSource::setPlayRange(Range<double> playrange)
 {
 	if (m_playrange.isEmpty() == false && playrange == m_playrange)
 		return;
@@ -727,7 +728,7 @@ void StretchAudioSource::setPlayRange(Range<double> playrange, bool isloop)
 			m_playrange = playrange;
 		m_stream_end_reached = false;
 		m_inputfile->setActiveRange(m_playrange);
-		m_inputfile->setLoopEnabled(isloop);
+		
 		//if (m_playrange.contains(m_seekpos) == false)
 		//	m_inputfile->seek(m_playrange.getStart());
 		m_seekpos = m_playrange.getStart();

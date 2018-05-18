@@ -77,7 +77,7 @@ public:
 	double getOutputDurationSecondsForRange(Range<double> range, int fftsize);
 	
 	void setOnsetDetection(double x);
-	void setPlayRange(Range<double> playrange, bool isloop);
+	void setPlayRange(Range<double> playrange);
 	Range<double> getPlayRange() { return m_playrange; }
 	bool isLoopEnabled();
 	bool hasReachedEnd();

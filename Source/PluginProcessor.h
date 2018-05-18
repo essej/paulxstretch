@@ -88,6 +88,7 @@ const int cpi_octaves_ratio5 = 57;
 const int cpi_octaves_ratio6 = 58;
 const int cpi_octaves_ratio7 = 59;
 const int cpi_looping_enabled = 60;
+const int cpi_rewind = 61;
 
 class MyPropertiesFile
 {
@@ -258,6 +259,7 @@ private:
 	float m_cur_playrangeoffset = 0.0;
 	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
 	std::array<AudioParameterBool*, 9> m_sm_enab_pars;
+	bool m_lastrewind = false;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

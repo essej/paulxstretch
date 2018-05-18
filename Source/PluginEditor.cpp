@@ -67,7 +67,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_rewind_button.setButtonText("<<");
 	m_rewind_button.onClick = [this]() 
 	{
-		processor.getStretchSource()->seekPercent(processor.getStretchSource()->getPlayRange().getStart());
+		*processor.getBoolParameter(cpi_rewind) = true;
+		//processor.getStretchSource()->seekPercent(processor.getStretchSource()->getPlayRange().getStart());
 	};
 
 	addAndMakeVisible(&m_info_label);

@@ -330,6 +330,7 @@ public:
 	void setActiveRange(Range<double> rng) override
 	{
 		std::lock_guard<std::mutex> locker(m_mutex);
+		
 		/*
 		if (rng.contains(getCurrentPositionPercent()))
 		{
@@ -338,7 +339,7 @@ public:
 		}
 		*/
 		m_seekfade.requestedrange = rng;
-		if (m_seekfade.state == 0)
+		//if (m_seekfade.state == 0)
 		{
 			m_seekfade.counter = 0;
 			m_seekfade.state = 1;

@@ -175,6 +175,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	}
 
 	addParameter(new AudioParameterBool("loop_enabled0", "Loop", true)); // 60
+	addParameter(new AudioParameterBool("rewind0", "Rewind", false)); // 61
 
 	auto& pars = getParameters();
 	for (const auto& p : pars)
@@ -392,7 +393,7 @@ void PaulstretchpluginAudioProcessor::setFFTSize(double size)
 
 void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err)
 {
-	m_stretch_source->setPlayRange(playrange, true);
+	m_stretch_source->setPlayRange(playrange);
 	m_stretch_source->setFreeFilterEnvelope(m_free_filter_envelope);
 	int bufamt = m_bufamounts[m_prebuffer_amount];
 
@@ -479,7 +480,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	double t1 = *getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
 	ss->setRate(*getFloatParameter(cpi_stretchamount));
-	ss->setPlayRange({ t0,t1 }, true);
+	ss->setPlayRange({ t0,t1 });
 	ss->setLoopingEnabled(true);
 	ss->setNumOutChannels(numoutchans);
 	ss->setFFTWindowingType(1);
@@ -542,6 +543,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
 	m_input_buffer.setSize(getMainBusNumInputChannels(), samplesPerBlock);
+	*getBoolParameter(cpi_rewind) = false;
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
 		m_prebuffering_inited = false;
@@ -663,6 +665,10 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	}
 	jassert(m_buffering_source != nullptr);
 	jassert(m_bufferingthread.isThreadRunning());
+	double t0 = *getFloatParameter(cpi_soundstart);
+	double t1 = *getFloatParameter(cpi_soundend);
+	sanitizeTimeRange(t0, t1);
+	m_stretch_source->setPlayRange({ t0,t1 });
 	if (m_last_host_playing == false && m_playposinfo.isPlaying)
 	{
 		m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
@@ -686,6 +692,16 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 
 	if (m_stretch_source->isLoopEnabled() != *getBoolParameter(cpi_looping_enabled))
 		m_stretch_source->setLoopingEnabled(*getBoolParameter(cpi_looping_enabled));
+	bool rew = *getBoolParameter(cpi_rewind);
+	if (rew !=m_lastrewind)
+	{
+		if (rew == true)
+		{
+			*getBoolParameter(cpi_rewind) = false;
+			m_stretch_source->seekPercent(m_stretch_source->getPlayRange().getStart());
+		}
+		m_lastrewind = rew;
+	}
 
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
@@ -696,11 +712,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 
 	m_stretch_source->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
 	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
-	double t0 = *getFloatParameter(cpi_soundstart);
-	double t1 = *getFloatParameter(cpi_soundend);
-	sanitizeTimeRange(t0, t1);
-
-	m_stretch_source->setPlayRange({ t0,t1 }, true);
+	
+	
+	
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
 	m_stretch_source->setProcessParameters(&m_ppar);
@@ -902,7 +916,7 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
-	m_stretch_source->setPlayRange({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) }, true);
+	m_stretch_source->setPlayRange({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) });
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
