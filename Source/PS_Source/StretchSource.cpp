@@ -65,6 +65,13 @@ bool StretchAudioSource::isResampling()
     return (int)m_outsr!=m_inputfile->info.samplerate;
 }
 
+int64_t StretchAudioSource::getDiskReadSampleCount() const
+{
+	if (m_inputfile == nullptr)
+		return 0;
+	return m_inputfile->getDiskReadSampleCount();
+}
+
 std::vector<SpectrumProcess> StretchAudioSource::getSpectrumProcessOrder()
 {
 	return m_specproc_order;

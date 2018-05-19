@@ -81,12 +81,13 @@ public:
 		return m_currentsample >= info.nsamples*m_activerange.getEnd();
 	}
     virtual AudioBuffer<float>* getAudioBuffer()=0;
+	int64_t getDiskReadSampleCount() { return m_disk_read_count; }
 protected:
 	volatile int64_t m_currentsample = 0;
 	int m_silenceoutputted = 0;
 	bool m_loop_enabled = false;
 	Range<double> m_activerange{ 0.0,1.0 };
-	
+	int64_t m_disk_read_count = 0;
 private:
 	int skipbufsize;
 	AudioBuffer<float> skipbuf;

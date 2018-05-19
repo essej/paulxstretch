@@ -82,6 +82,7 @@ public:
 	bool isLoopEnabled();
 	bool hasReachedEnd();
     bool isResampling();
+	int64_t getDiskReadSampleCount() const;
 	std::vector<SpectrumProcess> getSpectrumProcessOrder();
 	void setSpectrumProcessOrder(std::vector<SpectrumProcess> order);
 	void setFFTWindowingType(int windowtype);

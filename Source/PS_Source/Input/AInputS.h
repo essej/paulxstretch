@@ -41,7 +41,7 @@ class AInputS final : public InputS
 public:
     AInputS(AudioFormatManager* mana) : m_manager(mana)
 	{
-		m_readbuf.setSize(2, 65536*2);
+		m_readbuf.setSize(2, 65536*8);
 		m_readbuf.clear();
 		m_crossfadebuf.setSize(2, 44100);
 		m_crossfadebuf.clear();
@@ -142,7 +142,8 @@ public:
                 Range<int64_t> possiblerange(pos, pos + m_readbuf.getNumSamples() + 0);
                 m_cached_file_range = activerange.getIntersectionWith(possiblerange);
                 m_afreader->read(&m_readbuf, 0, (int)m_cached_file_range.getLength(), pos, true, true);
-                return m_readbuf.getSample(ch, int(pos - m_cached_file_range.getStart()));
+				m_disk_read_count += m_cached_file_range.getLength()*m_afreader->numChannels;
+				return m_readbuf.getSample(ch, int(pos - m_cached_file_range.getStart()));
             }
         };
 		auto getCrossFadedSampleLambda=[this,&getSampleLambda](int64_t playpos, int chan, int64_t subt0, int64_t subt1, int xfadelen)
