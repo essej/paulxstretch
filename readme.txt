@@ -7,10 +7,11 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.2 license.
 
 History :
-05-18-2018 1.2.1
+05-19-2018 1.2.1
 	-Added looping enabled parameter
 	-Added button and parameter to rewind to beginning of selected time range
 	-Flush old stretched audio faster when source audio is changed
+	-Increase disk read buffer size
 	-Fix time range not being recalled properly when loading host project
 05-07-2018 1.2.0
 	-Changed "Octaves" module to "Ratios". The Ratios module has more shifters than the previous 
