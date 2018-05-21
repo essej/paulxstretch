@@ -36,6 +36,8 @@ inline double ramp(int64_t pos, int64_t totallen, int64_t rampinlen, int64_t ram
 	return 1.0;
 }
 
+using LockGuard = std::lock_guard<std::recursive_mutex>;
+
 class AInputS final : public InputS
 {
 public:
@@ -51,7 +53,7 @@ public:
 
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 	{
-        std::lock_guard<std::mutex> locker(m_mutex);
+		LockGuard locker(m_mutex);
         m_afreader = nullptr;
 		m_using_memory_buffer = true;
 		m_readbuf = *buf;
@@ -77,7 +79,7 @@ public:
 		AudioFormatReader* reader = m_manager->createReaderFor(file);
         if (reader)
         {
-			std::lock_guard<std::mutex> locker(m_mutex);
+			LockGuard locker(m_mutex);
             m_using_memory_buffer = false;
 			m_afreader = std::unique_ptr<AudioFormatReader>(reader);
 			if (m_activerange.isEmpty())
@@ -107,7 +109,7 @@ public:
     }
 	int readNextBlock(AudioBuffer<float>& abuf, int nsmps, int numchans) override
 	{
-		std::lock_guard<std::mutex> locker(m_mutex);
+		LockGuard locker(m_mutex);
         if (m_afreader == nullptr && m_using_memory_buffer == false)
         {
             jassert(false);
@@ -281,9 +283,9 @@ public:
 	}
 	void seek(double pos) override //0=start,1.0=end
     {
-		seekImpl(pos);
-		/*
-		std::lock_guard<std::mutex> locker(m_mutex);
+		//seekImpl(pos);
+		
+		LockGuard locker(m_mutex);
 		if (m_seekfade.state == 0)
 		{
 			m_seekfade.state = 1;
@@ -291,7 +293,7 @@ public:
 		}
 		m_seekfade.length = 16384;
 		m_seekfade.requestedpos = pos;
-		*/
+		
 	}
 
 	std::pair<Range<double>,Range<double>> getCachedRangesNormalized()
@@ -330,7 +332,7 @@ public:
 	}
 	void setActiveRange(Range<double> rng) override
 	{
-		std::lock_guard<std::mutex> locker(m_mutex);
+		LockGuard locker(m_mutex);
 		
 		/*
 		if (rng.contains(getCurrentPositionPercent()))
@@ -393,7 +395,7 @@ private:
 	int64_t m_loopcount = 0;
 	bool m_using_memory_buffer = true;
 	AudioFormatManager* m_manager = nullptr;
-    std::mutex m_mutex;
+    std::recursive_mutex m_mutex;
 	struct
 	{
 		int state = 0; // 0 inactive, 1 seek requested, 2 fade out, 3 fade in
