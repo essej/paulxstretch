@@ -342,7 +342,7 @@ public:
 		}
 		*/
 		m_seekfade.requestedrange = rng;
-		//if (m_seekfade.state == 0)
+		if (m_seekfade.state == 0)
 		{
 			m_seekfade.counter = 0;
 			m_seekfade.state = 1;

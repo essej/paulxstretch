@@ -7,7 +7,7 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.2 license.
 
 History :
-05-19-2018 1.2.1
+05-21-2018 1.2.1
 	-Added looping enabled parameter
 	-Added button and parameter to rewind to beginning of selected time range
 	-Flush old stretched audio faster when source audio is changed
