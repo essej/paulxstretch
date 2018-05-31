@@ -149,7 +149,9 @@ public:
 		auto getCrossFadedSampleLambda=[this,&getSampleLambda](int64_t playpos, int chan, int64_t subt0, int64_t subt1, int xfadelen)
 		{
 			if (m_loop_enabled == false && playpos >= subt1)
+			{
 				return 0.0f;
+			}
 			if (playpos >= subt0 && playpos <= subt1 - xfadelen)
 				return getSampleLambda(playpos, chan);
 			if (playpos > (subt1 - xfadelen) && playpos<subt1)
