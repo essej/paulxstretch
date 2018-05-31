@@ -177,7 +177,7 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
     }
     else if (buttonThatWasClicked == &buttonSelectFile)
     {
-		File lastexportfolder = ""; // File(g_propsfile->getValue("last_export_file")).getParentDirectory();
+		File lastexportfolder; // File(g_propsfile->getValue("last_export_file")).getParentDirectory();
 		FileChooser myChooser("Please select audio file to render...",
 			lastexportfolder,
 			"*.wav");
