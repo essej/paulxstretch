@@ -629,7 +629,10 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioBuffer<double>& buffer,
 
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
+	
 	ScopedLock locker(m_cs);
+	const int totalNumInputChannels = getTotalNumInputChannels();
+	const int totalNumOutputChannels = getTotalNumOutputChannels();
 	AudioPlayHead* phead = getPlayHead();
 	if (phead != nullptr)
 	{
@@ -643,8 +646,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_cur_sr = srtemp;
 	m_prebufsmoother.setSlope(0.9, srtemp / buffer.getNumSamples());
 	m_smoothed_prebuffer_ready = m_prebufsmoother.process(m_buffering_source->getPercentReady());
-	const int totalNumInputChannels  = getTotalNumInputChannels();
-    const int totalNumOutputChannels = getTotalNumOutputChannels();
+	
 	for (int i = 0; i < totalNumInputChannels; ++i)
 		m_input_buffer.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
