@@ -36,8 +36,6 @@ inline double ramp(int64_t pos, int64_t totallen, int64_t rampinlen, int64_t ram
 	return 1.0;
 }
 
-using LockGuard = std::lock_guard<std::recursive_mutex>;
-
 class AInputS final : public InputS
 {
 public:
@@ -53,7 +51,7 @@ public:
 
 	void setAudioBuffer(AudioBuffer<float>* buf, int samplerate, int len)
 	{
-		LockGuard locker(m_mutex);
+		ScopedLock locker(m_mutex);
         m_afreader = nullptr;
 		m_using_memory_buffer = true;
 		m_readbuf = *buf;
@@ -64,7 +62,7 @@ public:
 		m_loop_enabled = true;
 		m_crossfadebuf.setSize(info.nchannels, m_crossfadebuf.getNumSamples());
 		m_cached_file_range = { 0,len };
-		seek(m_activerange.getStart());
+		seek(m_activerange.getStart(), true);
 		updateXFadeCache();
 	}
     virtual AudioBuffer<float>* getAudioBuffer() override
@@ -79,7 +77,7 @@ public:
 		AudioFormatReader* reader = m_manager->createReaderFor(file);
         if (reader)
         {
-			LockGuard locker(m_mutex);
+			ScopedLock locker(m_mutex);
             m_using_memory_buffer = false;
 			m_afreader = std::unique_ptr<AudioFormatReader>(reader);
 			if (m_activerange.isEmpty())
@@ -109,7 +107,7 @@ public:
     }
 	int readNextBlock(AudioBuffer<float>& abuf, int nsmps, int numchans) override
 	{
-		LockGuard locker(m_mutex);
+		ScopedLock locker(m_mutex);
         if (m_afreader == nullptr && m_using_memory_buffer == false)
         {
             jassert(false);
@@ -281,11 +279,14 @@ public:
 		updateXFadeCache();
 		//m_cached_crossfade_range = Range<int64_t>();
 	}
-	void seek(double pos) override //0=start,1.0=end
+	void seek(double pos, bool immediate) override //0=start,1.0=end
     {
-		//seekImpl(pos);
-		
-		LockGuard locker(m_mutex);
+		ScopedLock locker(m_mutex);
+		if (immediate == true)
+		{
+			seekImpl(pos);
+			return;
+		}
 		if (m_seekfade.state == 0)
 		{
 			m_seekfade.state = 1;
@@ -332,7 +333,7 @@ public:
 	}
 	void setActiveRange(Range<double> rng) override
 	{
-		LockGuard locker(m_mutex);
+		ScopedLock locker(m_mutex);
 		
 		/*
 		if (rng.contains(getCurrentPositionPercent()))
@@ -395,7 +396,7 @@ private:
 	int64_t m_loopcount = 0;
 	bool m_using_memory_buffer = true;
 	AudioFormatManager* m_manager = nullptr;
-    std::recursive_mutex m_mutex;
+    CriticalSection m_mutex;
 	struct
 	{
 		int state = 0; // 0 inactive, 1 seek requested, 2 fade out, 3 fade in

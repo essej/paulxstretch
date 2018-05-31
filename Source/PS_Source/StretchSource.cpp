@@ -505,7 +505,7 @@ void StretchAudioSource::initObjects()
 	ScopedLock locker(m_cs);
 	m_inputfile->setActiveRange(m_playrange);
 	if (m_inputfile->getActiveRange().contains(m_inputfile->getCurrentPositionPercent())==false)
-		m_inputfile->seek(m_playrange.getStart());
+		m_inputfile->seek(m_playrange.getStart(), true);
 	
 	m_firstbuffer = true;
 	if (m_stretchoutringbuf.getSize() < m_num_outchans*m_process_fftsize)
@@ -695,7 +695,7 @@ void StretchAudioSource::seekPercent(double pos)
 	m_seekpos = pos;
 	//m_firstbuffer = true;
 	//m_resampler->Reset();
-	m_inputfile->seek(pos);
+	m_inputfile->seek(pos, true);
 	++m_param_change_count;
 }
 

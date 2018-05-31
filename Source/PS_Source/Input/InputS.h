@@ -50,7 +50,7 @@ public:
 				nsmps-=readsize;
 			};
 		};
-		virtual void seek(double pos)=0;//0=start,1.0=end
+		virtual void seek(double pos, bool immediate)=0;//0=start,1.0=end
 
 		struct {
 			int64_t nsamples=0;

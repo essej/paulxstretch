@@ -542,6 +542,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_curmaxblocksize = samplesPerBlock;
 	m_input_buffer.setSize(getMainBusNumInputChannels(), samplesPerBlock);
 	*getBoolParameter(cpi_rewind) = false;
+	m_lastrewind = false;
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
 		m_prebuffering_inited = false;
@@ -693,7 +694,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	if (m_stretch_source->isLoopEnabled() != *getBoolParameter(cpi_looping_enabled))
 		m_stretch_source->setLoopingEnabled(*getBoolParameter(cpi_looping_enabled));
 	bool rew = *getBoolParameter(cpi_rewind);
-	if (rew !=m_lastrewind)
+	if (rew != m_lastrewind)
 	{
 		if (rew == true)
 		{
