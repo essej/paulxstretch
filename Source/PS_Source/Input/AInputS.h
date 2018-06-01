@@ -41,7 +41,7 @@ class AInputS final : public InputS
 public:
     AInputS(AudioFormatManager* mana) : m_manager(mana)
 	{
-		m_readbuf.setSize(2, 65536*8);
+		m_readbuf.setSize(2, 65536*2);
 		m_readbuf.clear();
 		m_crossfadebuf.setSize(2, 44100);
 		m_crossfadebuf.clear();
@@ -349,6 +349,11 @@ public:
 		{
 			m_seekfade.counter = 0;
 			m_seekfade.state = 1;
+		}
+		else
+		{
+			m_seekfade.state = 0;
+			setActiveRangeImpl(rng);
 		}
 		m_seekfade.length = 2048;
     }

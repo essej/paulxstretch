@@ -727,7 +727,7 @@ void StretchAudioSource::setOnsetDetection(double x)
 
 void StretchAudioSource::setPlayRange(Range<double> playrange)
 {
-	if ((m_playrange.isEmpty() == false && playrange == m_playrange) || playrange==m_inputfile->getActiveRange())
+	if (playrange == m_playrange || playrange == m_inputfile->getActiveRange())
 		return;
 	if (m_cs.tryEnter())
 	{
