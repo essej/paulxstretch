@@ -520,7 +520,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
 	menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
 	menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
-	
+	menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
 	std::vector<int> capturelens{ 2,5,10,30,60,120 };
@@ -546,6 +546,10 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	if (r == 2)
 	{
 		toggleBool(processor.m_capture_when_host_plays);
+	}
+	if (r == 8)
+	{
+		toggleBool(processor.m_mute_while_capturing);
 	}
 	if (r == 4)
 	{

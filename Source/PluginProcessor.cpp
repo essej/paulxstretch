@@ -662,6 +662,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
 		m_thumb->addBlock(m_rec_pos, buffer, 0, buffer.getNumSamples());
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
+		if (m_mute_while_capturing == true)
+			buffer.clear();
 		return;
 	}
 	jassert(m_buffering_source != nullptr);
@@ -728,7 +730,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		m_buffering_source->getNextAudioBlock(aif);
 	}
-	if (getParameter(cpi_passthrough) > 0.5f)
+	if (m_is_recording == false && getParameter(cpi_passthrough) > 0.5f)
 	{
 		for (int i = 0; i < totalNumInputChannels; ++i)
 		{
