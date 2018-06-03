@@ -574,7 +574,7 @@ public:
     double m_transform_y_sinus = 0.0;
     double m_transform_y_sinus_freq = 8.0;
     double m_transform_y_tilt = 0.0;
-	double m_transform_y_random_amount = 0.2;
+	double m_transform_y_random_amount = 0.0;
 	double m_transform_y_random_rate = 2.0;
 	bool m_transform_y_random_linear_interpolation = false;
 	int m_transform_y_random_bands = 32;
