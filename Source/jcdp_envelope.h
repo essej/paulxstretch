@@ -567,7 +567,6 @@ public:
 		}
 		
 	}
-	String m_script;
 	double m_transform_x_shift = 0.0;
 	double m_transform_y_shift = 0.0;
 	double m_transform_y_scale = 1.0;
