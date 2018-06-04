@@ -1,23 +1,18 @@
 /*
-  ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+Copyright (C) 2017 Xenakios
 
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
+This program is free software; you can redistribute it and/or modify
+it under the terms of version 3 of the GNU General Public License
+as published by the Free Software Foundation.
 
-   The code included in this file is provided under the terms of the ISC license
-   http://www.isc.org/downloads/software-support-policy/isc-license. Permission
-   To use, copy, modify, and/or distribute this software for any purpose with or
-   without fee is hereby granted provided that the above copyright notice and
-   this permission notice appear in all copies.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License (version 3) for more details.
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+www.gnu.org/licenses
 
-  ==============================================================================
 */
 
 #include "ps3_BufferingAudioSource.h"
