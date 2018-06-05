@@ -504,7 +504,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	auto rendertask = [ss,writer,blocksize,numoutchans, outsr, this]()
 	{
 		AudioBuffer<float> renderbuffer(numoutchans, blocksize);
-		int64_t outlen = 250 * outsr;
+		int64_t outlen = 10 * outsr;
 		int64_t outcounter = 0;
 		AudioSourceChannelInfo asci(renderbuffer);
 		m_offline_render_state = 0;
@@ -661,6 +661,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
 		m_thumb->addBlock(m_rec_pos, buffer, 0, buffer.getNumSamples());
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
+		m_rec_count += buffer.getNumSamples();
+		if (m_rec_count<recbuflenframes)
+			m_recorded_range = { 0, m_rec_count };
 		if (m_mute_while_capturing == true)
 			buffer.clear();
 		return;
@@ -791,6 +794,8 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 		m_rec_pos = 0;
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);
 		m_is_recording = true;
+		m_recorded_range = Range<int>();
+		m_rec_count = 0;
 	}
 	else
 	{
@@ -918,7 +923,8 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
-	m_stretch_source->setPlayRange({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) });
+	*getFloatParameter(cpi_soundstart) = 0.0f;
+	*getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, 1.0 / lenrecording * m_rec_count);
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

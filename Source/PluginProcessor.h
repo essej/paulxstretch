@@ -222,6 +222,8 @@ private:
 	double m_max_reclen = 10.0;
 	bool m_is_recording = false;
 	int m_rec_pos = 0;
+	int m_rec_count = 0;
+	Range<int> m_recorded_range;
 	void finishRecording(int lenrecorded);
 	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;

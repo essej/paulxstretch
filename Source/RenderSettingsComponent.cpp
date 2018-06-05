@@ -167,6 +167,7 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 			sampleRate = 0;
 		double maxrenderlen = m_editorMaxOutDuration.getText().getDoubleValue()*3600.0;
 		maxrenderlen = jlimit(1.0, 1000000.0, maxrenderlen);
+		m_proc->offlineRender(File(outfileNameEditor.getText()));
 		//m_main->renderToFile(File(outfileNameEditor.getText()),numLoops,
 		//	comboBoxBitDepth.getSelectedId()-1,sampleRate,m_toggleFloatClip.getToggleState(),maxrenderlen);
 		auto pardlg = dynamic_cast<DialogWindow*>(getParentComponent());
