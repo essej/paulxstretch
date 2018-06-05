@@ -467,6 +467,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 	File outputfiletouse = outputfile.getNonexistentSibling();
 	int numoutchans = *getIntParameter(cpi_num_outchans);
 	auto ss = std::make_shared<StretchAudioSource>(numoutchans,m_afm,m_sm_enab_pars);
+	shared_envelope free_env = m_free_filter_envelope->duplicate();
+	ss->setFreeFilterEnvelope(free_env);
 	int blocksize = 2048;
 	
 	ss->setAudioFile(m_current_file);

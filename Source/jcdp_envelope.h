@@ -208,6 +208,15 @@ public:
         m_value_grid={0.0,0.25,0.5,0.75,1.0};
 		m_randbuf.resize(1024);
     }
+	std::unique_ptr<breakpoint_envelope> duplicate()
+	{
+		auto result = std::make_unique<breakpoint_envelope>();
+		result->m_nodes = m_nodes;
+		result->m_randbuf = m_randbuf;
+		result->m_transform_wrap_x = m_transform_wrap_x;
+		result->m_transform_x_shift = m_transform_x_shift;
+		return result;
+	}
 
 
     void SetName(String Name) { m_name=Name; }
