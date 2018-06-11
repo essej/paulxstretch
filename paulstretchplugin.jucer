@@ -4,14 +4,14 @@
               splashScreenColour="Dark" projectType="audioplug" version="1.0.0"
               bundleIdentifier="com.xenakios.paulxstretch" includeBinaryInAppConfig="1"
               cppLanguageStandard="latest" companyCopyright="" buildVST="1"
-              buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
+              buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
               buildStandalone="1" enableIAA="0" pluginName="PaulXStretch" pluginDesc="PaulXStretch"
               pluginManufacturer="Xenakios" pluginManufacturerCode="XenS" pluginCode="Fn1r"
               pluginChannelConfigs="{2,2},{2,4}, {2,8}, {8,8} " pluginIsSynth="0"
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
-              jucerVersion="5.3.2" headerPath="&#10;&#10;" pluginFormats="buildVST,buildAU,buildStandalone">
+              jucerVersion="5.3.2" headerPath="&#10;&#10;" pluginFormats="buildAU,buildStandalone,buildVST,buildVST3">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
@@ -150,5 +150,6 @@
   <JUCEOPTIONS JUCE_QUICKTIME="disabled"/>
   <LIVE_SETTINGS>
     <OSX/>
+    <WINDOWS/>
   </LIVE_SETTINGS>
 </JUCERPROJECT>
