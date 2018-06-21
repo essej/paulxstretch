@@ -15,8 +15,7 @@ www.gnu.org/licenses
 
 */
 
-#ifndef JCDP_ENVELOPE_H
-#define JCDP_ENVELOPE_H
+#pragma once
 
 #include <vector>
 #include <algorithm>
@@ -687,5 +686,3 @@ inline double derivative(const F& f, double x, const Args&... func_args)
 }
 
 using shared_envelope = std::shared_ptr<breakpoint_envelope>;
-
-#endif // JCDP_ENVELOPE_H
