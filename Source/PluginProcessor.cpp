@@ -25,8 +25,6 @@ www.gnu.org/licenses
 #undef max
 #endif
 
-String g_plugintitle{ "PaulXStretch 1.2.2" };
-
 int get_optimized_updown(int n, bool up) {
 	int orig_n = n;
 	while (true) {

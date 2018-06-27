@@ -21,6 +21,8 @@
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 
+const String g_plugintitle{ "PaulXStretch 1.2.2" };
+
 using REALTYPE = float;
 
 using floatvector = std::vector<REALTYPE>;

@@ -21,8 +21,6 @@ www.gnu.org/licenses
 #include <array>
 #include "RenderSettingsComponent.h"
 
-extern String g_plugintitle;
-
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
