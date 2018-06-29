@@ -213,7 +213,7 @@ public:
 		pointer_sized_int value,
 		void* ptr,
 		float opt) override;
-
+	int m_cur_tab_index = 0;
 private:
 	
 	

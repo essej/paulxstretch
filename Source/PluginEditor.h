@@ -246,6 +246,18 @@ private:
 	int m_slidwidth = 400;
 };
 
+class MyTabComponent : public TabbedComponent
+{
+public:
+	MyTabComponent(int& curtab) : TabbedComponent(TabbedButtonBar::TabsAtTop), m_cur_tab(curtab) {}
+	void currentTabChanged(int newCurrentTabIndex, const String&) override
+	{
+		m_cur_tab = newCurrentTabIndex;
+	}
+private:
+	int& m_cur_tab;
+};
+
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {
@@ -280,7 +292,7 @@ private:
 	zoom_scrollbar m_zs;
 	RatioMixerEditor m_ratiomixeditor{ 8 };
 	FreeFilterComponent m_free_filter_component;
-	TabbedComponent m_wavefilter_tab;
+	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

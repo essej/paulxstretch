@@ -26,7 +26,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	: AudioProcessorEditor(&p),
 	m_wavecomponent(p.m_afm,p.m_thumb.get()),
 	processor(p), m_perfmeter(&p),
-    m_wavefilter_tab(TabbedButtonBar::TabsAtTop),
+    m_wavefilter_tab(p.m_cur_tab_index),
 	m_free_filter_component(&p)
 {
 	m_wave_container = new Component;
@@ -443,6 +443,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 		m_spec_order_ed.repaint();
+		//if (m_wavefilter_tab.getCurrentTabIndex() != processor.m_cur_tab_index)
+		//	m_wavefilter_tab.setCurrentTabIndex(processor.m_cur_tab_index, false);
 	}
 }
 
