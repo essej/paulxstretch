@@ -30,13 +30,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_free_filter_component(p.getStretchSource()->getMutex())
 {
 	m_wave_container = new Component;
-    m_free_filter_component.set_envelope(processor.m_free_filter_envelope);
-	m_free_filter_component.TimeFromNormalized = [this](double x) 
+    m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
+	m_free_filter_component.getEnvelopeComponent()->TimeFromNormalized = [this](double x) 
 	{ 
 		//return jmap<double>(pow(x, 3.0), 0.0, 1.0, 30.0, processor.getSampleRateChecked()/2.0);
 		return 30.0*pow(1.05946309436, x*115.0);
 	};
-	m_free_filter_component.ValueFromNormalized = [this](double x)
+	m_free_filter_component.getEnvelopeComponent()->ValueFromNormalized = [this](double x)
 	{
 		return jmap<double>(x, 0.0, 1.0, -48.0, 12.0);
 	};
@@ -1510,4 +1510,14 @@ void RatioMixerEditor::paint(Graphics & g)
 	int slidw = getWidth() / nsliders;
 	for (int i = 0; i < 8; ++i)
 		g.drawText(String(i + 1), slidw / 2 + slidw * i - 8, 1, 15, 15, Justification::centred);
+}
+
+FreeFilterComponent::FreeFilterComponent(CriticalSection* cs) : m_env(cs), m_cs(cs)
+{
+	addAndMakeVisible(m_env);
+}
+
+void FreeFilterComponent::resized()
+{
+	m_env.setBounds(200, 0, getWidth() - 200, getHeight());
 }

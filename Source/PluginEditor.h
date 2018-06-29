@@ -230,6 +230,18 @@ private:
 	uptrvec<Slider> m_ratio_level_sliders;
 };
 
+class FreeFilterComponent : public Component
+{
+public:
+	FreeFilterComponent(CriticalSection* cs);
+	void resized() override;
+	EnvelopeComponent* getEnvelopeComponent() { return &m_env; }
+private:
+	EnvelopeComponent m_env;
+	uptrvec<ParameterComponent> m_parcomps;
+	CriticalSection* m_cs = nullptr;
+};
+
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {
@@ -263,7 +275,7 @@ private:
     String m_last_err;
 	zoom_scrollbar m_zs;
 	RatioMixerEditor m_ratiomixeditor{ 8 };
-	EnvelopeComponent m_free_filter_component;
+	FreeFilterComponent m_free_filter_component;
 	TabbedComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
