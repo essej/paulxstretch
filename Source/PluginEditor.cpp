@@ -247,6 +247,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 {
+	
 }
 
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()

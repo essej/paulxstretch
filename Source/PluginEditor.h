@@ -252,7 +252,7 @@ public:
 	MyTabComponent(int& curtab) : TabbedComponent(TabbedButtonBar::TabsAtTop), m_cur_tab(curtab) {}
 	void currentTabChanged(int newCurrentTabIndex, const String&) override
 	{
-		m_cur_tab = newCurrentTabIndex;
+		//m_cur_tab = newCurrentTabIndex;
 	}
 private:
 	int& m_cur_tab;
