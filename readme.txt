@@ -4,9 +4,13 @@ Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 
 Copyright (C) 2017-2018 Xenakios
 
-Released under GNU General Public License v.2 license.
+Released under GNU General Public License v.3 license.
 
 History :
+06-29-2018 1.2.2
+	-Add option to mute audio when capturing audio
+	-Automatically adjust play range after capturing to captured length
+	-Moved Free Filter parameters from the main parameters GUI to the Free Filter tab page
 06-01-2018 1.2.1
 	-Added looping enabled parameter
 	-Added GUI button and parameter to rewind to beginning of selected play range
@@ -97,5 +101,5 @@ https://bitbucket.org/xenakios/paulstretchplugin/overview
 
 Requirements for building from source code :
     -A modern C++ compiler and standard library (C++14, some C++17 needs to be supported)
-    -JUCE 5.3.1 : https://github.com/WeAreROLI/JUCE
+    -JUCE 5.3.2 : https://github.com/WeAreROLI/JUCE
     -FFTW3.3.6
