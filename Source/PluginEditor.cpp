@@ -27,7 +27,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_wavecomponent(p.m_afm,p.m_thumb.get()),
 	processor(p), m_perfmeter(&p),
     m_wavefilter_tab(TabbedButtonBar::TabsAtTop),
-	m_free_filter_component(p.getStretchSource()->getMutex())
+	m_free_filter_component(&p)
 {
 	m_wave_container = new Component;
     m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
@@ -413,6 +413,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			if (m_parcomps[i]!=nullptr)
 				m_parcomps[i]->updateComponent();
 		}
+		m_free_filter_component.updateParameterComponents();
 		if (processor.isRecordingEnabled())
 		{
 			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
@@ -1512,12 +1513,45 @@ void RatioMixerEditor::paint(Graphics & g)
 		g.drawText(String(i + 1), slidw / 2 + slidw * i - 8, 1, 15, 15, Justification::centred);
 }
 
-FreeFilterComponent::FreeFilterComponent(CriticalSection* cs) : m_env(cs), m_cs(cs)
+FreeFilterComponent::FreeFilterComponent(PaulstretchpluginAudioProcessor* proc) 
+	: m_env(proc->getStretchSource()->getMutex()), m_cs(proc->getStretchSource()->getMutex()), m_proc(proc)
 {
 	addAndMakeVisible(m_env);
+	const auto& pars = m_proc->getParameters();
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_shiftx],false));
+	addAndMakeVisible(m_parcomps.back().get());
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_shifty], false));
+	addAndMakeVisible(m_parcomps.back().get());
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_scaley], false));
+	addAndMakeVisible(m_parcomps.back().get());
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_tilty], false));
+	addAndMakeVisible(m_parcomps.back().get());
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_randomy_numbands], false));
+	addAndMakeVisible(m_parcomps.back().get());
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_randomy_rate], false));
+	addAndMakeVisible(m_parcomps.back().get());
+	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_randomy_amount], false));
+	addAndMakeVisible(m_parcomps.back().get());
 }
 
 void FreeFilterComponent::resized()
 {
-	m_env.setBounds(200, 0, getWidth() - 200, getHeight());
+	m_env.setBounds(m_slidwidth, 0, getWidth() - m_slidwidth, getHeight());
+	for (int i = 0; i < m_parcomps.size(); ++i)
+	{
+		m_parcomps[i]->setBounds(1, 1+25*i, m_slidwidth - 2, 24);
+	}
+	
+}
+
+void FreeFilterComponent::paint(Graphics & g)
+{
+	g.setColour(Colours::grey);
+	g.fillRect(0, 0, m_slidwidth, getHeight());
+}
+
+void FreeFilterComponent::updateParameterComponents()
+{
+	for (auto& e : m_parcomps)
+		e->updateComponent();
 }

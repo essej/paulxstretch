@@ -233,13 +233,17 @@ private:
 class FreeFilterComponent : public Component
 {
 public:
-	FreeFilterComponent(CriticalSection* cs);
+	FreeFilterComponent(PaulstretchpluginAudioProcessor* proc);
 	void resized() override;
 	EnvelopeComponent* getEnvelopeComponent() { return &m_env; }
+	void paint(Graphics &g) override;
+	void updateParameterComponents();
 private:
 	EnvelopeComponent m_env;
 	uptrvec<ParameterComponent> m_parcomps;
 	CriticalSection* m_cs = nullptr;
+	PaulstretchpluginAudioProcessor* m_proc = nullptr;
+	int m_slidwidth = 400;
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
