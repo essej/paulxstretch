@@ -106,7 +106,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (i == cpi_freefilter_scaley || i == cpi_freefilter_shiftx || i == cpi_freefilter_shifty ||
 			i == cpi_freefilter_tilty || i == cpi_freefilter_randomy_amount || i == cpi_freefilter_randomy_numbands
 			|| i == cpi_freefilter_randomy_rate)
-			group_id = 7;
+			group_id = -2;
 		if (group_id >= -1)
 		{
 			m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
@@ -373,24 +373,6 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_soundstart]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_soundend]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs = 1;
-	yoffs += 25;
-	m_parcomps[cpi_freefilter_shiftx]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_freefilter_shifty]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs = 1;
-	yoffs += 25;
-	m_parcomps[cpi_freefilter_scaley]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_freefilter_tilty]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs = 1;
-	yoffs += 25;
-	div = w / 3;
-	m_parcomps[cpi_freefilter_randomy_numbands]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_freefilter_randomy_rate]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_freefilter_randomy_amount]->setBounds(xoffs, yoffs, div - 1, 24);
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 9 * 1);
