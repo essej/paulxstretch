@@ -21,8 +21,8 @@ EnvelopeComponent::EnvelopeComponent(CriticalSection* cs) : m_cs(cs)
 {
 	OnEnvelopeEdited = [](breakpoint_envelope*) {};
 	setWantsKeyboardFocus(true);
-	ValueFromNormalized = [](double x) { return x; };
-	TimeFromNormalized = [](double x) { return x; };
+	YFromNormalized = [](double x) { return x; };
+	XFromNormalized = [](double x) { return x; };
 	addChildComponent(&m_bubble);
     setOpaque(true);
 }
@@ -34,8 +34,8 @@ EnvelopeComponent::~EnvelopeComponent()
 
 void EnvelopeComponent::show_bubble(int x, int y, const envelope_node& node)
 {
-	double scaledtime = TimeFromNormalized(node.Time);
-	double scaledvalue = ValueFromNormalized(node.Value);
+	double scaledtime = XFromNormalized(node.Time);
+	double scaledvalue = YFromNormalized(node.Value);
 	x -= 50;
 	if (x < 0)
 		x = 0;
@@ -81,7 +81,7 @@ void EnvelopeComponent::paint(Graphics& g)
 	for (int i = 0; i < 10; ++i)
 	{
 		double norm = 1.0 / 10 * i;
-		double hz = TimeFromNormalized(norm);
+		double hz = XFromNormalized(norm);
 		int xcor = getWidth() / 10 * i;
 		g.drawText(String(hz, 1), xcor, getHeight() - 20, 100, 20, Justification::topLeft);
 	}

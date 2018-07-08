@@ -47,8 +47,8 @@ public:
 	std::function<void(EnvelopeComponent*, Graphics&)> EnvelopeUnderlayDraw;
 	std::function<void(EnvelopeComponent*, Graphics&)> EnvelopeOverlayDraw;
 	std::function<void(breakpoint_envelope*)> OnEnvelopeEdited;
-	std::function<double(double)> ValueFromNormalized;
-	std::function<double(double)> TimeFromNormalized;
+	std::function<double(double)> YFromNormalized;
+	std::function<double(double)> XFromNormalized;
 	void changeListenerCallback(ChangeBroadcaster*) override;
 	void timerCallback(int id) override;
 	//String getTooltip() override;

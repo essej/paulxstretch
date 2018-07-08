@@ -31,12 +31,12 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 {
 	m_wave_container = new Component;
     m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
-	m_free_filter_component.getEnvelopeComponent()->TimeFromNormalized = [this](double x) 
+	m_free_filter_component.getEnvelopeComponent()->XFromNormalized = [this](double x) 
 	{ 
 		//return jmap<double>(pow(x, 3.0), 0.0, 1.0, 30.0, processor.getSampleRateChecked()/2.0);
 		return 30.0*pow(1.05946309436, x*115.0);
 	};
-	m_free_filter_component.getEnvelopeComponent()->ValueFromNormalized = [this](double x)
+	m_free_filter_component.getEnvelopeComponent()->YFromNormalized = [this](double x)
 	{
 		return jmap<double>(x, 0.0, 1.0, -48.0, 12.0);
 	};
