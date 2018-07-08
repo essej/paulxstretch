@@ -232,9 +232,8 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		int r = menu.show();
 		if (r == 1)
 		{
-			m_cs->enter();
+			ScopedLock locker(*m_cs);
 			m_envelope->ResetEnvelope();
-			m_cs->exit();
 		}
 		if (r == 2)
 		{
@@ -374,15 +373,14 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 	if (ev == KeyPress::deleteKey)
 	{
 		m_node_to_drag = -1;
-		//m_envelope->ClearAllNodes();
-		m_cs->enter();
-		m_envelope->removePointsConditionally([](const envelope_node& pt) { return pt.Status == 1; });
-		if (m_envelope->GetNumNodes()==0)
-			m_envelope->AddNode({ 0.0,0.5 });
-		m_cs->exit();
+		{
+			ScopedLock locker(*m_cs);
+			m_envelope->removePointsConditionally([](const envelope_node& pt) { return pt.Status == 1; });
+			if (m_envelope->GetNumNodes() == 0)
+				m_envelope->AddNode({ 0.0,0.5 });
+		}
 		repaint();
 		OnEnvelopeEdited(m_envelope.get());
-		
 		return true;
 	}
 	return false;
