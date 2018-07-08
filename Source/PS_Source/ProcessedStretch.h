@@ -506,6 +506,7 @@ public:
 	void setFreeFilterEnvelope(shared_envelope env);
 	std::vector<SpectrumProcess> m_spectrum_processes;
 	void setBufferSize(int sz) override;
+	
 private:
     REALTYPE get_stretch_multiplier(REALTYPE pos_percents) override;
 //		void process_output(REALTYPE *smps,int nsmps);
