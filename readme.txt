@@ -7,7 +7,7 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
-07-08-2018 1.2.2
+07-09-2018 1.2.2
 	-Add option to mute audio when capturing audio
 	-Automatically adjust play range after capturing to captured length
 	-Moved Free Filter parameters from the main parameters GUI to the Free Filter tab page
