@@ -465,34 +465,16 @@ void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameter
 String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 {
 	File outputfiletouse = outputfile.getNonexistentSibling();
-	int numoutchans = *getIntParameter(cpi_num_outchans);
-	auto ss = std::make_shared<StretchAudioSource>(numoutchans,m_afm,m_sm_enab_pars);
-	shared_envelope free_env = m_free_filter_envelope->duplicate();
-	ss->setFreeFilterEnvelope(free_env);
+	ValueTree state = getStateTree(false, false);
+	auto processor = std::make_shared<PaulstretchpluginAudioProcessor>();
+	processor->setStateFromTree(state);
 	int blocksize = 2048;
-	
-	ss->setAudioFile(m_current_file);
-	ProcessParameters renderpars;
-	updateStretchParametersFromPluginParameters(renderpars);
-	ss->setProcessParameters(&renderpars);
-	double t0 = *getFloatParameter(cpi_soundstart);
-	double t1 = *getFloatParameter(cpi_soundend);
+	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
+	processor->prepareToPlay(44100.0, blocksize);
+	double t0 = *processor->getFloatParameter(cpi_soundstart);
+	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
-	ss->setRate(*getFloatParameter(cpi_stretchamount));
-	ss->setPlayRange({ t0,t1 });
-	ss->setLoopingEnabled(true);
-	ss->setNumOutChannels(numoutchans);
-	ss->setFFTWindowingType(1);
-	//ss->setPreviewDry(true);
-	ss->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
-	ss->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
-	ss->setFreezing(getParameter(cpi_freeze));
-	ss->setPaused(getParameter(cpi_pause_enabled));
-	ss->setSpectrumProcessOrder(m_stretch_source->getSpectrumProcessOrder());
-	ss->setFFTSize(m_fft_size_to_use);
-	ss->setMainVolume(*getFloatParameter(cpi_main_volume));
-	double outsr = getSampleRateChecked();
-	ss->prepareToPlay(blocksize, outsr);
+	double outsr = processor->getSampleRateChecked();
 	WavAudioFormat wavformat;
 	FileOutputStream* outstream = outputfiletouse.createOutputStream();
 	if (outstream == nullptr)
@@ -503,9 +485,10 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 		delete outstream;
 		return "Could not create WAV writer";
 	}
-	auto rendertask = [ss,writer,blocksize,numoutchans, outsr, this]()
+	auto rendertask = [processor,writer,blocksize,numoutchans, outsr, this]()
 	{
 		AudioBuffer<float> renderbuffer(numoutchans, blocksize);
+		MidiBuffer dummymidi;
 		int64_t outlen = 10 * outsr;
 		int64_t outcounter = 0;
 		AudioSourceChannelInfo asci(renderbuffer);
@@ -515,7 +498,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 		{
 			if (m_offline_render_cancel_requested == true)
 				break;
-			ss->getNextAudioBlock(asci);
+			processor->processBlock(renderbuffer, dummymidi);
 			writer->writeFromAudioSampleBuffer(renderbuffer, 0, blocksize);
 			outcounter += blocksize;
 			m_offline_render_state = 100.0 / outlen * outcounter;
