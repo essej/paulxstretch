@@ -170,7 +170,7 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 		m_proc->offlineRender(File(outfileNameEditor.getText()));
 		//m_main->renderToFile(File(outfileNameEditor.getText()),numLoops,
 		//	comboBoxBitDepth.getSelectedId()-1,sampleRate,m_toggleFloatClip.getToggleState(),maxrenderlen);
-		auto pardlg = dynamic_cast<DialogWindow*>(getParentComponent());
+		auto pardlg = dynamic_cast<CallOutBox*>(getParentComponent());
 		{
 			if (pardlg != nullptr)
 				pardlg->exitModalState(1);
