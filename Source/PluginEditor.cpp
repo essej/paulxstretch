@@ -247,7 +247,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 {
-	
+	//Logger::writeToLog("PaulX Editor destroyed");
 }
 
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()

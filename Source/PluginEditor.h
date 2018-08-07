@@ -253,9 +253,11 @@ public:
 	void currentTabChanged(int newCurrentTabIndex, const String&) override
 	{
 		//m_cur_tab = newCurrentTabIndex;
+		
 	}
 private:
 	int& m_cur_tab;
+	
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 

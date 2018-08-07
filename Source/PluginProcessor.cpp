@@ -181,6 +181,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
+	//Logger::writeToLog("PaulX AudioProcessor destroyed");
 	m_thumb->removeAllChangeListeners();
 	m_thumb = nullptr;
 	m_bufferingthread.stopThread(1000);
