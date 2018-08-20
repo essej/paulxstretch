@@ -269,6 +269,23 @@ bool StretchAudioSource::isPreviewingDry() const
 	return m_preview_dry;
 }
 
+void StretchAudioSource::setDryPlayrate(double rate)
+{
+	if (rate == m_dryplayrate)
+		return;
+	if (m_cs.tryEnter())
+	{
+		m_dryplayrate = rate;
+		++m_param_change_count;
+		m_cs.exit();
+	}
+}
+
+double StretchAudioSource::getDryPlayrate() const
+{
+	return m_dryplayrate;
+}
+
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
@@ -568,7 +585,7 @@ void StretchAudioSource::playDrySound(const AudioSourceChannelInfo & bufferToFil
 	double maingain = Decibels::decibelsToGain(m_main_volume);
 	m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
 	double* rsinbuf = nullptr;
-	m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
+	m_resampler->SetRates(m_inputfile->info.samplerate*m_dryplayrate, m_outsr);
 	int wanted = m_resampler->ResamplePrepare(bufferToFill.numSamples, m_num_outchans, &rsinbuf);
 	m_inputfile->readNextBlock(m_drypreviewbuf, wanted, m_num_outchans);
 	for (int i = 0; i < wanted; ++i)

@@ -104,6 +104,8 @@ public:
 	double getLoopXFadeLengtj() const { return m_loopxfadelen; }
 	void setPreviewDry(bool b);
 	bool isPreviewingDry() const;
+	void setDryPlayrate(double rate);
+	double getDryPlayrate() const;
 	int m_param_change_count = 0;
 	double getLastSeekPos() const { return m_seekpos; }
 	CriticalSection* getMutex() { return &m_cs; }
@@ -163,6 +165,7 @@ private:
 	} m_xfadetask;
 	int m_pause_fade_counter = 0;
 	bool m_preview_dry = false;
+	double m_dryplayrate = 1.0;
 	AudioBuffer<float> m_drypreviewbuf;
 	void playDrySound(const AudioSourceChannelInfo & bufferToFill);
 };

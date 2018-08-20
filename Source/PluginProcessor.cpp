@@ -169,7 +169,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 
 	addParameter(new AudioParameterBool("loop_enabled0", "Loop", true)); // 60
 	addParameter(new AudioParameterBool("rewind0", "Rewind", false)); // 61
-
+	addParameter(new AudioParameterFloat("dryplayrate0", "Dry playrate", 0.1, 8.0, 1.0)); // 62
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -697,6 +697,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setMainVolume(*getFloatParameter(cpi_main_volume));
 	m_stretch_source->setRate(*getFloatParameter(cpi_stretchamount));
 	m_stretch_source->setPreviewDry(*getBoolParameter(cpi_bypass_stretch));
+	m_stretch_source->setDryPlayrate(*getFloatParameter(cpi_dryplayrate));
 	setFFTSize(*getFloatParameter(cpi_fftsize));
 	
 	updateStretchParametersFromPluginParameters(m_ppar);

@@ -119,7 +119,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 			m_parcomps.push_back(nullptr);
 		}
 	}
-	
+	//m_parcomps[cpi_dryplayrate]->getSlider()->setSkewFactorFromMidPoint(1.0);
 	//addAndMakeVisible(&m_specvis);
 	m_wave_container->addAndMakeVisible(&m_zs);
 	m_zs.RangeChanged = [this](Range<double> r)
@@ -374,6 +374,9 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_soundstart]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_soundend]->setBounds(xoffs, yoffs, div - 1, 24);
+	yoffs += 25;
+	xoffs = 1;
+	m_parcomps[cpi_dryplayrate]->setBounds(xoffs, yoffs, getWidth() - 2, 24);
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 9 * 1);

@@ -86,6 +86,7 @@ const int cpi_octaves_ratio6 = 58;
 const int cpi_octaves_ratio7 = 59;
 const int cpi_looping_enabled = 60;
 const int cpi_rewind = 61;
+const int cpi_dryplayrate = 62;
 
 class MyPropertiesFile
 {
