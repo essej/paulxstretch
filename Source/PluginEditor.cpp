@@ -447,6 +447,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 		m_spec_order_ed.repaint();
+		m_parcomps[cpi_dryplayrate]->setEnabled(*processor.getBoolParameter(cpi_bypass_stretch));
 		//if (m_wavefilter_tab.getCurrentTabIndex() != processor.m_cur_tab_index)
 		//	m_wavefilter_tab.setCurrentTabIndex(processor.m_cur_tab_index, false);
 	}
