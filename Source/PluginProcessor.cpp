@@ -740,14 +740,22 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 			buffer.addFrom(i, 0, m_input_buffer, i, 0, buffer.getNumSamples());
 		}
 	}
+	bool abnordetected = false;
 	for (int i = 0; i < buffer.getNumChannels(); ++i)
 	{
 		for (int j = 0; j < buffer.getNumSamples(); ++j)
 		{
 			float sample = buffer.getSample(i,j);
 			if (std::isnan(sample) || std::isinf(sample))
+			{
 				++m_abnormal_output_samples;
+				abnordetected = true;
+			}
 		}
+	}
+	if (abnordetected)
+	{
+		buffer.clear();
 	}
 }
 
