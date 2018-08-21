@@ -169,7 +169,21 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 
 	addParameter(new AudioParameterBool("loop_enabled0", "Loop", true)); // 60
 	addParameter(new AudioParameterBool("rewind0", "Rewind", false)); // 61
-	addParameter(new AudioParameterFloat("dryplayrate0", "Dry playrate", 0.1, 8.0, 1.0)); // 62
+	auto dprate_convertFrom0To1Func = [](float rangemin, float rangemax, float value)
+	{
+		if (value < 0.5f)
+			return jmap<float>(value, 0.0f, 0.5f, 0.1f, 1.0f);
+		return jmap<float>(value, 0.5f, 1.0f, 1.0f, 8.0f);
+	};
+	auto dprate_convertTo0To1Func = [](float rangemin, float rangemax, float value)
+	{
+		if (value < 1.0f)
+			return jmap<float>(value, 0.1f, 1.0f, 0.0f, 0.5f);
+		return jmap<float>(value, 1.0f, 8.0f, 0.5f, 1.0f);
+	};
+	addParameter(new AudioParameterFloat("dryplayrate0", "Dry playrate",
+		NormalisableRange<float>(0.1f, 8.0f,
+			dprate_convertFrom0To1Func, dprate_convertTo0To1Func), 1.0f)); // 62
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
