@@ -314,28 +314,12 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_fftsize]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_stretchamount]->setBounds(xoffs, yoffs, div - 1, 24);
+	m_parcomps[cpi_dryplayrate]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs = 1;
 	yoffs += 25;
 	m_parcomps[cpi_pitchshift]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_frequencyshift]->setBounds(xoffs, yoffs, div - 1, 24);
-	/*
-	xoffs = 1;
-	yoffs += 25;
-	m_parcomps[cpi_octavesm2]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_octavesm1]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs = 1;
-	yoffs += 25;
-	m_parcomps[cpi_octaves0]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_octaves1]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs = 1;
-	yoffs += 25;
-	m_parcomps[cpi_octaves15]->setBounds(xoffs, yoffs, div - 1, 24);
-	xoffs += div;
-	m_parcomps[cpi_octaves2]->setBounds(xoffs, yoffs, div - 1, 24);
-	*/
 	xoffs = 1;
 	yoffs += 25;
 	m_parcomps[cpi_numharmonics]->setBounds(xoffs, yoffs, div - 1, 24);
@@ -374,9 +358,9 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	m_parcomps[cpi_soundstart]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
 	m_parcomps[cpi_soundend]->setBounds(xoffs, yoffs, div - 1, 24);
-	yoffs += 25;
-	xoffs = 1;
-	m_parcomps[cpi_dryplayrate]->setBounds(xoffs, yoffs, getWidth() - 2, 24);
+	//yoffs += 25;
+	//xoffs = 1;
+	
 	yoffs += 25;
 	int remain_h = getHeight() - 1 - yoffs;
 	m_spec_order_ed.setBounds(1, yoffs, getWidth() - 2, remain_h / 9 * 1);
@@ -447,7 +431,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 		m_spec_order_ed.repaint();
-		m_parcomps[cpi_dryplayrate]->setEnabled(*processor.getBoolParameter(cpi_bypass_stretch));
+		m_parcomps[cpi_dryplayrate]->setVisible(*processor.getBoolParameter(cpi_bypass_stretch));
+		m_parcomps[cpi_stretchamount]->setVisible(!(*processor.getBoolParameter(cpi_bypass_stretch)));
 		//if (m_wavefilter_tab.getCurrentTabIndex() != processor.m_cur_tab_index)
 		//	m_wavefilter_tab.setCurrentTabIndex(processor.m_cur_tab_index, false);
 	}
