@@ -128,35 +128,6 @@ void StretchAudioSource::setFreeFilterEnvelope(shared_envelope env)
 	}
 }
 
-ValueTree StretchAudioSource::getStateTree()
-{
-	ValueTree tree("stretchsourcestate");
-	storeToTreeProperties(tree, nullptr, "pitch_shift", m_ppar.pitch_shift.cents, 
-		"octaves_minus2", m_ppar.octave.om2,
-		"octaves_minus1",m_ppar.octave.om1,
-		"octave0",m_ppar.octave.o0,
-		"octave_plus1",m_ppar.octave.o1,
-		"octaves_plus15",m_ppar.octave.o15,
-		"octaves_plus2",m_ppar.octave.o2);
-	return tree;
-}
-
-void StretchAudioSource::setStateTree(ValueTree state)
-{
-	ScopedLock locker(m_cs);
-	getFromTreeProperties(state, "pitch_shift", m_ppar.pitch_shift.cents,
-		"octaves_minus2", m_ppar.octave.om2,
-		"octaves_minus1", m_ppar.octave.om1,
-		"octave0", m_ppar.octave.o0,
-		"octave_plus1", m_ppar.octave.o1,
-		"octaves_plus15", m_ppar.octave.o15,
-		"octaves_plus2", m_ppar.octave.o2);
-	for (int i = 0; i < m_stretchers.size(); ++i)
-	{
-		m_stretchers[i]->set_parameters(&m_ppar);
-	}
-}
-
 bool StretchAudioSource::isLoopingEnabled()
 {
 	if (m_inputfile == nullptr || m_inputfile->info.nsamples == 0)

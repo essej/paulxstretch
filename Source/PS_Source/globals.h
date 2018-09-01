@@ -85,16 +85,12 @@ inline bool hasProperties(ValueTree src, Args&&... args)
 	return (src.hasProperty(args) && ...);
 }
 
-inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, juce::Identifier varname, var val)
-{
-	dest.setProperty(varname, val, uman);
-}
-
 template<typename... Ts>
 inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, juce::Identifier varname, var val, Ts&&... args)
 {
 	dest.setProperty(varname, val, uman);
-	storeToTreeProperties(dest, uman, args...);
+	if constexpr(sizeof...(Ts)>1)
+		storeToTreeProperties(dest, uman, args...);
 }
 
 template<typename T>
@@ -135,19 +131,13 @@ inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, const Owned
 	}
 }
 
-template<typename T>
-inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, T& val)
-{
-	if (src.hasProperty(varname))
-		val = src.getProperty(varname);
-}
-
 template<typename... Ts, typename T>
 inline void getFromTreeProperties(ValueTree src, juce::Identifier varname, T& val, Ts&... args)
 {
 	if (src.hasProperty(varname))
 		val = src.getProperty(varname);
-	getFromTreeProperties(src, args...);
+	if constexpr(sizeof...(Ts)>1)
+		getFromTreeProperties(src, args...);
 }
 
 template<typename T>

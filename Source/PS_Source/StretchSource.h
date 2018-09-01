@@ -89,8 +89,6 @@ public:
 	
 	void setFreeFilterEnvelope(shared_envelope env);
 
-	ValueTree getStateTree();
-	void setStateTree(ValueTree state);
 	void setClippingEnabled(bool b) { m_clip_output = b; }
 	bool isLoopingEnabled();
 	void setLoopingEnabled(bool b);
