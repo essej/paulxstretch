@@ -50,17 +50,17 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="/usr/local/Cellar/fftw/3.3.6-pl2/lib/libfftw3f.a&#10;"
+    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="/usr/local/Cellar/fftw/3.3.8/lib/libfftw3f.a&#10;"
                vst3Folder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
                        linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
-                       libraryPath="/usr/local/Cellar/fftw/3.3.6-pl2/lib" cppLibType="libc++"
+                       libraryPath="/usr/local/Cellar/fftw/3.3.8/lib" cppLibType="libc++"
                        osxArchitecture="64BitIntel" osxCompatibility="10.9 SDK" defines="JUCE_NO_DEPRECATION_WARNINGS"/>
         <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
                        linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
                        osxCompatibility="10.9 SDK" osxArchitecture="64BitIntel" cppLibType="libc++"
-                       libraryPath="/usr/local/Cellar/fftw/3.3.6-pl2/lib" defines="JUCE_NO_DEPRECATION_WARNINGS"
+                       libraryPath="/usr/local/Cellar/fftw/3.3.8/lib" defines="JUCE_NO_DEPRECATION_WARNINGS"
                        auBinaryLocation="$(HOME)/Library/Audio/Plug-Ins/Components"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
