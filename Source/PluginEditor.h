@@ -128,7 +128,7 @@ public:
 class WaveformComponent : public Component, public ChangeListener, public Timer
 {
 public:
-	WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb);
+	WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb, StretchAudioSource* sas);
 	~WaveformComponent();
 	void changeListenerCallback(ChangeBroadcaster* cb) override;
 	void paint(Graphics& g) override;
@@ -171,7 +171,10 @@ private:
 	double m_sr = 0.0;
 	int m_fft_size = 0;
 	double m_last_startpos = 0.0;
+	int64_t m_last_source_pos = -1;
+	double m_last_source_pos_update_time = 0.0;
 	Image m_waveimage;
+	StretchAudioSource* m_sas = nullptr;
 #ifdef JUCE_MODULE_AVAILABLE_juce_opengl
 	OpenGLContext m_ogl;
 	bool m_use_opengl = false;

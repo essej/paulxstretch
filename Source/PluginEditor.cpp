@@ -24,7 +24,7 @@ www.gnu.org/licenses
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
-	m_wavecomponent(p.m_afm,p.m_thumb.get()),
+	m_wavecomponent(p.m_afm,p.m_thumb.get(), p.getStretchSource()),
 	processor(p), m_perfmeter(&p),
     m_wavefilter_tab(p.m_cur_tab_index),
 	m_free_filter_component(&p)
@@ -568,7 +568,8 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	
 }
 
-WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb)
+WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb, StretchAudioSource* sas)
+	: m_sas(sas)
 {
 	TimeSelectionChangedCallback = [](Range<double>, int) {};
 #ifdef JUCE_MODULE_AVAILABLE_juce_opengl
@@ -700,7 +701,12 @@ void WaveformComponent::paint(Graphics & g)
 	g.setColour(Colours::white);
 	if (CursorPosCallback)
 	{
-		g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
+		double timediff = (Time::getMillisecondCounterHiRes() - m_last_source_pos_update_time)*(1.0/m_sas->getRate());
+		double curpos = ((double)m_last_source_pos / m_sas->getOutputSamplerate()) + (timediff/1000.0);
+		curpos = 1.0 / m_sas->getInfileLengthSeconds()*curpos;
+		g.fillRect(normalizedToViewX<int>(curpos), m_topmargin, 1, getHeight() - m_topmargin);
+		g.drawText(String(curpos), 1, 30, 200,30, Justification::left);
+		//g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	if (m_rec_pos >= 0.0)
 	{
@@ -714,6 +720,11 @@ void WaveformComponent::paint(Graphics & g)
 
 void WaveformComponent::timerCallback()
 {
+	if (m_sas->getLastSourcePosition() != m_last_source_pos)
+	{
+		m_last_source_pos = m_sas->getLastSourcePosition();
+		m_last_source_pos_update_time = Time::getMillisecondCounterHiRes();
+	}
 	repaint();
 }
 

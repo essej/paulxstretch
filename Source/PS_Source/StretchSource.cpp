@@ -321,6 +321,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			int readed = 0;
 			if (readsize != 0)
 			{
+				m_last_filepos = m_inputfile->getCurrentPosition();
 				readed = m_inputfile->readNextBlock(m_file_inbuf, readsize, m_num_outchans);
 			}
 			if (m_rand_count % (int)m_free_filter_envelope->m_transform_y_random_rate == 0)
@@ -362,7 +363,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 
 				}
 			}
-
+			
 		}
 		
 	};

@@ -57,7 +57,11 @@ public:
 	double getInfilePositionSeconds();
 	double getInfileLengthSeconds();
 	void setRate(double rate);
-	double getRate() { return m_playrate; }
+	double getRate() 
+	{ 
+		return m_playrate; 
+	}
+	double getOutputSamplerate() const { return m_outsr; }
 	void setProcessParameters(ProcessParameters* pars);
 	const ProcessParameters& getProcessParameters();
 	void setFFTSize(int size);
@@ -107,6 +111,7 @@ public:
 	int m_param_change_count = 0;
 	double getLastSeekPos() const { return m_seekpos; }
 	CriticalSection* getMutex() { return &m_cs; }
+	int64_t getLastSourcePosition() const { return m_last_filepos; }
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
 	AudioBuffer<float> m_file_inbuf;
@@ -165,5 +170,6 @@ private:
 	bool m_preview_dry = false;
 	double m_dryplayrate = 1.0;
 	AudioBuffer<float> m_drypreviewbuf;
+	int64_t m_last_filepos = 0;
 	void playDrySound(const AudioSourceChannelInfo & bufferToFill);
 };
