@@ -226,7 +226,8 @@ void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
         String err;
         startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
                   m_cur_num_out_chans, m_curmaxblocksize, err);
-        m_prebuffering_inited = true;
+        
+		m_prebuffering_inited = true;
 	}
 }
 
@@ -422,6 +423,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 	m_stretch_source->setNumOutChannels(numoutchans);
 	m_stretch_source->setFFTSize(m_fft_size_to_use);
 	m_stretch_source->setProcessParameters(&m_ppar);
+	m_stretch_source->m_prebuffersize = bufamt;
 	m_last_outpos_pos = 0.0;
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
 	m_buffering_source->prepareToPlay(maxBlockSize, getSampleRateChecked());

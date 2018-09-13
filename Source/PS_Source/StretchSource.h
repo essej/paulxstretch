@@ -112,6 +112,7 @@ public:
 	double getLastSeekPos() const { return m_seekpos; }
 	CriticalSection* getMutex() { return &m_cs; }
 	int64_t getLastSourcePosition() const { return m_last_filepos; }
+	int m_prebuffersize = 0;
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
 	AudioBuffer<float> m_file_inbuf;
