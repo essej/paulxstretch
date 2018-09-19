@@ -706,9 +706,9 @@ void WaveformComponent::paint(Graphics & g)
 		double prebufoffset = (double)m_sas->m_prebuffersize / m_sas->getOutputSamplerate();
 		curpos -= prebufoffset;
 		curpos = 1.0 / m_sas->getInfileLengthSeconds()*(curpos+(timediff / 1000.0));
-		g.fillRect(normalizedToViewX<int>(curpos), m_topmargin, 1, getHeight() - m_topmargin);
-		g.drawText(String(curpos), 1, 30, 200,30, Justification::left);
-		//g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
+		//g.fillRect(normalizedToViewX<int>(curpos), m_topmargin, 1, getHeight() - m_topmargin);
+		//g.drawText(String(curpos), 1, 30, 200,30, Justification::left);
+		g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	if (m_rec_pos >= 0.0)
 	{
