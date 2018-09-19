@@ -26,8 +26,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	: AudioProcessorEditor(&p),
 	m_wavecomponent(p.m_afm,p.m_thumb.get(), p.getStretchSource()),
 	processor(p), m_perfmeter(&p),
-    m_wavefilter_tab(p.m_cur_tab_index),
-	m_free_filter_component(&p)
+    m_free_filter_component(&p),
+    m_wavefilter_tab(p.m_cur_tab_index)
 {
 	m_wave_container = new Component;
     m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
@@ -254,7 +254,7 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
 	auto content = new RenderSettingsComponent(&processor);
 	content->setSize(content->getWidth(), content->getPreferredHeight());
-	CallOutBox& myBox = CallOutBox::launchAsynchronously(content, m_render_button.getBounds(), this);
+	/*CallOutBox& myBox =*/ CallOutBox::launchAsynchronously(content, m_render_button.getBounds(), this);
 }
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
@@ -1494,7 +1494,7 @@ void RatioMixerEditor::paint(Graphics & g)
 {
 	g.fillAll(Colours::grey);
 	g.setColour(Colours::white);
-	int nsliders = m_ratio_sliders.size();
+	auto nsliders = m_ratio_sliders.size();
 	int slidw = getWidth() / nsliders;
 	for (int i = 0; i < 8; ++i)
 		g.drawText(String(i + 1), slidw / 2 + slidw * i - 8, 1, 15, 15, Justification::centred);
