@@ -508,7 +508,6 @@ String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
 		MidiBuffer dummymidi;
 		int64_t outlen = 10 * outsr;
 		int64_t outcounter = 0;
-		AudioSourceChannelInfo asci(renderbuffer);
 		m_offline_render_state = 0;
 		m_offline_render_cancel_requested = false;
 		while (outcounter < outlen)
