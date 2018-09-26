@@ -21,6 +21,31 @@ www.gnu.org/licenses
 #include <array>
 #include "RenderSettingsComponent.h"
 
+class AudioFilePreviewComponent : public FilePreviewComponent
+{
+public:
+	AudioFilePreviewComponent(PaulstretchpluginAudioProcessor* p) : m_proc(p) 
+	{
+		addAndMakeVisible(m_playbut);
+		m_playbut.setButtonText("Play");
+		m_playbut.onClick = [this]()
+		{
+			
+		};
+		setSize(100, 30);
+	}
+	void selectedFileChanged(const File &newSelectedFile) override
+	{
+	}
+	void resized() override
+	{
+		m_playbut.setBounds(0, 0, getWidth(), getHeight());
+	}
+private:
+	TextButton m_playbut;
+	PaulstretchpluginAudioProcessor* m_proc = nullptr;
+};
+
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
