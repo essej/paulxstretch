@@ -23,6 +23,7 @@ www.gnu.org/licenses
 #include <array>
 
 class MyThumbCache;
+class AudioFilePreviewComponent;
 
 const int cpi_main_volume = 0;
 const int cpi_stretchamount = 1;
@@ -204,7 +205,8 @@ public:
     int m_prepare_count = 0;
     shared_envelope m_free_filter_envelope;
 	bool m_import_dlg_open = false;
-	
+	void setAudioPreview(AudioFilePreviewComponent* afpc);
+	CriticalSection& getCriticalSection() { return m_cs; }
 	pointer_sized_int handleVstPluginCanDo(int32 index,
 		pointer_sized_int value,
 		void* ptr,
@@ -261,6 +263,7 @@ private:
 	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
 	std::array<AudioParameterBool*, 9> m_sm_enab_pars;
 	bool m_lastrewind = false;
+	AudioFilePreviewComponent* m_previewcomponent = nullptr;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

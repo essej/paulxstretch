@@ -264,6 +264,41 @@ private:
 	
 };
 
+class AudioFilePreviewComponent : public FilePreviewComponent
+{
+public:
+	AudioFilePreviewComponent(PaulstretchpluginAudioProcessor* p) : m_proc(p)
+	{
+		addAndMakeVisible(m_playbut);
+		m_playbut.setButtonText("Play");
+		m_playbut.onClick = [this]()
+		{
+
+		};
+		setSize(100, 30);
+	}
+	void selectedFileChanged(const File &newSelectedFile) override
+	{
+		ScopedLock locker(m_proc->getCriticalSection());
+		m_reader = unique_from_raw(m_proc->m_afm->createReaderFor(newSelectedFile));
+		m_playpos = 0;
+	}
+	void resized() override
+	{
+		m_playbut.setBounds(0, 0, getWidth(), getHeight());
+	}
+	void togglePlay()
+	{
+
+	}
+	void processBlock(double sr, AudioBuffer<float>& buf);
+private:
+	TextButton m_playbut;
+	PaulstretchpluginAudioProcessor* m_proc = nullptr;
+	std::unique_ptr<AudioFormatReader> m_reader;
+	int64 m_playpos = 0;
+};
+
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {

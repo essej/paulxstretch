@@ -652,6 +652,11 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_input_buffer.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+	if (m_previewcomponent != nullptr)
+	{
+		m_previewcomponent->processBlock(getSampleRate(), buffer);
+		return;
+	}
 	if (m_prebuffering_inited == false)
 		return;
 	if (m_is_recording == true)
@@ -896,6 +901,12 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 			m_prebuffering_inited = true;
 		}
 	}
+}
+
+void PaulstretchpluginAudioProcessor::setAudioPreview(AudioFilePreviewComponent * afpc)
+{
+	ScopedLock locker(m_cs);
+	m_previewcomponent = afpc;
 }
 
 pointer_sized_int PaulstretchpluginAudioProcessor::handleVstPluginCanDo(int32 index, pointer_sized_int value, void * ptr, float opt)

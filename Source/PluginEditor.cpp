@@ -21,31 +21,6 @@ www.gnu.org/licenses
 #include <array>
 #include "RenderSettingsComponent.h"
 
-class AudioFilePreviewComponent : public FilePreviewComponent
-{
-public:
-	AudioFilePreviewComponent(PaulstretchpluginAudioProcessor* p) : m_proc(p) 
-	{
-		addAndMakeVisible(m_playbut);
-		m_playbut.setButtonText("Play");
-		m_playbut.onClick = [this]()
-		{
-			
-		};
-		setSize(100, 30);
-	}
-	void selectedFileChanged(const File &newSelectedFile) override
-	{
-	}
-	void resized() override
-	{
-		m_playbut.setBounds(0, 0, getWidth(), getHeight());
-	}
-private:
-	TextButton m_playbut;
-	PaulstretchpluginAudioProcessor* m_proc = nullptr;
-};
-
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
@@ -491,10 +466,12 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
                                                 File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
     File initialloc(initiallocfn);
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
+	auto prevcomp = std::make_unique<AudioFilePreviewComponent>(&processor);
+	processor.setAudioPreview(prevcomp.get());
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
-		filterstring,true);
-	if (myChooser.browseForFileToOpen())
+		filterstring,false);
+	if (myChooser.browseForFileToOpen(prevcomp.get()))
 	{
         File resu = myChooser.getResult();
         String pathname = resu.getFullPathName();
@@ -506,7 +483,7 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
         processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
         m_last_err = processor.setAudioFile(resu);
 	}
-	
+	processor.setAudioPreview(nullptr);
 }
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
@@ -1566,4 +1543,15 @@ void FreeFilterComponent::updateParameterComponents()
 {
 	for (auto& e : m_parcomps)
 		e->updateComponent();
+}
+
+void AudioFilePreviewComponent::processBlock(double sr, AudioBuffer<float>& buf)
+{
+	if (m_reader != nullptr)
+	{
+		m_reader->read(&buf, 0, buf.getNumSamples(), m_playpos, true, true);
+		m_playpos += buf.getNumSamples();
+		if (m_playpos >= m_reader->lengthInSamples)
+			m_playpos = 0;
+	}
 }
