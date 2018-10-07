@@ -313,6 +313,8 @@ public:
 	bool isInterestedInFileDrag(const StringArray &files) override;
 	void filesDropped(const StringArray &files, int x, int y) override;
 
+	bool keyPressed(const KeyPress& press) override;
+
 	WaveformComponent m_wavecomponent;
 	void chooseFile();
 	void showRenderDialog();

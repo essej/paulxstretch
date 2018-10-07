@@ -29,6 +29,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_free_filter_component(&p),
     m_wavefilter_tab(p.m_cur_tab_index)
 {
+	setWantsKeyboardFocus(true);
 	m_wave_container = new Component;
     m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
 	m_free_filter_component.getEnvelopeComponent()->XFromNormalized = [this](double x) 
@@ -460,18 +461,28 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 	}
 }
 
+bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
+{
+	if (press == 'I')
+	{
+		chooseFile();
+		return true;
+	}
+	return false;
+}
+
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
 {
 	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
                                                 File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
     File initialloc(initiallocfn);
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
-	auto prevcomp = std::make_unique<AudioFilePreviewComponent>(&processor);
-	processor.setAudioPreview(prevcomp.get());
+	//auto prevcomp = std::make_unique<AudioFilePreviewComponent>(&processor);
+	//processor.setAudioPreview(prevcomp.get());
 	FileChooser myChooser("Please select audio file...",
 		initialloc,
-		filterstring,false);
-	if (myChooser.browseForFileToOpen(prevcomp.get()))
+		filterstring,true);
+	if (myChooser.browseForFileToOpen())
 	{
         File resu = myChooser.getResult();
         String pathname = resu.getFullPathName();
