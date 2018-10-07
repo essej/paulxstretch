@@ -335,6 +335,7 @@ private:
 	FreeFilterComponent m_free_filter_component;
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
+	void showAbout();
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

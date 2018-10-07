@@ -534,23 +534,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	}
 	if (r == 3)
 	{
-		String fftlib = fftwf_version;
-		String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
-		String title = g_plugintitle;
-#ifdef JUCE_DEBUG
-		title += " (DEBUG)";
-#endif
-		AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon,
-			title,
-			"Plugin for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
-			"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
-			"(C) 2017-2018 Xenakios\n\n"
-			"Using " + fftlib + " for FFT\n\n"
-			+ juceversiontxt + " (c) Roli. Used under the GPL license.\n\n"
-			"GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n"
-			, "OK",
-			this);
-
+		showAbout();
 	}
     
 	if (r == 6)
@@ -568,6 +552,29 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
 	}
 	
+}
+
+void PaulstretchpluginAudioProcessorEditor::showAbout()
+{
+	String fftlib = fftwf_version;
+	String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
+	String title = g_plugintitle;
+#ifdef JUCE_DEBUG
+	title += " (DEBUG)";
+#endif
+	PluginHostType host;
+	AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon,
+		title,
+		"Plugin for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
+		"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
+		"(C) 2017-2018 Xenakios\n\n"
+		"Using " + fftlib + " for FFT\n\n"
+		+ juceversiontxt + " (c) Roli. Used under the GPL license.\n\n"
+		"GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n"
+		"Running in : "+host.getHostDescription()+"\n"
+		, "OK",
+		this);
+
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb, StretchAudioSource* sas)
