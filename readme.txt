@@ -7,8 +7,11 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
-09-01-2018 1.3.0
+10-07-2018 1.3.0
 	-Added varispeed (resampling speed change) feature when spectral stretch engine is bypassed
+	-Added shortcut keys (may not work properly in all plugin formats and hosts) :
+		I to open file import dialog
+	-Added VST3 version
 07-09-2018 1.2.2
 	-Add option to mute audio when capturing audio
 	-Automatically adjust play range after capturing to captured length
