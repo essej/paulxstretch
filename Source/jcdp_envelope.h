@@ -220,10 +220,10 @@ public:
 
     void SetName(String Name) { m_name=Name; }
     const String& GetName() const { return m_name; }
-    double GetDefValue() { return m_defvalue; }
+    double GetDefValue() const { return m_defvalue; }
     void SetDefValue(double value) { m_defvalue=value; }
-    int GetDefShape() { return m_defshape; }
-	ValueTree saveState(Identifier id)
+    int GetDefShape() const { return m_defshape; }
+	ValueTree saveState(Identifier id) const
 	{
 		ValueTree result(id);
 		for (int i = 0; i < m_nodes.size(); ++i)
@@ -314,7 +314,7 @@ public:
         m_nodes=m_reset_nodes;
         m_playoffset=0.0;
     }
-    Colour GetColor()
+    Colour GetColor() const
     {
         return m_colour;
     }
@@ -407,7 +407,7 @@ public:
     }
 
 
-    double GetInterpolatedNodeValue(double atime)
+    double GetInterpolatedNodeValue(double atime) const
     {
         double t0=0.0;
         double t1=0.0;
