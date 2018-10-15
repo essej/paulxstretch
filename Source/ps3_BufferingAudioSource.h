@@ -15,22 +15,10 @@ www.gnu.org/licenses
 
 */
 
-
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-//==============================================================================
-/**
-    An AudioSource which takes another source as input, and buffers it using a thread.
 
-    Create this as a wrapper around another thread, and it will read-ahead with
-    a background thread to smooth out playback. You can either create one of these
-    directly, or use it indirectly using an AudioTransportSource.
-
-    @see PositionableAudioSource, AudioTransportSource
-
-    @tags{Audio}
-*/
 class JUCE_API  MyBufferingAudioSource  : public PositionableAudioSource,
                                         private TimeSliceClient
 {
@@ -57,42 +45,24 @@ public:
                           int numberOfChannels = 2,
                           bool prefillBufferOnPrepareToPlay = true);
 
-    /** Destructor.
-
-        The input source may be deleted depending on whether the deleteSourceWhenDeleted
-        flag was set in the constructor.
-    */
     ~MyBufferingAudioSource();
 
-    //==============================================================================
-    /** Implementation of the AudioSource method. */
     void prepareToPlay (int samplesPerBlockExpected, double sampleRate) override;
 
-    /** Implementation of the AudioSource method. */
     void releaseResources() override;
 
-    /** Implementation of the AudioSource method. */
     void getNextAudioBlock (const AudioSourceChannelInfo&) override;
 
-    //==============================================================================
-    /** Implements the PositionableAudioSource method. */
     void setNextReadPosition (int64 newPosition) override;
 
-    /** Implements the PositionableAudioSource method. */
     int64 getNextReadPosition() const override;
 
-    /** Implements the PositionableAudioSource method. */
     int64 getTotalLength() const override       { return source->getTotalLength(); }
 
-    /** Implements the PositionableAudioSource method. */
     bool isLooping() const override             { return source->isLooping(); }
 
-    /** A useful function to block until the next the buffer info can be filled.
-
-        This is useful for offline rendering.
-    */
     bool waitForNextAudioBlockReady (const AudioSourceChannelInfo& info, const uint32 timeout);
-	double getPercentReady();
+	[[nodiscard]] double getPercentReady();
 	int getNumberOfChannels() { return numberOfChannels; }
 private:
     //==============================================================================

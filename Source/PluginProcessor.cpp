@@ -630,8 +630,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioBuffer<double>& buffer,
 
 void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
 {
-	
-	ScopedLock locker(m_cs);
+    ScopedLock locker(m_cs);
 	const int totalNumInputChannels = getTotalNumInputChannels();
 	const int totalNumOutputChannels = getTotalNumOutputChannels();
 	AudioPlayHead* phead = getPlayHead();
