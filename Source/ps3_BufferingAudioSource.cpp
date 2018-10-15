@@ -306,7 +306,7 @@ int MyBufferingAudioSource::useTimeSlice()
     return readNextBufferChunk() ? 1 : 100;
 }
 
-double MyBufferingAudioSource::getPercentReady()
+double MyBufferingAudioSource::getPercentReady() const
 {
 	if (bufferValidEnd == bufferValidStart)
 		return 0.0;

@@ -62,7 +62,7 @@ public:
     bool isLooping() const override             { return source->isLooping(); }
 
     bool waitForNextAudioBlockReady (const AudioSourceChannelInfo& info, const uint32 timeout);
-	[[nodiscard]] double getPercentReady();
+	[[nodiscard]] double getPercentReady() const;
 	int getNumberOfChannels() { return numberOfChannels; }
 private:
     //==============================================================================
