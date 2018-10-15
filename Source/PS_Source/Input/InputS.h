@@ -35,7 +35,7 @@ public:
         {
 			
 		};
-		virtual bool openAudioFile(File file)=0;
+		[[nodiscard]] virtual bool openAudioFile(File file)=0;
 		virtual void close()=0;
 
 		virtual int readNextBlock(AudioBuffer<float>& abuf, int smps, int numchans)=0;

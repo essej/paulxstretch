@@ -301,8 +301,6 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
     
 	double silencethreshold = Decibels::decibelsToGain(-70.0);
-	bool tempfirst = true;
-    auto foofilepos0 = m_inputfile->getCurrentPosition();
 	auto ringbuffilltask = [this](int framestoproduce)
 	{
 		while (m_stretchoutringbuf.available() < framestoproduce*m_num_outchans)
@@ -549,7 +547,6 @@ void StretchAudioSource::initObjects()
 		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
 	}
 	m_file_inbuf.setSize(m_num_outchans, 3 * inbufsize);
-	int poolsize = m_stretchers[0]->get_max_bufsize();
 }
 
 void StretchAudioSource::playDrySound(const AudioSourceChannelInfo & bufferToFill)
