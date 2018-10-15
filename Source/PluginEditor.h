@@ -313,6 +313,8 @@ public:
 	bool isInterestedInFileDrag(const StringArray &files) override;
 	void filesDropped(const StringArray &files, int x, int y) override;
 
+	bool keyPressed(const KeyPress& press) override;
+
 	WaveformComponent m_wavecomponent;
 	void chooseFile();
 	void showRenderDialog();
@@ -335,6 +337,7 @@ private:
 	FreeFilterComponent m_free_filter_component;
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
+	void showAbout();
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
