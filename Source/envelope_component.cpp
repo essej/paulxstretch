@@ -32,10 +32,10 @@ EnvelopeComponent::~EnvelopeComponent()
 	
 }
 
-void EnvelopeComponent::show_bubble(int x, int y, const envelope_node& node)
+void EnvelopeComponent::show_bubble(int x, int y, const envelope_point& node)
 {
-	double scaledtime = XFromNormalized(node.Time);
-	double scaledvalue = YFromNormalized(node.Value);
+	double scaledtime = XFromNormalized(node.pt_x);
+	double scaledvalue = YFromNormalized(node.pt_y);
 	x -= 50;
 	if (x < 0)
 		x = 0;
@@ -114,9 +114,9 @@ void EnvelopeComponent::paint(Graphics& g)
 	draw_env(Colours::aquamarine.darker(), true, 1.0f);
 	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
 	{
-		const envelope_node& pt = m_envelope->GetNodeAtIndex(i);
-		double xcor = jmap(pt.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
-		double ycor = (double)getHeight() - jmap(pt.Value, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
+		const envelope_point& pt = m_envelope->GetNodeAtIndex(i);
+		double xcor = jmap(pt.pt_x, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
+		double ycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
 		g.setColour(Colours::white);
 		if (pt.Status == 0)
 			g.drawRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f, 1.0f);
@@ -148,7 +148,7 @@ void EnvelopeComponent::mouseDrag(const MouseEvent& ev)
 	if (m_segment_drag_info.first >= 0 && ev.mods.isAltDown())
 	{
 		double dist = jmap<double>(ev.getDistanceFromDragStartX(), -300.0, 300.0, -1.0, 1.0);
-		m_envelope->performRelativeTransformation([dist, this](int index, envelope_node& point) 
+		m_envelope->performRelativeTransformation([dist, this](int index, envelope_point& point) 
 		{ 
 			if (index == m_segment_drag_info.first)
 			{
@@ -170,23 +170,23 @@ void EnvelopeComponent::mouseDrag(const MouseEvent& ev)
 	if (m_node_to_drag >= 0)
 	{
 		//Logger::writeToLog("trying to move pt " + String(m_node_to_drag));
-		envelope_node& pt = m_envelope->GetNodeAtIndex(m_node_to_drag);
+		envelope_point& pt = m_envelope->GetNodeAtIndex(m_node_to_drag);
 		double left_bound = m_view_start_time;
 		double right_bound = m_view_end_time;
 		if (m_node_to_drag > 0 )
 		{
-			left_bound = m_envelope->GetNodeAtIndex(m_node_to_drag - 1).Time;
+			left_bound = m_envelope->GetNodeAtIndex(m_node_to_drag - 1).pt_x;
 		}
 		if (m_node_to_drag < m_envelope->GetNumNodes() - 1)
 		{
-			right_bound = m_envelope->GetNodeAtIndex(m_node_to_drag + 1).Time;
+			right_bound = m_envelope->GetNodeAtIndex(m_node_to_drag + 1).pt_x;
 		}
 		double normx = jmap((double)ev.x, 0.0, (double)getWidth(), m_view_start_time, m_view_end_time);
 		double normy = jmap((double)getHeight() - ev.y, 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
-		pt.Time=jlimit(left_bound+0.001, right_bound - 0.001, normx);
-		pt.Value=jlimit(0.0,1.0,normy);
+		pt.pt_x=jlimit(left_bound+0.001, right_bound - 0.001, normx);
+		pt.pt_y=jlimit(0.0,1.0,normy);
 		m_envelope->updateMinMaxValues();
-		m_last_tip = String(pt.Time, 2) + " " + String(pt.Value, 2);
+		m_last_tip = String(pt.pt_x, 2) + " " + String(pt.pt_y, 2);
 		show_bubble(ev.x, ev.y, pt);
 		m_node_that_was_dragged = m_node_to_drag;
 		repaint();
@@ -239,8 +239,8 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		{
 			for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
 			{
-				double val = 1.0 - m_envelope->GetNodeAtIndex(i).Value;
-				m_envelope->GetNodeAtIndex(i).Value = val;
+				double val = 1.0 - m_envelope->GetNodeAtIndex(i).pt_y;
+				m_envelope->GetNodeAtIndex(i).pt_y = val;
 			}
 		}
 		if (r == 3)
@@ -375,7 +375,7 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 		m_node_to_drag = -1;
 		{
 			ScopedLock locker(*m_cs);
-			m_envelope->removePointsConditionally([](const envelope_node& pt) { return pt.Status == 1; });
+			m_envelope->removePointsConditionally([](const envelope_point& pt) { return pt.Status == 1; });
 			if (m_envelope->GetNumNodes() == 0)
 				m_envelope->AddNode({ 0.0,0.5 });
 		}
@@ -392,9 +392,9 @@ int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
 		return -1;
 	for (int i = 0; i < m_envelope->GetNumNodes(); ++i)
 	{
-		const envelope_node& pt = m_envelope->GetNodeAtIndex(i);
-		double ptxcor = jmap(pt.Time, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
-		double ptycor = (double)getHeight() - jmap(pt.Value, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
+		const envelope_point& pt = m_envelope->GetNodeAtIndex(i);
+		double ptxcor = jmap(pt.pt_x, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
+		double ptycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
 		juce::Rectangle<double> target(ptxcor - 4.0, ptycor - 4.0, 8.0, 8.0);
 		if (target.contains(xcor, ycor) == true)
 		{
@@ -410,10 +410,10 @@ int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool det
 		return -1;
 	for (int i = 0; i < m_envelope->GetNumNodes()-1; ++i)
 	{
-		const envelope_node& pt0 = m_envelope->GetNodeAtIndex(i);
-		const envelope_node& pt1 = m_envelope->GetNodeAtIndex(i+1);
-		float xcor0 = (float)jmap<double>(pt0.Time, m_view_start_time, m_view_end_time, 0.0, getWidth());
-		float xcor1 = (float)jmap<double>(pt1.Time, m_view_start_time, m_view_end_time, 0.0, getWidth());
+		const envelope_point& pt0 = m_envelope->GetNodeAtIndex(i);
+		const envelope_point& pt1 = m_envelope->GetNodeAtIndex(i+1);
+		float xcor0 = (float)jmap<double>(pt0.pt_x, m_view_start_time, m_view_end_time, 0.0, getWidth());
+		float xcor1 = (float)jmap<double>(pt1.pt_x, m_view_start_time, m_view_end_time, 0.0, getWidth());
 		float segwidth = xcor1 - xcor0;
 		juce::Rectangle<float> segrect(xcor0+8.0f, 0.0f, segwidth-16.0f, (float)getHeight());
 		if (segrect.contains((float)xcor, (float)ycor))

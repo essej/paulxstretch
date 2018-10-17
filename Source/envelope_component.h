@@ -68,7 +68,7 @@ private:
 	int m_node_that_was_dragged = -1;
 	String m_last_tip;
 	BubbleMessageComponent m_bubble;
-	void show_bubble(int x, int y, const envelope_node &node);
+	void show_bubble(int x, int y, const envelope_point &node);
 	CriticalSection* m_cs = nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EnvelopeComponent)
 };

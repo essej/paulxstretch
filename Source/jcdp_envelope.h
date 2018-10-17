@@ -23,14 +23,14 @@ www.gnu.org/licenses
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "PS_Source/globals.h"
 
-struct envelope_node
+struct envelope_point
 {
-	envelope_node()
-        : Time(0.0), Value(0.0), ShapeParam1(0.5), ShapeParam2(0.5) {}
-    envelope_node(double x, double y, double p1=0.5, double p2=0.5)
-        : Time(x), Value(y),ShapeParam1(p1),ShapeParam2(p2) {}
-    double Time;
-    double Value;
+	envelope_point()
+        : pt_x(0.0), pt_y(0.0), ShapeParam1(0.5), ShapeParam2(0.5) {}
+    envelope_point(double x, double y, double p1=0.5, double p2=0.5)
+        : pt_x(x), pt_y(y),ShapeParam1(p1),ShapeParam2(p2) {}
+    double pt_x;
+    double pt_y;
     int Shape = 0;
     double ShapeParam1;
     double ShapeParam2;
@@ -38,8 +38,8 @@ struct envelope_node
 	size_t get_hash() const
 	{
 		size_t seed = 0;
-		seed ^= std::hash<double>()(Time) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-		seed ^= std::hash<double>()(Value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+		seed ^= std::hash<double>()(pt_x) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+		seed ^= std::hash<double>()(pt_y) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 		seed ^= std::hash<int>()(Shape) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 		seed ^= std::hash<double>()(ShapeParam1) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
 		seed ^= std::hash<double>()(ShapeParam2) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -49,9 +49,9 @@ struct envelope_node
 
 };
 
-inline bool operator<(const envelope_node& a, const envelope_node& b)
+inline bool operator<(const envelope_point& a, const envelope_point& b)
 {
-    return a.Time<b.Time;
+    return a.pt_x<b.pt_x;
 }
 
 template<typename T>
@@ -147,36 +147,36 @@ inline double get_shaped_value(double x, int, double p1, double)
 #endif
 }
 
-using nodes_t=std::vector<envelope_node>;
+using nodes_t=std::vector<envelope_point>;
 
 inline double GetInterpolatedNodeValue(const nodes_t& m_nodes, double atime, double m_defvalue=0.5)
 {
     int maxnodeind=(int)m_nodes.size()-1;
     if (m_nodes.size()==0) return m_defvalue;
-    if (m_nodes.size()==1) return m_nodes[0].Value;
-    if (atime<=m_nodes[0].Time)
-        return m_nodes[0].Value;
-    if (atime>m_nodes[maxnodeind].Time)
-        return m_nodes[maxnodeind].Value;
-    const envelope_node to_search(atime,0.0);
+    if (m_nodes.size()==1) return m_nodes[0].pt_y;
+    if (atime<=m_nodes[0].pt_x)
+        return m_nodes[0].pt_y;
+    if (atime>m_nodes[maxnodeind].pt_x)
+        return m_nodes[maxnodeind].pt_y;
+    const envelope_point to_search(atime,0.0);
     //to_search.Time=atime;
     auto it=std::lower_bound(m_nodes.begin(),m_nodes.end(),to_search,
-                             [](const envelope_node& a, const envelope_node& b)
-    { return a.Time<b.Time; } );
+                             [](const envelope_point& a, const envelope_point& b)
+    { return a.pt_x<b.pt_x; } );
     if (it==m_nodes.end())
     {
         return m_defvalue;
     }
     --it; // lower_bound has returned iterator to point one too far
-    double t1=it->Time;
-    double v1=it->Value;
+    double t1=it->pt_x;
+    double v1=it->pt_y;
     double p1=it->ShapeParam1;
     double p2=it->ShapeParam2;
     ++it; // next envelope point
-    double tdelta=it->Time-t1;
+    double tdelta=it->pt_x-t1;
     if (tdelta<0.00001)
         tdelta=0.00001;
-    double vdelta=it->Value-v1;
+    double vdelta=it->pt_y-v1;
     return v1+vdelta*get_shaped_value(((1.0/tdelta*(atime-t1))),0,p1,p2);
 
 }
@@ -230,7 +230,7 @@ public:
 		{
 			ValueTree pt_tree("pt");
 			storeToTreeProperties(pt_tree, nullptr,
-				"x", m_nodes[i].Time, "y", m_nodes[i].Value, "p1", m_nodes[i].ShapeParam1, "p2", m_nodes[i].ShapeParam2);
+				"x", m_nodes[i].pt_x, "y", m_nodes[i].pt_y, "p1", m_nodes[i].ShapeParam1, "p2", m_nodes[i].ShapeParam2);
 			result.addChild(pt_tree, -1, nullptr);
 		}
 		result.setProperty("wrapxtransform", m_transform_wrap_x, nullptr);
@@ -263,8 +263,8 @@ public:
 		MemoryBlock mb;
 		for (int i = 0; i < m_nodes.size(); ++i)
 		{
-			appendToMemoryBlock(mb, m_nodes[i].Time);
-			appendToMemoryBlock(mb, m_nodes[i].Value);
+			appendToMemoryBlock(mb, m_nodes[i].pt_x);
+			appendToMemoryBlock(mb, m_nodes[i].pt_y);
 			appendToMemoryBlock(mb, m_nodes[i].ShapeParam1);
 			appendToMemoryBlock(mb, m_nodes[i].ShapeParam2);
 		}
@@ -279,7 +279,7 @@ public:
 			return 0.0;
 		if (index == 0)
 			return 0.0;
-		return m_nodes[index - 1].Time + margin;
+		return m_nodes[index - 1].pt_x + margin;
 	}
 	double getNodeRightBound(int index, double margin = 0.01) const noexcept
 	{
@@ -287,11 +287,11 @@ public:
 			return 1.0;
 		if (index == m_nodes.size()-1)
 			return 1.0;
-		return m_nodes[index + 1].Time - margin;
+		return m_nodes[index + 1].pt_x - margin;
 	}
-	const std::vector<envelope_node>& get_all_nodes() const { return m_nodes; }
+	const std::vector<envelope_point>& get_all_nodes() const { return m_nodes; }
     void set_all_nodes(nodes_t nds) { m_nodes=std::move(nds); }
-    void set_reset_nodes(const std::vector<envelope_node>& nodes, bool convertvalues=false)
+    void set_reset_nodes(const std::vector<envelope_point>& nodes, bool convertvalues=false)
     {
         if (convertvalues==false)
             m_reset_nodes=nodes;
@@ -302,8 +302,8 @@ public:
                 m_nodes.clear();
                 for (int i=0;i<nodes.size();++i)
                 {
-                    envelope_node node=nodes[i];
-                    node.Value=scaled_to_normalized_func(node.Value);
+                    envelope_point node=nodes[i];
+                    node.pt_y=scaled_to_normalized_func(node.pt_y);
                     m_nodes.push_back(node);
                 }
             }
@@ -331,7 +331,7 @@ public:
         m_updateopinprogress=false;
         SortNodes();
     }
-    void AddNode(envelope_node newnode)
+    void AddNode(envelope_point newnode)
     {
         m_nodes.push_back(newnode);
         if (!m_updateopinprogress)
@@ -351,7 +351,7 @@ public:
     {
         m_nodes.erase(std::remove_if(std::begin(m_nodes),
                                        std::end(m_nodes),
-                                       [t0,t1](const envelope_node& a) { return a.Time>=t0 && a.Time<=t1; } ),
+                                       [t0,t1](const envelope_point& a) { return a.pt_x>=t0 && a.pt_x<=t1; } ),
                                        std::end(m_nodes) );
     }
 	template<typename F>
@@ -359,7 +359,7 @@ public:
 	{
 		m_nodes.erase(std::remove_if(m_nodes.begin(), m_nodes.end(), predicate), m_nodes.end());
 	}
-    envelope_node& GetNodeAtIndex(int indx)
+    envelope_point& GetNodeAtIndex(int indx)
     {
         if (m_nodes.size()==0)
         {
@@ -371,7 +371,7 @@ public:
             indx=(int)m_nodes.size()-1;
         return m_nodes[indx];
     }
-    const envelope_node& GetNodeAtIndex(int indx) const
+    const envelope_point& GetNodeAtIndex(int indx) const
     {
         if (m_nodes.size()==0)
         {
@@ -390,7 +390,7 @@ public:
         if (indx>(int)m_nodes.size()-1) i=(int)m_nodes.size()-1;
         m_nodes[i].Status=nstatus;
     }
-    void SetNode(int indx, envelope_node anode)
+    void SetNode(int indx, envelope_point anode)
     {
         int i=indx;
         if (indx<0) i=0;
@@ -402,8 +402,8 @@ public:
         int i=indx;
         if (indx<0) i=0;
         if (indx>(int)m_nodes.size()-1) i=(int)m_nodes.size()-1;
-        if (setTime) m_nodes[i].Time=atime;
-        if (setValue) m_nodes[i].Value=avalue;
+        if (setTime) m_nodes[i].pt_x=atime;
+        if (setValue) m_nodes[i].pt_y=avalue;
     }
 
 
@@ -419,8 +419,8 @@ public:
         if (m_nodes.size()==0)
             return m_defvalue;
         if (m_nodes.size()==1)
-            return m_nodes[0].Value;
-        if (atime<=m_nodes[0].Time)
+            return m_nodes[0].pt_y;
+        if (atime<=m_nodes[0].pt_x)
         {
 #ifdef INTERPOLATING_ENVELOPE_BORDERS
             t1=m_nodes[0].Time;
@@ -431,10 +431,10 @@ public:
             v1=m_nodes[0].Value;
             return interpolate_foo(atime,t0,v0,t1,v1,p1,p2);
 #else
-            return m_nodes[0].Value;
+            return m_nodes[0].pt_y;
 #endif
         }
-        if (atime>m_nodes[maxnodeind].Time)
+        if (atime>m_nodes[maxnodeind].pt_x)
         {
 #ifdef INTERPOLATING_ENVELOPE_BORDERS
             t0=m_nodes[maxnodeind].Time;
@@ -445,40 +445,40 @@ public:
             p2=m_nodes[maxnodeind].ShapeParam2;
             return interpolate_foo(atime,t0,v0,t1,v1,p1,p2);
 #else
-            return m_nodes.back().Value;
+            return m_nodes.back().pt_y;
 #endif
         }
-        const envelope_node to_search(atime,0.0);
+        const envelope_point to_search(atime,0.0);
         //to_search.Time=atime;
         auto it=std::lower_bound(m_nodes.begin(),m_nodes.end(),to_search,
-                                 [](const envelope_node& a, const envelope_node& b)
-        { return a.Time<b.Time; } );
+                                 [](const envelope_point& a, const envelope_point& b)
+        { return a.pt_x<b.pt_x; } );
         if (it==m_nodes.end())
         {
             return m_defvalue;
         }
         --it; // lower_bound has returned iterator to point one too far
-        t0=it->Time;
-        v0=it->Value;
+        t0=it->pt_x;
+        v0=it->pt_y;
         p1=it->ShapeParam1;
         p2=it->ShapeParam2;
         ++it; // next envelope point
-        t1=it->Time;
-        v1=it->Value;
+        t1=it->pt_x;
+        v1=it->pt_y;
         return interpolate_foo(atime,t0,v0,t1,v1,p1,p2);
     }
     bool IsSorted() const
     {
         return std::is_sorted(m_nodes.begin(), m_nodes.end(), []
-                              (const envelope_node& lhs, const envelope_node& rhs)
+                              (const envelope_point& lhs, const envelope_point& rhs)
                               {
-                                  return lhs.Time<rhs.Time;
+                                  return lhs.pt_x<rhs.pt_x;
                               });
     }
     void SortNodes()
     {
         stable_sort(m_nodes.begin(),m_nodes.end(),
-             [](const envelope_node& a, const envelope_node& b){ return a.Time<b.Time; } );
+             [](const envelope_point& a, const envelope_point& b){ return a.pt_x<b.pt_x; } );
     }
     double minimum_value() const { return m_minvalue; }
     double maximum_value() const { return m_maxvalue; }
@@ -503,7 +503,7 @@ public:
 	{
 		for (int i = 0; i < m_old_nodes.size(); ++i)
 		{
-			envelope_node node = m_old_nodes[i];
+			envelope_point node = m_old_nodes[i];
 			f(i, node);
 			node.ShapeParam1 = jlimit(0.0, 1.0, node.ShapeParam1);
 			m_nodes[i] = node;
@@ -513,11 +513,11 @@ public:
 	{
 		if (index >= m_old_nodes.size())
 		{
-			m_nodes.back().Value = jlimit(0.0,1.0,m_old_nodes.back().Value+amount);
+			m_nodes.back().pt_y = jlimit(0.0,1.0,m_old_nodes.back().pt_y+amount);
 			return;
 		}
-		m_nodes[index].Value = jlimit(0.0, 1.0, m_old_nodes[index].Value + amount);
-		m_nodes[index+1].Value = jlimit(0.0, 1.0, m_old_nodes[index+1].Value + amount);
+		m_nodes[index].pt_y = jlimit(0.0, 1.0, m_old_nodes[index].pt_y + amount);
+		m_nodes[index+1].pt_y = jlimit(0.0, 1.0, m_old_nodes[index+1].pt_y + amount);
 	}
     const nodes_t& repeater_nodes() const
     {
@@ -528,10 +528,10 @@ public:
         m_repeater_nodes.clear();
         for (int i=0;i<m_nodes.size();++i)
         {
-            if (m_nodes[i].Time>=m_playoffset && m_nodes[i].Time<=m_playoffset+1.0)
+            if (m_nodes[i].pt_x>=m_playoffset && m_nodes[i].pt_x<=m_playoffset+1.0)
             {
-                envelope_node temp=m_nodes[i];
-                temp.Time-=m_playoffset;
+                envelope_point temp=m_nodes[i];
+                temp.pt_x-=m_playoffset;
                 m_repeater_nodes.push_back(temp);
             }
         }
@@ -558,17 +558,17 @@ public:
 		if (m_nodes.size() == 0)
 			return;
 		
-		envelope_node pt0 = GetNodeAtIndex(point_index);
-		envelope_node pt1 = GetNodeAtIndex(point_index+1);
-		double xdiff = pt1.Time - pt0.Time;
+		envelope_point pt0 = GetNodeAtIndex(point_index);
+		envelope_point pt1 = GetNodeAtIndex(point_index+1);
+		double xdiff = pt1.pt_x - pt0.pt_x;
 		if (xdiff > 0.0)
 		{
 			int numsegments = numsegmentsfunc(xdiff);
 			for (int j=0;j<numsegments;++j)
 			{
-				double cb_x0 = pt0.Time + xdiff / (numsegments)*j;
+				double cb_x0 = pt0.pt_x + xdiff / (numsegments)*j;
 				double cb_y0 = GetInterpolatedNodeValue(cb_x0);
-				double cb_x1 = pt0.Time + xdiff / (numsegments)*(j+1);
+				double cb_x1 = pt0.pt_x + xdiff / (numsegments)*(j+1);
 				double cb_y1 = GetInterpolatedNodeValue(cb_x1);
 				handlesegmentfunc(cb_x0, cb_y0,cb_x1,cb_y1);
 			}
@@ -642,8 +642,8 @@ public:
 		double maxv = 0.0;
 		for (auto& e : m_nodes)
 		{
-			minv = std::min(minv, e.Value);
-			maxv = std::max(maxv, e.Value);
+			minv = std::min(minv, e.pt_y);
+			maxv = std::max(maxv, e.pt_y);
 		}
 		m_minvalue = minv;
 		m_maxvalue = maxv;
