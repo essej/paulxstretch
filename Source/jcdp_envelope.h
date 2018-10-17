@@ -149,7 +149,7 @@ inline double get_shaped_value(double x, int, double p1, double)
 
 using nodes_t=std::vector<envelope_point>;
 
-inline double GetInterpolatedNodeValue(const nodes_t& m_nodes, double atime, double m_defvalue=0.5)
+inline double GetInterpolatedEnvelopeValue(const nodes_t& m_nodes, double atime, double m_defvalue=0.5)
 {
     int maxnodeind=(int)m_nodes.size()-1;
     if (m_nodes.size()==0) return m_defvalue;
@@ -271,7 +271,7 @@ public:
 		return MD5(mb);
 	}
 	
-    int GetNumNodes() const { return (int)m_nodes.size(); }
+    int GetNumPoints() const { return (int)m_nodes.size(); }
     void SetDefShape(int value) { m_defshape=value; }
 	double getNodeLeftBound(int index, double margin=0.01) const noexcept
 	{
@@ -407,7 +407,7 @@ public:
     }
 
 
-    double GetInterpolatedNodeValue(double atime) const
+    double GetInterpolatedEnvelopeValue(double atime) const
     {
         double t0=0.0;
         double t1=0.0;
@@ -567,9 +567,9 @@ public:
 			for (int j=0;j<numsegments;++j)
 			{
 				double cb_x0 = pt0.pt_x + xdiff / (numsegments)*j;
-				double cb_y0 = GetInterpolatedNodeValue(cb_x0);
+				double cb_y0 = GetInterpolatedEnvelopeValue(cb_x0);
 				double cb_x1 = pt0.pt_x + xdiff / (numsegments)*(j+1);
-				double cb_y1 = GetInterpolatedNodeValue(cb_x1);
+				double cb_y1 = GetInterpolatedEnvelopeValue(cb_x1);
 				handlesegmentfunc(cb_x0, cb_y0,cb_x1,cb_y1);
 			}
 		}
@@ -591,7 +591,7 @@ public:
 	inline double getTransformedValue(double x)
 	{
 		if (isTransformed() == false)
-			return GetInterpolatedNodeValue(x);
+			return GetInterpolatedEnvelopeValue(x);
 		double temp = x-m_transform_x_shift;
 		if (m_transform_wrap_x == true)
 		{
@@ -599,7 +599,7 @@ public:
 			if (temp < 0.0)
 				temp += 1.0;
 		}
-		double v = GetInterpolatedNodeValue(temp);
+		double v = GetInterpolatedEnvelopeValue(temp);
 		double center_v = m_minvalue + (m_maxvalue - m_minvalue) / 2.0;
 		double diff = center_v - v;
 		double scaled = center_v - m_transform_y_scale * diff;
