@@ -54,11 +54,11 @@
                vst3Folder="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
-                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
+                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;/Users/teemu/codeprojects/JUCE/modules/vst2.x&#10;"
                        libraryPath="/usr/local/Cellar/fftw/3.3.8/lib" cppLibType="libc++"
                        osxArchitecture="64BitIntel" osxCompatibility="10.9 SDK" defines="JUCE_NO_DEPRECATION_WARNINGS"/>
         <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
-                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;"
+                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;/Users/teemu/codeprojects/JUCE/modules/vst2.x&#10;"
                        osxCompatibility="10.9 SDK" osxArchitecture="64BitIntel" cppLibType="libc++"
                        libraryPath="/usr/local/Cellar/fftw/3.3.8/lib" defines="JUCE_NO_DEPRECATION_WARNINGS"
                        auBinaryLocation="$(HOME)/Library/Audio/Plug-Ins/Components"/>
