@@ -57,7 +57,7 @@ typedef double WDL_ResampleSample;
 class WDL_Resampler
 {
 public:
-  WDL_Resampler();
+  WDL_Resampler(int initialinputbuffersize=0);
   ~WDL_Resampler();
   // if sinc set, it overrides interp or filtercnt
   void SetMode(bool interp, int filtercnt, bool sinc, int sinc_size=64, int sinc_interpsize=32);

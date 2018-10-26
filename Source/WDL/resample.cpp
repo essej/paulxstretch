@@ -185,7 +185,7 @@ void inline WDL_Resampler::SincSample2(WDL_ResampleSample *outptr, const WDL_Res
 
 
 
-WDL_Resampler::WDL_Resampler()
+WDL_Resampler::WDL_Resampler(int initialinputbuffersize)
 {
   m_filterq=0.707f;
   m_filterpos=0.693f; // .792 ?
@@ -203,7 +203,8 @@ WDL_Resampler::WDL_Resampler()
   m_ratio=1.0; 
   m_filter_ratio=-1.0; 
   m_iirfilter=0;
-  m_rsinbuf.Resize(4 * 65536);
+  if (initialinputbuffersize>0)
+	m_rsinbuf.Resize(initialinputbuffersize);
   Reset(); 
 }
 

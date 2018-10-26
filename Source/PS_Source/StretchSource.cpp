@@ -30,7 +30,7 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans,
 	AudioFormatManager* afm,
 	std::array<AudioParameterBool*,9>& enab_pars) : m_afm(afm)
 {
-	m_resampler = std::make_unique<WDL_Resampler>();
+	m_resampler = std::make_unique<WDL_Resampler>(4*65536);
 	m_resampler_outbuf.resize(1024*1024);
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	for (int i = 0; i < enab_pars.size(); ++i)
