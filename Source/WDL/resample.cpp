@@ -203,7 +203,7 @@ WDL_Resampler::WDL_Resampler()
   m_ratio=1.0; 
   m_filter_ratio=-1.0; 
   m_iirfilter=0;
-
+  m_rsinbuf.Resize(4 * 65536);
   Reset(); 
 }
 
