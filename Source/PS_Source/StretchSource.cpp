@@ -229,6 +229,8 @@ void StretchAudioSource::setPreviewDry(bool b)
 	if (m_cs.tryEnter())
 	{
 		m_resampler->Reset();
+		if (m_preview_dry == true && b == false && m_inputfile->info.nsamples>0)
+			m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
 		m_preview_dry = b;
 		++m_param_change_count;
 		m_cs.exit();
