@@ -89,6 +89,12 @@ const int cpi_looping_enabled = 60;
 const int cpi_rewind = 61;
 const int cpi_dryplayrate = 62;
 
+class MyThreadPool : public ThreadPool
+{
+public:
+	MyThreadPool() : ThreadPool(2) {}
+};
+
 class MyPropertiesFile
 {
 public:
@@ -263,7 +269,7 @@ private:
 	bool m_lastrewind = false;
 	AudioFilePreviewComponent* m_previewcomponent = nullptr;
 	void saveCaptureBuffer();
-	
+	SharedResourcePointer<MyThreadPool> m_threadpool;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

@@ -487,8 +487,8 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 			return;
 		Uuid uid;
 		WavAudioFormat wavformat;
-		String outfn = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getFullPathName() + "/paulxstretchaudiocaptures/" +
-			uid.toString() + ".wav";
+		String propsdir = m_propsfile->m_props_file->getFile().getParentDirectory().getFullPathName();
+		String outfn = propsdir + "/paulxstretchaudiocaptures/" + uid.toString() + ".wav";
 		Logger::writeToLog("Attempting to save capture to file " + outfn);
 		File outfile(outfn);
 		outfile.create();
@@ -515,8 +515,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		else
 			Logger::writeToLog("Could not create output file");
 	};
-	std::thread th(task);
-	th.detach();
+	m_threadpool->addJob(task);
 }
 
 String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
