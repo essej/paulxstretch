@@ -12,6 +12,7 @@ History :
 	-Added varispeed (resampling speed change) feature when spectral stretch engine is bypassed
 	-Added shortcut key (may not work properly in all plugin formats and hosts) :
 		"I" to open file import dialog
+	-Attempt to prevent capture enabled state from being recalled when undoing in the host
 	-Added VST3 version
 	-Removed VST2 version from binaries. :( It is still possible to build VST2 from source code, if the VST2 
 	 SDK is available. (But distributing the binaries is likely not allowed if the distributor doesn't have 

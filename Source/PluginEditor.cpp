@@ -1261,6 +1261,9 @@ void ParameterComponent::buttonClicked(Button * but)
 		}
 		else
 		{
+			// If we have the non-parameter state pointer, just set the target parameter to true.
+			// Logic in the AudioProcessor determines what should be done and it sets the parameter immediately back
+			// to false when it sees the parameter is true.
 			*boolpar = true;
 		}
 	}
@@ -1279,7 +1282,7 @@ void ParameterComponent::updateComponent()
 		m_slider->setValue(*intpar, dontSendNotification);
 	}
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-	if (m_togglebut != nullptr) // && m_togglebut->getToggleState() != *boolpar)
+	if (m_togglebut != nullptr)
 	{
 		if (m_nonparamstate == nullptr)
 		{
@@ -1288,6 +1291,7 @@ void ParameterComponent::updateComponent()
 		}
 		else
 		{
+			// If we have the non-parameter state pointer, get the button toggle state from that
 			if (m_togglebut->getToggleState()!=*m_nonparamstate)
 				m_togglebut->setToggleState(*m_nonparamstate, dontSendNotification);
 		}
