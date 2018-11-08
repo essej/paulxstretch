@@ -25,7 +25,7 @@ FFT::FFT(int nsamples_, bool no_inverse)
     nsamples=nsamples_;
 	if (nsamples%2!=0) {
 		nsamples+=1;
-		printf("WARNING: Odd sample size on FFT::FFT() (%d)",nsamples);
+		Logger::writeToLog("WARNING: Odd sample size on FFT::FFT() "+String(nsamples));
 	};
 	smp.resize(nsamples);
 	for (int i = 0; i < nsamples; i++) 
@@ -58,12 +58,9 @@ FFT::FFT(int nsamples_, bool no_inverse)
     }
     //double t1 = Time::getMillisecondCounterHiRes();
     //Logger::writeToLog("Creating FFTW3 plans took "+String(t1-t0)+ "ms");
-
-	//timeCall("Initing FFT random generator", [this]()
-	//{
-		std::random_device rand_device;
-		m_randgen = std::mt19937(rand_device());
-	//});
+	static int seed = 0;
+	m_randgen = std::mt19937(seed);
+	++seed;
 };
 
 FFT::~FFT()
