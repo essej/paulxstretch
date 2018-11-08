@@ -51,7 +51,7 @@ const int cpi_tonalvsnoisepreserve = 22;
 const int cpi_filter_low = 23;
 const int cpi_filter_high = 24;
 const int cpi_onsetdetection = 25;
-const int cpi_capture_enabled = 26;
+const int cpi_capture_trigger = 26;
 const int cpi_num_outchans = 27;
 const int cpi_pause_enabled = 28;
 const int cpi_max_capture_len = 29;
@@ -217,13 +217,11 @@ public:
 		void* ptr,
 		float opt) override;
 	int m_cur_tab_index = 0;
+	bool m_is_recording = false;
 private:
-	
-	
 	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;
 	double m_max_reclen = 10.0;
-	bool m_is_recording = false;
 	int m_rec_pos = 0;
 	int m_rec_count = 0;
 	Range<int> m_recorded_range;

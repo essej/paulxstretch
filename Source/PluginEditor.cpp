@@ -112,6 +112,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		{
 			m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
 			m_parcomps.back()->m_group_id = group_id;
+			if (i == cpi_capture_trigger)
+				m_parcomps.back()->m_nonparamstate = &processor.m_is_recording;
 			if (group_id >= -1)
 				addAndMakeVisible(m_parcomps.back().get());
 		}
@@ -288,7 +290,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 	//std::vector<std::vector<int>> layout;
 	//layout.emplace_back(cpi_capture_enabled,	cpi_passthrough,	cpi_pause_enabled,	cpi_freeze);
 	//layout.emplace_back(cpi_main_volume,		cpi_num_inchans,	cpi_num_outchans);
-	m_parcomps[cpi_capture_enabled]->setBounds(xoffs, yoffs, div-1, 24);
+	m_parcomps[cpi_capture_trigger]->setBounds(xoffs, yoffs, div-1, 24);
 	//xoffs += div;
 	//m_parcomps[cpi_max_capture_len]->setBounds(xoffs, yoffs, div - 1, 24);
 	xoffs += div;
@@ -1250,9 +1252,17 @@ void ParameterComponent::sliderDragEnded(Slider * slid)
 void ParameterComponent::buttonClicked(Button * but)
 {
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-	if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
+	if (m_togglebut != nullptr) // && m_togglebut->getToggleState() != *boolpar)
 	{
-		*boolpar = m_togglebut->getToggleState();
+		if (m_nonparamstate == nullptr)
+		{
+			if (m_togglebut->getToggleState()!=*boolpar)
+				*boolpar = m_togglebut->getToggleState();
+		}
+		else
+		{
+			*boolpar = true;
+		}
 	}
 }
 
@@ -1269,9 +1279,18 @@ void ParameterComponent::updateComponent()
 		m_slider->setValue(*intpar, dontSendNotification);
 	}
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-	if (m_togglebut != nullptr && m_togglebut->getToggleState() != *boolpar)
+	if (m_togglebut != nullptr) // && m_togglebut->getToggleState() != *boolpar)
 	{
-		m_togglebut->setToggleState(*boolpar, dontSendNotification);
+		if (m_nonparamstate == nullptr)
+		{
+			if (m_togglebut->getToggleState() != *boolpar)
+				m_togglebut->setToggleState(*boolpar, dontSendNotification);
+		}
+		else
+		{
+			if (m_togglebut->getToggleState()!=*m_nonparamstate)
+				m_togglebut->setToggleState(*m_nonparamstate, dontSendNotification);
+		}
 	}
 }
 

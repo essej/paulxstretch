@@ -903,7 +903,7 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 {
 	if (id == 1)
 	{
-		bool capture = *getBoolParameter(cpi_capture_enabled);
+		bool capture = *getBoolParameter(cpi_capture_trigger);
 		if (capture == false && m_max_reclen != *getFloatParameter(cpi_max_capture_len))
 		{
 			m_max_reclen = *getFloatParameter(cpi_max_capture_len);
@@ -912,11 +912,13 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 		if (capture == true && m_is_recording == false)
 		{
 			setRecordingEnabled(true);
+			*getBoolParameter(cpi_capture_trigger)=false;
 			return;
 		}
-		if (capture == false && m_is_recording == true)
+		if (capture == true && m_is_recording == true)
 		{
 			setRecordingEnabled(false);
+			*getBoolParameter(cpi_capture_trigger) = false;
 			return;
 		}
 		if (m_cur_num_out_chans != *m_outchansparam)
