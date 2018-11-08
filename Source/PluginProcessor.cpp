@@ -241,6 +241,7 @@ int PaulstretchpluginAudioProcessor::getPreBufferAmount()
 ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool ignorefile)
 {
 	ValueTree paramtree("paulstretch3pluginstate");
+	paramtree.setProperty("captureuuid", m_capture_uuid, nullptr);
 	storeToTreeProperties(paramtree, nullptr, getParameters());
     if (m_current_file != File() && ignorefile == false)
 	{
@@ -310,8 +311,16 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			String fn = tree.getProperty("importedfile");
 			if (fn.isEmpty() == false)
 			{
-				File f(fn);
-				setAudioFile(f);
+				setAudioFile(File(fn));
+			}
+			else
+			{
+				String captureuuid = tree.getProperty("captureuuid");
+				if (captureuuid.isEmpty() == false)
+				{
+					String capturefn = "C:\\Users\\Teemu\\AppData\\Roaming\\PaulXStretch\\audio_captures\\" + captureuuid + ".wav";
+					setAudioFile(File(capturefn));
+				}
 			}
 		}
 		m_state_dirty = true;
@@ -477,6 +486,39 @@ void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameter
 
 	pars.tonal_vs_noise.bandwidth = *getFloatParameter(cpi_tonalvsnoisebw);
 	pars.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
+}
+
+void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
+{
+	auto task = [this]()
+	{
+		int inchans = *getIntParameter(cpi_num_inchans);
+		if (inchans < 1)
+			return;
+		Uuid uid;
+		String outfn = "C:\\Users\\Teemu\\AppData\\Roaming\\PaulXStretch\\audio_captures\\" + uid.toString() + ".wav";
+		WavAudioFormat wavformat;
+		File outfile(outfn);
+		auto outstream = outfile.createOutputStream();
+		auto writer = unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(),
+			inchans, 32, {}, 0));
+		if (writer != nullptr)
+		{
+			auto sourcebuffer = getStretchSource()->getSourceAudioBuffer();
+			jassert(sourcebuffer->getNumChannels() == inchans);
+			jassert(sourcebuffer->getNumSamples() > 0);
+			Logger::writeToLog("Saving capture to file " + outfn);
+			writer->writeFromAudioSampleBuffer(*sourcebuffer, 0, sourcebuffer->getNumSamples());
+			m_capture_uuid = uid.toString();
+		}
+		else
+		{
+			Logger::writeToLog("Could not create wav writer");
+			delete outstream;
+		}
+	};
+	std::thread th(task);
+	th.detach();
 }
 
 String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
@@ -942,9 +984,11 @@ pointer_sized_int PaulstretchpluginAudioProcessor::handleVstManufacturerSpecific
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
+	m_current_file = File();
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	*getFloatParameter(cpi_soundstart) = 0.0f;
 	*getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, 1.0 / lenrecording * m_rec_count);
+	saveCaptureBuffer();
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
