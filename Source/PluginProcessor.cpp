@@ -241,7 +241,6 @@ int PaulstretchpluginAudioProcessor::getPreBufferAmount()
 ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool ignorefile)
 {
 	ValueTree paramtree("paulstretch3pluginstate");
-	paramtree.setProperty("captureuuid", m_capture_uuid, nullptr);
 	storeToTreeProperties(paramtree, nullptr, getParameters());
     if (m_current_file != File() && ignorefile == false)
 	{
@@ -312,15 +311,6 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			if (fn.isEmpty() == false)
 			{
 				setAudioFile(File(fn));
-			}
-			else
-			{
-				String captureuuid = tree.getProperty("captureuuid");
-				if (captureuuid.isEmpty() == false)
-				{
-					String capturefn = "C:\\Users\\Teemu\\AppData\\Roaming\\PaulXStretch\\audio_captures\\" + captureuuid + ".wav";
-					setAudioFile(File(capturefn));
-				}
 			}
 		}
 		m_state_dirty = true;
@@ -509,7 +499,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 			jassert(sourcebuffer->getNumSamples() > 0);
 			Logger::writeToLog("Saving capture to file " + outfn);
 			writer->writeFromAudioSampleBuffer(*sourcebuffer, 0, sourcebuffer->getNumSamples());
-			m_capture_uuid = uid.toString();
+			m_current_file = outfile;
 		}
 		else
 		{

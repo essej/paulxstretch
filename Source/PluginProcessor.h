@@ -265,7 +265,7 @@ private:
 	bool m_lastrewind = false;
 	AudioFilePreviewComponent* m_previewcomponent = nullptr;
 	void saveCaptureBuffer();
-	String m_capture_uuid;
+	
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
