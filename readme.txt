@@ -7,7 +7,8 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
-11-05-2018 1.3.0
+11-08-2018 1.3.0
+	-Captured audio buffers can be saved as files on disk for later recall
 	-Added varispeed (resampling speed change) feature when spectral stretch engine is bypassed
 	-Added shortcut key (may not work properly in all plugin formats and hosts) :
 		"I" to open file import dialog
