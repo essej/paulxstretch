@@ -486,26 +486,34 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		if (inchans < 1)
 			return;
 		Uuid uid;
-		String outfn = "C:\\Users\\Teemu\\AppData\\Roaming\\PaulXStretch\\audio_captures\\" + uid.toString() + ".wav";
 		WavAudioFormat wavformat;
+		String outfn = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getFullPathName() + "/paulxstretchaudiocaptures/" +
+			uid.toString() + ".wav";
+		Logger::writeToLog("Attempting to save capture to file " + outfn);
 		File outfile(outfn);
-		auto outstream = outfile.createOutputStream();
-		auto writer = unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(),
-			inchans, 32, {}, 0));
-		if (writer != nullptr)
+		outfile.create();
+		if (outfile.existsAsFile())
 		{
-			auto sourcebuffer = getStretchSource()->getSourceAudioBuffer();
-			jassert(sourcebuffer->getNumChannels() == inchans);
-			jassert(sourcebuffer->getNumSamples() > 0);
-			Logger::writeToLog("Saving capture to file " + outfn);
-			writer->writeFromAudioSampleBuffer(*sourcebuffer, 0, sourcebuffer->getNumSamples());
-			m_current_file = outfile;
+			auto outstream = outfile.createOutputStream();
+			auto writer = unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(),
+				inchans, 32, {}, 0));
+			if (writer != nullptr)
+			{
+				auto sourcebuffer = getStretchSource()->getSourceAudioBuffer();
+				jassert(sourcebuffer->getNumChannels() == inchans);
+				jassert(sourcebuffer->getNumSamples() > 0);
+				
+				writer->writeFromAudioSampleBuffer(*sourcebuffer, 0, sourcebuffer->getNumSamples());
+				m_current_file = outfile;
+			}
+			else
+			{
+				Logger::writeToLog("Could not create wav writer");
+				delete outstream;
+			}
 		}
 		else
-		{
-			Logger::writeToLog("Could not create wav writer");
-			delete outstream;
-		}
+			Logger::writeToLog("Could not create output file");
 	};
 	std::thread th(task);
 	th.detach();
