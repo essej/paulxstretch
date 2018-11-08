@@ -27,6 +27,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <random>
+#include <type_traits>
 
 template<typename T>
 class FFTWBuffer
@@ -91,28 +92,22 @@ public:
 private:
     T* m_buf = nullptr;
     int m_size = 0;
-    void mallocimpl(float*& buf,int size)
+    void mallocimpl(T*& buf,int size)
     {
-        buf = (float*)fftwf_malloc(size*sizeof(float));
+        if constexpr (std::is_same<T,float>::value)
+			buf = (float*)fftwf_malloc(size*sizeof(float));
+		else
+			buf = (double*)fftw_malloc(size * sizeof(double));
     }
-    void mallocimpl(double*& buf,int size)
-    {
-        buf = (double*)fftw_malloc(size*sizeof(double));
-    }
-    void freeimpl(float*& buf)
+	void freeimpl(T*& buf)
     {
         if (buf!=nullptr)
         {
-            fftwf_free(buf);
-            buf = nullptr;
-        }
-    }
-    void freeimpl(double*& buf)
-    {
-        if (buf!=nullptr)
-        {
-            fftw_free(buf);
-            buf = nullptr;
+			if constexpr (std::is_same<T, float>::value)
+				fftwf_free(buf);
+			else
+				fftw_free(buf);
+			buf = nullptr;
         }
     }
 };
