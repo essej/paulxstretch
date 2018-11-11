@@ -26,6 +26,12 @@ www.gnu.org/licenses
 #undef max
 #endif
 
+std::vector<SpectrumProcessType> g_specorderpresets[3] = {
+	{SPT_Harmonics,SPT_PitchShift,SPT_FreqShift,SPT_Spread,SPT_TonalVsNoise,SPT_Filter,SPT_FreeFilter,SPT_RatioMix,SPT_Compressor},
+	{SPT_PitchShift,SPT_Harmonics,SPT_FreqShift,SPT_Spread,SPT_TonalVsNoise,SPT_Filter,SPT_FreeFilter,SPT_RatioMix,SPT_Compressor},
+	{SPT_RatioMix,SPT_PitchShift,SPT_Harmonics,SPT_FreqShift,SPT_Spread,SPT_TonalVsNoise,SPT_Filter,SPT_FreeFilter,SPT_Compressor}
+};
+
 StretchAudioSource::StretchAudioSource(int initialnumoutchans, 
 	AudioFormatManager* afm,
 	std::array<AudioParameterBool*,9>& enab_pars) : m_afm(afm)
@@ -257,6 +263,18 @@ void StretchAudioSource::setDryPlayrate(double rate)
 double StretchAudioSource::getDryPlayrate() const
 {
 	return m_dryplayrate;
+}
+
+void StretchAudioSource::setSpectralOrderPreset(int id)
+{
+	if (id == m_current_spec_order_preset)
+		return;
+	if (m_cs.tryEnter())
+	{
+		m_current_spec_order_preset = id;
+		++m_param_change_count;
+		m_cs.exit();
+	}
 }
 
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
