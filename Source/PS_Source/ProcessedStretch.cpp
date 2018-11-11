@@ -30,8 +30,6 @@ ProcessedStretch::ProcessedStretch(REALTYPE rap_,int in_bufsize_,FFTWindow w,boo
 
 ProcessedStretch::~ProcessedStretch()
 {
-	
-//	delete [] fbfreq;
 };
 
 void ProcessedStretch::set_parameters(ProcessParameters *ppar)
@@ -56,7 +54,6 @@ void ProcessedStretch::setBufferSize(int sz)
 		m_sumfreq = floatvector(nfreq);
 		m_tmpfreq1 = floatvector(nfreq);
 		m_tmpfreq2 = floatvector(nfreq);
-		//fbfreq=new REALTYPE[nfreq];
 		m_free_filter_freqs = floatvector(nfreq);
 		fill_container(m_free_filter_freqs, 1.0f);
 	}
@@ -104,25 +101,23 @@ void ProcessedStretch::process_spectrum(REALTYPE *freq)
 	for (auto& e : m_spectrum_processes)
     {
 		spectrum_copy(nfreq, freq, m_infreq.data());
-		if (e.m_index == 0 && *e.m_enabled == true)
+		if (e.m_index == SPT_Harmonics && *e.m_enabled == true)
 			spectrum_do_harmonics(pars, m_tmpfreq1, nfreq, samplerate, m_infreq.data(), freq);
-		if (e.m_index == 1 && *e.m_enabled == true)
+		if (e.m_index == SPT_TonalVsNoise && *e.m_enabled == true)
 			spectrum_do_tonal_vs_noise(pars,nfreq,samplerate,m_tmpfreq1, m_infreq.data(), freq);
-		if (e.m_index == 2 && *e.m_enabled == true)
+		if (e.m_index == SPT_FreqShift && *e.m_enabled == true)
 			spectrum_do_freq_shift(pars,nfreq,samplerate,m_infreq.data(), freq);
-		if (e.m_index == 3 && *e.m_enabled == true)
+		if (e.m_index == SPT_PitchShift && *e.m_enabled == true)
 			spectrum_do_pitch_shift(pars,nfreq,m_infreq.data(), freq, pow(2.0f, pars.pitch_shift.cents / 1200.0f));
-		//if (e.m_index == 4 && *e.m_enabled == true)
-		//	spectrum_do_octave(pars,nfreq,samplerate, m_sumfreq, m_tmpfreq1, m_infreq.data(), freq);
-		if (e.m_index == 4 && *e.m_enabled == true)
+		if (e.m_index == SPT_RatioMix && *e.m_enabled == true)
 			spectrum_do_ratiomix(pars,nfreq,samplerate, m_sumfreq, m_tmpfreq1, m_infreq.data(), freq);
-		if (e.m_index == 5 && *e.m_enabled == true)
+		if (e.m_index == SPT_Spread && *e.m_enabled == true)
 			spectrum_spread(nfreq,samplerate,m_tmpfreq1,m_infreq.data(), freq, pars.spread.bandwidth);
-		if (e.m_index == 6 && *e.m_enabled == true)
+		if (e.m_index == SPT_Filter && *e.m_enabled == true)
 			spectrum_do_filter(pars,nfreq,samplerate,m_infreq.data(), freq);
-		if (e.m_index == 8 && *e.m_enabled == true)
+		if (e.m_index == SPT_Compressor && *e.m_enabled == true)
 			spectrum_do_compressor(pars,nfreq, m_infreq.data(), freq);
-		if (e.m_index == 7 && *e.m_enabled == true)
+		if (e.m_index == SPT_FreeFilter && *e.m_enabled == true)
 			spectrum_do_free_filter(m_free_filter_envelope, nfreq, samplerate, m_infreq.data(), freq);
 	}
 };

@@ -35,7 +35,7 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans,
 	m_inputfile = std::make_unique<AInputS>(m_afm);
 	for (int i = 0; i < enab_pars.size(); ++i)
 	{
-		m_specproc_order.emplace_back(i, enab_pars[i]);
+		m_specproc_order.emplace_back((SpectrumProcessType)i, enab_pars[i]);
 	}
 	//m_specproc_order = { {0,false} , { 1, false} ,{2,true},{3,true},{4,true},{5,false},{6,true},{7,true},{8,false} };
 	setNumOutChannels(initialnumoutchans);

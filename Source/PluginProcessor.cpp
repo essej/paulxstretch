@@ -291,7 +291,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 					for (int i = 0; i < ordersize; ++i)
 					{
 						int index = tree.getProperty("specorderb" + String(i));
-						new_order.push_back({ index, old_order[index].m_enabled });
+						new_order.push_back({ (SpectrumProcessType)index, old_order[index].m_enabled });
 					}
 					m_stretch_source->setSpectrumProcessOrder(new_order);
 				}

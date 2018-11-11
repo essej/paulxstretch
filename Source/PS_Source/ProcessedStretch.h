@@ -471,13 +471,26 @@ inline void spectrum_do_free_filter(shared_envelope& env, int nfreq, double samp
 	};
 };
 
+enum SpectrumProcessType
+{
+	SPT_Harmonics = 0,
+	SPT_TonalVsNoise,
+	SPT_FreqShift,
+	SPT_PitchShift,
+	SPT_RatioMix,
+	SPT_Spread,
+	SPT_Filter,
+	SPT_FreeFilter,
+	SPT_Compressor,
+	SPT_Unknown = 1000
+};
 
 class SpectrumProcess
 {
 public:
 	SpectrumProcess() {}
-	SpectrumProcess(int index, AudioParameterBool* enabled) : m_index(index), m_enabled(enabled) {}
-	int m_index = -1;
+	SpectrumProcess(SpectrumProcessType index, AudioParameterBool* enabled) : m_index(index), m_enabled(enabled) {}
+	SpectrumProcessType m_index = SPT_Unknown;
 	AudioParameterBool* m_enabled = nullptr;
 };
 
