@@ -339,7 +339,6 @@ private:
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
 	void showAbout();
-	PopupMenu m_settings_menu;
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

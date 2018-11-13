@@ -554,8 +554,8 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 {
-	m_settings_menu = PopupMenu();
-	m_settings_menu.addItem(4, "Reset parameters", true, false);
+    PopupMenu m_settings_menu;
+    m_settings_menu.addItem(4, "Reset parameters", true, false);
 	m_settings_menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
 	m_settings_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
 	m_settings_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
