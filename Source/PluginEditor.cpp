@@ -21,6 +21,19 @@ www.gnu.org/licenses
 #include <array>
 #include "RenderSettingsComponent.h"
 
+class MyPopmenuCallback : public ModalComponentManager::Callback
+{
+public:
+	MyPopmenuCallback(PaulstretchpluginAudioProcessorEditor* owner) : m_owner(owner) {}
+	void modalStateFinished(int returnValue) override
+	{
+		jassert(m_owner != nullptr);
+		m_owner->executeModalMenuAction(0, returnValue);
+	}
+	PaulstretchpluginAudioProcessorEditor* m_owner = nullptr;
+};
+
+
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
@@ -258,6 +271,54 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 	auto content = new RenderSettingsComponent(&processor);
 	content->setSize(content->getWidth(), content->getPreferredHeight());
 	/*CallOutBox& myBox =*/ CallOutBox::launchAsynchronously(content, m_render_button.getBounds(), this);
+}
+
+void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, int r)
+{
+	if (r >= 200 && r < 210)
+	{
+		int caplen = m_capturelens[r - 200];
+		*processor.getFloatParameter(cpi_max_capture_len) = (float)caplen;
+	}
+	if (r == 1)
+	{
+		toggleBool(processor.m_play_when_host_plays);
+	}
+	if (r == 2)
+	{
+		toggleBool(processor.m_capture_when_host_plays);
+	}
+	if (r == 8)
+	{
+		toggleBool(processor.m_mute_while_capturing);
+	}
+	if (r == 4)
+	{
+		processor.resetParameters();
+	}
+	if (r == 5)
+	{
+		toggleBool(processor.m_load_file_with_state);
+	}
+	if (r == 3)
+	{
+		showAbout();
+	}
+
+	if (r == 6)
+	{
+		ValueTree tree = processor.getStateTree(true, true);
+		MemoryBlock destData;
+		MemoryOutputStream stream(destData, true);
+		tree.writeToStream(stream);
+		String txt = Base64::toBase64(destData.getData(), destData.getSize());
+		SystemClipboard::copyTextToClipboard(txt);
+	}
+	if (r == 7)
+	{
+		toggleBool(processor.m_show_technical_info);
+		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
+	}
 }
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
@@ -501,70 +562,28 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 {
-	PopupMenu menu;
-	menu.addItem(4, "Reset parameters", true, false);
-	menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
-	menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
-	menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
-	menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
+	m_test_menu = PopupMenu();
+	m_test_menu.addItem(4, "Reset parameters", true, false);
+	m_test_menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
+	m_test_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
+	m_test_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
+	m_test_menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
-	std::vector<int> capturelens{ 2,5,10,30,60,120 };
-	for (int i=0;i<capturelens.size();++i)
-		capturelenmenu.addItem(200+i, String(capturelens[i])+" seconds", true, capturelen == capturelens[i]);
-	menu.addSubMenu("Capture buffer length", capturelenmenu);
 	
-	menu.addItem(3, "About...", true, false);
+	for (int i=0;i<m_capturelens.size();++i)
+		capturelenmenu.addItem(200+i, String(m_capturelens[i])+" seconds", true, capturelen == m_capturelens[i]);
+	m_test_menu.addSubMenu("Capture buffer length", capturelenmenu);
+	
+	m_test_menu.addItem(3, "About...", true, false);
 #ifdef JUCE_DEBUG
-	menu.addItem(6, "Dump preset to clipboard", true, false);
+	m_test_menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
-	menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
-	int r = menu.show();
-	if (r >= 200 && r < 210)
-	{
-		int caplen = capturelens[r - 200];
-		*processor.getFloatParameter(cpi_max_capture_len) = (float)caplen;
-	}
-	if (r == 1)
-	{
-		toggleBool(processor.m_play_when_host_plays);
-	}
-	if (r == 2)
-	{
-		toggleBool(processor.m_capture_when_host_plays);
-	}
-	if (r == 8)
-	{
-		toggleBool(processor.m_mute_while_capturing);
-	}
-	if (r == 4)
-	{
-		processor.resetParameters();
-	}
-	if (r == 5)
-	{
-		toggleBool(processor.m_load_file_with_state);
-	}
-	if (r == 3)
-	{
-		showAbout();
-	}
-    
-	if (r == 6)
-	{
-		ValueTree tree = processor.getStateTree(true,true);
-		MemoryBlock destData;
-		MemoryOutputStream stream(destData, true);
-		tree.writeToStream(stream);
-		String txt = Base64::toBase64(destData.getData(), destData.getSize());
-		SystemClipboard::copyTextToClipboard(txt);
-	}
-	if (r == 7)
-	{
-		toggleBool(processor.m_show_technical_info);
-		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
-	}
+	m_test_menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
+	//int r = menu.show();
 	
+	
+	m_test_menu.showMenuAsync(PopupMenu::Options(), new MyPopmenuCallback(this));
 }
 
 void PaulstretchpluginAudioProcessorEditor::showAbout()

@@ -310,7 +310,6 @@ public:
     void resized() override;
 	void timerCallback(int id) override;
 	
-	
 	bool isInterestedInFileDrag(const StringArray &files) override;
 	void filesDropped(const StringArray &files, int x, int y) override;
 
@@ -319,8 +318,10 @@ public:
 	WaveformComponent m_wavecomponent;
 	void chooseFile();
 	void showRenderDialog();
+	void executeModalMenuAction(int menuid, int actionid);
 private:
-    PaulstretchpluginAudioProcessor& processor;
+	PopupMenu m_test_menu;
+	PaulstretchpluginAudioProcessor& processor;
 	uptrvec<ParameterComponent> m_parcomps;
 	//SpectralVisualizer m_specvis;
 	PerfMeterComponent m_perfmeter;
@@ -339,6 +340,7 @@ private:
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
 	void showAbout();
+	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
