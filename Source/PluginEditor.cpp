@@ -580,9 +580,6 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	m_settings_menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	m_settings_menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
-	//int r = menu.show();
-	
-	
 	m_settings_menu.showMenuAsync(PopupMenu::Options(), new MyPopmenuCallback(this));
 }
 
