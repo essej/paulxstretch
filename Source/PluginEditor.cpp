@@ -21,18 +21,10 @@ www.gnu.org/licenses
 #include <array>
 #include "RenderSettingsComponent.h"
 
-class MyPopmenuCallback : public ModalComponentManager::Callback
+static void handleSettingsMenuModalCallback(int choice, PaulstretchpluginAudioProcessorEditor* ed)
 {
-public:
-	MyPopmenuCallback(PaulstretchpluginAudioProcessorEditor* owner) : m_owner(owner) {}
-	void modalStateFinished(int returnValue) override
-	{
-		jassert(m_owner != nullptr);
-		m_owner->executeModalMenuAction(0, returnValue);
-	}
-	PaulstretchpluginAudioProcessorEditor* m_owner = nullptr;
-};
-
+	ed->executeModalMenuAction(0,choice);
+}
 
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
@@ -580,7 +572,8 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	m_settings_menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
 	m_settings_menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
-	m_settings_menu.showMenuAsync(PopupMenu::Options(), new MyPopmenuCallback(this));
+	m_settings_menu.showMenuAsync(PopupMenu::Options(), 
+		ModalCallbackFunction::forComponent(handleSettingsMenuModalCallback, this));
 }
 
 void PaulstretchpluginAudioProcessorEditor::showAbout()
