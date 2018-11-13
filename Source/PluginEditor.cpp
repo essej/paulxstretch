@@ -562,28 +562,28 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 {
-	m_test_menu = PopupMenu();
-	m_test_menu.addItem(4, "Reset parameters", true, false);
-	m_test_menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
-	m_test_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
-	m_test_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
-	m_test_menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
+	m_settings_menu = PopupMenu();
+	m_settings_menu.addItem(4, "Reset parameters", true, false);
+	m_settings_menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
+	m_settings_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
+	m_settings_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
+	m_settings_menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
 	
 	for (int i=0;i<m_capturelens.size();++i)
 		capturelenmenu.addItem(200+i, String(m_capturelens[i])+" seconds", true, capturelen == m_capturelens[i]);
-	m_test_menu.addSubMenu("Capture buffer length", capturelenmenu);
+	m_settings_menu.addSubMenu("Capture buffer length", capturelenmenu);
 	
-	m_test_menu.addItem(3, "About...", true, false);
+	m_settings_menu.addItem(3, "About...", true, false);
 #ifdef JUCE_DEBUG
-	m_test_menu.addItem(6, "Dump preset to clipboard", true, false);
+	m_settings_menu.addItem(6, "Dump preset to clipboard", true, false);
 #endif
-	m_test_menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
+	m_settings_menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
 	//int r = menu.show();
 	
 	
-	m_test_menu.showMenuAsync(PopupMenu::Options(), new MyPopmenuCallback(this));
+	m_settings_menu.showMenuAsync(PopupMenu::Options(), new MyPopmenuCallback(this));
 }
 
 void PaulstretchpluginAudioProcessorEditor::showAbout()
