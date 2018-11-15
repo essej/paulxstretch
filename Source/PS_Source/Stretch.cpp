@@ -139,6 +139,11 @@ void FFT::applywindow(FFTWindow type)
 	for (int i=0;i<nsamples;i++) smp[i]*=window.data[i];
 }
 
+void FFT::setPhaseRefreshRate(int rate)
+{
+	m_phaserefreshrate = rate;
+}
+
 void FFT::updatePhases()
 {
 	for (int i = 1; i < nsamples / 2; i++)
@@ -375,6 +380,12 @@ void Stretch::here_is_onset(REALTYPE onset){
 		skip_samples=0;
 	};
 };
+
+void Stretch::setPhaseRefreshRate(int rate)
+{
+	jassert(fft != nullptr);
+	fft->setPhaseRefreshRate(rate);
+}
 
 int Stretch::get_nsamples(REALTYPE current_pos_percents){
 	if (bypass) return bufsize;

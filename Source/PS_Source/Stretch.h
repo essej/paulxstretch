@@ -128,10 +128,7 @@ class FFT
 		
 		int nsamples=0;
 
-		void setPhaseRefreshRate(int rate)
-		{
-			m_phaserefreshrate = rate;
-		}
+		void setPhaseRefreshRate(int rate);
 
 	private:
 
@@ -174,11 +171,7 @@ class Stretch
 			freezing=new_freezing;
 		};
 		bool isFreezing() { return freezing; }
-		void setPhaseRefreshRate(int rate)
-		{
-			jassert(fft != nullptr);
-			fft->setPhaseRefreshRate(rate);
-		}
+		void setPhaseRefreshRate(int rate);
 		std::vector<REALTYPE> out_buf;//pot sa pun o variabila "max_out_bufsize" si asta sa fie marimea lui out_buf si pe out_bufsize sa il folosesc ca marime adaptiva
 
 		int get_nsamples(REALTYPE current_pos_percents);//how many samples are required 
