@@ -88,6 +88,7 @@ const int cpi_octaves_ratio7 = 59;
 const int cpi_looping_enabled = 60;
 const int cpi_rewind = 61;
 const int cpi_dryplayrate = 62;
+const int cpi_phase_refresh_rate = 63;
 
 class MyThreadPool : public ThreadPool
 {

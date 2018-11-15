@@ -277,6 +277,23 @@ void StretchAudioSource::setSpectralOrderPreset(int id)
 	}
 }
 
+void StretchAudioSource::setPhaseRefreshRate(int rate)
+{
+	for (auto& e : m_stretchers)
+		e->setPhaseRefreshRate(rate);
+	return;
+	if (rate == m_phase_refresh_rate)
+		return;
+	if (m_cs.tryEnter())
+	{
+		for (auto& e : m_stretchers)
+			e->setPhaseRefreshRate(rate);
+		m_phase_refresh_rate = rate;
+		++m_param_change_count;
+		m_cs.exit();
+	}
+}
+
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
@@ -347,6 +364,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 				m_free_filter_envelope->updateRandomState();
 			}
 			++m_rand_count;
+			
 			auto inbufptrs = m_file_inbuf.getArrayOfWritePointers();
 			REALTYPE onset_max = std::numeric_limits<REALTYPE>::min();
 #ifdef USE_PPL_TO_PROCESS_STRETCHERS

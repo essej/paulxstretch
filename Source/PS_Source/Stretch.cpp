@@ -38,7 +38,7 @@ FFT::FFT(int nsamples_, bool no_inverse)
 		window.data[i]=0.707f;
 	window.type=W_RECTANGULAR;
 
-
+	phases.resize(nsamples);
     data.resize(nsamples,true);
 	bool allow_long_planning = false; // g_propsfile->getBoolValue("fftw_allow_long_planning", false);
     //double t0 = Time::getMillisecondCounterHiRes();
@@ -92,9 +92,15 @@ void FFT::smp2freq()
 void FFT::freq2smp()
 {
 	REALTYPE inv_2p15_2pi=1.0f/16384.0f*(float)c_PI;
-    for (int i=1;i<nsamples/2;i++)
+	if (m_phaserefreshcounter % m_phaserefreshrate == 0)
+	{
+		updatePhases();
+		//Logger::writeToLog("phases updated "+String(m_phaserefreshrate));
+	}
+	++m_phaserefreshcounter;
+	for (int i=1;i<nsamples/2;i++)
     {
-		unsigned int rand = m_randdist(m_randgen);
+		unsigned int rand = phases[i]; // m_randdist(m_randgen);
         REALTYPE phase=rand*inv_2p15_2pi;
         data[i]=freq[i]*cos(phase);
         data[nsamples-i]=freq[i]*sin(phase);
@@ -131,7 +137,16 @@ void FFT::applywindow(FFTWindow type)
 		};
 	};
 	for (int i=0;i<nsamples;i++) smp[i]*=window.data[i];
-};
+}
+
+void FFT::updatePhases()
+{
+	for (int i = 1; i < nsamples / 2; i++)
+	{
+		phases[i] = m_randdist(m_randgen);
+	}
+}
+
 
 /*******************************************/
 

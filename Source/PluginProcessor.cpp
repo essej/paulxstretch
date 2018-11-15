@@ -184,6 +184,7 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	addParameter(new AudioParameterFloat("dryplayrate0", "Dry playrate",
 		NormalisableRange<float>(0.1f, 8.0f,
 			dprate_convertFrom0To1Func, dprate_convertTo0To1Func), 1.0f)); // 62
+	addParameter(new AudioParameterInt("phaserefreshrate0", "Phase randomization rate", 1, 32, 32)); // 63
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -736,6 +737,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_free_filter_envelope->m_transform_y_random_bands = *getIntParameter(cpi_freefilter_randomy_numbands);
 	m_free_filter_envelope->m_transform_y_random_rate = *getIntParameter(cpi_freefilter_randomy_rate);
 	m_free_filter_envelope->m_transform_y_random_amount = *getFloatParameter(cpi_freefilter_randomy_amount);
+
+	m_stretch_source->setPhaseRefreshRate(*getIntParameter(cpi_phase_refresh_rate));
 
 	//m_stretch_source->setSpectralModulesEnabled(m_sm_enab_pars);
 

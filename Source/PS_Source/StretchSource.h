@@ -114,6 +114,8 @@ public:
 	int64_t getLastSourcePosition() const { return m_last_filepos; }
 	int m_prebuffersize = 0;
 	void setSpectralOrderPreset(int id);
+	int getPhaseRefreshRate() const { return m_phase_refresh_rate; }
+	void setPhaseRefreshRate(int rate);
 private:
 	CircularBuffer<float> m_stretchoutringbuf{ 1024 * 1024 };
 	AudioBuffer<float> m_file_inbuf;
@@ -142,6 +144,7 @@ private:
 	int m_pause_state = 0;
 	Range<double> m_playrange{ 0.0,1.0 };
 	int64_t m_rand_count = 0;
+	int m_phase_refresh_rate = 1;
 	bool m_stream_end_reached = false;
 	int64_t m_output_silence_counter = 0;
 	File m_curfile;
