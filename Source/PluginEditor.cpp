@@ -518,12 +518,10 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 
 bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 {
+	std::function<bool(void)> action;
 	if (press == 'I')
-	{
-		chooseFile();
-		return true;
-	}
-	return false;
+		action = [this]() { chooseFile(); return true; };
+	return action && action();
 }
 
 void PaulstretchpluginAudioProcessorEditor::chooseFile()
