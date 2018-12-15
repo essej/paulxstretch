@@ -548,6 +548,7 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
         m_last_err = processor.setAudioFile(resu);
 	}
 	processor.setAudioPreview(nullptr);
+	toFront(true);
 }
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
