@@ -227,6 +227,7 @@ public:
 	int m_cur_tab_index = 0;
 	bool m_is_recording = false;
 	bool m_save_captured_audio = true;
+	String m_capture_location;
 private:
 	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;

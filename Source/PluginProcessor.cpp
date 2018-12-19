@@ -491,8 +491,11 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		Uuid uid;
 		WavAudioFormat wavformat;
 		String propsdir = m_propsfile->m_props_file->getFile().getParentDirectory().getFullPathName();
-		String outfn = propsdir + "/paulxstretchaudiocaptures/" + uid.toString() + ".wav";
-		Logger::writeToLog("Attempting to save capture to file " + outfn);
+		String outfn;
+		if (m_capture_location.isEmpty())
+			outfn = propsdir + "/paulxstretchaudiocaptures/" + uid.toString() + ".wav";
+		else
+			outfn = m_capture_location + "/pxscapture_" + uid.toString() + ".wav";
 		File outfile(outfn);
 		outfile.create();
 		if (outfile.existsAsFile())
