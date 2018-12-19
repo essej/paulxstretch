@@ -260,8 +260,9 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 		else
 			paramtree.setProperty("prebufamount", -1, nullptr);
 		paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
-		storeToTreeProperties(paramtree, nullptr, "playwhenhostrunning", m_play_when_host_plays, "capturewhenhostrunning", m_capture_when_host_plays);
-		storeToTreeProperties(paramtree, nullptr, "mutewhilecapturing", m_mute_while_capturing);
+		storeToTreeProperties(paramtree, nullptr, "playwhenhostrunning", m_play_when_host_plays, 
+			"capturewhenhostrunning", m_capture_when_host_plays,"savecapturedaudio",m_save_captured_audio,
+			"mutewhilecapturing",m_mute_while_capturing);
 	}
 	storeToTreeProperties(paramtree, nullptr, "tabaindex", m_cur_tab_index);
 	storeToTreeProperties(paramtree, nullptr, "waveviewrange", m_wave_view_range);
@@ -280,7 +281,8 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             m_free_filter_envelope->restoreState(freefilterstate);
             m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
 			getFromTreeProperties(tree, "playwhenhostrunning", m_play_when_host_plays, 
-				"capturewhenhostrunning", m_capture_when_host_plays,"mutewhilecapturing",m_mute_while_capturing);
+				"capturewhenhostrunning", m_capture_when_host_plays,"mutewhilecapturing",m_mute_while_capturing,
+				"savecapturedaudio",m_save_captured_audio);
 			getFromTreeProperties(tree, "tabaindex", m_cur_tab_index);
 			if (tree.hasProperty("numspectralstagesb"))
 			{
@@ -495,6 +497,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		outfile.create();
 		if (outfile.existsAsFile())
 		{
+			m_capture_save_state = 1;
 			auto outstream = outfile.createOutputStream();
 			auto writer = unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(),
 				inchans, 32, {}, 0));
@@ -515,6 +518,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		}
 		else
 			Logger::writeToLog("Could not create output file");
+		m_capture_save_state = 0;
 	};
 	m_threadpool->addJob(task);
 }
@@ -990,7 +994,10 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	*getFloatParameter(cpi_soundstart) = 0.0f;
 	*getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, 1.0 / lenrecording * m_rec_count);
-	saveCaptureBuffer();
+	if (m_save_captured_audio == true)
+	{
+		saveCaptureBuffer();
+	}
 }
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()

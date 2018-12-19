@@ -319,6 +319,7 @@ public:
 	void chooseFile();
 	void showRenderDialog();
 	void executeModalMenuAction(int menuid, int actionid);
+	
 private:
 	PaulstretchpluginAudioProcessor& processor;
 	uptrvec<ParameterComponent> m_parcomps;

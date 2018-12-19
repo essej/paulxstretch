@@ -292,6 +292,10 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
 	{
 		toggleBool(processor.m_load_file_with_state);
 	}
+	if (r == 9)
+	{
+		toggleBool(processor.m_save_captured_audio);
+	}
 	if (r == 3)
 	{
 		showAbout();
@@ -470,6 +474,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count)+ " ";
 		if (processor.m_offline_render_state >= 0 && processor.m_offline_render_state <= 100)
 			infotext += String(processor.m_offline_render_state)+"%";
+		if (processor.m_capture_save_state == 1)
+			infotext += "Saving captured audio...";
 		m_info_label.setText(infotext, dontSendNotification);
 		
 	}
@@ -559,6 +565,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	m_settings_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
 	m_settings_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
 	m_settings_menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
+	m_settings_menu.addItem(9, "Save captured audio to disk", true, processor.m_save_captured_audio);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
 	

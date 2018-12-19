@@ -205,6 +205,7 @@ public:
 	String offlineRender(File outputfile);
 	std::atomic<int> m_offline_render_state{ -1 };
 	std::atomic<bool> m_offline_render_cancel_requested{ false };
+	std::atomic<int> m_capture_save_state{ 0 };
 	bool m_state_dirty = false;
 	std::unique_ptr<AudioThumbnail> m_thumb;
 	bool m_show_technical_info = false;
@@ -225,6 +226,7 @@ public:
 		float opt) override;
 	int m_cur_tab_index = 0;
 	bool m_is_recording = false;
+	bool m_save_captured_audio = true;
 private:
 	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;
