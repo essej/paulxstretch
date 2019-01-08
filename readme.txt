@@ -7,16 +7,13 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
-12-19-2018 1.3.0
+08-01-2019 1.3.0
 	-Captured audio buffers can optionally be saved as files on disk for later recall.
 	-Added varispeed (resampling speed change) feature when spectral stretch engine is bypassed
 	-Added shortcut key (may not work properly in all plugin formats and hosts) :
 		"I" to open file import dialog
 	-Attempt to prevent capture enabled state from being recalled when undoing in the host
 	-Added VST3 version
-	-Removed VST2 version from binaries. :( It is still possible to build VST2 from source code, if the VST2 
-	 SDK is available. (But distributing the binaries is likely not allowed if the distributor doesn't have 
-	 the VST2 license agreement signed by Steinberg.)
 07-09-2018 1.2.2
 	-Add option to mute audio when capturing audio
 	-Automatically adjust play range after capturing to captured length
