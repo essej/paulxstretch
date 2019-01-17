@@ -265,6 +265,7 @@ double StretchAudioSource::getDryPlayrate() const
 	return m_dryplayrate;
 }
 
+
 void StretchAudioSource::setSpectralOrderPreset(int id)
 {
 	if (id == m_current_spec_order_preset)
@@ -276,6 +277,7 @@ void StretchAudioSource::setSpectralOrderPreset(int id)
 		m_cs.exit();
 	}
 }
+
 
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
