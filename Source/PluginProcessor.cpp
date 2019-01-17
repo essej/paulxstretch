@@ -784,15 +784,17 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		if (midi_it.getNextEvent(midi_msg, midi_msg_pos) == false)
 			break;
+		if (midi_msg.isNoteOff() && midi_msg.getNoteNumber()==m_midinote_to_use)
+		{
+			m_midinote_to_use = -1;
+			break;
+		}
 		if (midi_msg.isNoteOn())
 		{
 			m_midinote_to_use = midi_msg.getNoteNumber();
 			break;
 		}
-		if (midi_msg.isNoteOff())
-		{
-			m_midinote_to_use = -1;
-		}
+		
 	}
 	if (m_midinote_to_use >= 0)
 	{
