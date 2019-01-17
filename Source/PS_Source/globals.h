@@ -21,7 +21,7 @@
 #include <memory>
 #include "../JuceLibraryCode/JuceHeader.h"
 
-const String g_plugintitle{ "PaulXStretch 1.2.3" };
+const String g_plugintitle{ "PaulXStretch 1.3.0" };
 
 using REALTYPE = float;
 
