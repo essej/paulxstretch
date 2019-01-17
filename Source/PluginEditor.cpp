@@ -173,21 +173,6 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_spec_order_ed.ModuleOrderOrEnabledChangedCallback = [this]()
 	{
-		/*
-		const auto& specord = processor.getStretchSource()->getSpectrumProcessOrder();
-		for (int i = 0; i < specord.size(); ++i)
-		{
-			int grtofind = specord[i].m_index;
-			for (int j = 0; j < m_parcomps.size(); ++j)
-			{
-				int gid = m_parcomps[j]->m_group_id;
-				if (gid == grtofind)
-				{
-					m_parcomps[j]->setEnabled(specord[i].m_enabled);
-				}
-			}
-		}
-		*/
 		processor.setDirty();
 	};
 	
@@ -244,8 +229,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_wavefilter_tab.addTab("Waveform", Colours::white, m_wave_container, true);
 	m_wavefilter_tab.addTab("Ratio mixer", Colours::white, &m_ratiomixeditor, false);
 	m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
-    
-    addAndMakeVisible(&m_wavefilter_tab);
+	m_wavefilter_tab.addTab("Spectrum", Colours::white, &m_sonogram, false);
+
+	addAndMakeVisible(&m_wavefilter_tab);
     setSize (1200, 320+14*25);
     startTimer(1, 100);
 	startTimer(2, 1000);

@@ -11,7 +11,7 @@
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
-              jucerVersion="5.3.2" headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone">
+              jucerVersion="5.4.1" headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
@@ -50,8 +50,7 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="/usr/local/Cellar/fftw/3.3.8/lib/libfftw3f.a&#10;"
-               vst3Folder="">
+    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="/usr/local/Cellar/fftw/3.3.8/lib/libfftw3f.a&#10;">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
                        linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;/Users/teemu/codeprojects/JUCE/modules/vst2.x&#10;"
@@ -77,10 +76,11 @@
         <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../gitrepos/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2017 targetFolder="Builds/VisualStudio2017" externalLibraries="C:\ProgrammingProjects\fftw-3.3.6-pl2\fftw-3.3-libs\x64\Static-Release\libfftwf-3.3.lib"
-            extraDefs="" vst3Folder="">
+            extraDefs="">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
@@ -107,6 +107,7 @@
         <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../gitrepos/JUCE/modules"/>
       </MODULEPATHS>
     </VS2017>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" extraDefs="JUCE_WEB_BROWSER=0&#10;">
@@ -130,6 +131,7 @@
         <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
         <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../gitrepos/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
   </EXPORTFORMATS>
@@ -144,6 +146,7 @@
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>

@@ -811,6 +811,11 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		buffer.clear();
 	}
+	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
+	if (ed != nullptr)
+	{
+		ed->m_sonogram.addAudioBlock(buffer);
+	}
 }
 
 //==============================================================================
