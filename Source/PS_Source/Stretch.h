@@ -124,19 +124,17 @@ class FFT
 		void applywindow(FFTWindow type);
 		std::vector<REALTYPE> smp;//size of samples/2
 		std::vector<REALTYPE> freq;//size of samples
-		std::vector<unsigned int> phases;
+		
 		
 		int nsamples=0;
 
-		void setPhaseRefreshRate(int rate);
+		
 
 	private:
 
 		fftwf_plan planfftw,planifftw;
         FFTWBuffer<REALTYPE> data;
-		int m_phaserefreshcounter = 0;
-		int m_phaserefreshrate = 1;
-		void updatePhases();
+		
 		struct{
 			std::vector<REALTYPE> data;
 			FFTWindow type;
@@ -171,7 +169,7 @@ class Stretch
 			freezing=new_freezing;
 		};
 		bool isFreezing() { return freezing; }
-		void setPhaseRefreshRate(int rate);
+		
 		std::vector<REALTYPE> out_buf;//pot sa pun o variabila "max_out_bufsize" si asta sa fie marimea lui out_buf si pe out_bufsize sa il folosesc ca marime adaptiva
 
 		int get_nsamples(REALTYPE current_pos_percents);//how many samples are required 

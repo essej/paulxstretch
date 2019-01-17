@@ -277,23 +277,6 @@ void StretchAudioSource::setSpectralOrderPreset(int id)
 	}
 }
 
-void StretchAudioSource::setPhaseRefreshRate(int rate)
-{
-	for (auto& e : m_stretchers)
-		e->setPhaseRefreshRate(rate);
-	return;
-	if (rate == m_phase_refresh_rate)
-		return;
-	if (m_cs.tryEnter())
-	{
-		for (auto& e : m_stretchers)
-			e->setPhaseRefreshRate(rate);
-		m_phase_refresh_rate = rate;
-		++m_param_change_count;
-		m_cs.exit();
-	}
-}
-
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
