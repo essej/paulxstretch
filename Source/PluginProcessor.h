@@ -227,6 +227,7 @@ public:
 	bool m_is_recording = false;
 	bool m_save_captured_audio = true;
 	String m_capture_location;
+	bool m_midinote_control = true;
 private:
 	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;
@@ -274,6 +275,8 @@ private:
 	void saveCaptureBuffer();
 	SharedResourcePointer<MyThreadPool> m_threadpool;
 	int m_midinote_to_use = -1;
+	ADSR m_adsr;
+	
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

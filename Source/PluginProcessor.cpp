@@ -585,6 +585,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 {
     ++m_prepare_count;
     ScopedLock locker(m_cs);
+	m_adsr.setSampleRate(sampleRate);
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
 	m_input_buffer.setSize(getMainBusNumInputChannels(), samplesPerBlock);
@@ -787,16 +788,19 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		if (midi_msg.isNoteOff() && midi_msg.getNoteNumber()==m_midinote_to_use)
 		{
 			m_midinote_to_use = -1;
+			m_adsr.noteOff();
 			break;
 		}
 		if (midi_msg.isNoteOn())
 		{
 			m_midinote_to_use = midi_msg.getNoteNumber();
+			m_adsr.setParameters({1.0,0.5,0.5,1.0});
+			m_adsr.noteOn();
 			break;
 		}
 		
 	}
-	if (m_midinote_to_use >= 0)
+	if (m_midinote_control == true && m_midinote_to_use >= 0)
 	{
 		int note_offset = m_midinote_to_use - 60;
 		m_ppar.pitch_shift.cents += 100.0*note_offset;
@@ -835,6 +839,13 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	if (abnordetected)
 	{
 		buffer.clear();
+	}
+	else
+	{
+		if (m_midinote_control == true)
+		{
+			m_adsr.applyEnvelopeToBuffer(buffer, 0, buffer.getNumSamples());
+		}
 	}
 	auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor());
 	if (ed != nullptr)
