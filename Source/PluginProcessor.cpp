@@ -777,6 +777,29 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
+	MidiBuffer::Iterator midi_it(midiMessages);
+	MidiMessage midi_msg;
+	int midi_msg_pos;
+	while (true)
+	{
+		if (midi_it.getNextEvent(midi_msg, midi_msg_pos) == false)
+			break;
+		if (midi_msg.isNoteOn())
+		{
+			m_midinote_to_use = midi_msg.getNoteNumber();
+			break;
+		}
+		if (midi_msg.isNoteOff())
+		{
+			m_midinote_to_use = -1;
+		}
+	}
+	if (m_midinote_to_use >= 0)
+	{
+		int note_offset = m_midinote_to_use - 60;
+		m_ppar.pitch_shift.cents += 100.0*note_offset;
+	}
+	
 	m_stretch_source->setProcessParameters(&m_ppar);
 	AudioSourceChannelInfo aif(buffer);
 	if (isNonRealtime() || m_use_backgroundbuffering == false)

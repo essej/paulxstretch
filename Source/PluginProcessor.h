@@ -273,6 +273,7 @@ private:
 	AudioFilePreviewComponent* m_previewcomponent = nullptr;
 	void saveCaptureBuffer();
 	SharedResourcePointer<MyThreadPool> m_threadpool;
+	int m_midinote_to_use = -1;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };
