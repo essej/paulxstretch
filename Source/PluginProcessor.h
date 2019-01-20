@@ -120,6 +120,19 @@ public:
 
 class PaulstretchpluginAudioProcessorEditor;
 
+struct OfflineRenderParams
+{
+	OfflineRenderParams(File ofile, double osr, int oformat, double omaxdur, int onumloops, CallOutBox* ocb=nullptr) :
+		outputfile(ofile), outsr(osr), outputformat(oformat), maxoutdur(omaxdur), numloops(onumloops), cbox(ocb)
+	{}
+	File outputfile;
+	double outsr = 44100.0;
+	double maxoutdur = 3600.0;
+	int numloops = 1;
+	int outputformat = 0; // 0=16 bit pcm, 1=24 bit pcm, 2=32 bit float, 3=32 bit float clipped
+	CallOutBox* cbox = nullptr;
+};
+
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
 	public MultiTimer, public VSTCallbackHandler, public AudioProcessorParameter::Listener
 {
@@ -201,7 +214,7 @@ public:
 	bool m_load_file_with_state = true;
 	ValueTree getStateTree(bool ignoreoptions, bool ignorefile);
 	void setStateFromTree(ValueTree tree);
-	String offlineRender(File outputfile);
+	String offlineRender(OfflineRenderParams renderpars);
 	std::atomic<int> m_offline_render_state{ -1 };
 	std::atomic<bool> m_offline_render_cancel_requested{ false };
 	std::atomic<int> m_capture_save_state{ 0 };

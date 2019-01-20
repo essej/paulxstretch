@@ -526,24 +526,43 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 	m_threadpool->addJob(task);
 }
 
-String PaulstretchpluginAudioProcessor::offlineRender(File outputfile)
+String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams renderpars)
 {
-	File outputfiletouse = outputfile.getNonexistentSibling();
-	ValueTree state = getStateTree(false, false);
+	File outputfiletouse = renderpars.outputfile.getNonexistentSibling();
+	ValueTree state{ getStateTree(false, false) };
 	auto processor = std::make_shared<PaulstretchpluginAudioProcessor>();
+	
 	processor->setStateFromTree(state);
-	int blocksize = 2048;
+	double outsr{ renderpars.outsr };
+	if (outsr < 10.0)
+		outsr = processor->getStretchSource()->getInfileSamplerate();
+	Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
+	return {};
+	int blocksize{ 2048 };
 	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
-	processor->prepareToPlay(44100.0, blocksize);
+	processor->prepareToPlay(renderpars.outsr, blocksize);
+	
 	double t0 = *processor->getFloatParameter(cpi_soundstart);
 	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
-	double outsr = processor->getSampleRateChecked();
+	
 	WavAudioFormat wavformat;
 	FileOutputStream* outstream = outputfiletouse.createOutputStream();
 	if (outstream == nullptr)
 		return "Could not create output file";
-	auto writer = wavformat.createWriterFor(outstream, getSampleRateChecked(), numoutchans, 32, StringPairArray(), 0);
+	int oformattouse{ 16 };
+	bool clipoutput{ false };
+	if (renderpars.outputformat == 1)
+		oformattouse = 24;
+	if (renderpars.outputformat == 2)
+		oformattouse = 32;
+	if (renderpars.outputformat == 3)
+	{
+		oformattouse = 32;
+		clipoutput = true;
+	}
+	auto writer = wavformat.createWriterFor(outstream, getSampleRateChecked(), numoutchans, 
+		oformattouse, StringPairArray(), 0);
 	if (writer == nullptr)
 	{
 		delete outstream;

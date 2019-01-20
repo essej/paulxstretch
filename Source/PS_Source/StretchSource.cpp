@@ -611,6 +611,13 @@ double StretchAudioSource::getInfileLengthSeconds()
 	return (double)m_inputfile->info.nsamples / m_inputfile->info.samplerate;
 }
 
+double StretchAudioSource::getInfileSamplerate()
+{
+	if (m_inputfile == nullptr)
+		return 0.0;
+	return m_inputfile->info.samplerate;
+}
+
 void StretchAudioSource::setRate(double rate)
 {
 	if (rate == m_playrate)

@@ -56,6 +56,7 @@ public:
 	double getInfilePositionPercent();
 	double getInfilePositionSeconds();
 	double getInfileLengthSeconds();
+	double getInfileSamplerate();
 	void setRate(double rate);
 	double getRate() 
 	{ 

@@ -51,6 +51,7 @@ private:
 	Label m_labelMaxOutDuration;
 	TextEditor m_editorMaxOutDuration;
 	ToggleButton m_toggleFloatClip;
+	String ID_lastrenderpath{ "lastrenderpath" };
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (RenderSettingsComponent)
 };

@@ -81,13 +81,13 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 	setSize (600, 400);
 	comboBoxSamplerate.setSelectedId(1);
     comboBoxBitDepth.setSelectedId(3);
-	String lastexportfile = ""; // g_propsfile->getValue("last_export_file");
+	String lastexportfile = m_proc->m_propsfile->m_props_file->getValue(ID_lastrenderpath);
 	auto sep = File::getSeparatorChar();
 	File temp(lastexportfile);
 	if (temp.getParentDirectory().exists())
 		outfileNameEditor.setText(lastexportfile, dontSendNotification);
 	else
-		outfileNameEditor.setText(File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName()+sep+"untitled.wav",
+		outfileNameEditor.setText(File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName()+sep+"pxsrender.wav",
 			dontSendNotification);
 	numLoopsEditor.setVisible(m_proc->getStretchSource()->isLoopingEnabled());
 	label3.setVisible(m_proc->getStretchSource()->isLoopingEnabled());
@@ -158,22 +158,25 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 		outfile = File(outfileNameEditor.getText());
 		if (outfile.getParentDirectory().exists()==false)
 			return;
-		int64_t numLoops = 0; 
+		int numLoops = 0; 
 		if (numLoopsEditor.isVisible())
 			numLoops = numLoopsEditor.getText().getLargeIntValue();
-		numLoops = jlimit<int64_t>(0, 1000000, numLoops);
+		numLoops = jlimit<int>(0, 1000000, numLoops);
 		int sampleRate = comboBoxSamplerate.getSelectedId();
 		if (sampleRate == 1)
 			sampleRate = 0;
 		double maxrenderlen = m_editorMaxOutDuration.getText().getDoubleValue()*3600.0;
 		maxrenderlen = jlimit(1.0, 1000000.0, maxrenderlen);
-		m_proc->offlineRender(File(outfileNameEditor.getText()));
-		//m_main->renderToFile(File(outfileNameEditor.getText()),numLoops,
-		//	comboBoxBitDepth.getSelectedId()-1,sampleRate,m_toggleFloatClip.getToggleState(),maxrenderlen);
-		auto pardlg = dynamic_cast<CallOutBox*>(getParentComponent());
+		int oformat = comboBoxBitDepth.getSelectedId() - 1;
+		if (oformat == 2 && m_toggleFloatClip.getToggleState())
+			oformat = 3;
+		OfflineRenderParams renderpars{ File(outfileNameEditor.getText()),(double)comboBoxSamplerate.getSelectedId(),
+			oformat,maxrenderlen,numLoops };
+		m_proc->m_propsfile->m_props_file->setValue(ID_lastrenderpath, outfileNameEditor.getText());
+		m_proc->offlineRender(renderpars);
+		if (auto pardlg = dynamic_cast<CallOutBox*>(getParentComponent()); pardlg!=nullptr)
 		{
-			if (pardlg != nullptr)
-				pardlg->exitModalState(1);
+			pardlg->exitModalState(1);
 		}
 		return;
     }
