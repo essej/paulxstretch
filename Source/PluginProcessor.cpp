@@ -537,7 +537,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	if (outsr < 10.0)
 		outsr = processor->getStretchSource()->getInfileSamplerate();
 	Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
-	int blocksize{ 2048 };
+	int blocksize{ 1024 };
 	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
 	processor->setPlayConfigDetails(0, numoutchans, outsr, blocksize);
 	processor->prepareToPlay(renderpars.outsr, blocksize);
