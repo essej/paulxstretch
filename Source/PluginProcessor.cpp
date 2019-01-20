@@ -537,45 +537,51 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	if (outsr < 10.0)
 		outsr = processor->getStretchSource()->getInfileSamplerate();
 	Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
-	return {};
 	int blocksize{ 2048 };
 	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
+	processor->setPlayConfigDetails(0, numoutchans, outsr, blocksize);
 	processor->prepareToPlay(renderpars.outsr, blocksize);
 	
 	double t0 = *processor->getFloatParameter(cpi_soundstart);
 	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
 	
-	WavAudioFormat wavformat;
-	FileOutputStream* outstream = outputfiletouse.createOutputStream();
-	if (outstream == nullptr)
-		return "Could not create output file";
-	int oformattouse{ 16 };
-	bool clipoutput{ false };
-	if (renderpars.outputformat == 1)
-		oformattouse = 24;
-	if (renderpars.outputformat == 2)
-		oformattouse = 32;
-	if (renderpars.outputformat == 3)
+	
+	auto rendertask = [processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr, this]()
 	{
-		oformattouse = 32;
-		clipoutput = true;
-	}
-	auto writer = wavformat.createWriterFor(outstream, getSampleRateChecked(), numoutchans, 
-		oformattouse, StringPairArray(), 0);
-	if (writer == nullptr)
-	{
-		delete outstream;
-		return "Could not create WAV writer";
-	}
-	auto rendertask = [processor,writer,blocksize,numoutchans, outsr, this]()
-	{
-		AudioBuffer<float> renderbuffer(numoutchans, blocksize);
+		WavAudioFormat wavformat;
+		FileOutputStream* outstream = outputfiletouse.createOutputStream();
+		if (outstream == nullptr)
+		{
+			jassert(false);
+		}
+		int oformattouse{ 16 };
+		bool clipoutput{ false };
+		if (renderpars.outputformat == 1)
+			oformattouse = 24;
+		if (renderpars.outputformat == 2)
+			oformattouse = 32;
+		if (renderpars.outputformat == 3)
+		{
+			oformattouse = 32;
+			clipoutput = true;
+		}
+		auto writer{ unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(), numoutchans,
+			oformattouse, StringPairArray(), 0)) };
+		if (writer == nullptr)
+		{
+			delete outstream;
+			jassert(false);
+		}
+		AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
 		MidiBuffer dummymidi;
-		int64_t outlen = 10 * outsr;
-		int64_t outcounter = 0;
+		auto sc = processor->getStretchSource();
+		double outlensecs = sc->getInfileLengthSeconds()*sc->getRate();
+		int64_t outlen = outlensecs * outsr;
+		int64_t outcounter{ 0 };
 		m_offline_render_state = 0;
 		m_offline_render_cancel_requested = false;
+		processor->setNonRealtime(true);
 		while (outcounter < outlen)
 		{
 			if (m_offline_render_cancel_requested == true)
@@ -586,7 +592,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 			m_offline_render_state = 100.0 / outlen * outcounter;
 		}
 		m_offline_render_state = 200;
-		delete writer;
+		Logger::writeToLog("Rendered ok!");
 	};
 	std::thread th(rendertask);
 	th.detach();
@@ -797,26 +803,29 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	
 	m_stretch_source->setFreezing(getParameter(cpi_freeze));
 	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
-	MidiBuffer::Iterator midi_it(midiMessages);
-	MidiMessage midi_msg;
-	int midi_msg_pos;
-	while (true)
+	if (m_midinote_control == true)
 	{
-		if (midi_it.getNextEvent(midi_msg, midi_msg_pos) == false)
-			break;
-		if (midi_msg.isNoteOff() && midi_msg.getNoteNumber()==m_midinote_to_use)
+		MidiBuffer::Iterator midi_it(midiMessages);
+		MidiMessage midi_msg;
+		int midi_msg_pos;
+		while (true)
 		{
-			m_adsr.noteOff();
-			break;
+			if (midi_it.getNextEvent(midi_msg, midi_msg_pos) == false)
+				break;
+			if (midi_msg.isNoteOff() && midi_msg.getNoteNumber() == m_midinote_to_use)
+			{
+				m_adsr.noteOff();
+				break;
+			}
+			if (midi_msg.isNoteOn())
+			{
+				m_midinote_to_use = midi_msg.getNoteNumber();
+				m_adsr.setParameters({ 1.0,0.5,0.5,1.0 });
+				m_adsr.noteOn();
+				break;
+			}
+
 		}
-		if (midi_msg.isNoteOn())
-		{
-			m_midinote_to_use = midi_msg.getNoteNumber();
-			m_adsr.setParameters({1.0,0.5,0.5,1.0});
-			m_adsr.noteOn();
-			break;
-		}
-		
 	}
 	if (m_midinote_control == true && m_midinote_to_use >= 0)
 	{
