@@ -417,7 +417,7 @@ private:
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
-	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
+	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer, public FileBrowserListener
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
@@ -432,11 +432,21 @@ public:
 	bool keyPressed(const KeyPress& press) override;
 
 	WaveformComponent m_wavecomponent;
-	void chooseFile();
+	
 	void showRenderDialog();
 	void executeModalMenuAction(int menuid, int actionid);
 	SimpleFFTComponent m_sonogram;
 	String m_last_err;
+	void selectionChanged() override;
+
+	/** Callback when the user clicks on a file in the browser. */
+	void fileClicked(const File& file, const MouseEvent& e) override;
+
+	/** Callback when the user double-clicks on a file in the browser. */
+	void fileDoubleClicked(const File& file) override;
+
+	/** Callback when the browser's root folder changes. */
+	void browserRootChanged(const File& newRoot) override;
 private:
 	PaulstretchpluginAudioProcessor& processor;
 	uptrvec<ParameterComponent> m_parcomps;
@@ -460,7 +470,8 @@ private:
 	void showAbout();
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	
-	std::unique_ptr<FileChooser> m_filechooser;
+	std::unique_ptr<FileBrowserComponent> m_filechooser;
+	WildcardFileFilter m_filefilter;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

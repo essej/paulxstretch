@@ -32,8 +32,19 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_wavecomponent(p.m_afm,p.m_thumb.get(), p.getStretchSource()),
 	processor(p), m_perfmeter(&p),
     m_free_filter_component(&p),
-    m_wavefilter_tab(p.m_cur_tab_index)
+    m_wavefilter_tab(p.m_cur_tab_index),
+	m_filefilter(p.m_afm->getWildcardForAllFormats(),String(),String())
 {
+	
+	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
+		File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
+	File initialloc(initiallocfn);
+	String filterstring = processor.m_afm->getWildcardForAllFormats();
+
+	m_filechooser = std::make_unique<FileBrowserComponent>(1|4,
+		initialloc, &m_filefilter, nullptr);
+	m_filechooser->addListener(this);
+		
 	setWantsKeyboardFocus(true);
 	m_wave_container = new Component;
     m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
@@ -51,8 +62,16 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     addAndMakeVisible(&m_perfmeter);
 	
 	addAndMakeVisible(&m_import_button);
-	m_import_button.setButtonText("Import file...");
-	m_import_button.onClick = [this]() { chooseFile(); };
+	m_import_button.setButtonText("Show browser");
+	m_import_button.onClick = [this]() 
+	{ 
+		m_filechooser->setBounds(0, 50, getWidth(), getHeight() - 60);
+		m_filechooser->setVisible(!m_filechooser->isVisible());
+		if (m_filechooser->isVisible())
+			m_import_button.setButtonText("Hide browser");
+		else
+			m_import_button.setButtonText("Show browser");
+	};
 	
 	addAndMakeVisible(&m_settings_button);
 	m_settings_button.setButtonText("Settings...");
@@ -237,6 +256,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	startTimer(2, 1000);
 	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
+	addChildComponent(m_filechooser.get());
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
@@ -301,6 +321,24 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
 		toggleBool(processor.m_show_technical_info);
 		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
 	}
+}
+
+void PaulstretchpluginAudioProcessorEditor::selectionChanged()
+{
+}
+
+void PaulstretchpluginAudioProcessorEditor::fileClicked(const File & file, const MouseEvent & e)
+{
+}
+
+void PaulstretchpluginAudioProcessorEditor::fileDoubleClicked(const File & file)
+{
+	processor.setAudioFile(file);
+	processor.m_propsfile->m_props_file->setValue("importfilefolder", file.getParentDirectory().getFullPathName());
+}
+
+void PaulstretchpluginAudioProcessorEditor::browserRootChanged(const File & newRoot)
+{
 }
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
@@ -512,37 +550,8 @@ bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 {
 	std::function<bool(void)> action;
 	if (press == 'I')
-		action = [this]() { chooseFile(); return true; };
+		action = [this]() { m_import_button.onClick(); ; return true; };
 	return action && action();
-}
-
-void PaulstretchpluginAudioProcessorEditor::chooseFile()
-{
-	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
-                                                File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
-    File initialloc(initiallocfn);
-	String filterstring = processor.m_afm->getWildcardForAllFormats();
-	//auto prevcomp = std::make_unique<AudioFilePreviewComponent>(&processor);
-	//processor.setAudioPreview(prevcomp.get());
-	m_filechooser = std::make_unique<FileChooser>("Please select audio file...",
-		initialloc,
-		filterstring,true,false,this);
-	m_filechooser->launchAsync(0, processor.m_filechoose_callback);
-	return;
-		//if (m_filechooser->launchAsync(0,processor.m_filechoose_callback))
-	{
-        File resu = m_filechooser->getResult();
-        String pathname = resu.getFullPathName();
-        if (pathname.startsWith("/localhost"))
-        {
-            pathname = pathname.substring(10);
-            resu = File(pathname);
-        }
-        processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
-        m_last_err = processor.setAudioFile(resu);
-	}
-	//processor.setAudioPreview(nullptr);
-	//toFront(true);
 }
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
