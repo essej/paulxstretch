@@ -241,6 +241,7 @@ public:
 	bool m_save_captured_audio = true;
 	String m_capture_location;
 	bool m_midinote_control = false;
+	std::function<void(const FileChooser&)> m_filechoose_callback;
 private:
 	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;

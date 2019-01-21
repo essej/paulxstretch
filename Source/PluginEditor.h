@@ -436,6 +436,7 @@ public:
 	void showRenderDialog();
 	void executeModalMenuAction(int menuid, int actionid);
 	SimpleFFTComponent m_sonogram;
+	String m_last_err;
 private:
 	PaulstretchpluginAudioProcessor& processor;
 	uptrvec<ParameterComponent> m_parcomps;
@@ -449,7 +450,7 @@ private:
 	SpectralChainEditor m_spec_order_ed;
 	
 	void showSettingsMenu();
-    String m_last_err;
+    
 	zoom_scrollbar m_zs;
 	RatioMixerEditor m_ratiomixeditor{ 8 };
 	FreeFilterComponent m_free_filter_component;
@@ -458,6 +459,8 @@ private:
 	Component* m_wave_container=nullptr;
 	void showAbout();
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
+	
+	std::unique_ptr<FileChooser> m_filechooser;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

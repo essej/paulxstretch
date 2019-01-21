@@ -60,6 +60,23 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	: m_bufferingthread("pspluginprebufferthread")
 {
+	m_filechoose_callback = [this](const FileChooser& chooser)
+	{
+		File resu = chooser.getResult();
+		String pathname = resu.getFullPathName();
+		if (pathname.startsWith("/localhost"))
+		{
+			pathname = pathname.substring(10);
+			resu = File(pathname);
+		}
+		m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
+		String loaderr = setAudioFile(resu);
+		if (auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor()); ed != nullptr)
+		{
+			ed->m_last_err = loaderr;
+		}
+		
+	};
 	m_playposinfo.timeInSeconds = 0.0;
 	
     m_free_filter_envelope = std::make_shared<breakpoint_envelope>();

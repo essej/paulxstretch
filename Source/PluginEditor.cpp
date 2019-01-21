@@ -524,12 +524,14 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
 	String filterstring = processor.m_afm->getWildcardForAllFormats();
 	//auto prevcomp = std::make_unique<AudioFilePreviewComponent>(&processor);
 	//processor.setAudioPreview(prevcomp.get());
-	FileChooser myChooser("Please select audio file...",
+	m_filechooser = std::make_unique<FileChooser>("Please select audio file...",
 		initialloc,
-		filterstring,true);
-	if (myChooser.browseForFileToOpen())
+		filterstring,true,false,this);
+	m_filechooser->launchAsync(0, processor.m_filechoose_callback);
+	return;
+		//if (m_filechooser->launchAsync(0,processor.m_filechoose_callback))
 	{
-        File resu = myChooser.getResult();
+        File resu = m_filechooser->getResult();
         String pathname = resu.getFullPathName();
         if (pathname.startsWith("/localhost"))
         {
@@ -539,8 +541,8 @@ void PaulstretchpluginAudioProcessorEditor::chooseFile()
         processor.m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
         m_last_err = processor.setAudioFile(resu);
 	}
-	processor.setAudioPreview(nullptr);
-	toFront(true);
+	//processor.setAudioPreview(nullptr);
+	//toFront(true);
 }
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
