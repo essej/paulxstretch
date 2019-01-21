@@ -479,6 +479,7 @@ private:
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
 	void showAbout();
+	void toggleFileBrowser();
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	
 	std::unique_ptr<FileBrowserComponent> m_filechooser;

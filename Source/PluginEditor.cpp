@@ -56,24 +56,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	
 	addAndMakeVisible(&m_import_button);
 	m_import_button.setButtonText("Show browser");
-	m_import_button.onClick = [this]() 
+	m_import_button.onClick = [this]()
 	{ 
-		if (m_filechooser == nullptr)
-		{
-			String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
-				File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
-			File initialloc(initiallocfn);
-			m_filechooser = std::make_unique<FileBrowserComponent>(1 | 4,
-				initialloc, &m_filefilter, nullptr);
-			m_filechooser->addListener(this);
-			addChildComponent(m_filechooser.get());
-		}
-		m_filechooser->setBounds(0, 50, getWidth(), getHeight() - 60);
-		m_filechooser->setVisible(!m_filechooser->isVisible());
-		if (m_filechooser->isVisible())
-			m_import_button.setButtonText("Hide browser");
-		else
-			m_import_button.setButtonText("Show browser");
+		toggleFileBrowser();
 	};
 	
 	addAndMakeVisible(&m_settings_button);
@@ -607,6 +592,26 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
 		, "OK",
 		this);
 
+}
+
+void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
+{
+	if (m_filechooser == nullptr)
+	{
+		String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
+			File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
+		File initialloc(initiallocfn);
+		m_filechooser = std::make_unique<FileBrowserComponent>(1 | 4,
+			initialloc, &m_filefilter, nullptr);
+		m_filechooser->addListener(this);
+		addChildComponent(m_filechooser.get());
+	}
+	m_filechooser->setBounds(0, 50, getWidth(), getHeight() - 60);
+	m_filechooser->setVisible(!m_filechooser->isVisible());
+	if (m_filechooser->isVisible())
+		m_import_button.setButtonText("Hide browser");
+	else
+		m_import_button.setButtonText("Show browser");
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb, StretchAudioSource* sas)
