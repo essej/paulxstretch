@@ -416,6 +416,17 @@ private:
 	int64 m_playpos = 0;
 };
 
+class MyFileBrowserComponent : public Component
+{
+public:
+	MyFileBrowserComponent()
+	{
+
+	}
+private:
+	std::unique_ptr<FileBrowserComponent> m_fbcomp;
+};
+
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
 	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer, public FileBrowserListener
 {

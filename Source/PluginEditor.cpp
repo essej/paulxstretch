@@ -36,15 +36,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_filefilter(p.m_afm->getWildcardForAllFormats(),String(),String())
 {
 	
-	String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
-		File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
-	File initialloc(initiallocfn);
-	String filterstring = processor.m_afm->getWildcardForAllFormats();
-
-	m_filechooser = std::make_unique<FileBrowserComponent>(1|4,
-		initialloc, &m_filefilter, nullptr);
-	m_filechooser->addListener(this);
-		
+	
+	
 	setWantsKeyboardFocus(true);
 	m_wave_container = new Component;
     m_free_filter_component.getEnvelopeComponent()->set_envelope(processor.m_free_filter_envelope);
@@ -65,6 +58,16 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_import_button.setButtonText("Show browser");
 	m_import_button.onClick = [this]() 
 	{ 
+		if (m_filechooser == nullptr)
+		{
+			String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
+				File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
+			File initialloc(initiallocfn);
+			m_filechooser = std::make_unique<FileBrowserComponent>(1 | 4,
+				initialloc, &m_filefilter, nullptr);
+			m_filechooser->addListener(this);
+			addChildComponent(m_filechooser.get());
+		}
 		m_filechooser->setBounds(0, 50, getWidth(), getHeight() - 60);
 		m_filechooser->setVisible(!m_filechooser->isVisible());
 		if (m_filechooser->isVisible())
@@ -256,7 +259,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	startTimer(2, 1000);
 	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
-	addChildComponent(m_filechooser.get());
+	
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
