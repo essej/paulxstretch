@@ -7,6 +7,9 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
+01-21-2019 1.3.0
+	-Changed Import file button to show/hide a file browser for audio files. (This seems to be the only 
+	 technically correct way to browse for the files.)
 01-17-2019 1.2.3
 	-Captured audio buffers can optionally be saved as files on disk for later recall.
 	-Added varispeed (resampling speed change) feature when spectral stretch engine is bypassed
