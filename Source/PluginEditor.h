@@ -416,19 +416,31 @@ private:
 	int64 m_playpos = 0;
 };
 
-class MyFileBrowserComponent : public Component
+class MyFileBrowserComponent : public Component, public FileBrowserListener
 {
 public:
-	MyFileBrowserComponent()
-	{
+	MyFileBrowserComponent(PaulstretchpluginAudioProcessor& p);
+	void resized() override;
+	void paint(Graphics& g) override;
+	std::function<void(int, File)> OnAction;
+	void selectionChanged() override;
 
-	}
+	/** Callback when the user clicks on a file in the browser. */
+	void fileClicked(const File& file, const MouseEvent& e) override;
+
+	/** Callback when the user double-clicks on a file in the browser. */
+	void fileDoubleClicked(const File& file) override;
+
+	/** Callback when the browser's root folder changes. */
+	void browserRootChanged(const File& newRoot) override;
 private:
 	std::unique_ptr<FileBrowserComponent> m_fbcomp;
+	WildcardFileFilter m_filefilter;
+	PaulstretchpluginAudioProcessor& m_proc;
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
-	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer, public FileBrowserListener
+	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
@@ -448,16 +460,7 @@ public:
 	void executeModalMenuAction(int menuid, int actionid);
 	SimpleFFTComponent m_sonogram;
 	String m_last_err;
-	void selectionChanged() override;
-
-	/** Callback when the user clicks on a file in the browser. */
-	void fileClicked(const File& file, const MouseEvent& e) override;
-
-	/** Callback when the user double-clicks on a file in the browser. */
-	void fileDoubleClicked(const File& file) override;
-
-	/** Callback when the browser's root folder changes. */
-	void browserRootChanged(const File& newRoot) override;
+	
 private:
 	PaulstretchpluginAudioProcessor& processor;
 	uptrvec<ParameterComponent> m_parcomps;
@@ -482,7 +485,7 @@ private:
 	void toggleFileBrowser();
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	
-	std::unique_ptr<FileBrowserComponent> m_filechooser;
+	std::unique_ptr<MyFileBrowserComponent> m_filechooser;
 	WildcardFileFilter m_filefilter;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };

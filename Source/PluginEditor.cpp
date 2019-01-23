@@ -311,23 +311,7 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
 	}
 }
 
-void PaulstretchpluginAudioProcessorEditor::selectionChanged()
-{
-}
 
-void PaulstretchpluginAudioProcessorEditor::fileClicked(const File & file, const MouseEvent & e)
-{
-}
-
-void PaulstretchpluginAudioProcessorEditor::fileDoubleClicked(const File & file)
-{
-	processor.setAudioFile(file);
-	processor.m_propsfile->m_props_file->setValue("importfilefolder", file.getParentDirectory().getFullPathName());
-}
-
-void PaulstretchpluginAudioProcessorEditor::browserRootChanged(const File & newRoot)
-{
-}
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
@@ -598,12 +582,7 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 {
 	if (m_filechooser == nullptr)
 	{
-		String initiallocfn = processor.m_propsfile->m_props_file->getValue("importfilefolder",
-			File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
-		File initialloc(initiallocfn);
-		m_filechooser = std::make_unique<FileBrowserComponent>(1 | 4,
-			initialloc, &m_filefilter, nullptr);
-		m_filechooser->addListener(this);
+		m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
 		addChildComponent(m_filechooser.get());
 	}
 	m_filechooser->setBounds(0, 50, getWidth(), getHeight() - 60);
@@ -1619,4 +1598,44 @@ void AudioFilePreviewComponent::processBlock(double sr, AudioBuffer<float>& buf)
 		if (m_playpos >= m_reader->lengthInSamples)
 			m_playpos = 0;
 	}
+}
+
+MyFileBrowserComponent::MyFileBrowserComponent(PaulstretchpluginAudioProcessor & p) :
+	m_proc(p), m_filefilter(p.m_afm->getWildcardForAllFormats(),String(),String())
+{
+	String initiallocfn = m_proc.m_propsfile->m_props_file->getValue("importfilefolder",
+		File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
+	File initialloc(initiallocfn);
+	m_fbcomp = std::make_unique<FileBrowserComponent>(1 | 4,
+		initialloc, &m_filefilter, nullptr);
+	m_fbcomp->addListener(this);
+	addAndMakeVisible(m_fbcomp.get());
+}
+
+void MyFileBrowserComponent::resized()
+{
+	m_fbcomp->setBounds(0, 0, getWidth(), getHeight());
+}
+
+void MyFileBrowserComponent::paint(Graphics & g)
+{
+	//g.fillAll(Colours::yellow);
+}
+
+void MyFileBrowserComponent::selectionChanged()
+{
+}
+
+void MyFileBrowserComponent::fileClicked(const File & file, const MouseEvent & e)
+{
+}
+
+void MyFileBrowserComponent::fileDoubleClicked(const File & file)
+{
+	m_proc.setAudioFile(file);
+	m_proc.m_propsfile->m_props_file->setValue("importfilefolder", file.getParentDirectory().getFullPathName());
+}
+
+void MyFileBrowserComponent::browserRootChanged(const File & newRoot)
+{
 }
