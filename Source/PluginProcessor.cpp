@@ -259,7 +259,7 @@ int PaulstretchpluginAudioProcessor::getPreBufferAmount()
 ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool ignorefile)
 {
 	ValueTree paramtree("paulstretch3pluginstate");
-	storeToTreeProperties(paramtree, nullptr, getParameters());
+	storeToTreeProperties(paramtree, nullptr, getParameters(), { getBoolParameter(cpi_capture_trigger) });
     if (m_current_file != File() && ignorefile == false)
 	{
 		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
@@ -1014,13 +1014,11 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 		if (capture == true && m_is_recording == false)
 		{
 			setRecordingEnabled(true);
-			*getBoolParameter(cpi_capture_trigger)=false;
 			return;
 		}
-		if (capture == true && m_is_recording == true)
+		if (capture == false && m_is_recording == true)
 		{
 			setRecordingEnabled(false);
-			*getBoolParameter(cpi_capture_trigger) = false;
 			return;
 		}
 		if (m_cur_num_out_chans != *m_outchansparam)

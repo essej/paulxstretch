@@ -237,7 +237,7 @@ public:
 		void* ptr,
 		float opt) override;
 	int m_cur_tab_index = 0;
-	bool m_is_recording = false;
+	
 	bool m_save_captured_audio = true;
 	String m_capture_location;
 	bool m_midinote_control = false;
@@ -255,7 +255,7 @@ private:
 	CriticalSection m_cs;
 	File m_current_file;
     Time m_current_file_date;
-
+	bool m_is_recording = false;
 	TimeSliceThread m_bufferingthread;
 	std::unique_ptr<StretchAudioSource> m_stretch_source;
 	std::unique_ptr<MyBufferingAudioSource> m_buffering_source;

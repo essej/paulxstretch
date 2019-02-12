@@ -124,8 +124,6 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		{
 			m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
 			m_parcomps.back()->m_group_id = group_id;
-			if (i == cpi_capture_trigger)
-				m_parcomps.back()->m_nonparamstate = &processor.m_is_recording;
 			if (group_id >= -1)
 				addAndMakeVisible(m_parcomps.back().get());
 		}
@@ -1255,20 +1253,10 @@ void ParameterComponent::sliderDragEnded(Slider * slid)
 void ParameterComponent::buttonClicked(Button * but)
 {
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-	if (m_togglebut != nullptr) // && m_togglebut->getToggleState() != *boolpar)
+	if (m_togglebut != nullptr)
 	{
-		if (m_nonparamstate == nullptr)
-		{
-			if (m_togglebut->getToggleState()!=*boolpar)
-				*boolpar = m_togglebut->getToggleState();
-		}
-		else
-		{
-			// If we have the non-parameter state pointer, just set the target parameter to true.
-			// Logic in the AudioProcessor determines what should be done and it sets the parameter immediately back
-			// to false when it sees the parameter is true.
-			*boolpar = true;
-		}
+		if (m_togglebut->getToggleState()!=*boolpar)
+			*boolpar = m_togglebut->getToggleState();
 	}
 }
 
@@ -1285,19 +1273,10 @@ void ParameterComponent::updateComponent()
 		m_slider->setValue(*intpar, dontSendNotification);
 	}
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-	if (m_togglebut != nullptr)
+	if (boolpar!=nullptr && m_togglebut != nullptr)
 	{
-		if (m_nonparamstate == nullptr)
-		{
-			if (m_togglebut->getToggleState() != *boolpar)
-				m_togglebut->setToggleState(*boolpar, dontSendNotification);
-		}
-		else
-		{
-			// If we have the non-parameter state pointer, get the button toggle state from that
-			if (m_togglebut->getToggleState()!=*m_nonparamstate)
-				m_togglebut->setToggleState(*m_nonparamstate, dontSendNotification);
-		}
+		if (m_togglebut->getToggleState() != *boolpar)
+			m_togglebut->setToggleState(*boolpar, dontSendNotification);
 	}
 }
 

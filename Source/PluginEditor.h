@@ -91,7 +91,7 @@ public:
 	void setHighLighted(bool b);
 	int m_group_id = -1;
 	Slider* getSlider() { return m_slider.get(); }
-	bool* m_nonparamstate = nullptr;
+	
 private:
 	Label m_label;
 	AudioProcessorParameter* m_par = nullptr;

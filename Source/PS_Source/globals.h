@@ -19,9 +19,10 @@
 
 #include <vector>
 #include <memory>
+#include <set>
 #include "../JuceLibraryCode/JuceHeader.h"
 
-const String g_plugintitle{ "PaulXStretch 1.3.0" };
+const String g_plugintitle{ "PaulXStretch 1.2.4" };
 
 using REALTYPE = float;
 
@@ -115,10 +116,13 @@ inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParame
     if (par) dest.setProperty(par->paramID,(int)*par,uman);
 }
 
-inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, const OwnedArray<AudioProcessorParameter>& pars)
+inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, const OwnedArray<AudioProcessorParameter>& pars,
+	const std::set<AudioProcessorParameter*>& ignorepars = {})
 {
 	for (auto& e : pars)
 	{
+		if (ignorepars.count(e))
+			continue;
 		auto parf = dynamic_cast<AudioParameterFloat*>(e);
 		if (parf != nullptr)
 			storeToTreeProperties(dest, nullptr, parf);
