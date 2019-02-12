@@ -234,7 +234,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	m_wavefilter_tab.addTab("Waveform", Colours::white, m_wave_container, true);
 	m_wavefilter_tab.addTab("Ratio mixer", Colours::white, &m_ratiomixeditor, false);
 	m_wavefilter_tab.addTab("Free filter", Colours::white, &m_free_filter_component, false);
-	m_wavefilter_tab.addTab("Spectrum", Colours::white, &m_sonogram, false);
+	//m_wavefilter_tab.addTab("Spectrum", Colours::white, &m_sonogram, false);
 
 	addAndMakeVisible(&m_wavefilter_tab);
     setSize (1200, 320+14*25);

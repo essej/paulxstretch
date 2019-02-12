@@ -458,7 +458,7 @@ public:
 	
 	void showRenderDialog();
 	void executeModalMenuAction(int menuid, int actionid);
-	SimpleFFTComponent m_sonogram;
+	//SimpleFFTComponent m_sonogram;
 	String m_last_err;
 	
 private:
