@@ -583,7 +583,7 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 		m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
 		addChildComponent(m_filechooser.get());
 	}
-	m_filechooser->setBounds(0, 50, getWidth(), getHeight() - 60);
+	m_filechooser->setBounds(0, 26, getWidth()/2, getHeight() - 75);
 	m_filechooser->setVisible(!m_filechooser->isVisible());
 	if (m_filechooser->isVisible())
 		m_import_button.setButtonText("Hide browser");
@@ -1598,7 +1598,7 @@ void MyFileBrowserComponent::resized()
 
 void MyFileBrowserComponent::paint(Graphics & g)
 {
-	//g.fillAll(Colours::yellow);
+	g.fillAll(Colours::black.withAlpha(0.8f));
 }
 
 void MyFileBrowserComponent::selectionChanged()
