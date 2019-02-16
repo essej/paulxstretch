@@ -7,7 +7,7 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
-02-12-2019 1.2.4
+02-16-2019 1.2.4
 	-Changed Import file button to show/hide an overlaid file browser for audio files. (This seems to be the only 
 	 technically correct way to browse for the files.)
 	-Fix the fix for the Capture parameter. (Recalling it when undoing and loading project should now be ignored, 
