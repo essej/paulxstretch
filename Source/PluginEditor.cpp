@@ -1623,4 +1623,5 @@ void MyFileBrowserComponent::fileDoubleClicked(const File & file)
 
 void MyFileBrowserComponent::browserRootChanged(const File & newRoot)
 {
+	m_proc.m_propsfile->m_props_file->setValue("importfilefolder", newRoot.getFullPathName());
 }
