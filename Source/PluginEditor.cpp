@@ -247,6 +247,8 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 {
+	if (m_filechooser)
+		m_filechooser->setLookAndFeel(nullptr);
 	//Logger::writeToLog("PaulX Editor destroyed");
 }
 
@@ -581,6 +583,7 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 	if (m_filechooser == nullptr)
 	{
 		m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
+		m_filechooser->setLookAndFeel(&m_filebwlookandfeel);
 		addChildComponent(m_filechooser.get());
 	}
 	m_filechooser->setBounds(0, 26, getWidth()/2, getHeight() - 75);

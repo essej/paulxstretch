@@ -487,6 +487,7 @@ private:
 	
 	std::unique_ptr<MyFileBrowserComponent> m_filechooser;
 	WildcardFileFilter m_filefilter;
+	LookAndFeel_V3 m_filebwlookandfeel;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
