@@ -420,6 +420,7 @@ class MyFileBrowserComponent : public Component, public FileBrowserListener
 {
 public:
 	MyFileBrowserComponent(PaulstretchpluginAudioProcessor& p);
+	~MyFileBrowserComponent();
 	void resized() override;
 	void paint(Graphics& g) override;
 	std::function<void(int, File)> OnAction;
@@ -437,6 +438,7 @@ private:
 	std::unique_ptr<FileBrowserComponent> m_fbcomp;
 	WildcardFileFilter m_filefilter;
 	PaulstretchpluginAudioProcessor& m_proc;
+	LookAndFeel_V3 m_filebwlookandfeel;
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
@@ -487,7 +489,7 @@ private:
 	
 	std::unique_ptr<MyFileBrowserComponent> m_filechooser;
 	WildcardFileFilter m_filefilter;
-	LookAndFeel_V3 m_filebwlookandfeel;
+	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 
