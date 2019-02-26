@@ -7,10 +7,10 @@ Copyright (C) 2017-2018 Xenakios
 Released under GNU General Public License v.3 license.
 
 History :
-02-16-2019 1.2.4
+02-26-2019 1.2.4
 	-Changed Import file button to show/hide an overlaid file browser for audio files. (This seems to be the only 
 	 technically correct way to browse for the files.)
-	-Fix the fix for the Capture parameter. (Recalling it when undoing and loading project should now be ignored, 
+	-Fix the Capture parameter. (Recalling it when undoing and loading project should now be ignored, 
 	 while still allowing automation and MIDI learn.)
 01-17-2019 1.2.3
 	-Captured audio buffers can optionally be saved as files on disk for later recall.
