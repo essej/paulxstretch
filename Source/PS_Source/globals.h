@@ -377,3 +377,11 @@ private:
 	double m_slope;
 	double m_sr = 0.0;
 };
+
+template<typename T, typename... Args>
+inline std::unique_ptr<T> makeAddAndMakeVisible(Component& parent, Args&&... args)
+{
+	auto temp = std::make_unique<T>(args...);
+	parent.addAndMakeVisible(temp.get());
+	return std::move(temp);
+}
