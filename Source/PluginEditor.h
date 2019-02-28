@@ -151,7 +151,7 @@ public:
 	void setFileCachedRange(std::pair<Range<double>, Range<double>> rng);
 	void setTimerEnabled(bool b);
 	void setViewRange(Range<double> rng);
-	bool ShowFileCacheRange=false;
+	String m_infotext;
 	void setRecordingPosition(double pos) { m_rec_pos = pos; }
 	int m_image_init_count = 0;
 	int m_image_update_count = 0;

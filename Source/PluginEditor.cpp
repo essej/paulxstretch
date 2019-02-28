@@ -446,14 +446,20 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		m_wavecomponent.setAudioInfo(processor.getSampleRateChecked(), processor.getStretchSource()->getLastSeekPos(),
 			processor.getStretchSource()->getFFTSize());
 		String infotext; 
-		m_wavecomponent.ShowFileCacheRange = processor.m_show_technical_info;
+		String waveinfotext;
 		if (processor.m_show_technical_info)
 		{
-			infotext += String(processor.getStretchSource()->getDiskReadSampleCount()) + " ";
-			infotext += String(processor.m_prepare_count)+" ";
-            infotext += String(processor.getStretchSource()->m_param_change_count);
-			infotext += " param changes ";
+			double sr = processor.getStretchSource()->getInfileSamplerate();
+			if (sr>0.0)
+				waveinfotext += String(processor.getStretchSource()->getDiskReadSampleCount()/sr) + " seconds read from disk\n";
+			waveinfotext += String(processor.m_prepare_count)+" prepareToPlay calls\n";
+			waveinfotext += String(processor.getStretchSource()->m_param_change_count)+" parameter changes handled\n";
+			waveinfotext += String(m_wavecomponent.m_image_init_count) + " waveform image inits\n" 
+				+ String(m_wavecomponent.m_image_update_count) + " waveform image updates\n";
+			m_wavecomponent.m_infotext = waveinfotext;
 		}
+		else
+			m_wavecomponent.m_infotext = {};
 		infotext += m_last_err + " [FFT size " +
 			String(processor.getStretchSource()->getFFTSize())+"]";
 		double outlen = processor.getStretchSource()->getOutputDurationSecondsForRange(processor.getStretchSource()->getPlayRange(), 
@@ -465,8 +471,6 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 			infotext += " (offline rendering)";
 		if (processor.m_playposinfo.isPlaying)
 			infotext += " "+String(processor.m_playposinfo.timeInSeconds,1);
-		if (processor.m_show_technical_info)
-			infotext += " " + String(m_wavecomponent.m_image_init_count) + " " + String(m_wavecomponent.m_image_update_count)+ " ";
 		if (processor.m_offline_render_state >= 0 && processor.m_offline_render_state <= 100)
 			infotext += String(processor.m_offline_render_state)+"%";
 		if (processor.m_capture_save_state == 1)
@@ -706,7 +710,7 @@ void WaveformComponent::paint(Graphics & g)
 		int xcorright = normalizedToViewX<int>(m_time_sel_end);
 		g.fillRect(xcorleft, m_topmargin, xcorright - xcorleft, getHeight() - m_topmargin);
 	}
-	if (m_file_cached.first.getLength() > 0.0 && ShowFileCacheRange == true)
+	if (m_file_cached.first.getLength() > 0.0 && m_infotext.isEmpty() == false)
 	{
 		g.setColour(Colours::red.withAlpha(0.2f));
 		int xcorleft = (int)jmap<double>(m_file_cached.first.getStart(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
@@ -720,7 +724,8 @@ void WaveformComponent::paint(Graphics & g)
 			g.fillRect(xcorleft, m_topmargin / 2, xcorright - xcorleft, getHeight());
 		}
 		g.setColour(Colours::white);
-		g.drawText(toString(m_file_cached.first), 0, 30, 200, 30, Justification::centredLeft);
+		//g.drawText(toString(m_file_cached.first), 0, 30, 200, 30, Justification::centredLeft);
+		g.drawMultiLineText(m_infotext, 0, 30, getWidth(), Justification::topLeft);
 	}
 
 	g.setColour(Colours::white);
