@@ -1182,7 +1182,7 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 	AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(par);
 	if (floatpar)
 	{
-		m_slider = makeAddAndMakeVisible<MySlider>(*this,&floatpar->range);
+		m_slider = XenUtils::makeAddAndMakeVisible<MySlider>(*this,&floatpar->range);
 		m_notify_only_on_release = notifyOnlyOnRelease;
 		m_slider->setRange(floatpar->range.start, floatpar->range.end, floatpar->range.interval);
 		m_slider->setValue(*floatpar, dontSendNotification);
@@ -1192,7 +1192,7 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 	AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(par);
 	if (intpar)
 	{
-		m_slider = makeAddAndMakeVisible<MySlider>(*this);
+		m_slider = XenUtils::makeAddAndMakeVisible<MySlider>(*this);
 		m_notify_only_on_release = notifyOnlyOnRelease;
 		m_slider->setRange(intpar->getRange().getStart(), intpar->getRange().getEnd(), 1.0);
 		m_slider->setValue(*intpar, dontSendNotification);
