@@ -53,6 +53,11 @@ inline String toString(double x)
     return String(x,3);
 }
 
+template<typename T>
+inline String toString(const Range<T>& x)
+{
+	return String(x.getStart()) + " " + String(x.getEnd());
+}
 
 template<typename... Args>
 inline String formatted(Args... args)

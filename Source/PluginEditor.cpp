@@ -160,7 +160,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (processor.getStretchSource()->getPlayRange().contains(pos))
 			processor.getStretchSource()->seekPercent(pos);
 	};
-	m_wavecomponent.ShowFileCacheRange = true;
+	
 	m_spec_order_ed.setSource(processor.getStretchSource());
 	addAndMakeVisible(&m_spec_order_ed);
 	m_spec_order_ed.ModuleSelectedCallback = [this](int id)
@@ -446,6 +446,7 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		m_wavecomponent.setAudioInfo(processor.getSampleRateChecked(), processor.getStretchSource()->getLastSeekPos(),
 			processor.getStretchSource()->getFFTSize());
 		String infotext; 
+		m_wavecomponent.ShowFileCacheRange = processor.m_show_technical_info;
 		if (processor.m_show_technical_info)
 		{
 			infotext += String(processor.getStretchSource()->getDiskReadSampleCount()) + " ";
@@ -705,20 +706,21 @@ void WaveformComponent::paint(Graphics & g)
 		int xcorright = normalizedToViewX<int>(m_time_sel_end);
 		g.fillRect(xcorleft, m_topmargin, xcorright - xcorleft, getHeight() - m_topmargin);
 	}
-	if (m_file_cached.first.getLength() > 0.0 &&
-		(bool)ShowFileCacheRange.getValue())
+	if (m_file_cached.first.getLength() > 0.0 && ShowFileCacheRange == true)
 	{
 		g.setColour(Colours::red.withAlpha(0.2f));
 		int xcorleft = (int)jmap<double>(m_file_cached.first.getStart(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		int xcorright = (int)jmap<double>(m_file_cached.first.getEnd(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-		g.fillRect(xcorleft, 0, xcorright - xcorleft, m_topmargin / 2);
+		g.fillRect(xcorleft, 0, xcorright - xcorleft, getHeight());
 		xcorleft = (int)jmap<double>(m_file_cached.second.getStart(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		xcorright = (int)jmap<double>(m_file_cached.second.getEnd(), m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 		if (xcorright - xcorleft>0)
 		{
 			g.setColour(Colours::blue.withAlpha(0.2f));
-			g.fillRect(xcorleft, m_topmargin / 2, xcorright - xcorleft, m_topmargin / 2);
+			g.fillRect(xcorleft, m_topmargin / 2, xcorright - xcorleft, getHeight());
 		}
+		g.setColour(Colours::white);
+		g.drawText(toString(m_file_cached.first), 0, 30, 200, 30, Justification::centredLeft);
 	}
 
 	g.setColour(Colours::white);
@@ -750,6 +752,7 @@ void WaveformComponent::timerCallback()
 		m_last_source_pos = m_sas->getLastSourcePosition();
 		m_last_source_pos_update_time = Time::getMillisecondCounterHiRes();
 	}
+	m_file_cached = m_sas->getFileCachedRangesNormalized();
 	repaint();
 }
 
