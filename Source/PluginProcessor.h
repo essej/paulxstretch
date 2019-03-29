@@ -138,8 +138,8 @@ class PaulstretchpluginAudioProcessor  : public AudioProcessor,
 {
 public:
 	using EditorType = PaulstretchpluginAudioProcessorEditor;
-    PaulstretchpluginAudioProcessor();
-    ~PaulstretchpluginAudioProcessor();
+    PaulstretchpluginAudioProcessor(bool is_stand_alone_offline=false);
+	~PaulstretchpluginAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -290,7 +290,7 @@ private:
 	SharedResourcePointer<MyThreadPool> m_threadpool;
 	int m_midinote_to_use = -1;
 	ADSR m_adsr;
-	
+	bool m_is_stand_alone_offline = false;
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

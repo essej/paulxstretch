@@ -57,8 +57,8 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 }
 
 //==============================================================================
-PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
-	: m_bufferingthread("pspluginprebufferthread")
+PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor(bool is_stand_alone_offline)
+	: m_is_stand_alone_offline(is_stand_alone_offline), m_bufferingthread("pspluginprebufferthread")
 {
 	m_filechoose_callback = [this](const FileChooser& chooser)
 	{
@@ -88,7 +88,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();
-	m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
+	if (m_is_stand_alone_offline == false)
+		m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
 	
 	m_sm_enab_pars[0] = new AudioParameterBool("enab_specmodule0", "Enable harmonics", false);
 	m_sm_enab_pars[1] = new AudioParameterBool("enab_specmodule1", "Enable tonal vs noise", false);
@@ -214,7 +215,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor()
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
 	//Logger::writeToLog("PaulX AudioProcessor destroyed");
-	m_thumb->removeAllChangeListeners();
+	if (m_thumb)
+		m_thumb->removeAllChangeListeners();
 	m_thumb = nullptr;
 	m_bufferingthread.stopThread(1000);
 }
@@ -547,8 +549,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 {
 	File outputfiletouse = renderpars.outputfile.getNonexistentSibling();
 	ValueTree state{ getStateTree(false, false) };
-	auto processor = std::make_shared<PaulstretchpluginAudioProcessor>();
-	
+	auto processor = std::make_shared<PaulstretchpluginAudioProcessor>(true);
+	processor->setNonRealtime(true);
 	processor->setStateFromTree(state);
 	double outsr{ renderpars.outsr };
 	if (outsr < 10.0)
@@ -556,15 +558,15 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
 	int blocksize{ 1024 };
 	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
-	processor->setPlayConfigDetails(0, numoutchans, outsr, blocksize);
-	processor->prepareToPlay(renderpars.outsr, blocksize);
+	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
+	processor->prepareToPlay(outsr, blocksize);
 	
 	double t0 = *processor->getFloatParameter(cpi_soundstart);
 	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
 	
 	
-	auto rendertask = [processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr, this]()
+	auto rendertask = [processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr,this]()
 	{
 		WavAudioFormat wavformat;
 		FileOutputStream* outstream = outputfiletouse.createOutputStream();
@@ -583,7 +585,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 			oformattouse = 32;
 			clipoutput = true;
 		}
-		auto writer{ unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(), numoutchans,
+		auto writer{ unique_from_raw(wavformat.createWriterFor(outstream, outsr, numoutchans,
 			oformattouse, StringPairArray(), 0)) };
 		if (writer == nullptr)
 		{
@@ -593,23 +595,25 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 		AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
 		MidiBuffer dummymidi;
 		auto sc = processor->getStretchSource();
-		double outlensecs = sc->getInfileLengthSeconds()*sc->getRate();
-		int64_t outlen = outlensecs * outsr;
+		//double outlensecs = sc->getInfileLengthSeconds()*sc->getRate();
+		double outlensecs = sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize());
+		int64_t outlenframes = outlensecs * outsr;
 		int64_t outcounter{ 0 };
 		m_offline_render_state = 0;
 		m_offline_render_cancel_requested = false;
-		processor->setNonRealtime(true);
-		while (outcounter < outlen)
+		
+		while (outcounter < outlenframes)
 		{
 			if (m_offline_render_cancel_requested == true)
 				break;
 			processor->processBlock(renderbuffer, dummymidi);
 			writer->writeFromAudioSampleBuffer(renderbuffer, 0, blocksize);
 			outcounter += blocksize;
-			m_offline_render_state = 100.0 / outlen * outcounter;
+			m_offline_render_state = 100.0 / outlenframes * outcounter;
 		}
 		m_offline_render_state = 200;
 		Logger::writeToLog("Rendered ok!");
+		
 	};
 	std::thread th(rendertask);
 	th.detach();
@@ -664,8 +668,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 
 void PaulstretchpluginAudioProcessor::releaseResources()
 {
-	//m_control->stopplay();
-	//m_ready_to_play = false;
+	
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -976,7 +979,8 @@ String PaulstretchpluginAudioProcessor::setAudioFile(File f)
 		{
 			return "Too high bit depth in file " + f.getFullPathName();
 		}
-		m_thumb->setSource(new FileInputSource(f));
+		if (m_thumb)
+			m_thumb->setSource(new FileInputSource(f));
 		ScopedLock locker(m_cs);
 		m_stretch_source->setAudioFile(f);
 		//Range<double> currange{ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) };
