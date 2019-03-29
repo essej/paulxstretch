@@ -578,10 +578,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	{
 		WavAudioFormat wavformat;
 		FileOutputStream* outstream = outputfiletouse.createOutputStream();
-		if (outstream == nullptr)
-		{
-			jassert(false);
-		}
+		jassert(outstream != nullptr);
 		int oformattouse{ 16 };
 		bool clipoutput{ false };
 		if (renderpars.outputformat == 1)
@@ -602,8 +599,6 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 		}
 		AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
 		MidiBuffer dummymidi;
-		
-		
 		double outlensecs = sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize());
 		int64_t outlenframes = outlensecs * outsr;
 		int64_t outcounter{ 0 };
@@ -615,7 +610,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 			if (m_offline_render_cancel_requested == true)
 				break;
 			processor->processBlock(renderbuffer, dummymidi);
-			writer->writeFromAudioSampleBuffer(renderbuffer, 0, blocksize);
+			int64 framesToWrite = std::min<int64>(blocksize, outlenframes - outcounter);
+			writer->writeFromAudioSampleBuffer(renderbuffer, 0, framesToWrite);
 			outcounter += blocksize;
 			m_offline_render_state = 100.0 / outlenframes * outcounter;
 		}
