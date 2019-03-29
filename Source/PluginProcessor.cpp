@@ -445,6 +445,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 	m_stretch_source->setFFTSize(m_fft_size_to_use);
 	m_stretch_source->setProcessParameters(&m_ppar);
 	m_stretch_source->m_prebuffersize = bufamt;
+	
 	m_last_outpos_pos = 0.0;
 	m_last_in_pos = playrange.getStart()*m_stretch_source->getInfileLengthSeconds();
 	m_buffering_source->prepareToPlay(maxBlockSize, getSampleRateChecked());
@@ -558,15 +559,22 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
 	int blocksize{ 1024 };
 	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
-	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
-	processor->prepareToPlay(outsr, blocksize);
-	
+	auto sc = processor->getStretchSource();
 	double t0 = *processor->getFloatParameter(cpi_soundstart);
 	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
+	sc->setPlayRange({ t0,t1 });
+
+	sc->setMainVolume(*processor->getFloatParameter(cpi_main_volume));
+	sc->setRate(*processor->getFloatParameter(cpi_stretchamount));
+	sc->setDryPlayrate(*processor->getFloatParameter(cpi_dryplayrate));
+	processor->setFFTSize(*processor->getFloatParameter(cpi_fftsize));
+	processor->updateStretchParametersFromPluginParameters(processor->m_ppar);
+	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
+	processor->prepareToPlay(outsr, blocksize);
 	
 	
-	auto rendertask = [processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr,this]()
+	auto rendertask = [sc,processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr,this]()
 	{
 		WavAudioFormat wavformat;
 		FileOutputStream* outstream = outputfiletouse.createOutputStream();
@@ -594,8 +602,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 		}
 		AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
 		MidiBuffer dummymidi;
-		auto sc = processor->getStretchSource();
-		//double outlensecs = sc->getInfileLengthSeconds()*sc->getRate();
+		
+		
 		double outlensecs = sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize());
 		int64_t outlenframes = outlensecs * outsr;
 		int64_t outcounter{ 0 };
