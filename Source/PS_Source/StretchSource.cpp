@@ -574,6 +574,7 @@ void StretchAudioSource::initObjects()
 
 void StretchAudioSource::playDrySound(const AudioSourceChannelInfo & bufferToFill)
 {
+	auto bufs = bufferToFill.buffer->getArrayOfWritePointers();
 	double maingain = Decibels::decibelsToGain(m_main_volume);
 	m_inputfile->setXFadeLenSeconds(m_loopxfadelen);
 	double* rsinbuf = nullptr;
@@ -586,7 +587,7 @@ void StretchAudioSource::playDrySound(const AudioSourceChannelInfo & bufferToFil
 	m_resampler->ResampleOut(m_resampler_outbuf.data(), wanted, bufferToFill.numSamples, m_num_outchans);
 	for (int i = 0; i < m_num_outchans; ++i)
 		for (int j = 0; j < bufferToFill.numSamples; ++j)
-			bufferToFill.buffer->setSample(i, j + bufferToFill.startSample, maingain * m_resampler_outbuf[j*m_num_outchans + i]);
+			bufs[i][j + bufferToFill.startSample] = maingain * m_resampler_outbuf[j*m_num_outchans + i];
 }
 
 double StretchAudioSource::getInfilePositionPercent()
