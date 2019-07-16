@@ -121,7 +121,7 @@ inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, AudioParame
     if (par) dest.setProperty(par->paramID,(int)*par,uman);
 }
 
-inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, const OwnedArray<AudioProcessorParameter>& pars,
+inline void storeToTreeProperties(ValueTree dest, UndoManager* uman, const Array<AudioProcessorParameter*>& pars,
 	const std::set<AudioProcessorParameter*>& ignorepars = {})
 {
 	for (auto& e : pars)
@@ -173,7 +173,7 @@ inline void getFromTreeProperties(ValueTree src, T par)
     }
 }
 
-inline void getFromTreeProperties(ValueTree src, const OwnedArray<AudioProcessorParameter>& pars)
+inline void getFromTreeProperties(ValueTree src, const Array<AudioProcessorParameter*>& pars)
 {
 	for (auto& e : pars)
 	{
