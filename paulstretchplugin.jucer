@@ -11,7 +11,7 @@
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
-              jucerVersion="5.4.4" headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone">
+              jucerVersion="5.4.7" headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
@@ -134,6 +134,28 @@
         <MODULEPATH id="juce_dsp" path="../gitrepos/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
+    <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="C:\ProgrammingProjects\fftw-3.3.6-pl2\fftw-3.3-libs\x64\Static-Release\libfftwf-3.3.lib">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="Source/PS_Source&#10;Source/WDL&#10;C:\ProgrammingProjects\gitrepos\JUCE\modules\vst2.x&#10;"/>
+        <CONFIGURATION isDebug="0" name="Release" linkTimeOptimisation="0" headerPath="Source/PS_Source&#10;Source/WDL&#10;C:\ProgrammingProjects\gitrepos\JUCE\modules\vst2.x&#10;"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_extra"/>
+        <MODULEPATH id="juce_gui_basics"/>
+        <MODULEPATH id="juce_graphics"/>
+        <MODULEPATH id="juce_events"/>
+        <MODULEPATH id="juce_dsp"/>
+        <MODULEPATH id="juce_data_structures"/>
+        <MODULEPATH id="juce_cryptography"/>
+        <MODULEPATH id="juce_core"/>
+        <MODULEPATH id="juce_audio_utils"/>
+        <MODULEPATH id="juce_audio_processors"/>
+        <MODULEPATH id="juce_audio_plugin_client"/>
+        <MODULEPATH id="juce_audio_formats"/>
+        <MODULEPATH id="juce_audio_devices"/>
+        <MODULEPATH id="juce_audio_basics"/>
+      </MODULEPATHS>
+    </VS2019>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
