@@ -522,7 +522,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		{
 			m_capture_save_state = 1;
 			auto outstream = outfile.createOutputStream();
-			auto writer = unique_from_raw(wavformat.createWriterFor(outstream, getSampleRateChecked(),
+			auto writer = unique_from_raw(wavformat.createWriterFor(outstream.get(), getSampleRateChecked(),
 				inchans, 32, {}, 0));
 			if (writer != nullptr)
 			{
@@ -536,7 +536,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 			else
 			{
 				Logger::writeToLog("Could not create wav writer");
-				delete outstream;
+				//delete outstream;
 			}
 		}
 		else
@@ -577,7 +577,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	auto rendertask = [sc,processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr,this]()
 	{
 		WavAudioFormat wavformat;
-		FileOutputStream* outstream = outputfiletouse.createOutputStream();
+		auto outstream = outputfiletouse.createOutputStream();
 		jassert(outstream != nullptr);
 		int oformattouse{ 16 };
 		bool clipoutput{ false };
@@ -590,11 +590,11 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 			oformattouse = 32;
 			clipoutput = true;
 		}
-		auto writer{ unique_from_raw(wavformat.createWriterFor(outstream, outsr, numoutchans,
+		auto writer{ unique_from_raw(wavformat.createWriterFor(outstream.get(), outsr, numoutchans,
 			oformattouse, StringPairArray(), 0)) };
 		if (writer == nullptr)
 		{
-			delete outstream;
+			//delete outstream;
 			jassert(false);
 		}
 		AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
