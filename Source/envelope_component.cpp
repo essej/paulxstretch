@@ -73,7 +73,7 @@ void EnvelopeComponent::paint(Graphics& g)
 		g.drawText("No envelope set", 10, 10, getWidth(), getHeight(), Justification::centred);
 		return;
 	}
-	if (m_envelope.unique() == true)
+	if (m_envelope.use_count() == 1)
 	{
 		g.drawText("Envelope is orphaned (may be a bug)", 10, 10, getWidth(), getHeight(), Justification::centred);
 		return;

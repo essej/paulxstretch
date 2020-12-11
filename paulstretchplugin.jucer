@@ -11,7 +11,8 @@
               pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
               pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
-              jucerVersion="5.4.7" headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone">
+              headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone"
+              jucerFormatVersion="1">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"

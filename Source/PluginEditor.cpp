@@ -252,9 +252,10 @@ PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
 
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
-	auto content = new RenderSettingsComponent(&processor);
-	content->setSize(content->getWidth(), content->getPreferredHeight());
-	/*CallOutBox& myBox =*/ CallOutBox::launchAsynchronously(content, m_render_button.getBounds(), this);
+	auto contentraw =  new RenderSettingsComponent(&processor);
+	contentraw->setSize(contentraw->getWidth(), contentraw->getPreferredHeight());
+	std::unique_ptr<Component> content(contentraw);
+	CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
 }
 
 void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, int r)

@@ -447,6 +447,20 @@ class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor,
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
     ~PaulstretchpluginAudioProcessorEditor();
+	/*
+	void parentHierarchyChanged() override {
+		if (JUCEApplicationBase::isStandaloneApp()) {
+			auto* comp = getTopLevelComponent();
+
+			if (auto window = dynamic_cast<DocumentWindow*>(comp)) {
+				window->setUsingNativeTitleBar(true);
+				window->setResizable(true, false);
+				window->setTitleBarButtonsRequired(DocumentWindow::TitleBarButtons::allButtons, false);
+				window->setSize(800, 600);
+			}
+		}
+	}
+	*/
 	void paint (Graphics&) override;
     void resized() override;
 	void timerCallback(int id) override;
