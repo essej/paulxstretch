@@ -572,9 +572,9 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
 		title,
 		"Plugin for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
 		"Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
-		"(C) 2017-2019 Xenakios\n\n"+vstInfo+
+		"(C) 2017-2021 Xenakios\n\n"+vstInfo+
 		"Using " + fftlib + " for FFT\n\n"
-		+ juceversiontxt + " (c) Roli. Used under the GPL license.\n\n"
+		+ juceversiontxt + " Used under the GPL license.\n\n"
 		"GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n"
 		"Running in : "+host.getHostDescription()+"\n"
 		, "OK",
