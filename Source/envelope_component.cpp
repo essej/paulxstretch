@@ -225,34 +225,40 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 	if (ev.mods.isRightButtonDown() == true)
 	{
 		PopupMenu menu;
+        PopupMenu::Options opts;
 		menu.addItem(1, "Reset");
 		menu.addItem(2, "Invert");
 		menu.addItem(3, "Wrap envelope X transform", true, m_envelope->m_transform_wrap_x);
 		menu.addItem(4, "Envelope Y random linear interpolation", true, m_envelope->m_transform_y_random_linear_interpolation);
-		int r = menu.show();
-		if (r == 1)
-		{
-			ScopedLock locker(*m_cs);
-			m_envelope->ResetEnvelope();
-		}
-		if (r == 2)
-		{
-			for (int i = 0; i < m_envelope->GetNumPoints(); ++i)
-			{
-				double val = 1.0 - m_envelope->GetNodeAtIndex(i).pt_y;
-				m_envelope->GetNodeAtIndex(i).pt_y = val;
-			}
-		}
-		if (r == 3)
-		{
-			toggleBool(m_envelope->m_transform_wrap_x);
-		}
-		if (r == 4)
-		{
-			toggleBool(m_envelope->m_transform_y_random_linear_interpolation);
-		}
-		repaint();
-		return;
+
+        auto callback = [this] (int r) {
+            if (r == 1)
+            {
+                ScopedLock locker(*m_cs);
+                m_envelope->ResetEnvelope();
+            }
+            if (r == 2)
+            {
+                for (int i = 0; i < m_envelope->GetNumPoints(); ++i)
+                {
+                    double val = 1.0 - m_envelope->GetNodeAtIndex(i).pt_y;
+                    m_envelope->GetNodeAtIndex(i).pt_y = val;
+                }
+            }
+            if (r == 3)
+            {
+                toggleBool(m_envelope->m_transform_wrap_x);
+            }
+            if (r == 4)
+            {
+                toggleBool(m_envelope->m_transform_y_random_linear_interpolation);
+            }
+            repaint();
+        };
+
+        menu.showMenuAsync(opts, callback);
+
+        return;
 	}
 	m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
 	m_mouse_down = true;

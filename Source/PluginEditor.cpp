@@ -21,6 +21,8 @@ www.gnu.org/licenses
 #include <array>
 #include "RenderSettingsComponent.h"
 
+#include "CrossPlatformUtils.h"
+
 static void handleSettingsMenuModalCallback(int choice, PaulstretchpluginAudioProcessorEditor* ed)
 {
 	ed->executeModalMenuAction(0,choice);
@@ -242,7 +244,15 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	startTimer(2, 1000);
 	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
-	
+
+
+    setResizeLimits(320, 14*25 + 120, 40000, 4000);
+
+    setResizable(true, !JUCEApplicationBase::isStandaloneApp());
+
+#if JUCE_MAC
+    disableAppNap();
+#endif
 }
 
 PaulstretchpluginAudioProcessorEditor::~PaulstretchpluginAudioProcessorEditor()
@@ -277,6 +287,10 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
 	{
 		toggleBool(processor.m_mute_while_capturing);
 	}
+    if (r == 10)
+    {
+        toggleBool(processor.m_mute_processed_while_capturing);
+    }
 	if (r == 4)
 	{
 		processor.resetParameters();
@@ -537,7 +551,8 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	m_settings_menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
 	m_settings_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
 	m_settings_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
-	m_settings_menu.addItem(8, "Mute audio while capturing", true, processor.m_mute_while_capturing);
+	m_settings_menu.addItem(8, "Mute passthrough while capturing", true, processor.m_mute_while_capturing);
+    m_settings_menu.addItem(10, "Mute processed audio output while capturing", true, processor.m_mute_processed_while_capturing);
 	m_settings_menu.addItem(9, "Save captured audio to disk", true, processor.m_save_captured_audio);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
@@ -1362,14 +1377,18 @@ void PerfMeterComponent::mouseDown(const MouseEvent & ev)
 	bufferingmenu.addItem(103, "Large", true, curbufamount == 3);
 	bufferingmenu.addItem(104, "Very large", true, curbufamount == 4);
 	bufferingmenu.addItem(105, "Huge", true, curbufamount == 5);
-	int r = bufferingmenu.show();
-	if (r >= 100 && r < 200)
-	{
-		if (r == 100)
-			m_proc->m_use_backgroundbuffering = false;
-		if (r > 100)
-			m_proc->setPreBufferAmount(r - 100);
-	}
+
+    auto opts = PopupMenu::Options();
+
+    bufferingmenu.showMenuAsync(opts, [this](int r) {
+        if (r >= 100 && r < 200)
+        {
+            if (r == 100)
+                m_proc->m_use_backgroundbuffering = false;
+            if (r > 100)
+                m_proc->setPreBufferAmount(r - 100);
+        }
+    });
 }
 
 void PerfMeterComponent::timerCallback()

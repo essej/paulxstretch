@@ -207,6 +207,7 @@ public:
 	bool m_play_when_host_plays = false;
 	bool m_capture_when_host_plays = false;
 	bool m_mute_while_capturing = false;
+    bool m_mute_processed_while_capturing = false;
     bool m_use_backgroundbuffering = true;
 	void resetParameters();
     void setPreBufferAmount(int x);

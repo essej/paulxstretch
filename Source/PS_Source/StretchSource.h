@@ -99,6 +99,7 @@ public:
 	void setLoopingEnabled(bool b);
 	void setMaxLoops(int64_t numloops) { m_maxloops = numloops; }
 	void setAudioBufferAsInputSource(AudioBuffer<float>* buf, int sr, int len);
+    bool isAudioBufferInputSource() const { return m_audiobuffer_is_source; }
 	void setMainVolume(double decibels);
 	double getMainVolume() const { return m_main_volume; }
 	//void setSpectralModulesEnabled(const std::array<AudioParameterBool*, 9>& params);
@@ -148,6 +149,7 @@ private:
 	bool m_stream_end_reached = false;
 	int64_t m_output_silence_counter = 0;
 	File m_curfile;
+    bool m_audiobuffer_is_source = false;
 	int64_t m_maxloops = 0;
 	std::unique_ptr<WDL_Resampler> m_resampler;
 	std::vector<double> m_resampler_outbuf;

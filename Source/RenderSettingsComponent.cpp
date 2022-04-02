@@ -186,10 +186,9 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 		FileChooser myChooser("Please select audio file to render...",
 			lastexportfolder,
 			"*.wav");
-		if (myChooser.browseForFileToSave(true))
-		{
-			outfileNameEditor.setText(myChooser.getResult().getFullPathName(), dontSendNotification);
-		}
+        myChooser.launchAsync(FileBrowserComponent::saveMode, [this](const FileChooser &chooser) {
+			outfileNameEditor.setText(chooser.getResult().getFullPathName(), dontSendNotification);
+        });
     }
 }
 

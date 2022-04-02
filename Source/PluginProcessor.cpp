@@ -58,7 +58,8 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor(bool is_stand_alone_offline)
-	: m_is_stand_alone_offline(is_stand_alone_offline), m_bufferingthread("pspluginprebufferthread")
+	: AudioProcessor(PaulstretchpluginAudioProcessor::BusesProperties().withInput("Main In",  AudioChannelSet::stereo(), true).withOutput ("Main Out", AudioChannelSet::stereo(), true)),
+m_is_stand_alone_offline(is_stand_alone_offline), m_bufferingthread("pspluginprebufferthread")
 {
 	m_filechoose_callback = [this](const FileChooser& chooser)
 	{
@@ -214,6 +215,8 @@ PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor(bool is_stand_a
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 {
+    stopTimer(1);
+
 	//Logger::writeToLog("PaulX AudioProcessor destroyed");
 	if (m_thumb)
 		m_thumb->removeAllChangeListeners();
@@ -281,7 +284,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 		paramtree.setProperty("loadfilewithstate", m_load_file_with_state, nullptr);
 		storeToTreeProperties(paramtree, nullptr, "playwhenhostrunning", m_play_when_host_plays, 
 			"capturewhenhostrunning", m_capture_when_host_plays,"savecapturedaudio",m_save_captured_audio,
-			"mutewhilecapturing",m_mute_while_capturing);
+			"mutewhilecapturing",m_mute_while_capturing, "muteprocwhilecapturing",m_mute_processed_while_capturing);
 	}
 	storeToTreeProperties(paramtree, nullptr, "tabaindex", m_cur_tab_index);
 	storeToTreeProperties(paramtree, nullptr, "waveviewrange", m_wave_view_range);
@@ -301,7 +304,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             m_load_file_with_state = tree.getProperty("loadfilewithstate", true);
 			getFromTreeProperties(tree, "playwhenhostrunning", m_play_when_host_plays, 
 				"capturewhenhostrunning", m_capture_when_host_plays,"mutewhilecapturing",m_mute_while_capturing,
-				"savecapturedaudio",m_save_captured_audio);
+				"savecapturedaudio",m_save_captured_audio, "muteprocwhilecapturing",m_mute_processed_while_capturing);
 			getFromTreeProperties(tree, "tabaindex", m_cur_tab_index);
 			if (tree.hasProperty("numspectralstagesb"))
 			{
@@ -526,6 +529,8 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 				inchans, 32, {}, 0));
 			if (writer != nullptr)
 			{
+                outstream.release(); // the writer takes ownership
+
 				auto sourcebuffer = getStretchSource()->getSourceAudioBuffer();
 				jassert(sourcebuffer->getNumChannels() == inchans);
 				jassert(sourcebuffer->getNumSamples() > 0);
@@ -596,28 +601,34 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 		{
 			//delete outstream;
 			jassert(false);
-		}
-		AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
-		MidiBuffer dummymidi;
-		double outlensecs = sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize());
-		int64_t outlenframes = outlensecs * outsr;
-		int64_t outcounter{ 0 };
-		m_offline_render_state = 0;
-		m_offline_render_cancel_requested = false;
-		
-		while (outcounter < outlenframes)
-		{
-			if (m_offline_render_cancel_requested == true)
-				break;
-			processor->processBlock(renderbuffer, dummymidi);
-			int64 framesToWrite = std::min<int64>(blocksize, outlenframes - outcounter);
-			writer->writeFromAudioSampleBuffer(renderbuffer, 0, framesToWrite);
-			outcounter += blocksize;
-			m_offline_render_state = 100.0 / outlenframes * outcounter;
-		}
-		m_offline_render_state = 200;
-		Logger::writeToLog("Rendered ok!");
-		
+
+            m_offline_render_state = 200;
+            Logger::writeToLog("Render failed, could not open file!");
+            return;
+        } else {
+            outstream.release(); // the writer takes ownership
+
+            AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
+            MidiBuffer dummymidi;
+            double outlensecs = sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize());
+            int64_t outlenframes = outlensecs * outsr;
+            int64_t outcounter{ 0 };
+            m_offline_render_state = 0;
+            m_offline_render_cancel_requested = false;
+
+            while (outcounter < outlenframes)
+            {
+                if (m_offline_render_cancel_requested == true)
+                    break;
+                processor->processBlock(renderbuffer, dummymidi);
+                int64 framesToWrite = std::min<int64>(blocksize, outlenframes - outcounter);
+                writer->writeFromAudioSampleBuffer(renderbuffer, 0, framesToWrite);
+                outcounter += blocksize;
+                m_offline_render_state = 100.0 / outlenframes * outcounter;
+            }
+            m_offline_render_state = 200;
+            Logger::writeToLog("Rendered ok!");
+        }
 	};
 	std::thread th(rendertask);
 	th.detach();
@@ -768,7 +779,9 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 			m_recorded_range = { 0, m_rec_count };
 		if (m_mute_while_capturing == true)
 			buffer.clear();
-		return;
+
+        if (m_mute_processed_while_capturing == true)
+            return;
 	}
 	jassert(m_buffering_source != nullptr);
 	jassert(m_bufferingthread.isThreadRunning());

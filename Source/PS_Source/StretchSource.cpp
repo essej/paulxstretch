@@ -157,7 +157,7 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 	ScopedLock locker(m_cs);
 	m_inputfile->setAudioBuffer(buf, sr, len);
 	m_seekpos = 0.0;
-
+    m_audiobuffer_is_source = true;
 	m_curfile = File();
 	if (m_playrange.isEmpty())
 		setPlayRange({ 0.0,1.0 });
@@ -512,6 +512,7 @@ String StretchAudioSource::setAudioFile(File file)
 	{
 		m_curfile = file;
 		m_firstbuffer = true;
+        m_audiobuffer_is_source = false;
 		return String();
 	}
 	return "Could not open file";

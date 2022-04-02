@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="fn1Rg8" name="PaulXStretch" displaySplashScreen="0" reportAppUsage="0"
-              splashScreenColour="Dark" projectType="audioplug" version="1.0.0"
+              splashScreenColour="Dark" projectType="audioplug" version="1.2.5"
               bundleIdentifier="com.xenakios.paulxstretch" includeBinaryInAppConfig="1"
-              cppLanguageStandard="latest" companyCopyright="" buildVST="1"
+              cppLanguageStandard="latest" companyCopyright="" buildVST="0"
               buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
               buildStandalone="1" enableIAA="0" pluginName="PaulXStretch" pluginDesc="PaulXStretch"
               pluginManufacturer="Xenakios" pluginManufacturerCode="XenS" pluginCode="Fn1r"
-              pluginChannelConfigs="{2,2},{2,4}, {2,8}, {8,8} " pluginIsSynth="0"
-              pluginWantsMidiIn="0" pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="0"
-              pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
+              pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
+              pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
-              headerPath="&#10;&#10;" pluginFormats="buildVST,buildVST3,buildAU,buildStandalone"
+              headerPath="&#10;&#10;" pluginFormats="buildAU,buildStandalone,buildVST3"
               jucerFormatVersion="1">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
+      <FILE id="zvau5B" name="CrossPlatformUtils.h" compile="0" resource="0"
+            file="Source/CrossPlatformUtils.h"/>
+      <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
+            file="Source/CrossPlatformUtilsMac.mm"/>
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
             file="Source/RenderSettingsComponent.cpp"/>
       <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
@@ -51,19 +54,22 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_MAC targetFolder="Builds/MacOSX" extraLinkerFlags="/usr/local/Cellar/fftw/3.3.8/lib/libfftw3f.a&#10;">
+    <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="fftw3f" microphonePermissionNeeded="1"
+               microphonePermissionsText="This application requires audio input to capture live audio for processing"
+               hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
+               xcodeValidArchs="arm64,x86_64" buildNumber="100">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
-                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;/Users/teemu/codeprojects/JUCE/modules/vst2.x&#10;"
-                       libraryPath="/usr/local/Cellar/fftw/3.3.8/lib" cppLibType="libc++"
-                       osxArchitecture="64BitIntel" osxCompatibility="10.9 SDK" defines="JUCE_NO_DEPRECATION_WARNINGS"
-                       macOSDeploymentTarget="10.9"/>
-        <CONFIGURATION name="Release" enablePluginBinaryCopyStep="1" isDebug="0" optimisation="3"
-                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;/Users/teemu/codeprojects/JUCE/modules/vst2.x&#10;"
-                       osxCompatibility="10.9 SDK" osxArchitecture="64BitIntel" cppLibType="libc++"
-                       libraryPath="/usr/local/Cellar/fftw/3.3.8/lib" defines="JUCE_NO_DEPRECATION_WARNINGS"
+                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/devstatic/include&#10;"
+                       libraryPath="${HOME}/devstatic/lib&#10;" cppLibType="libc++"
+                       osxArchitecture="64BitIntel" osxCompatibility="10.10 SDK" defines="JUCE_NO_DEPRECATION_WARNINGS"
+                       macOSDeploymentTarget="10.10"/>
+        <CONFIGURATION name="Release" enablePluginBinaryCopyStep="0" isDebug="0" optimisation="3"
+                       linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/devstatic/include&#10;"
+                       osxCompatibility="10.10 SDK" osxArchitecture="64BitIntel" cppLibType="libc++"
+                       libraryPath="${HOME}/devstatic/lib&#10;" defines="JUCE_NO_DEPRECATION_WARNINGS"
                        auBinaryLocation="$(HOME)/Library/Audio/Plug-Ins/Components"
-                       macOSDeploymentTarget="10.9"/>
+                       macOSDeploymentTarget="10.10"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
