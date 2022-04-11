@@ -81,7 +81,18 @@ public:
     const String getApplicationName() override              { return JucePlugin_Name; }
     const String getApplicationVersion() override           { return JucePlugin_VersionString; }
     bool moreThanOneInstanceAllowed() override              { return true; }
-    void anotherInstanceStarted (const String&) override    {}
+    void anotherInstanceStarted (const String& cmdline) override    {
+
+        DBG("Another instance started: " << cmdline);
+
+    }
+
+    void urlOpened(const URL& url) override    {
+
+        DBG("URL opened: " << url.toString(false));
+        if (mainWindow.get() != nullptr)
+            mainWindow->pluginHolder->urlOpened(url);
+    }
 
     CustomLookAndFeel  sonoLNF;
 

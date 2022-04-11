@@ -115,6 +115,7 @@ public:
 
     //void addParameterComponent(std::unique_ptr<ParameterComponent> pcomp);
     void addParameterComponent(ParameterComponent * pcomp);
+    void replaceParameterComponent(ParameterComponent * oldcomp, ParameterComponent * newcomp);
 
     void updateParameterComponents();
 
@@ -524,12 +525,15 @@ public:
 	//SimpleFFTComponent m_sonogram;
 	String m_last_err;
 
+    void urlOpened(const URL& url);
+
     std::function<AudioDeviceManager*()> getAudioDeviceManager;
     std::function<void(Component*,Component*)> showAudioSettingsDialog;
 
 private:
 
     bool isSpectrumProcGroupEnabled(int groupid);
+    void setSpectrumProcGroupEnabled(int groupid, bool enabled);
 
     CustomLookAndFeel m_lookandfeel;
 
@@ -551,7 +555,9 @@ private:
 	TextButton m_rewind_button;
 	Label m_info_label;
 	SpectralChainEditor m_spec_order_ed;
-	
+    double m_lastspec_select_time = 0.0;
+    int m_lastspec_select_group = -1;
+
 	void showSettingsMenu();
     
 	zoom_scrollbar m_zs;
@@ -566,6 +572,7 @@ private:
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	
 	std::unique_ptr<MyFileBrowserComponent> m_filechooser;
+    std::unique_ptr<FileChooser> fileChooser;
 	WildcardFileFilter m_filefilter;
 	
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)

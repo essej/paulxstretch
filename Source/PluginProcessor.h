@@ -174,6 +174,7 @@ public:
 	void parameterValueChanged(int parameterIndex, float newValue) override;
 	void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
 
+
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
@@ -189,6 +190,10 @@ public:
 	{
 		return dynamic_cast<AudioParameterBool*>(getParameters()[index]);
 	}
+    void setLastPluginBounds(juce::Rectangle<int> bounds) { mPluginWindowWidth = bounds.getWidth(); mPluginWindowHeight = bounds.getHeight();}
+    juce::Rectangle<int> getLastPluginBounds() const { return juce::Rectangle<int>(0,0,mPluginWindowWidth, mPluginWindowHeight); }
+
+
 	void setDirty();
 	void setRecordingEnabled(bool b);
 	bool isRecordingEnabled() { return m_is_recording; }
@@ -269,7 +274,9 @@ private:
 	double m_last_in_pos = 0.0;
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
 	ProcessParameters m_ppar;
-	
+    int mPluginWindowWidth = 870;
+    int mPluginWindowHeight = 770;
+
 	void setFFTSize(double size);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;

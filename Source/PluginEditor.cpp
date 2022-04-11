@@ -77,7 +77,11 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     addAndMakeVisible(&m_perfmeter);
 	
 	addAndMakeVisible(&m_import_button);
-	m_import_button.setButtonText("Show browser");
+#if JUCE_IOS
+	m_import_button.setButtonText("Load Audio...");
+#else
+    m_import_button.setButtonText("Show browser");
+#endif
 	m_import_button.onClick = [this]()
 	{ 
 		toggleFileBrowser();
@@ -169,7 +173,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
     m_stretchgroup = std::make_unique<ParameterGroupComponent>("", -1, &processor, false);
     m_stretchgroup->setBackgroundColor(Colour(0xff332244));
-    m_stretchgroup->addParameterComponent(m_parcomps[cpi_stretchamount].get());
+    if (*processor.getBoolParameter(cpi_bypass_stretch)) {
+        m_stretchgroup->addParameterComponent(m_parcomps[cpi_dryplayrate].get());
+        removeChildComponent(m_parcomps[cpi_stretchamount].get());
+    } else {
+        m_stretchgroup->addParameterComponent(m_parcomps[cpi_stretchamount].get());
+        removeChildComponent(m_parcomps[cpi_dryplayrate].get());
+    }
     m_stretchgroup->addParameterComponent(m_parcomps[cpi_fftsize].get());
 
     addAndMakeVisible(m_stretchgroup.get());
@@ -282,6 +292,15 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
 	m_spec_order_ed.ModuleSelectedCallback = [this](int id)
 	{
+        auto nowtime = Time::getMillisecondCounterHiRes() * 1e-3;
+
+        if (m_lastspec_select_group == id && nowtime < m_lastspec_select_time + 0.5) {
+            // double click toggles enabled
+            setSpectrumProcGroupEnabled(id, !isSpectrumProcGroupEnabled(id));
+        }
+        m_lastspec_select_group = id;
+        m_lastspec_select_time = nowtime;
+
         if (id == FreeFilterGroup) {
             if (isSpectrumProcGroupEnabled(id)) {
                 m_wavefilter_tab.setCurrentTabIndex(2);
@@ -367,14 +386,18 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	//m_wavefilter_tab.addTab("Spectrum", Colours::white, &m_sonogram, false);
 
 	addAndMakeVisible(&m_wavefilter_tab);
-    setSize (1200, 320+14*25);
+
+    auto defbounds = processor.getLastPluginBounds();
+
+    setSize (defbounds.getWidth(), defbounds.getHeight());
+
     startTimer(1, 100);
 	startTimer(2, 1000);
 	startTimer(3, 200);
 	m_wavecomponent.startTimer(100);
 
 
-    setResizeLimits(320, 570, 40000, 4000);
+    setResizeLimits(320, 430, 40000, 4000);
 
     setResizable(true, !JUCEApplicationBase::isStandaloneApp());
 
@@ -400,6 +423,19 @@ bool PaulstretchpluginAudioProcessorEditor::isSpectrumProcGroupEnabled(int group
     }
     return false;
 }
+
+void PaulstretchpluginAudioProcessorEditor::setSpectrumProcGroupEnabled(int groupid, bool enabled)
+{
+    auto order = processor.getStretchSource()->getSpectrumProcessOrder();
+    for (int i=0; i < order.size(); ++i) {
+        if (order[i].m_index == groupid) {
+            *(order[i].m_enabled) = enabled; //->setValueNotifyingHost(enabled ? 1.0f : 0.0f);
+            return;
+        }
+    }
+    return;
+}
+
 
 
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
@@ -509,6 +545,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     buttonrowheight = 40;
     minh = 40;
 #endif
+
+    DBG("Resized: " << getWidth() << " " << getHeight());
+
+    processor.setLastPluginBounds(getLocalBounds());
 
     FlexBox mainbox;
     mainbox.flexDirection = FlexBox::Direction::column;
@@ -653,6 +693,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
 #if JUCE_IOS
     tabminh = 234;
+    orderminh = 44;
 #endif
 
     int totminh = vpminh + orderminh + tabminh + topboxh + toggleh + volh + stretchH;
@@ -798,9 +839,17 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 		processor.m_free_filter_envelope->updateMinMaxValues();
 		m_free_filter_component.repaint();
 		m_spec_order_ed.repaint();
-		m_parcomps[cpi_dryplayrate]->setVisible(*processor.getBoolParameter(cpi_bypass_stretch));
-		m_parcomps[cpi_stretchamount]->setVisible(!(*processor.getBoolParameter(cpi_bypass_stretch)));
-		//if (m_wavefilter_tab.getCurrentTabIndex() != processor.m_cur_tab_index)
+
+        if (*processor.getBoolParameter(cpi_bypass_stretch)) {
+            m_stretchgroup->replaceParameterComponent(m_parcomps[cpi_stretchamount].get(), m_parcomps[cpi_dryplayrate].get());
+        } else {
+            m_stretchgroup->replaceParameterComponent(m_parcomps[cpi_dryplayrate].get(), m_parcomps[cpi_stretchamount].get());
+        }
+
+		//m_parcomps[cpi_dryplayrate]->setVisible(*processor.getBoolParameter(cpi_bypass_stretch));
+        //m_parcomps[cpi_stretchamount]->setVisible(!*processor.getBoolParameter(cpi_bypass_stretch));
+
+        //if (m_wavefilter_tab.getCurrentTabIndex() != processor.m_cur_tab_index)
 		//	m_wavefilter_tab.setCurrentTabIndex(processor.m_cur_tab_index, false);
 	}
 }
@@ -826,6 +875,24 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 		toFront(true);
 	}
 }
+
+void PaulstretchpluginAudioProcessorEditor::urlOpened(const URL& url)
+{
+    DBG("Got URL: " << url.toString(false));
+    std::unique_ptr<InputStream> wi (url.createInputStream (false));
+    if (wi != nullptr)
+    {
+        File file = url.getLocalFile();
+        DBG("Attempting to load after input stream create: " << file.getFullPathName());
+        processor.setAudioFile(file);
+    } else {
+        File file = url.getLocalFile();
+        DBG("Attempting to load after no input stream create: " << file.getFullPathName());
+        processor.setAudioFile(file);
+    }
+    toFront(true);
+}
+
 
 bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 {
@@ -901,7 +968,7 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
     "GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n";
 
     if (host.type != juce::PluginHostType::UnknownHost) {
-        text += "Running in : "+host.getHostDescription()+"\n";
+        text += String("Running in : ") + host.getHostDescription()+ String("\n");
     }
 
     content->setJustificationType(Justification::centred);
@@ -927,17 +994,54 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
 
 void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 {
-	if (m_filechooser == nullptr)
+#if JUCE_IOS
+
+    String curropendir = processor.m_propsfile->m_props_file->getValue("importfilefolder",
+                                                                    File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName());
+
+    Component * parent = JUCEApplication::isStandaloneApp() ? nullptr : this;
+
+    fileChooser.reset(new FileChooser("Choose an audio file to open...",
+                    curropendir,
+                    "*.wav;*.mp3;*.m4a;*.aif;*.aiff;*.caf;*.ogg;*.flac",
+                    true, false, parent));
+
+
+    fileChooser->launchAsync (FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
+                     [this] (const FileChooser& chooser)
+                     {
+        auto results = chooser.getURLResults();
+        if (results.size() > 0)
+        {
+            auto url = results.getReference (0);
+
+            std::unique_ptr<InputStream> wi (url.createInputStream (false));
+            if (wi != nullptr)
+            {
+                File file = url.getLocalFile();
+                DBG("Attempting to load from: " << file.getFullPathName());
+
+                //curropendir = file.getParentDirectory();
+                processor.setAudioFile(file);
+                processor.m_propsfile->m_props_file->setValue("importfilefolder", file.getParentDirectory().getFullPathName());
+            }
+        }
+    });
+
+
+#else
+    if (m_filechooser == nullptr)
 	{
 		m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
 		addChildComponent(m_filechooser.get());
 	}
-	m_filechooser->setBounds(0, 26, getWidth()/2, getHeight() - 75);
+	m_filechooser->setBounds(0, m_import_button.getBottom(), getWidth()/2, getHeight() - 75);
 	m_filechooser->setVisible(!m_filechooser->isVisible());
 	if (m_filechooser->isVisible())
 		m_import_button.setButtonText("Hide browser");
 	else
 		m_import_button.setButtonText("Show browser");
+#endif
 }
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb, StretchAudioSource* sas)
@@ -2035,6 +2139,21 @@ void ParameterGroupComponent::addParameterComponent(ParameterComponent * pcomp)
     }
 }
 
+void ParameterGroupComponent::replaceParameterComponent(ParameterComponent * oldcomp, ParameterComponent * newcomp)
+{
+    for (int i = 0; i < m_parcomps.size(); ++i)
+    {
+        if (m_parcomps[i] == oldcomp) {
+            removeChildComponent(oldcomp);
+            addAndMakeVisible(newcomp);
+            m_parcomps[i] = newcomp;
+            resized();
+            break;
+        }
+    }
+}
+
+
 int ParameterGroupComponent::doLayout(Rectangle<int> bounds)
 {
     int titlew = m_namelabel ? 100 : m_enableButton ? 40 : 0;
@@ -2142,11 +2261,11 @@ MyFileBrowserComponent::MyFileBrowserComponent(PaulstretchpluginAudioProcessor &
 	String initiallocfn = m_proc.m_propsfile->m_props_file->getValue("importfilefolder",
 		File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
 	File initialloc(initiallocfn);
-	m_fbcomp = std::make_unique<FileBrowserComponent>(1 | 4,
+	m_fbcomp = std::make_unique<FileBrowserComponent>(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
 		initialloc, &m_filefilter, nullptr);
 	m_fbcomp->addListener(this);
 	addAndMakeVisible(m_fbcomp.get());
-	setLookAndFeel(&m_filebwlookandfeel);
+	//setLookAndFeel(&m_filebwlookandfeel);
 }
 
 MyFileBrowserComponent::~MyFileBrowserComponent()
@@ -2161,7 +2280,7 @@ void MyFileBrowserComponent::resized()
 
 void MyFileBrowserComponent::paint(Graphics & g)
 {
-	g.fillAll(Colours::black.withAlpha(0.8f));
+	g.fillAll(Colours::black.withAlpha(0.9f));
 }
 
 void MyFileBrowserComponent::selectionChanged()

@@ -423,6 +423,14 @@ public:
     }
    #endif
 
+    void urlOpened(const URL& url)  {
+        if (urlOpenedCallback)
+            urlOpenedCallback(url);
+    }
+
+    std::function<void(const URL & url)> urlOpenedCallback;
+
+
     static StandalonePluginHolder* getInstance();
 
     //==============================================================================
@@ -783,6 +791,10 @@ private:
                 if (auto * sonoeditor = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(editor.get())) {
                     sonoeditor->getAudioDeviceManager = [this]() { return &owner.getDeviceManager();  };
                     sonoeditor->showAudioSettingsDialog = [this](Component* calloutTarget, Component* calloutParent) { owner.pluginHolder->showAudioSettingsDialog(calloutTarget, calloutParent); };
+
+                    owner.pluginHolder->urlOpenedCallback =  [sonoeditor](const URL& url) {
+                        sonoeditor->urlOpened(url);
+                    };
                 }
 
                 editor->addComponentListener (this);
