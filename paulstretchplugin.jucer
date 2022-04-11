@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="fn1Rg8" name="PaulXStretch" displaySplashScreen="0" reportAppUsage="0"
-              splashScreenColour="Dark" projectType="audioplug" version="1.2.5"
+              splashScreenColour="Dark" projectType="audioplug" version="1.5.0"
               bundleIdentifier="com.xenakios.paulxstretch" includeBinaryInAppConfig="1"
               cppLanguageStandard="latest" companyCopyright="" buildVST="0"
               buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
@@ -11,21 +11,9 @@
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
               aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
               headerPath="&#10;&#10;" pluginFormats="buildAU,buildStandalone,buildVST3"
-              jucerFormatVersion="1">
+              jucerFormatVersion="1" useAppConfig="0" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
-      <FILE id="zvau5B" name="CrossPlatformUtils.h" compile="0" resource="0"
-            file="Source/CrossPlatformUtils.h"/>
-      <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
-            file="Source/CrossPlatformUtilsMac.mm"/>
-      <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
-            file="Source/RenderSettingsComponent.cpp"/>
-      <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
-            file="Source/envelope_component.cpp"/>
-      <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
-            file="Source/envelope_component.h"/>
-      <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="Source/jcdp_envelope.h"/>
-      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
         <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
@@ -40,24 +28,44 @@
         <FILE id="a7ur6I" name="StretchSource.cpp" compile="1" resource="0"
               file="Source/PS_Source/StretchSource.cpp"/>
       </GROUP>
-      <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
-            file="Source/ps3_BufferingAudioSource.cpp"/>
-      <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
-            file="Source/ps3_BufferingAudioSource.h"/>
+      <FILE id="zvau5B" name="CrossPlatformUtils.h" compile="0" resource="0"
+            file="Source/CrossPlatformUtils.h"/>
+      <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
+            file="Source/CrossPlatformUtilsMac.mm"/>
+      <FILE id="TCVLTq" name="CustomLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/CustomLookAndFeel.cpp"/>
+      <FILE id="cH0r3U" name="CustomLookAndFeel.h" compile="0" resource="0"
+            file="Source/CustomLookAndFeel.h"/>
+      <FILE id="IXtDZ2" name="CustomStandaloneFilterApp.cpp" compile="1"
+            resource="0" file="Source/CustomStandaloneFilterApp.cpp"/>
+      <FILE id="Ixh7BI" name="CustomStandaloneFilterWindow.h" compile="0"
+            resource="0" file="Source/CustomStandaloneFilterWindow.h"/>
+      <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
+            file="Source/envelope_component.cpp"/>
+      <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
+            file="Source/envelope_component.h"/>
+      <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="Source/jcdp_envelope.h"/>
+      <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="jdPS0A" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="pt5tX8" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
+            file="Source/ps3_BufferingAudioSource.cpp"/>
+      <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
+            file="Source/ps3_BufferingAudioSource.h"/>
+      <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
+            file="Source/RenderSettingsComponent.cpp"/>
+      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="fftw3f" microphonePermissionNeeded="1"
                microphonePermissionsText="This application requires audio input to capture live audio for processing"
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
-               xcodeValidArchs="arm64,x86_64" buildNumber="100">
+               xcodeValidArchs="arm64,x86_64" buildNumber="100" applicationCategory="public.app-category.music">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
                        linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/devstatic/include&#10;"

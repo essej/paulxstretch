@@ -19,9 +19,10 @@
 #import <Cocoa/Cocoa.h>
 
 
-void getSafeAreaInsets(void * component, float & top, float & bottom, float & left, float & right)
+void getSafeAreaInsets(void * component, float & top, float & bottom, float & left, float & right, int & notchPos)
 {
     top = bottom = left = right = 0;
+    notchPos = 0;
 }
 
 

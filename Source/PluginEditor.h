@@ -21,7 +21,9 @@ www.gnu.org/licenses
 #include "PluginProcessor.h"
 #include <memory>
 #include <vector>
+#include <map>
 #include "envelope_component.h"
+#include "CustomLookAndFeel.h"
 
 class zoom_scrollbar : public Component
 {
@@ -102,6 +104,50 @@ private:
 	bool m_dragging = false;
 	Colour m_labeldefcolor;
 };
+
+class ParameterGroupComponent : public Component
+{
+public:
+    ParameterGroupComponent(const String & name, int groupid, PaulstretchpluginAudioProcessor* proc, bool showtoggle=true);
+
+    void resized() override;
+    void paint(Graphics &g) override;
+
+    //void addParameterComponent(std::unique_ptr<ParameterComponent> pcomp);
+    void addParameterComponent(ParameterComponent * pcomp);
+
+    void updateParameterComponents();
+
+    void setBackgroundColor(Colour col) { m_bgcolor = col; }
+    Colour getBackgroundColor() const { return m_bgcolor; }
+
+    String name;
+    int groupId = -1;
+
+    int getMinimumHeight(int forWidth);
+
+    std::function<void(void)> EnabledChangedCallback;
+
+private:
+    int doLayout(Rectangle<int> bounds); // returns min height
+
+    //uptrvec<ParameterComponent> m_parcomps;
+    std::vector<ParameterComponent*> m_parcomps;
+    std::unique_ptr<Label> m_namelabel;
+    //std::unique_ptr<DrawableButton> m_enableButton;
+    std::unique_ptr<ToggleButton> m_enableButton;
+
+    CriticalSection* m_cs = nullptr;
+    PaulstretchpluginAudioProcessor* m_proc = nullptr;
+    int m_slidwidth = 400;
+
+    Colour m_bgcolor;
+
+    int m_minHeight = 0;
+    int m_lastForWidth = -1;
+    int m_lastCompSize = 0;
+};
+
 
 class PerfMeterComponent : public Component, public Timer
 {
@@ -216,6 +262,7 @@ private:
 	bool m_did_drag = false;
 	int m_cur_index = -1;
 	int m_drag_x = 0;
+    int m_downoffset_x = 0;
     std::vector<SpectrumProcess> m_order;
 	void drawBox(Graphics& g, int index, int x, int y, int w, int h);
 };
@@ -248,7 +295,7 @@ private:
 	uptrvec<ParameterComponent> m_parcomps;
 	CriticalSection* m_cs = nullptr;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
-	int m_slidwidth = 400;
+	int m_slidwidth = 350;
 };
 
 class MyTabComponent : public TabbedComponent
@@ -476,10 +523,26 @@ public:
 	void executeModalMenuAction(int menuid, int actionid);
 	//SimpleFFTComponent m_sonogram;
 	String m_last_err;
-	
+
+    std::function<AudioDeviceManager*()> getAudioDeviceManager;
+    std::function<void(Component*,Component*)> showAudioSettingsDialog;
+
 private:
+
+    bool isSpectrumProcGroupEnabled(int groupid);
+
+    CustomLookAndFeel m_lookandfeel;
+
 	PaulstretchpluginAudioProcessor& processor;
 	uptrvec<ParameterComponent> m_parcomps;
+    std::map<int, std::unique_ptr<ParameterGroupComponent> > m_pargroups;
+    std::unique_ptr<ParameterGroupComponent> m_posgroup;
+    std::unique_ptr<ParameterGroupComponent> m_stretchgroup;
+
+    std::unique_ptr<Viewport> m_groupviewport;
+    std::unique_ptr<Component> m_groupcontainer;
+
+
 	//SpectralVisualizer m_specvis;
 	PerfMeterComponent m_perfmeter;
 	TextButton m_import_button;
@@ -497,6 +560,7 @@ private:
 	
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
+    void showAudioSetup();
 	void showAbout();
 	void toggleFileBrowser();
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };

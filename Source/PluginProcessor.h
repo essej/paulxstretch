@@ -123,7 +123,7 @@ class PaulstretchpluginAudioProcessorEditor;
 struct OfflineRenderParams
 {
 	OfflineRenderParams(File ofile, double osr, int oformat, double omaxdur, int onumloops, CallOutBox* ocb=nullptr) :
-		outputfile(ofile), outsr(osr), outputformat(oformat), maxoutdur(omaxdur), numloops(onumloops), cbox(ocb)
+		outputfile(ofile), outsr(osr), maxoutdur(omaxdur), numloops(onumloops), outputformat(oformat), cbox(ocb)
 	{}
 	File outputfile;
 	double outsr = 44100.0;

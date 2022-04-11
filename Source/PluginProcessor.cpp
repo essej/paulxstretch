@@ -59,7 +59,7 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor(bool is_stand_alone_offline)
 	: AudioProcessor(PaulstretchpluginAudioProcessor::BusesProperties().withInput("Main In",  AudioChannelSet::stereo(), true).withOutput ("Main Out", AudioChannelSet::stereo(), true)),
-m_is_stand_alone_offline(is_stand_alone_offline), m_bufferingthread("pspluginprebufferthread")
+m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_alone_offline)
 {
 	m_filechoose_callback = [this](const FileChooser& chooser)
 	{

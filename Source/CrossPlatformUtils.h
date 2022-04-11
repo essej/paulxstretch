@@ -4,7 +4,9 @@
 
 #pragma once
 
-void getSafeAreaInsets(void * component, float & top, float & bottom, float & left, float & right);
+// notchPos is 0=none 1=top 2=bottom, 3=left, 4=right
+
+void getSafeAreaInsets(void * component, float & top, float & bottom, float & left, float & right, int & notchPos);
 
 
 #if JUCE_MAC

@@ -256,6 +256,11 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
             repaint();
         };
 
+        if (!JUCEApplicationBase::isStandaloneApp()) {
+            opts = opts.withParentComponent(this);
+        }
+
+
         menu.showMenuAsync(opts, callback);
 
         return;
