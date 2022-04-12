@@ -52,6 +52,11 @@ void EnvelopeComponent::show_bubble(int x, int y, const envelope_point& node)
 
 void EnvelopeComponent::paint(Graphics& g)
 {
+    float targsize = 8.0;
+#if JUCE_IOS
+    targsize = 16.0;
+#endif
+
 	if (!EnvelopeUnderlayDraw)
 	{
 		g.fillAll(Colours::black);
@@ -119,8 +124,8 @@ void EnvelopeComponent::paint(Graphics& g)
 		double ycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
 		g.setColour(Colours::white);
 		if (pt.Status == 0)
-			g.drawRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f, 1.0f);
-		else g.fillRect((float)xcor - 4.0f, (float)ycor - 4.0f, 8.0f, 8.0f);
+			g.drawRect((float)xcor - targsize*0.5f, (float)ycor - targsize*0.5f, targsize, targsize, 1.0f);
+		else g.fillRect((float)xcor - targsize*0.5f, (float)ycor - targsize*0.5f, targsize, targsize);
 	}
 }
 
@@ -406,7 +411,11 @@ int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
 		const envelope_point& pt = m_envelope->GetNodeAtIndex(i);
 		double ptxcor = jmap(pt.pt_x, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
 		double ptycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
-		juce::Rectangle<double> target(ptxcor - 4.0, ptycor - 4.0, 8.0, 8.0);
+        float targsize = 8.0;
+#if JUCE_IOS
+        targsize = 16.0;
+#endif
+        juce::Rectangle<double> target(ptxcor - targsize*0.5f, ptycor - targsize*0.5, targsize, targsize);
 		if (target.contains(xcor, ycor) == true)
 		{
 			return i;
@@ -417,6 +426,11 @@ int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
 
 int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool detectsegment)
 {
+    float targsize = 8.0;
+#if JUCE_IOS
+    targsize = 16.0;
+#endif
+
 	if (m_envelope == nullptr)
 		return -1;
 	for (int i = 0; i < m_envelope->GetNumPoints()-1; ++i)

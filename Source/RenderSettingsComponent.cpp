@@ -65,6 +65,12 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 	addAndMakeVisible(&label4);
 	label4.setText("Output file :\n", dontSendNotification);
     
+#if JUCE_IOS
+    addAndMakeVisible(&m_shareAfterRenderToggle);
+    m_shareAfterRenderToggle.setButtonText("Share after render");
+    bool lastshare = m_proc->m_propsfile->m_props_file->getBoolValue(ID_lastrendershare, false);
+    m_shareAfterRenderToggle.setToggleState(lastshare, dontSendNotification);
+#endif
 
 	addAndMakeVisible(&outfileNameEditor);
     outfileNameEditor.setMultiLine (false);
@@ -78,18 +84,24 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 	buttonSelectFile.setTooltip("Open dialog to choose file to render to");
 	buttonSelectFile.setButtonText (TRANS("..."));
     buttonSelectFile.addListener (this);
-	setSize (600, 400);
+	setSize (prefWidth, prefHeight);
 	comboBoxSamplerate.setSelectedId(1);
     comboBoxBitDepth.setSelectedId(3);
 	String lastexportfile = m_proc->m_propsfile->m_props_file->getValue(ID_lastrenderpath);
 	auto sep = File::getSeparatorChar();
 	File temp(lastexportfile);
+
+#if JUCE_IOS
+    outfileNameEditor.setText(temp.getFileName(), dontSendNotification);
+#else
 	if (temp.getParentDirectory().exists())
 		outfileNameEditor.setText(lastexportfile, dontSendNotification);
 	else
 		outfileNameEditor.setText(File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName()+sep+"pxsrender.wav",
 			dontSendNotification);
-	numLoopsEditor.setVisible(m_proc->getStretchSource()->isLoopingEnabled());
+#endif
+
+    numLoopsEditor.setVisible(m_proc->getStretchSource()->isLoopingEnabled());
 	label3.setVisible(m_proc->getStretchSource()->isLoopingEnabled());
 }
 
@@ -101,40 +113,88 @@ RenderSettingsComponent::~RenderSettingsComponent()
 //==============================================================================
 void RenderSettingsComponent::paint (Graphics& g)
 {
-    g.fillAll (Colour (0xff323e44));
+    //g.fillAll (Colour (0xff323e44));
+    g.fillAll(Colour::fromFloatRGBA(0.1, 0.1, 0.1, 1.0));
 }
 
 void RenderSettingsComponent::resized()
 {
-	int xoffs = 8;
-	int yoffs = 1;
-	int labelw = 160;
-	int labelh = 24;
-	
-	label4.setBounds(xoffs, yoffs, labelw, 24);
-	outfileNameEditor.setBounds(label4.getRight()+1, yoffs, getWidth() - labelw - 34 - xoffs, 24);
-	buttonSelectFile.setBounds(outfileNameEditor.getRight() + 1, yoffs, 31, 24);
-	yoffs += 25;
-	labelSamplerate.setBounds (xoffs, yoffs, labelw, labelh);
-    comboBoxSamplerate.setBounds (labelSamplerate.getRight()+1, yoffs, 150, 24);
-	yoffs += 25;
-	labelBitDepth.setBounds (xoffs, yoffs, labelw, 24);
-    comboBoxBitDepth.setBounds (labelBitDepth.getRight()+1, yoffs, 150, 24);
-	m_toggleFloatClip.setBounds(comboBoxBitDepth.getRight() + 1, yoffs, 10, 24);
-	m_toggleFloatClip.changeWidthToFitText();
-	yoffs += 25;
-	if (m_proc->getStretchSource()->isLoopingEnabled())
-	{
-		label3.setBounds(xoffs, yoffs, labelw, 48);
-		numLoopsEditor.setBounds(label3.getRight() + 1, yoffs, 150, 24);
-		yoffs += 50;
-	}
-	
-	
-	m_labelMaxOutDuration.setBounds(xoffs, yoffs, 220, 24);
-	m_editorMaxOutDuration.setBounds(m_labelMaxOutDuration.getRight() + 1, yoffs, 50, 24);
-	yoffs += 25;
-	buttonRender.setBounds(getWidth() - 152, getHeight()-25, 150, 24);
+	int labelw = 120;
+    int widelabelw = 210;
+	int itemh = 28;
+    int tallitemh = 40;
+    int minitemw = 150;
+    int smallitemw = 50;
+    int margin = 2;
+#if JUCE_IOS
+    itemh = 36;
+    tallitemh = 42;
+#endif
+
+
+    FlexBox mainbox;
+    mainbox.flexDirection = FlexBox::Direction::column;
+
+
+    FlexBox outbox;
+    outbox.flexDirection = FlexBox::Direction::row;
+    outbox.items.add(FlexItem(labelw, itemh, label4).withMargin(margin));
+    outbox.items.add(FlexItem(minitemw, itemh, outfileNameEditor).withMargin(margin).withFlex(1));
+#if !JUCE_IOS
+    outbox.items.add(FlexItem(36, itemh, buttonSelectFile).withMargin(margin));
+#endif
+
+    FlexBox srbox;
+    srbox.flexDirection = FlexBox::Direction::row;
+    srbox.items.add(FlexItem(labelw, itemh, labelSamplerate).withMargin(margin));
+    srbox.items.add(FlexItem(minitemw, itemh, comboBoxSamplerate).withMargin(margin));
+
+    FlexBox forbox;
+    forbox.flexDirection = FlexBox::Direction::row;
+    forbox.items.add(FlexItem(labelw, itemh, labelBitDepth).withMargin(margin));
+    forbox.items.add(FlexItem(minitemw, itemh, comboBoxBitDepth).withMargin(margin));
+    forbox.items.add(FlexItem(minitemw, itemh, m_toggleFloatClip).withMargin(margin).withFlex(1));
+
+    FlexBox loopbox;
+    loopbox.flexDirection = FlexBox::Direction::row;
+    loopbox.items.add(FlexItem(labelw, tallitemh, label3).withMargin(margin));
+    loopbox.items.add(FlexItem(smallitemw, itemh, numLoopsEditor).withMargin(margin).withMaxHeight(itemh).withAlignSelf(FlexItem::AlignSelf::flexStart));
+
+    FlexBox maxbox;
+    maxbox.flexDirection = FlexBox::Direction::row;
+    maxbox.items.add(FlexItem(widelabelw, itemh, m_labelMaxOutDuration).withMargin(margin));
+    maxbox.items.add(FlexItem(smallitemw, itemh, m_editorMaxOutDuration).withMargin(margin));
+
+    FlexBox buttonbox;
+    buttonbox.flexDirection = FlexBox::Direction::row;
+    buttonbox.items.add(FlexItem(minitemw, itemh).withFlex(1));
+#if JUCE_IOS
+    buttonbox.items.add(FlexItem(labelw, itemh, m_shareAfterRenderToggle).withMargin(margin).withFlex(1));
+    buttonbox.items.add(FlexItem(4, itemh).withFlex(0.1).withMaxWidth(20));
+#endif
+    buttonbox.items.add(FlexItem(minitemw, itemh, buttonRender).withMargin(margin));
+
+
+
+    mainbox.items.add(FlexItem(minitemw, itemh, outbox).withMargin(margin));
+    mainbox.items.add(FlexItem(minitemw, itemh, srbox).withMargin(margin));
+    mainbox.items.add(FlexItem(minitemw, itemh, forbox).withMargin(margin));
+
+    if (m_proc->getStretchSource()->isLoopingEnabled()) {
+        mainbox.items.add(FlexItem(minitemw, tallitemh, loopbox).withMargin(margin));
+    }
+
+    mainbox.items.add(FlexItem(minitemw, itemh, maxbox).withMargin(margin));
+    mainbox.items.add(FlexItem(minitemw, 2).withFlex(0.1));
+    mainbox.items.add(FlexItem(minitemw, itemh, buttonbox).withMargin(margin));
+
+    mainbox.performLayout(getLocalBounds().reduced(2));
+
+    prefHeight = 4;
+
+    for (auto & item : mainbox.items) {
+        prefHeight += item.minHeight + item.margin.top + item.margin.bottom;
+    }
 }
 
 void RenderSettingsComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
@@ -152,15 +212,32 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 {
     if (buttonThatWasClicked == &buttonRender)
     {
-		File outfile(outfileNameEditor.getText());
-		if (outfile.getParentDirectory().exists()==false)
+        File outfile;
+
+#if JUCE_IOS
+        // force outfile to be in Documents
+        outfile = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory).getChildFile(outfileNameEditor.getText());
+#else
+        outfile = File(outfileNameEditor.getText());
+#endif
+
+        if (!pendingRender && outfile.getParentDirectory().exists()==false) {
 			buttonClicked(&buttonSelectFile);
-		outfile = File(outfileNameEditor.getText());
-		if (outfile.getParentDirectory().exists()==false)
-			return;
+            pendingRender = true;
+            return;
+        }
+        else if (outfile.getParentDirectory().exists()==false) {
+            pendingRender = false;
+            return;
+        }
+
+        if (!outfile.getFileExtension().equalsIgnoreCase(".wav")) {
+            outfile = outfile.withFileExtension(".wav");
+        }
+
 		int numLoops = 0; 
 		if (numLoopsEditor.isVisible())
-			numLoops = numLoopsEditor.getText().getLargeIntValue();
+			numLoops = (int) numLoopsEditor.getText().getLargeIntValue();
 		numLoops = jlimit<int>(0, 1000000, numLoops);
 		int sampleRate = comboBoxSamplerate.getSelectedId();
 		if (sampleRate == 1)
@@ -170,50 +247,91 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 		int oformat = comboBoxBitDepth.getSelectedId() - 1;
 		if (oformat == 2 && m_toggleFloatClip.getToggleState())
 			oformat = 3;
-		OfflineRenderParams renderpars{ File(outfileNameEditor.getText()),(double)comboBoxSamplerate.getSelectedId(),
-			oformat,maxrenderlen,numLoops };
-		m_proc->m_propsfile->m_props_file->setValue(ID_lastrenderpath, outfileNameEditor.getText());
+
+        std::function<void(bool,File file)> completion;
+
+#if JUCE_IOS
+        if (m_shareAfterRenderToggle.getToggleState()) {
+            completion = [](bool status,File file) {
+                // this completion handler will be called from another thread
+                MessageManager::callAsync([status,file]() {
+
+                    if (status) {
+                        DBG("Finished render, sharing");
+                        Array<URL> files;
+                        files.add(URL(file));
+
+                        ContentSharer::getInstance()->shareFiles(files, [](bool status, const String & message) {
+                            if (status) {
+                                DBG("Finished share");
+                            } else {
+                                DBG("Error sharing: " << message);
+                            }
+                        });
+                    } else {
+                        DBG("error rendering");
+                    }
+                });
+            };
+        }
+#endif
+
+		OfflineRenderParams renderpars{ outfile,(double)comboBoxSamplerate.getSelectedId(),
+			oformat,maxrenderlen,numLoops, nullptr, completion };
+		m_proc->m_propsfile->m_props_file->setValue(ID_lastrenderpath, outfile.getFullPathName());
+        m_proc->m_propsfile->m_props_file->setValue(ID_lastrendershare, m_shareAfterRenderToggle.getToggleState());
 		m_proc->offlineRender(renderpars);
 		if (auto pardlg = dynamic_cast<CallOutBox*>(getParentComponent()); pardlg!=nullptr)
 		{
-			pardlg->exitModalState(1);
+            pardlg->dismiss();
+            //pardlg->exitModalState(1);
 		}
 		return;
     }
     else if (buttonThatWasClicked == &buttonSelectFile)
     {
 		File lastexportfolder; // File(g_propsfile->getValue("last_export_file")).getParentDirectory();
-		FileChooser myChooser("Please select audio file to render...",
-			lastexportfolder,
-			"*.wav");
-        myChooser.launchAsync(FileBrowserComponent::saveMode, [this](const FileChooser &chooser) {
-			outfileNameEditor.setText(chooser.getResult().getFullPathName(), dontSendNotification);
+
+        m_filechooser = std::make_unique<FileChooser>("Please select audio file to render...",
+                                                      lastexportfolder,
+                                                      "*.wav");
+        m_filechooser->launchAsync(FileBrowserComponent::saveMode, [this](const FileChooser &chooser) {
+            String newpath = chooser.getResult().getFullPathName();
+#if JUCE_IOS
+            // not actually used here, but just in case for later
+            newpath = chooser.getResult().getFileName();
+#endif
+			outfileNameEditor.setText(newpath, dontSendNotification);
+            if (newpath.isNotEmpty() && pendingRender) {
+                buttonClicked(&buttonRender);
+            }
         });
     }
 }
 
-int RenderSettingsComponent::getPreferredHeight()
+int RenderSettingsComponent::getPreferredHeight() const
 {
-	if (m_proc->getStretchSource()->isLoopingEnabled())
-		return 180;
-	return 150;
+    return prefHeight;
+
+#if JUCE_IOS
+    if (m_proc->getStretchSource()->isLoopingEnabled())
+        return 300;
+    return 260;
+#else
+    if (m_proc->getStretchSource()->isLoopingEnabled())
+        return 230;
+    return 190;
+#endif
 }
+
+int RenderSettingsComponent::getPreferredWidth() const
+{
+    return prefWidth;
+}
+
 
 void RenderSettingsComponent::textEditorTextChanged(TextEditor & ed)
 {
 	return;
-	if (&ed == &outfileNameEditor)
-	{
-		File temp(outfileNameEditor.getText());
-		if (temp.getParentDirectory().exists() == false)
-		{
-			Logger::writeToLog("directory does not exist");
-		}
-		if (temp.exists() == true)
-		{
-			File temp2 = temp.getNonexistentSibling();
-			Logger::writeToLog(temp.getFullPathName() + " exists, will instead use " + temp2.getFullPathName());
-		}
-	}
 }
 

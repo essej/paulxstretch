@@ -441,9 +441,9 @@ void PaulstretchpluginAudioProcessorEditor::setSpectrumProcGroupEnabled(int grou
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
 	auto contentraw =  new RenderSettingsComponent(&processor);
-	contentraw->setSize(contentraw->getWidth(), contentraw->getPreferredHeight());
+	contentraw->setSize(contentraw->getPreferredWidth(), contentraw->getPreferredHeight());
 	std::unique_ptr<Component> content(contentraw);
-	CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
+	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
 }
 
 void PaulstretchpluginAudioProcessorEditor::showAudioSetup()
@@ -537,7 +537,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int buttw = 60;
     int buttminw = 36;
     int minitemw = 300;
-    int margin = 2;
+    int margin = 1;
 
 #if JUCE_IOS
     togglerowheight = 32;
@@ -561,7 +561,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     topbox.items.add(FlexItem(buttw, buttonrowheight, m_import_button).withMargin(1).withFlex(1).withMaxWidth(130));
     topbox.items.add(FlexItem(buttw, buttonrowheight, m_settings_button).withMargin(1).withFlex(1).withMaxWidth(130));
-    if (JUCEApplicationBase::isStandaloneApp()) {
+    if (JUCEApplicationBase::isStandaloneApp())
+    {
         topbox.items.add(FlexItem(buttw, buttonrowheight, m_render_button).withMargin(1).withFlex(1).withMaxWidth(130));
     }
     topbox.items.add(FlexItem(buttminw, buttonrowheight, m_rewind_button).withMargin(1));
@@ -617,7 +618,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int scrollw = m_groupviewport->getScrollBarThickness() ;
 
     int gheight = 0;
-    int groupmargin = 2;
+    int groupmargin = 1;
     int groupw = w - 2*groupmargin - scrollw;
     // groups
 
@@ -698,6 +699,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     int totminh = vpminh + orderminh + tabminh + topboxh + toggleh + volh + stretchH;
 
+    mainbox.items.add(FlexItem(6, 2));
+
     mainbox.items.add(FlexItem(minw, topboxh, topbox).withMargin(margin).withFlex(0));
 
 
@@ -744,18 +747,20 @@ void PaulstretchpluginAudioProcessorEditor::resized()
         mainbox.items.add(FlexItem(minw, stretchH, *m_stretchgroup).withMargin(margin).withFlex(0));
     }
 
-    mainbox.items.add(FlexItem(6, 4));
+    mainbox.items.add(FlexItem(6, 3));
 
 
     mainbox.items.add(FlexItem(w, vpminh, *m_groupviewport).withMargin(0).withFlex(1).withMaxHeight(useh + 4));
 
-    mainbox.items.add(FlexItem(6, 5));
+    mainbox.items.add(FlexItem(6, 2));
 
     mainbox.items.add(FlexItem(w, orderminh, m_spec_order_ed).withMargin(2).withFlex(0.1).withMaxHeight(60));
 
-    mainbox.items.add(FlexItem(6, 6));
+    mainbox.items.add(FlexItem(6, 2));
 
     mainbox.items.add(FlexItem(w, tabminh, m_wavefilter_tab).withMargin(0).withFlex(0.1));
+
+    mainbox.items.add(FlexItem(6, 4));
 
     mainbox.performLayout(bounds);
 
@@ -764,10 +769,17 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     m_groupcontainer->setBounds(groupsbounds);
     groupsbox.performLayout(groupsbounds);
 
+    int zscrollh = 18;
+#if JUCE_IOS
+    zscrollh = 28;
+#endif
 
     m_wavecomponent.setBounds(m_wave_container->getX(), 0, m_wave_container->getWidth(),
-		m_wave_container->getHeight()-16);
-	m_zs.setBounds(m_wave_container->getX(), m_wavecomponent.getBottom(), m_wave_container->getWidth(), 15);
+		m_wave_container->getHeight()-zscrollh-1);
+
+
+
+	m_zs.setBounds(m_wave_container->getX(), m_wavecomponent.getBottom(), m_wave_container->getWidth(), zscrollh);
 	//m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
 
 }
@@ -824,6 +836,12 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
         for (auto & group : m_pargroups) {
             group.second->updateParameterComponents();
         }
+
+        ;
+        if (AudioParameterBool* enablepar = dynamic_cast<AudioParameterBool*>(processor.getBoolParameter(cpi_pause_enabled))) {
+            m_perfmeter.enabled = !enablepar->get();
+        }
+
 	}
 	if (id == 2)
 	{
@@ -944,7 +962,10 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 
 void PaulstretchpluginAudioProcessorEditor::showAbout()
 {
-	String fftlib = fftwf_version;
+    String fftlib;
+#if !PS_USE_VDSP_FFT
+    fftlib = fftwf_version;
+#endif
 	String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
 	String title = String(JucePlugin_Name) + " " + String(JucePlugin_VersionString);
 #ifdef JUCE_DEBUG
@@ -958,14 +979,19 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
 
     auto * content = new Label();
     String text = title + "\n\n" +
-    "Plugin for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
+    "Plugin/Application for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
     "Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
     "(C) 2017-2021 Xenakios\n"
     "(C) 2022 Jesse Chappell\n\n"
-    +vstInfo+
-    "Using " + fftlib + " for FFT\n\n"
-    + juceversiontxt + " used under the GPL license.\n\n"
-    "GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n";
+    +vstInfo;
+
+    if (fftlib.isNotEmpty())
+        text += String("Using ") + fftlib + String(" for FFT\n\n");
+
+#if !JUCE_IOS
+    text += juceversiontxt + String(" used under the GPL license.\n\n");
+    text += String("GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n");
+#endif
 
     if (host.type != juce::PluginHostType::UnknownHost) {
         text += String("Running in : ") + host.getHostDescription()+ String("\n");
@@ -1347,20 +1373,28 @@ void WaveformComponent::mouseDoubleClick(const MouseEvent & e)
 
 void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & wd)
 {
-	return;
-	/*
-	double factor = 0.9;
-	if (wd.deltaY < 0.0)
-		factor = 1.11111;
+	//return;
+
+    double width = getWidth();
 	double normt = viewXToNormalized(e.x);
 	double curlen = m_view_range.getLength();
-	double newlen = curlen * factor;
-	double oldt0 = m_view_range.getStart();
-	double oldt1 = m_view_range.getEnd();
-	double t0 = jlimit(0.0,1.0, normt + (curlen - newlen));
-	double t1 = jlimit(0.0,1.0, t0+newlen);
-	jassert(t1 > t0);
+    double zoomFactor = 1.0 - curlen;
+
+    double newfact = jlimit(0.0, 1.0, zoomFactor + wd.deltaY);
+    double xratio = e.x / width;
+    auto newScale = jmax (0.001, 1.0 * (1.0 - jlimit (0.0, 0.99, newfact)));
+
+    double t0 = normt - newScale * xratio;
+    double t1 = normt + newScale * (1.0 - xratio);
+
+    t0 = jlimit(0.0,1.0, t0);
+    t1 = jlimit(0.0,1.0, t1);
+
+    DBG("normt: " << normt << " posratio: " << xratio << " curlen: " << curlen << " t0: " << t0 << " t1: " << t1 << " delta: " << wd.deltaY);
+
+    jassert(t1 > t0);
 	m_view_range = { t0,t1 };
+
 	//m_view_range = m_view_range.constrainRange({ 0.0, 1.0 });
 	jassert(m_view_range.getStart() >= 0.0 && m_view_range.getEnd() <= 1.0);
 	jassert(m_view_range.getLength() > 0.001);
@@ -1368,7 +1402,7 @@ void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDet
 		ViewRangeChangedCallback(m_view_range);
 	m_image_dirty = true;
 	repaint();
-	*/
+
 }
 
 void WaveformComponent::setAudioInfo(double sr, double seekpos, int fftsize)
@@ -1482,7 +1516,9 @@ void SpectralVisualizer::paint(Graphics & g)
 
 void SpectralChainEditor::paint(Graphics & g)
 {
-	g.fillAll(Colours::black);
+	//g.fillAll(Colours::black);
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), 4.0f);
+
 	if (m_src == nullptr)
 		return;
 	
@@ -1815,7 +1851,13 @@ void PerfMeterComponent::paint(Graphics & g)
     m_gradient.point2 = {(float)getWidth(),0.0f};
     g.fillAll(Colours::grey);
 	double amt = m_proc->getPreBufferingPercent();
-	g.setColour(Colours::green.withAlpha(0.8f));
+
+    if (enabled) {
+        g.setColour(Colours::green.withAlpha(0.8f));
+    } else {
+        g.setColour(Colours::darkgrey.withAlpha(0.8f));
+    }
+
 	int w = amt * getWidth();
     //g.setGradientFill(m_gradient);
     g.fillRect(0, 0, w, getHeight());
@@ -1870,6 +1912,18 @@ void zoom_scrollbar::mouseDown(const MouseEvent &e)
 {
 	m_drag_start_x = e.x;
 }
+
+void zoom_scrollbar::mouseDoubleClick (const MouseEvent&)
+{
+    // reset
+    m_therange.setStart(0.0);
+    m_therange.setEnd(1.0);
+    repaint();
+
+    if (RangeChanged)
+        RangeChanged(m_therange);
+}
+
 
 void zoom_scrollbar::mouseMove(const MouseEvent &e)
 {
@@ -1935,9 +1989,11 @@ void zoom_scrollbar::paint(Graphics &g)
 	int x0 = (int)(getWidth()*m_therange.getStart());
 	int x1 = (int)(getWidth()*m_therange.getEnd());
 	if (m_hot_area != ha_none)
-		g.setColour(Colours::white);
-	else g.setColour(Colours::lightgrey);
-	g.fillRect(x0, 0, x1 - x0, getHeight());
+		g.setColour(Colours::white.withAlpha(0.8f));
+	else g.setColour(Colours::grey);
+	//g.fillRect(x0, 0, x1 - x0, getHeight());
+    g.fillRoundedRectangle(x0, 0, x1 - x0, getHeight(), 8.0f);
+
 }
 
 void zoom_scrollbar::setRange(Range<double> rng, bool docallback)
@@ -1952,13 +2008,14 @@ void zoom_scrollbar::setRange(Range<double> rng, bool docallback)
 
 zoom_scrollbar::hot_area zoom_scrollbar::get_hot_area(int x, int)
 {
+    int radius = 10;
 	int x0 = (int)(getWidth()*m_therange.getStart());
 	int x1 = (int)(getWidth()*m_therange.getEnd());
-	if (is_in_range(x, x0 - 5, x0 + 5))
+	if (is_in_range(x, x0 - radius, x0 + radius))
 		return ha_left_edge;
-	if (is_in_range(x, x1 - 5, x1 + 5))
+	if (is_in_range(x, x1 - radius, x1 + radius))
 		return ha_right_edge;
-	if (is_in_range(x, x0 + 5, x1 - 5))
+	if (is_in_range(x, x0 + radius, x1 - radius))
 		return ha_handle;
 	return ha_none;
 }
@@ -2088,7 +2145,7 @@ void FreeFilterComponent::updateParameterComponents()
 }
 
 ParameterGroupComponent::ParameterGroupComponent(const String & name_, int groupid, PaulstretchpluginAudioProcessor* proc, bool showtoggle)
-:name(name_), groupId(groupid), m_proc(proc), m_bgcolor(0xff1a1a1a)
+:name(name_), groupId(groupid), m_proc(proc), m_bgcolor(0xff1a1a1a), m_selbgcolor(0xff0d1922)
 {
     if (name_.isNotEmpty()) {
         m_namelabel = std::make_unique<Label>("name", name);
@@ -2097,9 +2154,18 @@ ParameterGroupComponent::ParameterGroupComponent(const String & name_, int group
 
     if (showtoggle) {
         //m_enableButton = std::make_unique<DrawableButton>("ena", DrawableButton::ImageFitted);
-        m_enableButton = std::make_unique<ToggleButton>();
+        //m_enableButton = std::make_unique<ToggleButton>();
         //m_enableButton->setColour(DrawableButton::backgroundOnColourId, Colours::blue);
+        m_enableButton = std::make_unique<DrawableButton>("reven", DrawableButton::ButtonStyle::ImageFitted);
+        std::unique_ptr<Drawable> powerimg(Drawable::createFromImageData(BinaryData::power_svg, BinaryData::power_svgSize));
+        std::unique_ptr<Drawable> powerselimg(Drawable::createFromImageData(BinaryData::power_sel_svg, BinaryData::power_sel_svgSize));
+        m_enableButton->setImages(powerimg.get(), nullptr, nullptr, nullptr, powerselimg.get());
         m_enableButton->setClickingTogglesState(true);
+        m_enableButton->setColour(TextButton::buttonColourId, Colours::transparentBlack);
+        m_enableButton->setColour(TextButton::buttonOnColourId, Colours::transparentBlack);
+        m_enableButton->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
+        m_enableButton->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+
         m_enableButton->onClick = [this]() {
             auto order = m_proc->getStretchSource()->getSpectrumProcessOrder();
             for (int i=0; i < order.size(); ++i) {
@@ -2158,13 +2224,15 @@ int ParameterGroupComponent::doLayout(Rectangle<int> bounds)
 {
     int titlew = m_namelabel ? 100 : m_enableButton ? 40 : 0;
     int enablew = m_enableButton ? 40 : 0;
+    int enablemaxh = 34;
     int minitemw = 300;
-    int minitemh = 28;
-    int margin = 2;
+    int minitemh = 26;
+    int margin = 1;
     int outsidemargin = 4;
 
 #if JUCE_IOS
-    minitemh = 36;
+    minitemh = 34;
+    outsidemargin = 4;
 #endif
 
 
@@ -2184,14 +2252,14 @@ int ParameterGroupComponent::doLayout(Rectangle<int> bounds)
         //titlebox.items.add(FlexItem(4, minitemh));
 
         if (m_enableButton) {
-            titlebox.items.add(FlexItem(enablew, minitemh, *m_enableButton).withMargin(margin));
+            titlebox.items.add(FlexItem(enablew, minitemh, *m_enableButton).withMargin(margin).withMaxHeight(enablemaxh));
         }
 
         if (m_namelabel) {
             titlebox.items.add(FlexItem(titlew-enablew, minitemh, *m_namelabel).withMargin(margin).withFlex(1));
         }
 
-        mainbox.items.add(FlexItem(titlew, minitemh, titlebox).withMargin(outsidemargin));
+        mainbox.items.add(FlexItem(titlew, enablemaxh, titlebox).withMargin(1)/*.withAlignSelf(FlexItem::AlignSelf::center)*/);
     }
 
     for (int i = 0; i < m_parcomps.size(); ++i)
@@ -2217,8 +2285,12 @@ void ParameterGroupComponent::resized()
 
 void ParameterGroupComponent::paint(Graphics & g)
 {
-    g.setColour(m_bgcolor);
-    g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(0.0f), 4.0f);
+    if (m_enableButton && m_enableButton->getToggleState()) {
+        g.setColour(m_selbgcolor);
+    } else {
+        g.setColour(m_bgcolor);
+    }
+    g.fillRoundedRectangle(getLocalBounds().toFloat(), 4.0f);
     //g.fillRect(0, 0, getWidth(), getHeight());
 }
 
@@ -2241,7 +2313,7 @@ void ParameterGroupComponent::updateParameterComponents()
         e->updateComponent();
         e->setAlpha(enabled ? 1.0f : 0.5f);
     }
-
+    repaint();
 }
 
 void AudioFilePreviewComponent::processBlock(double sr, AudioBuffer<float>& buf)
@@ -2256,7 +2328,7 @@ void AudioFilePreviewComponent::processBlock(double sr, AudioBuffer<float>& buf)
 }
 
 MyFileBrowserComponent::MyFileBrowserComponent(PaulstretchpluginAudioProcessor & p) :
-	m_proc(p), m_filefilter(p.m_afm->getWildcardForAllFormats(),String(),String())
+	 m_filefilter(p.m_afm->getWildcardForAllFormats(),String(),String()), m_proc(p)
 {
 	String initiallocfn = m_proc.m_propsfile->m_props_file->getValue("importfilefolder",
 		File::getSpecialLocation(File::userHomeDirectory).getFullPathName());

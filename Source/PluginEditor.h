@@ -40,6 +40,8 @@ public:
 	void mouseDrag(const MouseEvent& e) override;
 	void mouseEnter(const MouseEvent &event) override;
 	void mouseExit(const MouseEvent &event) override;
+    void mouseDoubleClick (const MouseEvent&) override;
+
 	void paint(Graphics &g) override;
 	std::function<void(Range<double>)> RangeChanged;
 	Range<double> get_range() const { return m_therange; }
@@ -135,14 +137,15 @@ private:
     //uptrvec<ParameterComponent> m_parcomps;
     std::vector<ParameterComponent*> m_parcomps;
     std::unique_ptr<Label> m_namelabel;
-    //std::unique_ptr<DrawableButton> m_enableButton;
-    std::unique_ptr<ToggleButton> m_enableButton;
+    std::unique_ptr<DrawableButton> m_enableButton;
+    //std::unique_ptr<ToggleButton> m_enableButton;
 
     CriticalSection* m_cs = nullptr;
     PaulstretchpluginAudioProcessor* m_proc = nullptr;
     int m_slidwidth = 400;
 
     Colour m_bgcolor;
+    Colour m_selbgcolor;
 
     int m_minHeight = 0;
     int m_lastForWidth = -1;
@@ -158,6 +161,8 @@ public:
 	void mouseDown(const MouseEvent& ev) override;
 	void timerCallback() override;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
+
+    bool enabled = true;
 private:
     ColourGradient m_gradient;
 };

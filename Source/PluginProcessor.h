@@ -17,8 +17,9 @@ www.gnu.org/licenses
 
 #pragma once
 
-#include "../JuceLibraryCode/JuceHeader.h"
 #include "PS_Source/PaulStretchControl.h"
+
+#include "../JuceLibraryCode/JuceHeader.h"
 #include "jcdp_envelope.h"
 #include <array>
 
@@ -122,8 +123,8 @@ class PaulstretchpluginAudioProcessorEditor;
 
 struct OfflineRenderParams
 {
-	OfflineRenderParams(File ofile, double osr, int oformat, double omaxdur, int onumloops, CallOutBox* ocb=nullptr) :
-		outputfile(ofile), outsr(osr), maxoutdur(omaxdur), numloops(onumloops), outputformat(oformat), cbox(ocb)
+	OfflineRenderParams(File ofile, double osr, int oformat, double omaxdur, int onumloops, CallOutBox* ocb=nullptr, std::function<void(bool,File file)> completion=nullptr) :
+		outputfile(ofile), outsr(osr), maxoutdur(omaxdur), numloops(onumloops), outputformat(oformat), cbox(ocb), completionHandler(completion)
 	{}
 	File outputfile;
 	double outsr = 44100.0;
@@ -131,6 +132,7 @@ struct OfflineRenderParams
 	int numloops = 1;
 	int outputformat = 0; // 0=16 bit pcm, 1=24 bit pcm, 2=32 bit float, 3=32 bit float clipped
 	CallOutBox* cbox = nullptr;
+    std::function<void(bool,File file)> completionHandler;
 };
 
 class PaulstretchpluginAudioProcessor  : public AudioProcessor, 
@@ -274,8 +276,8 @@ private:
 	double m_last_in_pos = 0.0;
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
 	ProcessParameters m_ppar;
-    int mPluginWindowWidth = 870;
-    int mPluginWindowHeight = 770;
+    int mPluginWindowWidth = 820;
+    int mPluginWindowHeight = 692;
 
 	void setFFTSize(double size);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);

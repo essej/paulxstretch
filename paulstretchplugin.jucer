@@ -52,12 +52,16 @@
             file="Source/PluginProcessor.cpp"/>
       <FILE id="pt5tX8" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
+      <FILE id="id3jov" name="power.svg" compile="0" resource="1" file="Source/power.svg"/>
+      <FILE id="qKY0Ks" name="power_sel.svg" compile="0" resource="1" file="Source/power_sel.svg"/>
       <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
             file="Source/ps3_BufferingAudioSource.cpp"/>
       <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
             file="Source/ps3_BufferingAudioSource.h"/>
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
             file="Source/RenderSettingsComponent.cpp"/>
+      <FILE id="ShLJi7" name="RenderSettingsComponent.h" compile="0" resource="0"
+            file="Source/RenderSettingsComponent.h"/>
       <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
     </GROUP>
   </MAINGROUP>

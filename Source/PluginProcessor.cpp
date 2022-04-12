@@ -30,12 +30,15 @@ int get_optimized_updown(int n, bool up) {
 	while (true) {
 		n = orig_n;
 
-		while (!(n % 11)) n /= 11;
+        // only powers of two allowed if using VDSP FFT
+#if !PS_USE_VDSP_FFT
+        while (!(n % 11)) n /= 11;
 		while (!(n % 7)) n /= 7;
-
 		while (!(n % 5)) n /= 5;
 		while (!(n % 3)) n /= 3;
-		while (!(n % 2)) n /= 2;
+#endif
+
+        while (!(n % 2)) n /= 2;
 		if (n<2) break;
 		if (up) orig_n++;
 		else orig_n--;
@@ -566,9 +569,13 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	processor->setNonRealtime(true);
 	processor->setStateFromTree(state);
 	double outsr{ renderpars.outsr };
-	if (outsr < 10.0)
-		outsr = processor->getStretchSource()->getInfileSamplerate();
-	Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
+    if (outsr < 10.0) {
+        outsr = processor->getStretchSource()->getInfileSamplerate();
+        if (outsr < 10.0)
+            outsr = 44100;
+    }
+
+    Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
 	int blocksize{ 1024 };
 	int numoutchans = *processor->getIntParameter(cpi_num_outchans);
 	auto sc = processor->getStretchSource();
@@ -611,6 +618,10 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 
             m_offline_render_state = 200;
             Logger::writeToLog("Render failed, could not open file!");
+            if (renderpars.completionHandler) {
+                renderpars.completionHandler(false, outputfiletouse);
+            }
+
             return;
         } else {
             outstream.release(); // the writer takes ownership
@@ -634,6 +645,10 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
                 m_offline_render_state = 100.0 / outlenframes * outcounter;
             }
             m_offline_render_state = 200;
+
+            if (renderpars.completionHandler) {
+                renderpars.completionHandler(true, outputfiletouse);
+            }
             Logger::writeToLog("Rendered ok!");
         }
 	};
