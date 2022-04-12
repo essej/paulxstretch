@@ -179,7 +179,9 @@ inline REALTYPE profile(REALTYPE fi, REALTYPE bwi) {
 
 inline void spectrum_copy(int nfreq, REALTYPE* freq1, REALTYPE* freq2)
 {
-	for (int i = 0; i<nfreq; i++) freq2[i] = freq1[i];
+    //for (int i = 0; i<nfreq; i++) freq2[i] = freq1[i];
+    FloatVectorOperations::copy(freq2, freq1, nfreq);
+
 };
 
 

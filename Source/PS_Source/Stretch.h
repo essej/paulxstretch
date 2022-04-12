@@ -22,12 +22,19 @@
 
 #include "globals.h"
 
-#include "fftw3.h"
+#ifndef PS_USE_VDSP_FFT
+#define PS_USE_VDSP_FFT 0
+#endif
 
+#if PS_USE_VDSP_FFT
+#else
+#include "fftw3.h"
+#endif
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <random>
 #include <type_traits>
+
 
 template<typename T>
 class FFTWBuffer
@@ -94,19 +101,34 @@ private:
     int m_size = 0;
     void mallocimpl(T*& buf,int size)
     {
+#if PS_USE_VDSP_FFT
+        // malloc aligns properly on vdsp platforms
+        if constexpr (std::is_same<T,float>::value)
+            buf = (float*)malloc(size*sizeof(float));
+        else
+            buf = (double*)malloc(size * sizeof(double));
+#else
         if constexpr (std::is_same<T,float>::value)
 			buf = (float*)fftwf_malloc(size*sizeof(float));
 		else
 			buf = (double*)fftw_malloc(size * sizeof(double));
+#endif
     }
 	void freeimpl(T*& buf)
     {
         if (buf!=nullptr)
         {
+#if PS_USE_VDSP_FFT
 			if constexpr (std::is_same<T, float>::value)
-				fftwf_free(buf);
+				free(buf);
 			else
-				fftw_free(buf);
+				free(buf);
+#else
+            if constexpr (std::is_same<T, float>::value)
+                fftwf_free(buf);
+            else
+                fftw_free(buf);
+#endif
 			buf = nullptr;
         }
     }
@@ -132,7 +154,14 @@ class FFT
 
 	private:
 
-		fftwf_plan planfftw,planifftw;
+#if PS_USE_VDSP_FFT
+        void * planfft;
+        int log2N;
+        FFTWBuffer<REALTYPE> m_workReal;
+        FFTWBuffer<REALTYPE> m_workImag;
+#else
+        fftwf_plan planfftw,planifftw;
+#endif
         FFTWBuffer<REALTYPE> data;
 		
 		struct{

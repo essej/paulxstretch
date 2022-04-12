@@ -15,28 +15,6 @@
               jucerFormatVersion="1" useAppConfig="0" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
-      <FILE id="H0XjG1" name="CrossPlatformUtilsIOS.mm" compile="1" resource="0"
-            file="Source/CrossPlatformUtilsIOS.mm"/>
-      <FILE id="RsxiMD" name="CustomStandaloneFilterApp.cpp" compile="1"
-            resource="0" file="Source/CustomStandaloneFilterApp.cpp"/>
-      <FILE id="EUS9Ff" name="CustomStandaloneFilterWindow.h" compile="0"
-            resource="0" file="Source/CustomStandaloneFilterWindow.h"/>
-      <FILE id="rHA1fu" name="CustomLookAndFeel.cpp" compile="1" resource="0"
-            file="Source/CustomLookAndFeel.cpp"/>
-      <FILE id="Y4DgKq" name="CustomLookAndFeel.h" compile="0" resource="0"
-            file="Source/CustomLookAndFeel.h"/>
-      <FILE id="zvau5B" name="CrossPlatformUtils.h" compile="0" resource="0"
-            file="Source/CrossPlatformUtils.h"/>
-      <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
-            file="Source/CrossPlatformUtilsMac.mm"/>
-      <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
-            file="Source/RenderSettingsComponent.cpp"/>
-      <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
-            file="Source/envelope_component.cpp"/>
-      <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
-            file="Source/envelope_component.h"/>
-      <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="Source/jcdp_envelope.h"/>
-      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
         <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
@@ -51,26 +29,51 @@
         <FILE id="a7ur6I" name="StretchSource.cpp" compile="1" resource="0"
               file="Source/PS_Source/StretchSource.cpp"/>
       </GROUP>
-      <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
-            file="Source/ps3_BufferingAudioSource.cpp"/>
-      <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
-            file="Source/ps3_BufferingAudioSource.h"/>
+      <FILE id="zvau5B" name="CrossPlatformUtils.h" compile="0" resource="0"
+            file="Source/CrossPlatformUtils.h"/>
+      <FILE id="H0XjG1" name="CrossPlatformUtilsIOS.mm" compile="1" resource="0"
+            file="Source/CrossPlatformUtilsIOS.mm"/>
+      <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
+            file="Source/CrossPlatformUtilsMac.mm"/>
+      <FILE id="rHA1fu" name="CustomLookAndFeel.cpp" compile="1" resource="0"
+            file="Source/CustomLookAndFeel.cpp"/>
+      <FILE id="Y4DgKq" name="CustomLookAndFeel.h" compile="0" resource="0"
+            file="Source/CustomLookAndFeel.h"/>
+      <FILE id="RsxiMD" name="CustomStandaloneFilterApp.cpp" compile="1"
+            resource="0" file="Source/CustomStandaloneFilterApp.cpp"/>
+      <FILE id="EUS9Ff" name="CustomStandaloneFilterWindow.h" compile="0"
+            resource="0" file="Source/CustomStandaloneFilterWindow.h"/>
+      <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
+            file="Source/envelope_component.cpp"/>
+      <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
+            file="Source/envelope_component.h"/>
+      <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="Source/jcdp_envelope.h"/>
+      <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="jdPS0A" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="pt5tX8" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="HtOPrw" name="power.svg" compile="0" resource="1" file="Source/power.svg"/>
+      <FILE id="TY7Im1" name="power_sel.svg" compile="0" resource="1" file="Source/power_sel.svg"/>
+      <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
+            file="Source/ps3_BufferingAudioSource.cpp"/>
+      <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
+            file="Source/ps3_BufferingAudioSource.h"/>
+      <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
+            file="Source/RenderSettingsComponent.cpp"/>
+      <FILE id="L4CoFz" name="RenderSettingsComponent.h" compile="0" resource="0"
+            file="Source/RenderSettingsComponent.h"/>
+      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <XCODE_IPHONE targetFolder="Builds/iOS" externalLibraries="fftw3f" iosDevelopmentTeamID="XCS435894D"
-                  microphonePermissionNeeded="1" iosBackgroundAudio="1" buildNumber="100"
-                  iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
+    <XCODE_IPHONE targetFolder="Builds/iOS" iosDevelopmentTeamID="XCS435894D" microphonePermissionNeeded="1"
+                  iosBackgroundAudio="1" buildNumber="100" iosScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   iPadScreenOrientation="UIInterfaceOrientationLandscapeLeft,UIInterfaceOrientationLandscapeRight,UIInterfaceOrientationPortrait,UIInterfaceOrientationPortraitUpsideDown"
                   UIStatusBarHidden="0" UIRequiresFullScreen="0" customPList="&lt;plist version=&quot;1.0&quot;&gt;&#10;&lt;dict&gt;&#10;&#10;&#10;&lt;key&gt;ITSAppUsesNonExemptEncryption&lt;/key&gt;&#10;&#9;&lt;false/&gt;&#10;&#10;&lt;key&gt;UIStatusBarHidden&lt;/key&gt;&#10;&#9;&lt;false/&gt;&#10;&#9;&lt;key&gt;UIStatusBarStyle&lt;/key&gt;&#10;&#9;&lt;string&gt;UIStatusBarStyleLightContent&lt;/string&gt;&#10;&#10;&lt;key&gt;UIViewControllerBasedStatusBarAppearance&lt;/key&gt;&#10;&lt;false/&gt;&#10;&#10;&#10;&lt;key&gt;NSLocalNetworkUsageDescription&lt;/key&gt;&#10;&#9;&lt;string&gt;DrumJamPad uses networking to communicate with other local services&lt;/string&gt;&#10;&#10;&lt;key&gt;CFBundleDocumentTypes&lt;/key&gt;&#10;&#9;&lt;array&gt;&#10;&#9;&#9;&lt;dict&gt;&#10;&#9;&#9;&#9;&lt;key&gt;CFBundleTypeIconFiles&lt;/key&gt;&#10;&#9;&#9;&#9;&lt;array/&gt;&#10;&#9;&#9;&#9;&lt;key&gt;CFBundleTypeName&lt;/key&gt;&#10;&#9;&#9;&#9;&lt;string&gt;Audio File&lt;/string&gt;&#10;&#9;&#9;&#9;&lt;key&gt;CFBundleTypeRole&lt;/key&gt;&#10;&#9;&#9;&#9;&lt;string&gt;Viewer&lt;/string&gt;&#10;&#9;&#9;&#9;&lt;key&gt;LSHandlerRank&lt;/key&gt;&#10;&#9;&#9;&#9;&lt;string&gt;Owner&lt;/string&gt;&#10;&#9;&#9;&#9;&lt;key&gt;LSItemContentTypes&lt;/key&gt;&#10;&#9;&#9;&#9;&lt;array&gt;&#10;&#9;&#9;&#9;&#9;&lt;string&gt;com.microsoft.waveform-audio&lt;/string&gt;&#10;&#9;&#9;&#9;&#9;&lt;string&gt;public.aiff-audio&lt;/string&gt;&#10;&#9;&#9;&#9;&#9;&lt;string&gt;com.apple.coreaudio-format&lt;/string&gt;&#10;&#9;&#9;&#9;&#9;&lt;string&gt;public.mpeg-4-audio&lt;/string&gt;&#10;&#9;&#9;&#9;&#9;&lt;string&gt;public.mp3&lt;/string&gt;&#10;&#9;&#9;&#9;&lt;/array&gt;&#10;&#9;&#9;&lt;/dict&gt;&#10;&#9;&#9;&lt;/array&gt;&#10;&#10;&lt;/dict&gt;&#10;&lt;/plist&gt;"
-                  UIFileSharingEnabled="1" UISupportsDocumentBrowser="1">
+                  UIFileSharingEnabled="1" UISupportsDocumentBrowser="1" extraDefs="PS_USE_VDSP_FFT=1">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/iosstatic/include"
                        libraryPath="${HOME}/iosstatic/lib&#10;"/>

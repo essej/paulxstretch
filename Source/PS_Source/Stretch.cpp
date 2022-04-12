@@ -16,9 +16,16 @@
 	Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 */
 
+#if PS_USE_VDSP_FFT
+#define VIMAGE_H // crazy hack needed
+#include <Accelerate/Accelerate.h>
+//#include <vForce.h>
+#endif
+
 #include "Stretch.h"
 #include <stdlib.h>
 #include <math.h>
+
 
 FFT::FFT(int nsamples_, bool no_inverse)
 {
@@ -41,6 +48,19 @@ FFT::FFT(int nsamples_, bool no_inverse)
 	data.resize(nsamples,true);
 	bool allow_long_planning = false; // g_propsfile->getBoolValue("fftw_allow_long_planning", false);
     //double t0 = Time::getMillisecondCounterHiRes();
+#if PS_USE_VDSP_FFT
+    int maxlog2N = 1;
+    while ((1 << maxlog2N) < nsamples)
+        ++maxlog2N;
+    log2N = maxlog2N;
+    planfft = vDSP_create_fftsetup(maxlog2N, kFFTRadix2);
+
+    m_workReal.resize(nsamples,false);
+    m_workImag.resize(nsamples,false);
+
+    //Logger::writeToLog("fftsize: "  + String(nsamples) + " log2N: " + String(log2N));
+
+#else
     if (allow_long_planning)
     {
         //fftwf_plan_with_nthreads(2);
@@ -55,6 +75,8 @@ FFT::FFT(int nsamples_, bool no_inverse)
         if (no_inverse == false)
 			planifftw=fftwf_plan_r2r_1d(nsamples,data.data(),data.data(),FFTW_HC2R,FFTW_ESTIMATE);
     }
+#endif
+
     //double t1 = Time::getMillisecondCounterHiRes();
     //Logger::writeToLog("Creating FFTW3 plans took "+String(t1-t0)+ "ms");
 	static int seed = 0;
@@ -64,46 +86,123 @@ FFT::FFT(int nsamples_, bool no_inverse)
 
 FFT::~FFT()
 {
-	fftwf_destroy_plan(planfftw);
+#if PS_USE_VDSP_FFT
+    vDSP_destroy_fftsetup((FFTSetup)planfft);
+#else
+    fftwf_destroy_plan(planfftw);
 	if (planifftw!=nullptr)
 		fftwf_destroy_plan(planifftw);
+#endif
 };
 
 void FFT::smp2freq()
 {
+#if PS_USE_VDSP_FFT
 
-	for (int i=0;i<nsamples;i++)
+    const int halfsamples = nsamples / 2;
+
+    COMPLEX_SPLIT A;
+    A.realp = m_workReal.data();
+    A.imagp = m_workImag.data();
+
+    // apply window
+    //vDSP_vmul(gInFIFO, 1, mWindow, 1, gFFTworksp, 1, fftFrameSize);
+
+    //convert real input to even-odd
+
+    vDSP_ctoz((COMPLEX*)smp.data(), 2, &A, 1, halfsamples);
+    //memset(ioData->mBuffers[0].mData, 0, ioData->mBuffers[0].mDataByteSize);
+
+    // forward fft
+    vDSP_fft_zrip((FFTSetup)planfft, &A, 1, log2N, FFT_FORWARD);
+
+    // result is in split packed complex A.realp[0] is DC, A.imagp[0] is NY, so we zero NY before doing mag^2
+    A.imagp[0] = 0.0f;
+
+    //DebugLogC("post fft: %g %g\n", A.realp[fftFrameSize/4], A.imagp[fftFrameSize/4 + 1]);
+
+    // Absolute square (equivalent to mag^2)
+    vDSP_zvmags(&A, 1, freq.data(), 1, halfsamples);
+
+    // take square root
+    //vvsqrtf(freq.data(), freq.data(), &halfsamples);
+
+    for (int i=1; i < halfsamples;i++)
+    {
+        freq[i]=sqrt(freq[i]);
+    }
+
+    freq[0] = 0.0;
+
+#else
+
+    for (int i=0;i<nsamples;i++)
         data[i]=smp[i];
-	fftwf_execute(planfftw);
+    fftwf_execute(planfftw);
 
 
-	for (int i=1;i<nsamples/2;i++)
+    for (int i=1;i<nsamples/2;i++)
     {
 
-		REALTYPE c=data[i];
-		REALTYPE s=data[nsamples-i];
+        REALTYPE c=data[i];
+        REALTYPE s=data[nsamples-i];
 
-		freq[i]=sqrt(c*c+s*s);
-	};
-	freq[0]=0.0;
+        freq[i]=sqrt(c*c+s*s);
+    };
+    freq[0]=0.0;
+
+#endif
 };
 
 void FFT::freq2smp()
 {
-	REALTYPE inv_2p15_2pi=1.0f/16384.0f*(float)c_PI;
-	for (int i=1;i<nsamples/2;i++)
+	const REALTYPE inv_2p15_2pi=1.0f/16384.0f*(float)c_PI;
+
+#if PS_USE_VDSP_FFT
+    const int halfsamples = nsamples / 2;
+
+    COMPLEX_SPLIT A;
+    A.realp = m_workReal.data();
+    A.imagp = m_workImag.data();
+
+
+    for (int i=1;i<nsamples/2;i++)
     {
-		unsigned int rand = m_randdist(m_randgen);
+        unsigned int rand = m_randdist(m_randgen);
+        REALTYPE phase = rand*inv_2p15_2pi;
+        m_workReal[i] = freq[i]*cos(phase);
+        m_workImag[i] = freq[i]*sin(phase);
+
+    };
+    m_workReal[0] = m_workImag[0] = 0.0;
+
+    // inverse fft
+    vDSP_fft_zrip((FFTSetup)planfft, &A, 1, log2N, FFT_INVERSE);
+
+    // unpack
+    vDSP_ztoc(&A, 1, (COMPLEX*)data.data(), 2, halfsamples);
+
+    // scale
+    //float scale = 1.f/data[0]; // 1.0f / nsamples  ??
+    float scale = 1.f / nsamples; // 1.0f / nsamples  ??
+    vDSP_vsmul(data.data(), 1, &scale, smp.data(), 1, nsamples);
+
+
+#else
+    for (int i=1;i<nsamples/2;i++)
+    {
+        unsigned int rand = m_randdist(m_randgen);
         REALTYPE phase=rand*inv_2p15_2pi;
         data[i]=freq[i]*cos(phase);
         data[nsamples-i]=freq[i]*sin(phase);
 
-	};
-	data[0]=data[nsamples/2+1]=data[nsamples/2]=0.0;
-	fftwf_execute(planifftw);
+    };
+    data[0]=data[nsamples/2+1]=data[nsamples/2]=0.0;
+
+    fftwf_execute(planifftw);
 	for (int i=0;i<nsamples;i++)
         smp[i]=data[i]/nsamples;
-
+#endif
 };
 
 void FFT::applywindow(FFTWindow type)
@@ -129,7 +228,9 @@ void FFT::applywindow(FFTWindow type)
 
 		};
 	};
-	for (int i=0;i<nsamples;i++) smp[i]*=window.data[i];
+
+    //for (int i=0;i<nsamples;i++) smp[i]*=window.data[i];
+    FloatVectorOperations::multiply(smp.data(), window.data.data(), nsamples);
 }
 
 Stretch::Stretch(REALTYPE rap_,int /*bufsize_*/,FFTWindow w,bool bypass_,REALTYPE samplerate_,int /*stereo_mode_*/)
@@ -160,22 +261,35 @@ void Stretch::set_rap(REALTYPE newrap){
 		
 void Stretch::do_analyse_inbuf(REALTYPE *smps){
 	//get the frequencies
-	for (int i=0;i<bufsize;i++) {
+
+    FloatVectorOperations::copy(infft->smp.data(), old_smps.data(), bufsize);
+    FloatVectorOperations::copy(infft->smp.data()+bufsize, smps, bufsize);
+    FloatVectorOperations::copy(old_freq.data(), infft->freq.data(), bufsize);
+    /*
+    for (int i=0;i<bufsize;i++) {
 		infft->smp[i]=old_smps[i];
 		infft->smp[i+bufsize]=smps[i];
 
 		old_freq[i]=infft->freq[i];
 	};
+     */
+
 	infft->applywindow(window_type);
 	infft->smp2freq();
 };
 
 void Stretch::do_next_inbuf_smps(REALTYPE *smps){
-	for (int i=0;i<bufsize;i++) {
+    FloatVectorOperations::copy(very_old_smps.data(), old_smps.data(), bufsize);
+    FloatVectorOperations::copy(old_smps.data(), new_smps.data(), bufsize);
+    FloatVectorOperations::copy(new_smps.data(), smps, bufsize);
+
+    /*
+    for (int i=0;i<bufsize;i++) {
 		very_old_smps[i]=old_smps[i];
 		old_smps[i]=new_smps[i];
 		new_smps[i]=smps[i];
 	};
+     */
 };
 
 REALTYPE Stretch::do_detect_onset(){
@@ -249,7 +363,8 @@ REALTYPE Stretch::process(REALTYPE *smps,int nsmps)
 	jassert(bufsize > 0);
 	REALTYPE onset=0.0;
 	if (bypass){
-		for (int i=0;i<bufsize;i++) out_buf[i]=smps[i];
+        //for (int i=0;i<bufsize;i++) out_buf[i]=smps[i];
+        FloatVectorOperations::copy(out_buf.data(), smps, bufsize);
 		return 0.0;
 	};
 
@@ -279,14 +394,24 @@ REALTYPE Stretch::process(REALTYPE *smps,int nsmps)
 		//construct the input fft
 		int start_pos=(int)(floor(remained_samples*bufsize));	
 		if (start_pos>=bufsize) start_pos=bufsize-1;
+
+        FloatVectorOperations::copy(fft->smp.data(), very_old_smps.data() + start_pos, bufsize-start_pos);
+        FloatVectorOperations::copy(fft->smp.data() + (bufsize - start_pos), old_smps.data() , bufsize);
+        FloatVectorOperations::copy(fft->smp.data() + (2*bufsize - start_pos), new_smps.data() , start_pos);
+
+        /*
 		for (int i=0;i<bufsize-start_pos;i++) fft->smp[i]=very_old_smps[i+start_pos];
 		for (int i=0;i<bufsize;i++) fft->smp[i+bufsize-start_pos]=old_smps[i];
 		for (int i=0;i<start_pos;i++) fft->smp[i+2*bufsize-start_pos]=new_smps[i];
+         */
+
 		//compute the output spectrum
 		fft->applywindow(window_type);
 		fft->smp2freq();
-		for (int i=0;i<bufsize;i++) outfft->freq[i]=fft->freq[i];
-	
+
+        //for (int i=0;i<bufsize;i++) outfft->freq[i]=fft->freq[i];
+        FloatVectorOperations::copy(outfft->freq.data(), fft->freq.data(), bufsize);
+
 
 
 		//for (int i=0;i<bufsize;i++) outfft->freq[i]=infft->freq[i]*remained_samples+old_freq[i]*(1.0-remained_samples);
@@ -310,7 +435,8 @@ REALTYPE Stretch::process(REALTYPE *smps,int nsmps)
 		};
 
 		//copy the current output buffer to old buffer
-		for (int i=0;i<bufsize*2;i++) old_out_smps[i]=outfft->smp[i];
+        //for (int i=0;i<bufsize*2;i++) old_out_smps[i]=outfft->smp[i];
+        FloatVectorOperations::copy(old_out_smps.data(), outfft->smp.data(), 2*bufsize);
 
 	};
 
