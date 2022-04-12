@@ -568,7 +568,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	auto processor = std::make_shared<PaulstretchpluginAudioProcessor>(true);
 	processor->setNonRealtime(true);
 	processor->setStateFromTree(state);
-	double outsr{ renderpars.outsr };
+
+    double outsr{ renderpars.outsr };
     if (outsr < 10.0) {
         outsr = processor->getStretchSource()->getInfileSamplerate();
         if (outsr < 10.0)
@@ -583,6 +584,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
 	sc->setPlayRange({ t0,t1 });
+
+    *(processor->getBoolParameter(cpi_pause_enabled)) = false;
 
 	sc->setMainVolume(*processor->getFloatParameter(cpi_main_volume));
 	sc->setRate(*processor->getFloatParameter(cpi_stretchamount));

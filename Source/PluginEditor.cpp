@@ -2145,7 +2145,7 @@ void FreeFilterComponent::updateParameterComponents()
 }
 
 ParameterGroupComponent::ParameterGroupComponent(const String & name_, int groupid, PaulstretchpluginAudioProcessor* proc, bool showtoggle)
-:name(name_), groupId(groupid), m_proc(proc), m_bgcolor(0xff1a1a1a), m_selbgcolor(0xff0d1922)
+:name(name_), groupId(groupid), m_proc(proc), m_bgcolor(0xff1a1a1a), m_selbgcolor(0xff141f28)
 {
     if (name_.isNotEmpty()) {
         m_namelabel = std::make_unique<Label>("name", name);
@@ -2304,6 +2304,7 @@ void ParameterGroupComponent::updateParameterComponents()
             if (order[i].m_index == groupId) {
                 enabled = order[i].m_enabled->get();
                 m_enableButton->setToggleState(enabled, dontSendNotification);
+                m_enableButton->setAlpha(enabled ? 1.0f : 0.75f);
                 break;
             }
         }
