@@ -311,11 +311,11 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
         m_lastspec_select_time = nowtime;
 
         if (id == FreeFilterGroup) {
-            if (isSpectrumProcGroupEnabled(id)) {
+            if (isSpectrumProcGroupEnabled(id) && !m_shortMode) {
                 m_wavefilter_tab.setCurrentTabIndex(2);
             }
         } else if (id == RatiosGroup) {
-            if (isSpectrumProcGroupEnabled(id)) {
+            if (isSpectrumProcGroupEnabled(id) && !m_shortMode) {
                 m_wavefilter_tab.setCurrentTabIndex(1);
             }
         }
@@ -450,7 +450,10 @@ void PaulstretchpluginAudioProcessorEditor::setSpectrumProcGroupEnabled(int grou
 void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
 	auto contentraw =  new RenderSettingsComponent(&processor);
-	contentraw->setSize(contentraw->getPreferredWidth(), contentraw->getPreferredHeight());
+
+    int prefw = jmin(contentraw->getPreferredWidth(), getWidth() - 10);
+    int prefh = jmin(contentraw->getPreferredHeight(), getHeight() - 10);
+	contentraw->setSize(prefw, prefh);
 	std::unique_ptr<Component> content(contentraw);
 	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
 }
@@ -534,7 +537,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
 
     bounds.reduce(4, 0);
-    bounds.removeFromRight(4);
+    //bounds.removeFromRight(4);
 
     int w = bounds.getWidth();
     int rowheight = 24;
@@ -635,11 +638,6 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int groupw = w - 2*groupmargin - scrollw;
     // groups
 
-    minh = m_posgroup->getMinimumHeight(groupw);
-    groupsbox.items.add(FlexItem(minw, minh, *m_posgroup).withMargin(groupmargin));
-    gheight += minh + 2*groupmargin;
-
-
 
     minh = m_pargroups[HarmonicsGroup]->getMinimumHeight(groupw);
     groupsbox.items.add(FlexItem(minw, minh, *m_pargroups[HarmonicsGroup]).withMargin(groupmargin));
@@ -690,6 +688,12 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     groupsbox.items.add(FlexItem(minw, minh, *m_pargroups[FilterGroup]).withMargin(groupmargin));
     gheight += minh + 2*groupmargin;
 
+    minh = m_posgroup->getMinimumHeight(groupw);
+    groupsbox.items.add(FlexItem(minw, minh, *m_posgroup).withMargin(groupmargin));
+    gheight += minh + 2*groupmargin;
+
+
+
     /*
     for (const auto & group : m_pargroups) {
         int minheight = group.second->getMinimumHeight(w);
@@ -703,14 +707,13 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int useh = gheight;
     int vpminh = jmin(useh, 140);
     int tabminh = 200;
-    int orderminh = 34;
+    int orderminh = 38;
 
 #if JUCE_IOS
     tabminh = 234;
     orderminh = 44;
 #endif
 
-    int totminh = vpminh + orderminh + tabminh + topboxh + toggleh + volh + stretchH;
 
     mainbox.items.add(FlexItem(6, 2));
 
@@ -736,7 +739,11 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     };
 
 
-    if (totminh > getHeight()) {
+    int totminh = vpminh + orderminh + tabminh + topboxh + toggleh + volh + stretchH + 18;
+
+    int shortthresh = vpminh + orderminh + tabminh + topboxh + toggleh;
+
+    if (getHeight() < totminh) {
         // not enough vertical space, put the top items in the scrollable viewport
         // may have to reparent them
         reparentIfNecessary(m_stretchgroup.get(), m_groupcontainer.get());
@@ -749,11 +756,50 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
         useh += toggleh + volh + stretchH + 6*groupmargin;
 
+        if (getHeight() < shortthresh) {
+            // really not much space, put group scroll in a new tab
+            if (m_wavefilter_tab.getNumTabs() <= 3) {
+                m_wavefilter_tab.addTab("Controls", Colour(0xff555555), m_groupviewport.get(), false);
+                m_wavefilter_tab.setCurrentTabIndex(3);
+            }
+
+            reparentIfNecessary(&m_spec_order_ed, m_groupcontainer.get());
+
+            groupsbox.items.add(FlexItem(minw, orderminh, m_spec_order_ed).withMargin(2));
+
+            useh += orderminh + 4;
+
+            m_shortMode = true;
+        } else {
+            reparentIfNecessary(&m_spec_order_ed, this);
+
+            if (m_wavefilter_tab.getNumTabs() > 3) {
+                // bring it back
+                m_wavefilter_tab.removeTab(3);
+                m_wavefilter_tab.setCurrentTabIndex(0);
+                addAndMakeVisible(m_groupviewport.get());
+            }
+            m_shortMode = false;
+        }
+
+
     } else {
+        m_shortMode = false;
+
+        if (m_wavefilter_tab.getNumTabs() > 3) {
+            // bring it back
+            m_wavefilter_tab.removeTab(3);
+            m_wavefilter_tab.setCurrentTabIndex(0);
+            addAndMakeVisible(m_groupviewport.get());
+        }
+
         // may have to reparent them
+        reparentIfNecessary(m_groupviewport.get(), this);
+        reparentIfNecessary(&m_spec_order_ed, this);
         reparentIfNecessary(m_stretchgroup.get(), this);
         reparentItemsIfNecessary(togglesbox, this);
         reparentItemsIfNecessary(volbox, this);
+
 
         mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
         mainbox.items.add(FlexItem(minw, volh, volbox).withMargin(margin).withFlex(0));
@@ -763,13 +809,15 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     mainbox.items.add(FlexItem(6, 3));
 
 
-    mainbox.items.add(FlexItem(w, vpminh, *m_groupviewport).withMargin(0).withFlex(1).withMaxHeight(useh + 4));
+    if (!m_shortMode) {
+        mainbox.items.add(FlexItem(w, vpminh, *m_groupviewport).withMargin(0).withFlex(1).withMaxHeight(useh + 4));
 
-    mainbox.items.add(FlexItem(6, 2));
+        mainbox.items.add(FlexItem(6, 2));
 
-    mainbox.items.add(FlexItem(w, orderminh, m_spec_order_ed).withMargin(2).withFlex(0.1).withMaxHeight(60));
+        mainbox.items.add(FlexItem(w-4, orderminh, m_spec_order_ed).withMargin(2).withFlex(0.1).withMaxHeight(60));
+        mainbox.items.add(FlexItem(6, 2));
+    }
 
-    mainbox.items.add(FlexItem(6, 2));
 
     mainbox.items.add(FlexItem(w, tabminh, m_wavefilter_tab).withMargin(0).withFlex(0.1));
 
@@ -777,10 +825,19 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     mainbox.performLayout(bounds);
 
-
-    auto groupsbounds = Rectangle<int>(0, 0, w-scrollw, useh);
-    m_groupcontainer->setBounds(groupsbounds);
-    groupsbox.performLayout(groupsbounds);
+    if ( m_shortMode) {
+        auto totgroupw = jmax(360, m_groupviewport->getWidth()) - scrollw;
+        auto groupsbounds = Rectangle<int>(0, 0, totgroupw, useh);
+        auto layoutbounds = groupsbounds.translated(2, 0).withWidth(totgroupw - 3);
+        m_groupcontainer->setBounds(groupsbounds);
+        groupsbox.performLayout(layoutbounds);
+    }
+    else {
+        auto totgroupw = jmax(360, w) - scrollw;
+        auto groupsbounds = Rectangle<int>(0, 0, totgroupw, useh);
+        m_groupcontainer->setBounds(groupsbounds);
+        groupsbox.performLayout(groupsbounds);
+    }
 
     int zscrollh = 18;
 #if JUCE_IOS
@@ -794,6 +851,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
 	m_zs.setBounds(m_wave_container->getX(), m_wavecomponent.getBottom(), m_wave_container->getWidth(), zscrollh);
 	//m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
+
+    if (m_shortMode) {
+        m_groupcontainer->repaint();
+    }
 
 }
 
@@ -1523,9 +1584,18 @@ void SpectralVisualizer::paint(Graphics & g)
 	g.drawText(String(m_elapsed, 1)+" ms", 1, 1, getWidth(), 30, Justification::topLeft);
 }
 
+
+SpectralChainEditor::SpectralChainEditor()
+ : m_bgcolor(0xff0a0a0a), m_selbgcolor(0xff141f28), m_dragbgcolor(0xff1a1a1a)
+{
+    m_disabledImage = Drawable::createFromImageData(BinaryData::power_svg, BinaryData::power_svgSize);
+    m_enabledImage = Drawable::createFromImageData(BinaryData::power_sel_svg, BinaryData::power_sel_svgSize);
+}
+
 void SpectralChainEditor::paint(Graphics & g)
 {
 	//g.fillAll(Colours::black);
+    g.setColour(Colours::black);
     g.fillRoundedRectangle(getLocalBounds().toFloat(), 4.0f);
 
 	if (m_src == nullptr)
@@ -1533,18 +1603,21 @@ void SpectralChainEditor::paint(Graphics & g)
 	
     int xoff = 3;
     int yoff = 3;
-	int box_w = (getWidth() - 2*xoff) / m_order.size();
+	float box_w = (getWidth() - 2*xoff) / m_order.size();
 	int box_h = getHeight();
+
+    float box_margin = jmin( (box_w * 0.25f), 16.0f);
+    float arrowsize = jmin(10.0f, box_margin*0.5f);
 
 	for (int i = 0; i < m_order.size(); ++i)
 	{
 		//if (i!=m_cur_index)
-			drawBox(g, i, i*box_w + xoff, yoff, box_w - 20, box_h - 2*yoff);
+			drawBox(g, i, i*box_w + xoff, yoff, box_w - box_margin, box_h - 2*yoff);
 		if (i<m_order.size() - 1)
-			g.drawArrow(juce::Line<float>(i*box_w + (box_w - 20) + xoff + 1, box_h / 2, i*box_w + box_w + xoff, box_h / 2), 2.0f, 12.0f, 12.0f);
+			g.drawArrow(juce::Line<float>(i*box_w + (box_w - box_margin) + xoff + 1, box_h / 2, i*box_w + box_w + xoff, box_h / 2), 2.0f, arrowsize, arrowsize);
 	}
 	if (m_drag_x>=0 && m_drag_x<getWidth() && m_cur_index>=0)
-		drawBox(g, m_cur_index, m_drag_x - m_downoffset_x + 5, yoff, box_w - 30, box_h - 2*yoff);
+		drawBox(g, m_cur_index, m_drag_x - m_downoffset_x + 5, yoff, box_w - box_margin - box_margin/2, box_h - 2*yoff);
 }
 
 void SpectralChainEditor::setSource(StretchAudioSource * src)
@@ -1559,13 +1632,13 @@ void SpectralChainEditor::mouseDown(const MouseEvent & ev)
 	m_did_drag = false;
     int xoff = 3;
     int yoff = 3;
-    int box_w = (getWidth() - 2*xoff) / m_order.size();
+    float box_w = (getWidth() - 2*xoff) / (float)m_order.size();
 	int box_h = getHeight();
-	m_cur_index = (ev.x - xoff) / box_w;
+	m_cur_index = (int) ((ev.x - xoff) / box_w);
 	if (m_cur_index >= 0)
 	{
         bool done = false;
-        juce::Rectangle<int> r(box_w*m_cur_index + 3, 3, 15, 15);
+        juce::Rectangle<float> r(box_w*m_cur_index + 3, 3, 15, 15);
 		if (r.contains(ev.x - xoff, ev.y - yoff))
 		{
 			toggleBool(m_order[m_cur_index].m_enabled);
@@ -1587,8 +1660,8 @@ void SpectralChainEditor::mouseDrag(const MouseEvent & ev)
 {
     int xoff = 3;
     int yoff = 3;
-    int box_w = (getWidth() - 2*xoff) / m_order.size();
-    juce::Rectangle<int> r(box_w*m_cur_index + 3, 3, 15, 15);
+    float box_w = (getWidth() - 2*xoff) / (float)m_order.size();
+    juce::Rectangle<float> r(box_w*m_cur_index + 3, 3, 15, 15);
     if (r.contains(ev.x - xoff, ev.y - yoff))
         return;
     if (m_cur_index >= 0 && m_cur_index < m_order.size())
@@ -1644,6 +1717,8 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 {
 	jassert(m_order[index].m_enabled != nullptr);
 	String txt;
+    bool enabled = ((bool)*m_order[index].m_enabled);
+
 	if (m_order[index].m_index == 0)
 		txt = "Harmonics";
 	if (m_order[index].m_index == 1)
@@ -1662,30 +1737,37 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 		txt = "Compressor";
     if (m_order[index].m_index == 7)
         txt = "Free filter";
-	if (index == m_cur_index)
+
+    Colour bgcolor = enabled ? m_selbgcolor : m_bgcolor;
+
+    if (index == m_cur_index)
 	{
-		g.setColour(Colour(0xff222222));
-		//g.fillRect(i*box_w, 0, box_w - 30, box_h - 1);
-        //g.fillRect(x, y, w, h);
-        g.fillRoundedRectangle(x, y, w, h, 4.0f);
+        bgcolor = bgcolor.brighter(0.1f);
 	}
+
+    g.setColour(bgcolor);
+    g.fillRoundedRectangle(x, y, w, h, 4.0f);
+
+
+    // outline
 	g.setColour(Colour(0xccaaaaaa));
-    //g.drawRect(x, y, w, h);
     g.drawRoundedRectangle(x, y, w, h, 4.0f, 1.0f);
 
     g.setColour(Colour(0xffaaaaaa));
     if (w > 10) {
         g.drawFittedText(txt, x + 2,y,w-4,h-4, Justification::centredBottom, 3);
-        //g.drawFittedText(m_order[index].m_enabled->name, x, y, w, h, Justification::centred, 3);
     }
-	g.setColour(Colours::gold);
-	g.drawRect(x + 3, y + 3, 12, 12);
-	if ((bool)*m_order[index].m_enabled == true)
-	{
-		g.drawLine(x+3, y+3, x+15, y+15);
-		g.drawLine(x+3, y+15, x+15, y+3);
-	}
-	g.setColour(Colours::white);
+
+    auto enableRect = Rectangle<float>(x + 2, y + 2, 16, 16);
+
+    if (enabled) {
+        m_enabledImage->drawWithin(g, enableRect, RectanglePlacement::centred, 1.0f);
+    } else {
+        m_disabledImage->drawWithin(g, enableRect, RectanglePlacement::centred, 0.7f);
+    }
+
+    // for arrow color
+	g.setColour(Colours::white.withAlpha(0.8f));
 }
 
 ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notifyOnlyOnRelease) : m_par(par)
@@ -1706,6 +1788,7 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 		m_slider->addListener(this);
 		m_slider->setDoubleClickReturnValue(true, floatpar->range.convertFrom0to1(par->getDefaultValue()));
         m_slider->setViewportIgnoreDragFlag(true);
+        m_slider->setScrollWheelEnabled(false);
 	}
 	AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(par);
 	if (intpar)
@@ -1717,6 +1800,7 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
         m_slider->setTextBoxStyle(Slider::TextBoxLeft, false, 60, 34);
 		m_slider->addListener(this);
         m_slider->setViewportIgnoreDragFlag(true);
+        m_slider->setScrollWheelEnabled(false);
 	}
 	AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(par);
 	if (choicepar)
@@ -2018,6 +2102,9 @@ void zoom_scrollbar::setRange(Range<double> rng, bool docallback)
 zoom_scrollbar::hot_area zoom_scrollbar::get_hot_area(int x, int)
 {
     int radius = 10;
+#if JUCE_IOS
+    radius *= 2;
+#endif
 	int x0 = (int)(getWidth()*m_therange.getStart());
 	int x1 = (int)(getWidth()*m_therange.getEnd());
 	if (is_in_range(x, x0 - radius, x0 + radius))

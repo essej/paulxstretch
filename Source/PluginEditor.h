@@ -252,7 +252,7 @@ private:
 class SpectralChainEditor : public Component
 {
 public:
-	SpectralChainEditor() {}
+    SpectralChainEditor();
 	void paint(Graphics& g) override;
 	void setSource(StretchAudioSource* src);
 	void mouseDown(const MouseEvent& ev) override;
@@ -270,6 +270,12 @@ private:
 	int m_drag_x = 0;
     int m_downoffset_x = 0;
     std::vector<SpectrumProcess> m_order;
+    std::unique_ptr<Drawable> m_enabledImage;
+    std::unique_ptr<Drawable> m_disabledImage;
+    Colour m_bgcolor;
+    Colour m_selbgcolor;
+    Colour m_dragbgcolor;
+
 	void drawBox(Graphics& g, int index, int x, int y, int w, int h);
 };
 
@@ -562,6 +568,7 @@ private:
 	SpectralChainEditor m_spec_order_ed;
     double m_lastspec_select_time = 0.0;
     int m_lastspec_select_group = -1;
+    bool m_shortMode = false;
 
 	void showSettingsMenu();
     

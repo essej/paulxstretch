@@ -277,7 +277,7 @@ private:
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
 	ProcessParameters m_ppar;
     int mPluginWindowWidth = 820;
-    int mPluginWindowHeight = 692;
+    int mPluginWindowHeight = 700;
 
 	void setFFTSize(double size);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);

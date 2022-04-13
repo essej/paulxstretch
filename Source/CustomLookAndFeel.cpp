@@ -37,7 +37,7 @@ CustomLookAndFeel::CustomLookAndFeel()
     setColour (ToggleButton::textColourId, Colour (0xddcccccc));
 
     
-    setColour (ScrollBar::ColourIds::thumbColourId, Colour::fromFloatRGBA(0.4, 0.4, 0.4, 0.6));
+    setColour (ScrollBar::ColourIds::thumbColourId, Colour::fromFloatRGBA(0.7, 0.7, 0.7, 0.7));
     
     //setColour (ComboBox::backgroundColourId, Colour (0xff161616));
     setColour (ComboBox::backgroundColourId, Colour::fromFloatRGBA(0.15, 0.15, 0.15, 0.7));
@@ -62,7 +62,7 @@ CustomLookAndFeel::CustomLookAndFeel()
     //setColour (Slider::thumbColourId, Colour::fromFloatRGBA(0.2, 0.5, 0.7, 1.0));
     setColour (Slider::rotarySliderFillColourId, Colour::fromFloatRGBA(0.5, 0.4, 0.6, 0.9));
     
-    setColour (TabbedButtonBar::tabOutlineColourId, Colour::fromFloatRGBA(0.3, 0.3, 0.3, 0.5));
+    setColour (TabbedButtonBar::tabOutlineColourId, Colour::fromFloatRGBA(0.3, 0.3, 0.3, 0.6));
 
 
     
@@ -81,7 +81,6 @@ CustomLookAndFeel::CustomLookAndFeel()
     setColour (SidePanel::backgroundColour, Colour::fromFloatRGBA(0.17, 0.17, 0.17, 1.0));
 
 
-    
     //setColour (SonoDrawableButton::overOverlayColourId, Colour::fromFloatRGBA(0.8, 0.8, 0.8, 0.08));
     //setColour (SonoDrawableButton::downOverlayColourId, Colour::fromFloatRGBA(0.8, 0.8, 0.8, 0.3));
 
