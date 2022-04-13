@@ -200,8 +200,8 @@ public:
 	void setRecordingEnabled(bool b);
 	bool isRecordingEnabled() { return m_is_recording; }
 	double getRecordingPositionPercent();
-	String setAudioFile(File f);
-	File getAudioFile() { return m_current_file; }
+	String setAudioFile(const URL& url);
+	URL getAudioFile() { return m_current_file; }
 	Range<double> getTimeSelection();
 	SharedResourcePointer<AudioFormatManager> m_afm;
     SharedResourcePointer<MyPropertiesFile> m_propsfile;
@@ -261,7 +261,7 @@ private:
 	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;
 	CriticalSection m_cs;
-	File m_current_file;
+	URL m_current_file;
     Time m_current_file_date;
 	bool m_is_recording = false;
 	TimeSliceThread m_bufferingthread;

@@ -59,4 +59,23 @@ void getSafeAreaInsets(void * component, float & top, float & bottom, float & le
     }
 }
 
+bool urlBookmarkToBinaryData(void * bookmark, const void * & retdata, size_t & retsize)
+{
+    NSData * data = (NSData*) bookmark;
+    if (data && [data isKindOfClass:NSData.class]) {
+        retdata = [data bytes];
+        retsize = [data length];
+        return true;
+    }
+    return false;
+}
+
+void * binaryDataToUrlBookmark(const void * data, size_t size)
+{
+    NSData * nsdata = [[NSData alloc] initWithBytes:data length:size];
+
+    return nsdata;
+}
+
+
 #endif

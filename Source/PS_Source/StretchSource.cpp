@@ -158,7 +158,7 @@ void StretchAudioSource::setAudioBufferAsInputSource(AudioBuffer<float>* buf, in
 	m_inputfile->setAudioBuffer(buf, sr, len);
 	m_seekpos = 0.0;
     m_audiobuffer_is_source = true;
-	m_curfile = File();
+	m_curfile = URL();
 	if (m_playrange.isEmpty())
 		setPlayRange({ 0.0,1.0 });
 	++m_param_change_count;
@@ -505,12 +505,12 @@ bool StretchAudioSource::isLooping() const
 	return false;
 }
 
-String StretchAudioSource::setAudioFile(File file)
+String StretchAudioSource::setAudioFile(const URL & url)
 {
 	ScopedLock locker(m_cs);
-	if (m_inputfile->openAudioFile(file))
+	if (m_inputfile->openAudioFile(url))
 	{
-		m_curfile = file;
+		m_curfile = url;
 		m_firstbuffer = true;
         m_audiobuffer_is_source = false;
 		return String();
@@ -518,7 +518,7 @@ String StretchAudioSource::setAudioFile(File file)
 	return "Could not open file";
 }
 
-File StretchAudioSource::getAudioFile()
+URL StretchAudioSource::getAudioFile()
 {
 	return m_curfile;
 }

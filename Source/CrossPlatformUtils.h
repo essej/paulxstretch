@@ -14,3 +14,11 @@ void getSafeAreaInsets(void * component, float & top, float & bottom, float & le
 void disableAppNap();
 
 #endif
+
+#if JUCE_IOS
+bool urlBookmarkToBinaryData(void * bookmark, const void * & retdata, size_t & retsize);
+
+void *binaryDataToUrlBookmark(const void * data, size_t size);
+
+
+#endif

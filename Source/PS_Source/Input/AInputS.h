@@ -71,10 +71,10 @@ public:
             return &m_readbuf;
         return nullptr;
     }
-	bool openAudioFile(File file) override
+	bool openAudioFile(const URL & url) override
     {
 		m_silenceoutputted = 0;
-		AudioFormatReader* reader = m_manager->createReaderFor(file);
+		AudioFormatReader* reader = m_manager->createReaderFor(url.getLocalFile());
         if (reader)
         {
 			ScopedLock locker(m_mutex);

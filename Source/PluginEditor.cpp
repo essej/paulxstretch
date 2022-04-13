@@ -160,10 +160,19 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		}
 	}
 
+
     m_parcomps[cpi_num_inchans]->getSlider()->setSliderStyle(Slider::SliderStyle::IncDecButtons);
     m_parcomps[cpi_num_inchans]->getSlider()->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, 30, 34);
     m_parcomps[cpi_num_outchans]->getSlider()->setSliderStyle(Slider::SliderStyle::IncDecButtons);
     m_parcomps[cpi_num_outchans]->getSlider()->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, 30, 34);
+
+
+#if JUCE_IOS
+    // just don't include chan counts on ios for now
+    removeChildComponent(m_parcomps[cpi_num_inchans].get());
+    removeChildComponent(m_parcomps[cpi_num_outchans].get());
+#endif
+
 
     m_groupviewport = std::make_unique<Viewport>();
     m_groupcontainer = std::make_unique<Component>();
@@ -581,6 +590,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_capture_trigger]).withMargin(margin).withFlex(1).withMaxWidth(200));
     togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_passthrough]).withMargin(margin).withFlex(1.5).withMaxWidth(200));
+
     togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_pause_enabled]).withMargin(margin).withFlex(1).withMaxWidth(200));
     togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_freeze]).withMargin(margin).withFlex(1).withMaxWidth(200));
     togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_bypass_stretch]).withMargin(margin).withFlex(1).withMaxWidth(200));
@@ -596,6 +606,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     volbox.alignContent = FlexBox::AlignContent::flexStart;
     volbox.items.add(FlexItem(minitemw*0.75f, rowheight, *m_parcomps[cpi_main_volume]).withMargin(margin).withFlex(1));
 
+
+#if !JUCE_IOS
     FlexBox inoutbox;
     int inoutminw = 170;
     int inoutmaxw = 200;
@@ -605,6 +617,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     inoutbox.items.add(FlexItem(inoutminw, rowheight, *m_parcomps[cpi_num_outchans]).withMargin(margin).withFlex(0.5).withMaxWidth(inoutmaxw));
 
     volbox.items.add(FlexItem(2*inoutminw, rowheight, inoutbox).withMargin(margin).withFlex(1.5).withMaxWidth(2*inoutmaxw + 10));
+#endif
 
     volbox.performLayout(Rectangle<int>(0,0,w - 2*margin,400)); // test run to calculate actual used height
     int volh = volbox.items.getLast().currentBounds.getBottom() + volbox.items.getLast().margin.bottom;
@@ -888,8 +901,9 @@ void PaulstretchpluginAudioProcessorEditor::filesDropped(const StringArray & fil
 {
 	if (files.size() > 0)
 	{
-		File f(files[0]);
-		processor.setAudioFile(f);
+        File file(files[0]);
+		URL url = URL(file);
+		processor.setAudioFile(url);
 		toFront(true);
 	}
 }
@@ -900,14 +914,9 @@ void PaulstretchpluginAudioProcessorEditor::urlOpened(const URL& url)
     std::unique_ptr<InputStream> wi (url.createInputStream (false));
     if (wi != nullptr)
     {
-        File file = url.getLocalFile();
-        DBG("Attempting to load after input stream create: " << file.getFullPathName());
-        processor.setAudioFile(file);
-    } else {
-        File file = url.getLocalFile();
-        DBG("Attempting to load after no input stream create: " << file.getFullPathName());
-        processor.setAudioFile(file);
-    }
+        DBG("Attempting to load after input stream create: " << url.toString(false));
+        processor.setAudioFile(url);
+    } 
     toFront(true);
 }
 
@@ -1048,7 +1057,7 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
                 DBG("Attempting to load from: " << file.getFullPathName());
 
                 //curropendir = file.getParentDirectory();
-                processor.setAudioFile(file);
+                processor.setAudioFile(url);
                 processor.m_propsfile->m_props_file->setValue("importfilefolder", file.getParentDirectory().getFullPathName());
             }
         }
@@ -1223,7 +1232,7 @@ void WaveformComponent::paint(Graphics & g)
 		g.fillRect(normalizedToViewX<int>(m_rec_pos), m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	g.setColour(Colours::aqua);
-	g.drawText(GetFileCallback().getFileName(), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
+	g.drawText(URL::removeEscapeChars(GetFileCallback().getFileName()), 2, m_topmargin + 2, getWidth(), 20, Justification::topLeft);
 	g.drawText(secondsToString2(thumblen), getWidth() - 200, m_topmargin + 2, 200, 20, Justification::topRight);
 }
 
@@ -2366,7 +2375,7 @@ void MyFileBrowserComponent::fileClicked(const File & file, const MouseEvent & e
 
 void MyFileBrowserComponent::fileDoubleClicked(const File & file)
 {
-	m_proc.setAudioFile(file);
+	m_proc.setAudioFile(URL(file));
 	m_proc.m_propsfile->m_props_file->setValue("importfilefolder", file.getParentDirectory().getFullPathName());
 }
 

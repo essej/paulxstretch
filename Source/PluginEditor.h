@@ -189,7 +189,7 @@ public:
 	std::function<double()> CursorPosCallback;
 	std::function<void(double)> SeekCallback;
 	std::function<void(Range<double>, int)> TimeSelectionChangedCallback;
-	std::function<File()> GetFileCallback;
+	std::function<URL()> GetFileCallback;
 	std::function<void(Range<double>)> ViewRangeChangedCallback;
 	void mouseDown(const MouseEvent& e) override;
 	void mouseUp(const MouseEvent& e) override;

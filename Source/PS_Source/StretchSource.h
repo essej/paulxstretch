@@ -46,8 +46,8 @@ public:
 
 	bool isLooping() const override;
 
-	String setAudioFile(File file);
-	File getAudioFile();
+	String setAudioFile(const URL & file);
+	URL getAudioFile();
 
     AudioBuffer<float>* getSourceAudioBuffer();
     
@@ -148,7 +148,7 @@ private:
 	
 	bool m_stream_end_reached = false;
 	int64_t m_output_silence_counter = 0;
-	File m_curfile;
+	URL m_curfile;
     bool m_audiobuffer_is_source = false;
 	int64_t m_maxloops = 0;
 	std::unique_ptr<WDL_Resampler> m_resampler;

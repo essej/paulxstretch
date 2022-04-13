@@ -20,6 +20,8 @@ www.gnu.org/licenses
 #include <set>
 #include <thread>
 
+#import "CrossPlatformUtils.h"
+
 #ifdef WIN32
 #undef min
 #undef max
@@ -66,20 +68,21 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 {
 	m_filechoose_callback = [this](const FileChooser& chooser)
 	{
-		File resu = chooser.getResult();
-		String pathname = resu.getFullPathName();
-		if (pathname.startsWith("/localhost"))
-		{
-			pathname = pathname.substring(10);
-			resu = File(pathname);
-		}
-		m_propsfile->m_props_file->setValue("importfilefolder", resu.getParentDirectory().getFullPathName());
-		String loaderr = setAudioFile(resu);
-		if (auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor()); ed != nullptr)
-		{
-			ed->m_last_err = loaderr;
-		}
-		
+		URL resu = chooser.getURLResult();
+		//String pathname = resu.getFullPathName();
+		//if (pathname.startsWith("/localhost"))
+		//{
+		//	pathname = pathname.substring(10);
+		//	resu = File(pathname);
+		//}
+        if (!resu.isEmpty()) {
+            m_propsfile->m_props_file->setValue("importfilefolder", resu.getLocalFile().getParentDirectory().getFullPathName());
+            String loaderr = setAudioFile(resu);
+            if (auto ed = dynamic_cast<PaulstretchpluginAudioProcessorEditor*>(getActiveEditor()); ed != nullptr)
+            {
+                ed->m_last_err = loaderr;
+            }
+        }
 	};
 	m_playposinfo.timeInSeconds = 0.0;
 	
@@ -268,9 +271,22 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 {
 	ValueTree paramtree("paulstretch3pluginstate");
 	storeToTreeProperties(paramtree, nullptr, getParameters(), { getBoolParameter(cpi_capture_trigger) });
-    if (m_current_file != File() && ignorefile == false)
+    if (m_current_file != URL() && ignorefile == false)
 	{
-		paramtree.setProperty("importedfile", m_current_file.getFullPathName(), nullptr);
+		paramtree.setProperty("importedfile", m_current_file.toString(false), nullptr);
+#if JUCE_IOS
+        // store bookmark data if necessary
+        if (void * bookmark = getURLBookmark(m_current_file)) {
+            const void * data = nullptr;
+            size_t datasize = 0;
+            if (urlBookmarkToBinaryData(bookmark, data, datasize)) {
+                DBG("Audio file has bookmark, storing it in state, size: " << datasize);
+                paramtree.setProperty("importedfile_bookmark", var(data, datasize), nullptr);
+            } else {
+                DBG("Bookmark is not valid!");
+            }
+        } 
+#endif
 	}
 	auto specorder = m_stretch_source->getSpectrumProcessOrder();
 	paramtree.setProperty("numspectralstagesb", (int)specorder.size(), nullptr);
@@ -342,10 +358,31 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			setPreBufferAmount(prebufamt);
 		if (m_load_file_with_state == true)
 		{
-			String fn = tree.getProperty("importedfile");
-			if (fn.isEmpty() == false)
+            String fn = tree.getProperty("importedfile");
+			if (fn.isNotEmpty())
 			{
-				setAudioFile(File(fn));
+                URL url(fn);
+
+                if (!url.isLocalFile()) {
+                    // reconstruct just in case imported file string was not a URL
+                    url = URL(File(fn));
+                }
+
+#if JUCE_IOS
+                // check for bookmark
+                auto bptr = tree.getPropertyPointer("importedfile_bookmark");
+                if (bptr) {
+                    if (auto * block = bptr->getBinaryData()) {
+                        DBG("Has file bookmark");
+                        void * bookmark = binaryDataToUrlBookmark(block->getData(), block->getSize());
+                        setURLBookmark(url, bookmark);
+                    }
+                }
+                else {
+                    DBG("no url bookmark found");
+                }
+#endif
+                setAudioFile(url);
 			}
 		}
 		m_state_dirty = true;
@@ -546,7 +583,7 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 				jassert(sourcebuffer->getNumSamples() > 0);
 				
 				writer->writeFromAudioSampleBuffer(*sourcebuffer, 0, sourcebuffer->getNumSamples());
-				m_current_file = outfile;
+				m_current_file = URL(outfile);
 			}
 			else
 			{
@@ -982,7 +1019,7 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	if (b == true)
 	{
 		m_using_memory_buffer = true;
-		m_current_file = File();
+		m_current_file = URL();
 		int numchans = *m_inchansparam;
 		m_recbuffer.setSize(numchans, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
@@ -1008,33 +1045,44 @@ double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 	return 1.0 / m_recbuffer.getNumSamples()*m_rec_pos;
 }
 
-String PaulstretchpluginAudioProcessor::setAudioFile(File f)
+String PaulstretchpluginAudioProcessor::setAudioFile(const URL & url)
 {
-    auto ai = unique_from_raw(m_afm->createReaderFor(f));
+    // this handles any permissions stuff (needed on ios)
+    std::unique_ptr<InputStream> wi (url.createInputStream (false));
+    File file = url.getLocalFile();
+
+    auto ai = unique_from_raw(m_afm->createReaderFor(file));
 	if (ai != nullptr)
 	{
 		if (ai->numChannels > 8)
 		{
-			return "Too many channels in file "+f.getFullPathName();
+			return "Too many channels in file "+ file.getFullPathName();
 		}
 		if (ai->bitsPerSample>32)
 		{
-			return "Too high bit depth in file " + f.getFullPathName();
+			return "Too high bit depth in file " + file.getFullPathName();
 		}
 		if (m_thumb)
-			m_thumb->setSource(new FileInputSource(f));
+			m_thumb->setSource(new FileInputSource(file));
 		ScopedLock locker(m_cs);
-		m_stretch_source->setAudioFile(f);
+		m_stretch_source->setAudioFile(url);
 		//Range<double> currange{ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) };
 		//if (currange.contains(m_stretch_source->getInfilePositionPercent())==false)
 			m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
-		m_current_file = f;
-        m_current_file_date = m_current_file.getLastModificationTime();
+		m_current_file = url;
+
+#if JUCE_IOS
+        if (void * bookmark = getURLBookmark(m_current_file)) {
+            DBG("Loaded audio file has bookmark");
+        }
+#endif
+
+        m_current_file_date = file.getLastModificationTime();
 		m_using_memory_buffer = false;
 		setDirty();
 		return String();
 	}
-	return "Could not open file " + f.getFullPathName();
+	return "Could not open file " + file.getFullPathName();
 }
 
 Range<double> PaulstretchpluginAudioProcessor::getTimeSelection()
@@ -1106,7 +1154,7 @@ pointer_sized_int PaulstretchpluginAudioProcessor::handleVstPluginCanDo(int32 in
 		{
 			String fn(CharPointer_UTF8((char*)value));
 			//std::cout << "host requested to set audio file " << fn << "\n";
-			auto err = setAudioFile(File(fn));
+			auto err = setAudioFile(URL(fn));
 			if (err.isEmpty()==false)
 				std::cout << err << "\n";
 		}
@@ -1124,7 +1172,7 @@ pointer_sized_int PaulstretchpluginAudioProcessor::handleVstManufacturerSpecific
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
 	m_is_recording = false;
-	m_current_file = File();
+	m_current_file = URL();
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	*getFloatParameter(cpi_soundstart) = 0.0f;
 	*getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, 1.0 / lenrecording * m_rec_count);
