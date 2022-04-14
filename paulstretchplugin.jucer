@@ -2,24 +2,36 @@
 
 <JUCERPROJECT id="fn1Rg8" name="PaulXStretch" displaySplashScreen="0" reportAppUsage="0"
               splashScreenColour="Dark" projectType="audioplug" version="1.5.0"
-              bundleIdentifier="com.xenakios.paulxstretch" includeBinaryInAppConfig="1"
+              bundleIdentifier="com.sonosaurus.paulxstretch" includeBinaryInAppConfig="1"
               cppLanguageStandard="latest" companyCopyright="" buildVST="0"
               buildVST3="1" buildAU="1" buildAUv3="0" buildRTAS="0" buildAAX="0"
               buildStandalone="1" enableIAA="0" pluginName="PaulXStretch" pluginDesc="PaulXStretch"
-              pluginManufacturer="Xenakios" pluginManufacturerCode="XenS" pluginCode="Fn1r"
-              pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
+              pluginManufacturer="Sonosaurus" pluginManufacturerCode="Sono"
+              pluginCode="Pxst" pluginIsSynth="0" pluginWantsMidiIn="0" pluginProducesMidiOut="0"
               pluginIsMidiEffectPlugin="0" pluginEditorRequiresKeys="0" pluginAUExportPrefix="paulxstretchAU"
-              aaxIdentifier="com.yourcompany.paulstretchplugin" pluginAAXCategory="2"
+              aaxIdentifier="com.sonosaurus.paulxstretch" pluginAAXCategory="2"
               headerPath="&#10;&#10;" pluginFormats="buildAU,buildStandalone,buildVST3"
               jucerFormatVersion="1" useAppConfig="0" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{F2FF95A8-60F3-2FB2-CE4F-933A28090D76}" name="images">
+      <FILE id="TfUptN" name="freeze.svg" compile="0" resource="1" file="images/freeze.svg"/>
+      <FILE id="zJaIhl" name="loop_icon.svg" compile="0" resource="1" file="images/loop_icon.svg"/>
+      <FILE id="RIDaIb" name="passthru.svg" compile="0" resource="1" file="images/passthru.svg"/>
+      <FILE id="PzIN7l" name="passthru_enabled.svg" compile="0" resource="1"
+            file="images/passthru_enabled.svg"/>
       <FILE id="Yny1oQ" name="paulxstretch_icon_256_rounded.png" compile="0"
             resource="0" file="images/paulxstretch_icon_256_rounded.png"/>
       <FILE id="hG1CYd" name="paulxstretch_icon_1024_rounded.png" compile="0"
             resource="0" file="images/paulxstretch_icon_1024_rounded.png"/>
+      <FILE id="U8ebq1" name="pause_icon.svg" compile="0" resource="1" file="images/pause_icon.svg"/>
+      <FILE id="OhlmmO" name="play_icon.svg" compile="0" resource="1" file="images/play_icon.svg"/>
       <FILE id="PLvX8b" name="power.svg" compile="0" resource="1" file="images/power.svg"/>
       <FILE id="PMRzOf" name="power_sel.svg" compile="0" resource="1" file="images/power_sel.svg"/>
+      <FILE id="s7ZAxz" name="record.svg" compile="0" resource="1" file="images/record.svg"/>
+      <FILE id="DhBJaN" name="record_active.svg" compile="0" resource="1"
+            file="images/record_active.svg"/>
+      <FILE id="M5ArEf" name="skipback_icon.svg" compile="0" resource="1"
+            file="images/skipback_icon.svg"/>
     </GROUP>
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
@@ -76,7 +88,7 @@
                microphonePermissionsText="This application requires audio input to capture live audio for processing"
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
                xcodeValidArchs="arm64,x86_64" buildNumber="100" applicationCategory="public.app-category.music"
-               smallIcon="Yny1oQ" bigIcon="hG1CYd">
+               smallIcon="Yny1oQ" bigIcon="hG1CYd" iosDevelopmentTeamID="XCS435894D">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
                        linkTimeOptimisation="0" targetName="PaulXStretch" headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/devstatic/include&#10;"

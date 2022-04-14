@@ -98,9 +98,19 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		m_render_button.onClick = [this]() { showRenderDialog(); };
 	}
 
-	addAndMakeVisible(m_rewind_button);
-	m_rewind_button.setButtonText("<<");
-	m_rewind_button.onClick = [this]() 
+    // jlc
+    m_rewind_button = std::make_unique<DrawableButton>("rewind", DrawableButton::ButtonStyle::ImageFitted);
+    std::unique_ptr<Drawable> rewimg(Drawable::createFromImageData(BinaryData::skipback_icon_svg, BinaryData::skipback_icon_svgSize));
+    m_rewind_button->setImages(rewimg.get());
+    m_rewind_button->setColour(TextButton::buttonColourId, Colours::transparentBlack);
+    m_rewind_button->setColour(TextButton::buttonOnColourId, Colours::transparentBlack);
+    m_rewind_button->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
+    m_rewind_button->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+
+	addAndMakeVisible(m_rewind_button.get());
+	m_rewind_button->setTitle("Return to start");
+    m_rewind_button->setTooltip("Return to start");
+	m_rewind_button->onClick = [this]()
 	{
 		*processor.getBoolParameter(cpi_rewind) = true;
 		//processor.getStretchSource()->seekPercent(processor.getStretchSource()->getPlayRange().getStart());
@@ -108,6 +118,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
 	addAndMakeVisible(&m_info_label);
 	m_info_label.setJustificationType(Justification::centredRight);
+    m_info_label.setFont(14.0f);
 
 	m_wavecomponent.GetFileCallback = [this]() { return processor.getAudioFile(); };
 	
@@ -120,7 +131,13 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		if (parid->paramID.startsWith("fftsize") || parid->paramID.startsWith("numoutchans") 
 			|| parid->paramID.startsWith("numinchans"))
 				notifyonlyonrelease = true;
-		int group_id = -1;
+
+        bool usedrawable = false;
+        if (i == cpi_pause_enabled || i == cpi_looping_enabled || i == cpi_capture_trigger || i == cpi_freeze || i == cpi_passthrough)
+            usedrawable = true;
+
+
+        int group_id = -1;
 		if (i == cpi_harmonicsbw || i == cpi_harmonicsfreq || i == cpi_harmonicsgauss || i == cpi_numharmonics)
 			group_id = HarmonicsGroup;
 		if (i == cpi_octavesm2 || i == cpi_octavesm1 || i == cpi_octaves0 || i == cpi_octaves1 || i == cpi_octaves15 ||
@@ -148,7 +165,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 			group_id = -2;
 		if (group_id >= -1)
 		{
-			m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease));
+			m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[i], notifyonlyonrelease, usedrawable));
 			m_parcomps.back()->m_group_id = group_id;
 
             if (group_id == -1) // only add ones that aren't in groups
@@ -166,6 +183,42 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_parcomps[cpi_num_outchans]->getSlider()->setSliderStyle(Slider::SliderStyle::IncDecButtons);
     m_parcomps[cpi_num_outchans]->getSlider()->setTextBoxStyle(Slider::TextEntryBoxPosition::TextBoxLeft, false, 30, 34);
 
+    removeChildComponent(m_parcomps[cpi_bypass_stretch].get());
+
+
+    if (auto * pausebut = m_parcomps[cpi_pause_enabled]->getDrawableButton()) {
+        std::unique_ptr<Drawable> playimg(Drawable::createFromImageData(BinaryData::play_icon_svg, BinaryData::play_icon_svgSize));
+        std::unique_ptr<Drawable> pauseimg(Drawable::createFromImageData(BinaryData::pause_icon_svg, BinaryData::pause_icon_svgSize));
+        pausebut->setImages(pauseimg.get(), nullptr, nullptr, nullptr, playimg.get());
+        pausebut->setColour(DrawableButton::backgroundColourId, Colour::fromFloatRGBA(0.1f, 0.5f, 0.1f, 0.55f));
+    }
+
+    if (auto * loopbut = m_parcomps[cpi_looping_enabled]->getDrawableButton()) {
+        std::unique_ptr<Drawable> loopimg(Drawable::createFromImageData(BinaryData::loop_icon_svg, BinaryData::loop_icon_svgSize));
+        loopbut->setImages(loopimg.get());
+        loopbut->setColour(DrawableButton::backgroundOnColourId, Colour::fromFloatRGBA(0.6, 0.4, 0.6, 0.4));
+    }
+
+    if (auto * recbut = m_parcomps[cpi_capture_trigger]->getDrawableButton()) {
+        std::unique_ptr<Drawable> reconimg(Drawable::createFromImageData(BinaryData::record_active_svg, BinaryData::record_active_svgSize));
+        std::unique_ptr<Drawable> recoffimg(Drawable::createFromImageData(BinaryData::record_svg, BinaryData::record_svgSize));
+        recbut->setImages(recoffimg.get(), nullptr, nullptr, nullptr, reconimg.get());
+        recbut->setColour(DrawableButton::backgroundOnColourId, Colour::fromFloatRGBA(0.6, 0.3, 0.3, 0.5));
+    }
+
+    if (auto * freezebut = m_parcomps[cpi_freeze]->getDrawableButton()) {
+        std::unique_ptr<Drawable> img(Drawable::createFromImageData(BinaryData::freeze_svg, BinaryData::freeze_svgSize));
+        freezebut->setImages(img.get());
+        freezebut->setColour(DrawableButton::backgroundOnColourId, Colour::fromFloatRGBA(0.2, 0.5, 0.7, 0.55));
+    }
+
+    if (auto * thrubut = m_parcomps[cpi_passthrough]->getDrawableButton()) {
+        std::unique_ptr<Drawable> img(Drawable::createFromImageData(BinaryData::passthru_svg, BinaryData::passthru_svgSize));
+        std::unique_ptr<Drawable> imgon(Drawable::createFromImageData(BinaryData::passthru_enabled_svg, BinaryData::passthru_enabled_svgSize));
+        thrubut->setImages(img.get(), nullptr, nullptr, nullptr, imgon.get());
+        thrubut->setColour(DrawableButton::backgroundOnColourId, Colour::fromFloatRGBA(0.5, 0.3, 0.0, 0.55));
+    }
+
 
 #if JUCE_IOS
     // just don't include chan counts on ios for now
@@ -180,8 +233,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 
     addAndMakeVisible(m_groupviewport.get());
 
-    m_stretchgroup = std::make_unique<ParameterGroupComponent>("", -1, &processor, false);
+    m_stretchgroup = std::make_unique<ParameterGroupComponent>("", -1, &processor, true);
     m_stretchgroup->setBackgroundColor(Colour(0xff332244));
+    m_stretchgroup->setToggleEnabled( ! *processor.getBoolParameter(cpi_bypass_stretch));
     if (*processor.getBoolParameter(cpi_bypass_stretch)) {
         m_stretchgroup->addParameterComponent(m_parcomps[cpi_dryplayrate].get());
         removeChildComponent(m_parcomps[cpi_stretchamount].get());
@@ -190,6 +244,11 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
         removeChildComponent(m_parcomps[cpi_dryplayrate].get());
     }
     m_stretchgroup->addParameterComponent(m_parcomps[cpi_fftsize].get());
+    m_stretchgroup->EnabledChangedCallback = [this]() {
+        toggleBool(processor.getBoolParameter(cpi_bypass_stretch));
+        m_stretchgroup->setToggleEnabled( ! *processor.getBoolParameter(cpi_bypass_stretch));
+        // jlc
+    };
 
     addAndMakeVisible(m_stretchgroup.get());
 
@@ -451,7 +510,7 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
 	auto contentraw =  new RenderSettingsComponent(&processor);
 
-    int prefw = jmin(contentraw->getPreferredWidth(), getWidth() - 10);
+    int prefw = jmin(contentraw->getPreferredWidth(), getWidth() - 20);
     int prefh = jmin(contentraw->getPreferredHeight(), getHeight() - 10);
 	contentraw->setSize(prefw, prefh);
 	std::unique_ptr<Component> content(contentraw);
@@ -577,7 +636,6 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     {
         topbox.items.add(FlexItem(buttw, buttonrowheight, m_render_button).withMargin(1).withFlex(1).withMaxWidth(130));
     }
-    topbox.items.add(FlexItem(buttminw, buttonrowheight, m_rewind_button).withMargin(1));
     topbox.items.add(FlexItem(4, 4));
     topbox.items.add(FlexItem(80, buttonrowheight, m_perfmeter).withMargin(1).withFlex(1).withMaxWidth(110).withMaxHeight(24).withAlignSelf(FlexItem::AlignSelf::center));
     topbox.items.add(FlexItem(140, 26, m_info_label).withMargin(1).withFlex(2));
@@ -591,13 +649,23 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     togglesbox.flexWrap = FlexBox::Wrap::wrap;
     togglesbox.alignContent = FlexBox::AlignContent::flexStart;
 
-    togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_capture_trigger]).withMargin(margin).withFlex(1).withMaxWidth(200));
-    togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_passthrough]).withMargin(margin).withFlex(1.5).withMaxWidth(200));
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_parcomps[cpi_capture_trigger]).withMargin(margin).withFlex(1).withMaxWidth(65));
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight).withFlex(0.1));
 
-    togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_pause_enabled]).withMargin(margin).withFlex(1).withMaxWidth(200));
-    togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_freeze]).withMargin(margin).withFlex(1).withMaxWidth(200));
-    togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_bypass_stretch]).withMargin(margin).withFlex(1).withMaxWidth(200));
-    togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_looping_enabled]).withMargin(margin).withFlex(1).withMaxWidth(200));
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_rewind_button).withMargin(1).withFlex(1).withMaxWidth(65));
+    togglesbox.items.add(FlexItem(0, buttonrowheight).withFlex(0.1).withMaxWidth(10));
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_parcomps[cpi_pause_enabled]).withMargin(margin).withFlex(1).withMaxWidth(65));
+    togglesbox.items.add(FlexItem(0, buttonrowheight).withFlex(0.1).withMaxWidth(10));
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_parcomps[cpi_looping_enabled]).withMargin(margin).withFlex(1).withMaxWidth(65));
+    togglesbox.items.add(FlexItem(0, buttonrowheight).withFlex(0.1).withMaxWidth(10));
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_parcomps[cpi_freeze]).withMargin(margin).withFlex(1).withMaxWidth(65));
+
+    togglesbox.items.add(FlexItem(buttminw, buttonrowheight).withFlex(0.1));
+
+    //togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_bypass_stretch]).withMargin(margin).withFlex(1).withMaxWidth(150));
+    togglesbox.items.add(FlexItem(buttminw + 15, buttonrowheight, *m_parcomps[cpi_passthrough]).withMargin(margin).withFlex(1.5).withMaxWidth(85));
+
+    togglesbox.items.add(FlexItem(2, buttonrowheight));
 
     togglesbox.performLayout(Rectangle<int>(0,0,w - 2*margin,400)); // test run to calculate actual used height
     int toggleh = togglesbox.items.getLast().currentBounds.getBottom() + togglesbox.items.getLast().margin.bottom;
@@ -625,7 +693,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     volbox.performLayout(Rectangle<int>(0,0,w - 2*margin,400)); // test run to calculate actual used height
     int volh = volbox.items.getLast().currentBounds.getBottom() + volbox.items.getLast().margin.bottom;
     int stretchH = m_stretchgroup->getMinimumHeight(w - 2*margin);
-
+    stretchH = jmax(stretchH, (int) (minh*1.1f));
 
 
     FlexBox groupsbox;
@@ -719,6 +787,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     mainbox.items.add(FlexItem(minw, topboxh, topbox).withMargin(margin).withFlex(0));
 
+    mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
 
 
     auto reparentIfNecessary = [] (Component * comp, Component *newparent) {
@@ -747,14 +816,14 @@ void PaulstretchpluginAudioProcessorEditor::resized()
         // not enough vertical space, put the top items in the scrollable viewport
         // may have to reparent them
         reparentIfNecessary(m_stretchgroup.get(), m_groupcontainer.get());
-        reparentItemsIfNecessary(togglesbox, m_groupcontainer.get());
+        //reparentItemsIfNecessary(togglesbox, m_groupcontainer.get());
         reparentItemsIfNecessary(volbox, m_groupcontainer.get());
 
         groupsbox.items.insert(0, FlexItem(minw, stretchH, *m_stretchgroup).withMargin(groupmargin).withFlex(0));
         groupsbox.items.insert(0, FlexItem(minw, volh, volbox).withMargin(groupmargin).withFlex(0));
-        groupsbox.items.insert(0, FlexItem(minw, toggleh, togglesbox).withMargin(groupmargin).withFlex(0));
+        //groupsbox.items.insert(0, FlexItem(minw, toggleh, togglesbox).withMargin(groupmargin).withFlex(0));
 
-        useh += toggleh + volh + stretchH + 6*groupmargin;
+        useh += /*toggleh + */ volh + stretchH + 6*groupmargin;
 
         if (getHeight() < shortthresh) {
             // really not much space, put group scroll in a new tab
@@ -797,11 +866,11 @@ void PaulstretchpluginAudioProcessorEditor::resized()
         reparentIfNecessary(m_groupviewport.get(), this);
         reparentIfNecessary(&m_spec_order_ed, this);
         reparentIfNecessary(m_stretchgroup.get(), this);
-        reparentItemsIfNecessary(togglesbox, this);
+        //reparentItemsIfNecessary(togglesbox, this);
         reparentItemsIfNecessary(volbox, this);
 
 
-        mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
+        //mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
         mainbox.items.add(FlexItem(minw, volh, volbox).withMargin(margin).withFlex(0));
         mainbox.items.add(FlexItem(minw, stretchH, *m_stretchgroup).withMargin(margin).withFlex(0));
     }
@@ -862,6 +931,13 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 {
 	if (id == 1)
 	{
+        if (!tooltipWindow && getParentComponent()) {
+            Component* dw = this;
+            if (dw) {
+                tooltipWindow = std::make_unique<CustomTooltipWindow>(this, dw);
+            }
+        }
+
 		for (int i = 0; i < m_parcomps.size(); ++i)
 		{
 			if (m_parcomps[i]!=nullptr)
@@ -911,7 +987,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
             group.second->updateParameterComponents();
         }
 
-        ;
+        m_stretchgroup->setToggleEnabled(!*processor.getBoolParameter(cpi_bypass_stretch));
+
         if (AudioParameterBool* enablepar = dynamic_cast<AudioParameterBool*>(processor.getBoolParameter(cpi_pause_enabled))) {
             m_perfmeter.enabled = !enablepar->get();
         }
@@ -1060,8 +1137,9 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
 
 #if !JUCE_IOS
     text += juceversiontxt + String(" used under the GPL license.\n\n");
-    text += String("GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n");
 #endif
+
+    // text += String("GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n");
 
     if (host.type != juce::PluginHostType::UnknownHost) {
         text += String("Running in : ") + host.getHostDescription()+ String("\n");
@@ -1770,7 +1848,8 @@ void SpectralChainEditor::drawBox(Graphics & g, int index, int x, int y, int w, 
 	g.setColour(Colours::white.withAlpha(0.8f));
 }
 
-ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notifyOnlyOnRelease) : m_par(par)
+ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notifyOnlyOnRelease, bool useDrawableToggle)
+: m_par(par)
 {
 	addAndMakeVisible(&m_label);
 	m_labeldefcolor = m_label.findColour(Label::textColourId);
@@ -1789,6 +1868,8 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 		m_slider->setDoubleClickReturnValue(true, floatpar->range.convertFrom0to1(par->getDefaultValue()));
         m_slider->setViewportIgnoreDragFlag(true);
         m_slider->setScrollWheelEnabled(false);
+        m_slider->setTitle(floatpar->getName(50));
+
 	}
 	AudioParameterInt* intpar = dynamic_cast<AudioParameterInt*>(par);
 	if (intpar)
@@ -1800,7 +1881,9 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
         m_slider->setTextBoxStyle(Slider::TextBoxLeft, false, 60, 34);
 		m_slider->addListener(this);
         m_slider->setViewportIgnoreDragFlag(true);
-        m_slider->setScrollWheelEnabled(false);
+        m_slider->setScrollWheelEnabled(false
+                                        );
+        m_slider->setTitle(intpar->getName(50));
 	}
 	AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(par);
 	if (choicepar)
@@ -1810,11 +1893,27 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(par);
 	if (boolpar)
 	{
-		m_togglebut = std::make_unique<ToggleButton>();
-		m_togglebut->setToggleState(*boolpar, dontSendNotification);
-		m_togglebut->addListener(this);
-		m_togglebut->setButtonText(par->getName(50));
-		addAndMakeVisible(m_togglebut.get());
+        if (useDrawableToggle) {
+            m_drawtogglebut = std::make_unique<DrawableButton>("but", DrawableButton::ImageFitted);
+            m_drawtogglebut->setToggleState(*boolpar, dontSendNotification);
+            m_drawtogglebut->addListener(this);
+            m_drawtogglebut->setTitle(par->getName(50));
+            m_drawtogglebut->setTooltip(par->getName(50));
+            m_drawtogglebut->setClickingTogglesState(true);
+            m_drawtogglebut->setColour(TextButton::buttonColourId, Colours::transparentBlack);
+            m_drawtogglebut->setColour(TextButton::buttonOnColourId, Colours::transparentBlack);
+            m_drawtogglebut->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
+            m_drawtogglebut->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+
+            addAndMakeVisible(m_drawtogglebut.get());
+        }
+        else {
+            m_togglebut = std::make_unique<ToggleButton>();
+            m_togglebut->setToggleState(*boolpar, dontSendNotification);
+            m_togglebut->addListener(this);
+            m_togglebut->setButtonText(par->getName(50));
+            addAndMakeVisible(m_togglebut.get());
+        }
 	}
 }
 
@@ -1830,8 +1929,13 @@ void ParameterComponent::resized()
 		m_label.setBounds(0, 0, labw, h);
 		m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), h);
 	}
-	if (m_togglebut)
+    else if (m_togglebut) {
 		m_togglebut->setBounds(1, 0, getWidth() - 1, h);
+    }
+    else if (m_drawtogglebut) {
+        m_drawtogglebut->setBounds(1, 0, getWidth() - 1, h);
+    }
+
 }
 
 void ParameterComponent::sliderValueChanged(Slider * slid)
@@ -1872,6 +1976,11 @@ void ParameterComponent::buttonClicked(Button * but)
 		if (m_togglebut->getToggleState()!=*boolpar)
 			*boolpar = m_togglebut->getToggleState();
 	}
+    else if (m_drawtogglebut != nullptr)
+    {
+        if (m_drawtogglebut->getToggleState() != *boolpar)
+            *boolpar = m_drawtogglebut->getToggleState();
+    }
 }
 
 void ParameterComponent::updateComponent()
@@ -1887,11 +1996,18 @@ void ParameterComponent::updateComponent()
 		m_slider->setValue(*intpar, dontSendNotification);
 	}
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
-	if (boolpar!=nullptr && m_togglebut != nullptr)
-	{
-		if (m_togglebut->getToggleState() != *boolpar)
-			m_togglebut->setToggleState(*boolpar, dontSendNotification);
-	}
+    if (boolpar!=nullptr) {
+        if ( m_togglebut != nullptr)
+        {
+            if (m_togglebut->getToggleState() != *boolpar)
+                m_togglebut->setToggleState(*boolpar, dontSendNotification);
+        }
+        else if ( m_drawtogglebut != nullptr)
+        {
+            if (m_drawtogglebut->getToggleState() != *boolpar)
+                m_drawtogglebut->setToggleState(*boolpar, dontSendNotification);
+        }
+    }
 }
 
 void ParameterComponent::setHighLighted(bool b)
@@ -1901,12 +2017,16 @@ void ParameterComponent::setHighLighted(bool b)
 		m_label.setColour(Label::textColourId, m_labeldefcolor);
 		if (m_togglebut)
 			m_togglebut->setColour(ToggleButton::textColourId, m_labeldefcolor);
+        //else if (m_drawtogglebut)
+        //    m_drawtogglebut->setColour(ToggleButton::textColourId, m_labeldefcolor);
 	}
 	else
 	{
 		m_label.setColour(Label::textColourId, Colours::yellow);
 		if (m_togglebut)
 			m_togglebut->setColour(ToggleButton::textColourId, Colours::yellow);
+        //else if (m_drawtogglebut)
+        //    m_drawtogglebut->setColour(ToggleButton::textColourId, Colours::yellow);
 	}
 }
 
@@ -2179,22 +2299,26 @@ void RatioMixerEditor::paint(Graphics & g)
 FreeFilterComponent::FreeFilterComponent(PaulstretchpluginAudioProcessor* proc) 
 	: m_env(proc->getStretchSource()->getMutex()), m_cs(proc->getStretchSource()->getMutex()), m_proc(proc)
 {
+    m_viewport = std::make_unique<Viewport>();
+    m_viewport->setViewedComponent(&m_container, false);
+    addAndMakeVisible(m_viewport.get());
+
 	addAndMakeVisible(m_env);
 	const auto& pars = m_proc->getParameters();
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_shiftx],false));
-	addAndMakeVisible(m_parcomps.back().get());
+	m_container.addAndMakeVisible(m_parcomps.back().get());
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_shifty], false));
-	addAndMakeVisible(m_parcomps.back().get());
+    m_container.addAndMakeVisible(m_parcomps.back().get());
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_scaley], false));
-	addAndMakeVisible(m_parcomps.back().get());
+    m_container.addAndMakeVisible(m_parcomps.back().get());
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_tilty], false));
-	addAndMakeVisible(m_parcomps.back().get());
+    m_container.addAndMakeVisible(m_parcomps.back().get());
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_randomy_numbands], false));
-	addAndMakeVisible(m_parcomps.back().get());
+    m_container.addAndMakeVisible(m_parcomps.back().get());
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_randomy_rate], false));
-	addAndMakeVisible(m_parcomps.back().get());
+    m_container.addAndMakeVisible(m_parcomps.back().get());
 	m_parcomps.emplace_back(std::make_unique<ParameterComponent>(pars[cpi_freefilter_randomy_amount], false));
-	addAndMakeVisible(m_parcomps.back().get());
+    m_container.addAndMakeVisible(m_parcomps.back().get());
 }
 
 void FreeFilterComponent::resized()
@@ -2208,30 +2332,65 @@ void FreeFilterComponent::resized()
 #endif
 
     FlexBox mainbox;
-    mainbox.flexDirection = FlexBox::Direction::row;
-
-
-	m_env.setBounds(m_slidwidth, 0, getWidth() - m_slidwidth, getHeight());
 
     FlexBox slidbox;
     slidbox.flexDirection = FlexBox::Direction::column;
 
+    slidbox.items.add(FlexItem(3, 2).withMargin(0));
+
+
     for (int i = 0; i < m_parcomps.size(); ++i)
-	{
-		//m_parcomps[i]->setBounds(1, 1+25*i, m_slidwidth - 2, 24);
+    {
+        //m_parcomps[i]->setBounds(1, 1+25*i, m_slidwidth - 2, 24);
         slidbox.items.add(FlexItem(minslidwidth, slidh, *m_parcomps[i]).withMargin(margin).withFlex(0));
     }
 
-    mainbox.items.add(FlexItem(minslidwidth, 50, slidbox).withMargin(0).withFlex(1).withMaxWidth(m_slidwidth));
-    mainbox.items.add(FlexItem(100, 50, m_env).withMargin(0).withFlex(3));
+    int minh = 0;
+    for (auto & item : slidbox.items ) {
+        minh += item.minHeight + item.margin.top + item.margin.bottom;
+    }
+
+    int vpminh = 3*slidh + 3*margin;
+
+    if (minslidwidth < getWidth() * 0.4) {
+
+        mainbox.flexDirection = FlexBox::Direction::row;
+
+        //m_env.setBounds(m_slidwidth, 0, getWidth() - m_slidwidth, getHeight());
+
+
+
+        mainbox.items.add(FlexItem(minslidwidth, vpminh, *m_viewport).withMargin(0).withFlex(1).withMaxWidth(m_slidwidth));
+        mainbox.items.add(FlexItem(100, 50, m_env).withMargin(0).withFlex(3));
+    }
+    else {
+        mainbox.flexDirection = FlexBox::Direction::column;
+
+        //m_env.setBounds(m_slidwidth, 0, getWidth() - m_slidwidth, getHeight());
+
+        slidbox.flexDirection = FlexBox::Direction::column;
+        slidbox.flexWrap = FlexBox::Wrap::wrap;
+
+
+        mainbox.items.add(FlexItem(minslidwidth, vpminh, *m_viewport).withMargin(0).withFlex(0));
+        mainbox.items.add(FlexItem(100, 3).withMargin(0));
+        mainbox.items.add(FlexItem(100, 50, m_env).withMargin(0).withFlex(3));
+    }
+
     mainbox.performLayout(getLocalBounds());
+
+    auto contw =  m_viewport->getWidth() - (minh > m_viewport->getHeight() ? m_viewport->getScrollBarThickness() : 0);
+    auto contbounds = Rectangle<int>(0, 0, contw, minh);
+    m_container.setBounds(contbounds);
+    slidbox.performLayout(contbounds);
+
 }
 
 void FreeFilterComponent::paint(Graphics & g)
 {
 	g.setColour(Colour(0xff222222));
 
-	g.fillRect(0, 0, m_slidwidth, getHeight());
+	g.fillRect(0, 0, getWidth(), getHeight());
 }
 
 void FreeFilterComponent::updateParameterComponents()
@@ -2263,14 +2422,20 @@ ParameterGroupComponent::ParameterGroupComponent(const String & name_, int group
         m_enableButton->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
 
         m_enableButton->onClick = [this]() {
-            auto order = m_proc->getStretchSource()->getSpectrumProcessOrder();
-            for (int i=0; i < order.size(); ++i) {
-                if (order[i].m_index == groupId) {
-                    toggleBool(order[i].m_enabled);
-                    m_enableButton->setToggleState(order[i].m_enabled->get(), dontSendNotification);
-                    if (EnabledChangedCallback)
-                        EnabledChangedCallback();
-                    break;
+            if (groupId < 0) {
+                if (EnabledChangedCallback)
+                    EnabledChangedCallback();
+            }
+            else {
+                auto order = m_proc->getStretchSource()->getSpectrumProcessOrder();
+                for (int i=0; i < order.size(); ++i) {
+                    if (order[i].m_index == groupId) {
+                        toggleBool(order[i].m_enabled);
+                        m_enableButton->setToggleState(order[i].m_enabled->get(), dontSendNotification);
+                        if (EnabledChangedCallback)
+                            EnabledChangedCallback();
+                        break;
+                    }
                 }
             }
         };
@@ -2290,7 +2455,6 @@ int ParameterGroupComponent::getMinimumHeight(int forWidth)
 
     return m_minHeight;
 }
-
 
 void ParameterGroupComponent::addParameterComponent(ParameterComponent * pcomp)
 {
@@ -2381,7 +2545,7 @@ void ParameterGroupComponent::resized()
 
 void ParameterGroupComponent::paint(Graphics & g)
 {
-    if (m_enableButton && m_enableButton->getToggleState()) {
+    if (m_enableButton && groupId >= 0 && m_enableButton->getToggleState()) {
         g.setColour(m_selbgcolor);
     } else {
         g.setColour(m_bgcolor);
@@ -2394,7 +2558,7 @@ void ParameterGroupComponent::updateParameterComponents()
 {
     bool enabled = true;
 
-    if (m_enableButton) {
+    if (m_enableButton && groupId >= 0) {
         auto order = m_proc->getStretchSource()->getSpectrumProcessOrder();
         for (int i=0; i < order.size(); ++i) {
             if (order[i].m_index == groupId) {

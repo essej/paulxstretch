@@ -25,6 +25,14 @@ EnvelopeComponent::EnvelopeComponent(CriticalSection* cs) : m_cs(cs)
 	XFromNormalized = [](double x) { return x; };
 	addChildComponent(&m_bubble);
     setOpaque(true);
+
+//#if JUCE_IOS
+    m_menubutton.setButtonText("...");
+    m_menubutton.onClick = [this]() {
+        showPopupMenu();
+    };
+    addAndMakeVisible(&m_menubutton);
+//#endif
 }
 
 EnvelopeComponent::~EnvelopeComponent()
@@ -49,6 +57,16 @@ void EnvelopeComponent::show_bubble(int x, int y, const envelope_point& node)
 	temp.setColour(Colours::white);
 	m_bubble.showAt({ x,y,100,20 }, temp , 5000);
 }
+
+void EnvelopeComponent::resized()
+{
+//#if JUCE_IOS
+    int butw = 38;
+    int buth = 38;
+    m_menubutton.setBounds(getWidth() - butw - 1, 1, butw, buth);
+//#endif
+}
+
 
 void EnvelopeComponent::paint(Graphics& g)
 {
@@ -223,51 +241,57 @@ void EnvelopeComponent::mouseMove(const MouseEvent & ev)
 	}
 }
 
+void EnvelopeComponent::showPopupMenu()
+{
+    PopupMenu menu;
+    PopupMenu::Options opts;
+    menu.addItem(1, "Reset");
+    menu.addItem(2, "Invert");
+    menu.addItem(3, "Wrap envelope X transform", true, m_envelope->m_transform_wrap_x);
+    menu.addItem(4, "Envelope Y random linear interpolation", true, m_envelope->m_transform_y_random_linear_interpolation);
+#if JUCE_IOS
+    opts = opts.withStandardItemHeight(34);
+#endif
+    auto callback = [this] (int r) {
+        if (r == 1)
+        {
+            ScopedLock locker(*m_cs);
+            m_envelope->ResetEnvelope();
+        }
+        if (r == 2)
+        {
+            for (int i = 0; i < m_envelope->GetNumPoints(); ++i)
+            {
+                double val = 1.0 - m_envelope->GetNodeAtIndex(i).pt_y;
+                m_envelope->GetNodeAtIndex(i).pt_y = val;
+            }
+        }
+        if (r == 3)
+        {
+            toggleBool(m_envelope->m_transform_wrap_x);
+        }
+        if (r == 4)
+        {
+            toggleBool(m_envelope->m_transform_y_random_linear_interpolation);
+        }
+        repaint();
+    };
+
+    if (!JUCEApplicationBase::isStandaloneApp()) {
+        opts = opts.withParentComponent(this);
+    }
+
+
+    menu.showMenuAsync(opts, callback);
+}
+
 void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 {
 	if (m_envelope == nullptr)
 		return;
 	if (ev.mods.isRightButtonDown() == true)
 	{
-		PopupMenu menu;
-        PopupMenu::Options opts;
-		menu.addItem(1, "Reset");
-		menu.addItem(2, "Invert");
-		menu.addItem(3, "Wrap envelope X transform", true, m_envelope->m_transform_wrap_x);
-		menu.addItem(4, "Envelope Y random linear interpolation", true, m_envelope->m_transform_y_random_linear_interpolation);
-
-        auto callback = [this] (int r) {
-            if (r == 1)
-            {
-                ScopedLock locker(*m_cs);
-                m_envelope->ResetEnvelope();
-            }
-            if (r == 2)
-            {
-                for (int i = 0; i < m_envelope->GetNumPoints(); ++i)
-                {
-                    double val = 1.0 - m_envelope->GetNodeAtIndex(i).pt_y;
-                    m_envelope->GetNodeAtIndex(i).pt_y = val;
-                }
-            }
-            if (r == 3)
-            {
-                toggleBool(m_envelope->m_transform_wrap_x);
-            }
-            if (r == 4)
-            {
-                toggleBool(m_envelope->m_transform_y_random_linear_interpolation);
-            }
-            repaint();
-        };
-
-        if (!JUCEApplicationBase::isStandaloneApp()) {
-            opts = opts.withParentComponent(this);
-        }
-
-
-        menu.showMenuAsync(opts, callback);
-
+        showPopupMenu();
         return;
 	}
 	m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
@@ -312,7 +336,9 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		m_envelope->SortNodes();
 		m_cs->exit();
 		m_envelope->updateMinMaxValues();
-		m_mouse_down = false;
+
+        m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
+		//m_mouse_down = false;
 		OnEnvelopeEdited(m_envelope.get());
 		repaint();
 	}
@@ -413,7 +439,7 @@ int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
 		double ptycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
         float targsize = 8.0;
 #if JUCE_IOS
-        targsize = 16.0;
+        targsize = 20;
 #endif
         juce::Rectangle<double> target(ptxcor - targsize*0.5f, ptycor - targsize*0.5, targsize, targsize);
 		if (target.contains(xcor, ycor) == true)
@@ -428,7 +454,7 @@ int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool det
 {
     float targsize = 8.0;
 #if JUCE_IOS
-    targsize = 16.0;
+    targsize = 20.0;
 #endif
 
 	if (m_envelope == nullptr)

@@ -85,7 +85,7 @@ class ParameterComponent : public Component,
 	public Slider::Listener, public Button::Listener
 {
 public:
-	ParameterComponent(AudioProcessorParameter* par, bool notifyOnlyOnRelease);
+	ParameterComponent(AudioProcessorParameter* par, bool notifyOnlyOnRelease, bool useDrawableToggle=false);
 	void resized() override;
 	void sliderValueChanged(Slider* slid) override;
 	void sliderDragStarted(Slider* slid) override;
@@ -94,14 +94,18 @@ public:
 	void updateComponent();
 	void setHighLighted(bool b);
 	int m_group_id = -1;
-	Slider* getSlider() { return m_slider.get(); }
-	
+	Slider* getSlider() const { return m_slider.get(); }
+
+    DrawableButton* getDrawableButton() const { return m_drawtogglebut.get(); }
+    ToggleButton* getToggleButton() const { return m_togglebut.get(); }
+
 private:
 	Label m_label;
 	AudioProcessorParameter* m_par = nullptr;
 	std::unique_ptr<MySlider> m_slider;
 	std::unique_ptr<ComboBox> m_combobox;
 	std::unique_ptr<ToggleButton> m_togglebut;
+    std::unique_ptr<DrawableButton> m_drawtogglebut;
 	bool m_notify_only_on_release = false;
 	bool m_dragging = false;
 	Colour m_labeldefcolor;
@@ -123,6 +127,9 @@ public:
 
     void setBackgroundColor(Colour col) { m_bgcolor = col; }
     Colour getBackgroundColor() const { return m_bgcolor; }
+
+    void setToggleEnabled(bool flag){ if (m_enableButton)  m_enableButton->setToggleState(flag, dontSendNotification); }
+    bool getToggleEnabled() const { if (m_enableButton) return m_enableButton->getToggleState(); return false; }
 
     String name;
     int groupId = -1;
@@ -305,7 +312,9 @@ public:
 private:
 	EnvelopeComponent m_env;
 	uptrvec<ParameterComponent> m_parcomps;
-	CriticalSection* m_cs = nullptr;
+    std::unique_ptr<Viewport> m_viewport;
+    Component m_container;
+    CriticalSection* m_cs = nullptr;
 	PaulstretchpluginAudioProcessor* m_proc = nullptr;
 	int m_slidwidth = 350;
 };
@@ -563,7 +572,7 @@ private:
 	TextButton m_import_button;
 	TextButton m_settings_button;
 	TextButton m_render_button;
-	TextButton m_rewind_button;
+    std::unique_ptr<DrawableButton> m_rewind_button;
 	Label m_info_label;
 	SpectralChainEditor m_spec_order_ed;
     double m_lastspec_select_time = 0.0;
@@ -586,7 +595,33 @@ private:
 	std::unique_ptr<MyFileBrowserComponent> m_filechooser;
     std::unique_ptr<FileChooser> fileChooser;
 	WildcardFileFilter m_filefilter;
-	
+
+    class CustomTooltipWindow : public TooltipWindow
+    {
+    public:
+        CustomTooltipWindow(PaulstretchpluginAudioProcessorEditor * parent_, Component * viewparent) : TooltipWindow(viewparent), parent(parent_) {}
+        virtual ~CustomTooltipWindow() {
+            if (parent) {
+                // reset our smart pointer without a delete! someone else is deleting it
+                parent->tooltipWindow.release();
+            }
+        }
+
+        /*
+        String getTipFor (Component& c) override
+        {
+            if (parent->popTip && parent->popTip->isShowing()) {
+                return {};
+            }
+            return TooltipWindow::getTipFor(c);
+        }
+         */
+
+        PaulstretchpluginAudioProcessorEditor * parent;
+    };
+
+    std::unique_ptr<CustomTooltipWindow> tooltipWindow;
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

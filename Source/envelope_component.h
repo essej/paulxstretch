@@ -32,6 +32,7 @@ public:
 	EnvelopeComponent(CriticalSection* cs);
 	~EnvelopeComponent();
 	void paint(Graphics& g) override;
+    void resized() override;
 	void set_envelope(std::shared_ptr<breakpoint_envelope> env, String name = String());
 	std::shared_ptr<breakpoint_envelope> get_envelope() { return m_envelope; }
 	String get_name() { return m_name; }
@@ -53,6 +54,8 @@ public:
 	void timerCallback(int id) override;
 	//String getTooltip() override;
 private:
+    void showPopupMenu();
+
 	std::shared_ptr<breakpoint_envelope> m_envelope;
 	String m_name;
 	Colour m_env_color{ Colours::yellow };
@@ -68,6 +71,7 @@ private:
 	int m_node_that_was_dragged = -1;
 	String m_last_tip;
 	BubbleMessageComponent m_bubble;
+    TextButton m_menubutton;
 	void show_bubble(int x, int y, const envelope_point &node);
 	CriticalSection* m_cs = nullptr;
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EnvelopeComponent)

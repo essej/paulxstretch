@@ -227,7 +227,7 @@ PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
 	if (m_thumb)
 		m_thumb->removeAllChangeListeners();
 	m_thumb = nullptr;
-	m_bufferingthread.stopThread(1000);
+	m_bufferingthread.stopThread(3000);
 }
 
 void PaulstretchpluginAudioProcessor::resetParameters()
@@ -489,8 +489,10 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 			m_bufferingthread, false, bufamt, numoutchans, false);
 		m_recreate_buffering_source = false;
 	}
-	if (m_bufferingthread.isThreadRunning() == false)
-		m_bufferingthread.startThread();
+    if (m_bufferingthread.isThreadRunning() == false) {
+        m_bufferingthread.setPriority(8);
+        m_bufferingthread.startThread();
+    }
 	m_stretch_source->setNumOutChannels(numoutchans);
 	m_stretch_source->setFFTSize(m_fft_size_to_use);
 	m_stretch_source->setProcessParameters(&m_ppar);
