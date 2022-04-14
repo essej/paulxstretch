@@ -4,9 +4,21 @@ Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 
 Copyright (C) 2017-2018 Xenakios
 
-Released under GNU General Public License v.3 license.
+Copyright (C) 2022 Jesse Chappell
+
+Released under GNU General Public License v.3 license with App Store license
+exception.
+
 
 History :
+
+04-14-2022 1.5.0
+  - UI layout redesign to adapt to different window sizes and changed look
+    and feel.
+  - Added iOS support for standalone and AUv3
+  - Other improvements
+  - JUCE update integration to 6.1
+
 02-26-2019 1.2.4
 	-Changed Import file button to show/hide an overlaid file browser for audio files. (This seems to be the only 
 	 technically correct way to browse for the files.)
