@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<dict>
+		<key>identifier</key>
+		<string>Layout.A676EFDD-7616-416B-9DCB-C36048255539</string>
+		<key>options</key>
+		<dict>
+			<key>fontSize</key>
+			<integer>12</integer>
+			<key>iconSize</key>
+			<integer>96</integer>
+			<key>layoutItems</key>
+			<array>
+				<dict>
+					<key>identifier</key>
+					<string>LayoutItem.6101CCD3-D709-4C64-95FF-0349E9B8C4C4</string>
+					<key>name</key>
+					<string>PaulXStretch Installer.pkg</string>
+					<key>position</key>
+					<string>{192, 336}</string>
+					<key>type</key>
+					<string>file</string>
+				</dict>
+				<dict>
+					<key>identifier</key>
+					<string>LayoutItem.CDF80AA6-D791-4F29-BC9F-1000E0143462</string>
+					<key>position</key>
+					<string>{192.642578125, 224.779296875}</string>
+					<key>rtf</key>
+					<string>{\rtf1\ansi\ansicpg1252\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red25\green25\blue25;}
+{\*\expandedcolortbl;;\cspthree\c12854\c12854\c12854;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qc\partightenfactor0
+
+\f0\fs36 \cf2 Double-click the installer package to install the PaulXStretch application and plugins\
+}</string>
+					<key>size</key>
+					<string>{269.32421875, 89.43359375}</string>
+					<key>type</key>
+					<string>text</string>
+				</dict>
+				<dict>
+					<key>identifier</key>
+					<string>LayoutItem.6F30FC62-DE48-4759-9FCF-533B37C75473</string>
+					<key>position</key>
+					<string>{230.08999633789062, 121.93756103515625}</string>
+					<key>rtf</key>
+					<string>{\rtf1\ansi\ansicpg1252\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f0\b\fs66 \cf0 PaulXStretch}</string>
+					<key>size</key>
+					<string>{260.17999267578125, 73.8751220703125}</string>
+					<key>type</key>
+					<string>text</string>
+				</dict>
+				<dict>
+					<key>identifier</key>
+					<string>LayoutItem.4A5E20AB-444C-422E-A839-7CBBAE224615</string>
+					<key>position</key>
+					<string>{428.142578125, 123.650390625}</string>
+					<key>rtf</key>
+					<string>{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;}
+{\colortbl;\red255\green255\blue255;\red184\green185\blue184;}
+{\*\expandedcolortbl;;\cspthree\c77265\c77265\c77265;}
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\qr\partightenfactor0
+
+\f0\b\fs32 \cf2 $\{APP_VERSION\}}</string>
+					<key>size</key>
+					<string>{170.16015625, 27.36328125}</string>
+					<key>type</key>
+					<string>text</string>
+				</dict>
+			</array>
+			<key>windowInsets</key>
+			<string>{0, 0}</string>
+			<key>windowOriginTopLeft</key>
+			<string>{100, 100}</string>
+		</dict>
+	</dict>
+	<key>documentCreator</key>
+	<string>DropDMG 3.6.3</string>
+	<key>documentType</key>
+	<string>com.c-command.DropDMG.Layout</string>
+	<key>formatVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>
