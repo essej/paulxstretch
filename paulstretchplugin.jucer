@@ -52,6 +52,8 @@
             file="Source/CrossPlatformUtils.h"/>
       <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
             file="Source/CrossPlatformUtilsMac.mm"/>
+      <FILE id="YBOuQE" name="CrossPlatformUtilsWindows.cpp" compile="1"
+            resource="0" file="Source/CrossPlatformUtilsWindows.cpp"/>
       <FILE id="TCVLTq" name="CustomLookAndFeel.cpp" compile="1" resource="0"
             file="Source/CustomLookAndFeel.cpp"/>
       <FILE id="cH0r3U" name="CustomLookAndFeel.h" compile="0" resource="0"
@@ -125,13 +127,13 @@
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
                        linkTimeOptimisation="0" isDebug="1" optimisation="1" targetName="PaulXStretch"
-                       headerPath="Source/PS_Source&#10;Source/WDL&#10;C:\ProgrammingProjects\gitrepos\JUCE\modules\vst2.x&#10;"
-                       vstBinaryLocation="C:\Program Files\VST_Plugins_x64" defines="WDL_HEAPBUF_TRACE"/>
+                       headerPath="Source/PS_Source&#10;Source/WDL&#10;&#10;" vstBinaryLocation="C:\Program Files\VST_Plugins_x64"
+                       defines="WDL_HEAPBUF_TRACE" useRuntimeLibDLL="0"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="x64"
                        debugInformationFormat="ProgramDatabase" enablePluginBinaryCopyStep="1"
                        linkTimeOptimisation="0" isDebug="0" optimisation="3" targetName="PaulXStretch"
-                       headerPath="Source/PS_Source&#10;Source/WDL&#10;C:\ProgrammingProjects\gitrepos\JUCE\modules\vst2.x&#10;"
-                       vstBinaryLocation="C:\VSTPlugins_64bit" useRuntimeLibDLL="0"/>
+                       headerPath="Source/PS_Source&#10;Source/WDL&#10;&#10;" vstBinaryLocation="C:\VSTPlugins_64bit"
+                       useRuntimeLibDLL="0"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="../JUCE/modules"/>
@@ -175,13 +177,16 @@
         <MODULEPATH id="juce_dsp" path="../gitrepos/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="C:\ProgrammingProjects\fftw-3.3.6-pl2\fftw-3.3-libs\x64\Static-Release\libfftwf-3.3.lib"
-            extraDefs="JUCE_MODAL_LOOPS_PERMITTED=1" smallIcon="Yny1oQ" bigIcon="hG1CYd">
+    <VS2019 targetFolder="Builds/VisualStudio2019" externalLibraries="fftw3f.lib"
+            extraDefs="JUCE_MODAL_LOOPS_PERMITTED=1&#10;_USE_MATH_DEFINES&#10;WINVER=0x0601&#10;_WIN32_WINNT=0x0601&#10;NOMINMAX&#10;"
+            smallIcon="Yny1oQ" bigIcon="hG1CYd">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="Source/PS_Source&#10;Source/WDL&#10;C:\ProgrammingProjects\gitrepos\JUCE\modules\vst2.x&#10;"
-                       enablePluginBinaryCopyStep="1" vstBinaryLocation="C:\Program Files\VST_Plugins_x64"/>
-        <CONFIGURATION isDebug="0" name="Release" linkTimeOptimisation="0" headerPath="Source/PS_Source&#10;Source/WDL&#10;C:\ProgrammingProjects\gitrepos\JUCE\modules\vst2.x&#10;"
-                       enablePluginBinaryCopyStep="1" vstBinaryLocation="C:\Program Files\VST_Plugins_x64"/>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="Source/PS_Source&#10;Source/WDL&#10;..\..\..\asiosdk\common"
+                       enablePluginBinaryCopyStep="1" vstBinaryLocation="C:\Program Files\VST_Plugins_x64"
+                       useRuntimeLibDLL="0" libraryPath="..\..\..\fftw-3.3.10\build\Release"/>
+        <CONFIGURATION isDebug="0" name="Release" linkTimeOptimisation="0" headerPath="Source/PS_Source&#10;Source/WDL&#10;..\..\..\asiosdk\common"
+                       enablePluginBinaryCopyStep="1" vstBinaryLocation="C:\Program Files\VST_Plugins_x64"
+                       useRuntimeLibDLL="0" libraryPath="..\..\..\fftw-3.3.10\build\Release"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_extra"/>

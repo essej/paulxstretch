@@ -17,6 +17,8 @@
 */
 #include "globals.h"
 #ifdef WINDOWS
+#define NOMINMAX
+#define NOGDI
 #include <windows.h>
 #include <winbase.h>
 #else

@@ -30,6 +30,9 @@ typedef unsigned long long WDL_UINT64;
 
 
 #ifdef _WIN32
+// hacks so it builds with juce
+#define NOGDI
+#define NOMINMAX 
 #include <windows.h>
 #else
 #include <stdint.h>

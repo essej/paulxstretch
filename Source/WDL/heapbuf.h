@@ -36,6 +36,8 @@
 #ifndef WDL_HEAPBUF_IMPL_ONLY
 
 #ifdef WDL_HEAPBUF_TRACE
+#define NOGDI
+#define NOMINMAX
 #include <windows.h>
 #define WDL_HEAPBUF_TRACEPARM(x) ,(x)
 #else

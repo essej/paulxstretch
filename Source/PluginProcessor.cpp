@@ -20,7 +20,7 @@ www.gnu.org/licenses
 #include <set>
 #include <thread>
 
-#import "CrossPlatformUtils.h"
+#include "CrossPlatformUtils.h"
 
 #ifdef WIN32
 #undef min

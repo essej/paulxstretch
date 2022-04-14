@@ -139,7 +139,7 @@ public:
     std::function<void(void)> EnabledChangedCallback;
 
 private:
-    int doLayout(Rectangle<int> bounds); // returns min height
+    int doLayout(juce::Rectangle<int> bounds); // returns min height
 
     //uptrvec<ParameterComponent> m_parcomps;
     std::vector<ParameterComponent*> m_parcomps;
