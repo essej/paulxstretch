@@ -56,7 +56,7 @@ private:
 	String ID_lastrenderpath{ "lastrenderpath" };
     String ID_lastrendershare{ "lastrendershare" };
     int prefHeight = 400;
-    int prefWidth = 420;
+    int prefWidth = 480;
     std::unique_ptr<FileChooser> m_filechooser;
     bool pendingRender = false;
 	//==============================================================================

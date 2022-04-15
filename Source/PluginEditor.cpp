@@ -41,6 +41,23 @@ enum ParameterGroupIds
     CompressGroup = 8
 };
 
+enum SettingsMenuIds
+{
+    SettingsPlayHostTransId = 1,
+    SettingsCaptureHostTransId = 2,
+    SettingsAboutId = 3,
+    SettingsResetParametersId = 4,
+    SettingsLoadFileWithStateId = 5,
+    SettingsDumpPresetClipboardId = 6,
+    SettingsShowTechInfoId = 7,
+    SettingsMutePassthruCaptureId = 8,
+    SettingsSaveCaptureDiskId = 9,
+    SettingsMuteProcessedCaptureId = 10,
+    SettingsAudioSettingsId = 11,
+    SettingsSliderSnapId = 12
+};
+
+
 //==============================================================================
 PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(PaulstretchpluginAudioProcessor& p)
 	: AudioProcessorEditor(&p),
@@ -510,7 +527,7 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 {
 	auto contentraw =  new RenderSettingsComponent(&processor);
 
-    int prefw = jmin(contentraw->getPreferredWidth(), getWidth() - 20);
+    int prefw = jmin(contentraw->getPreferredWidth(), getWidth() - 40);
     int prefh = jmin(contentraw->getPreferredHeight(), getHeight() - 10);
 	contentraw->setSize(prefw, prefh);
 	std::unique_ptr<Component> content(contentraw);
@@ -526,49 +543,67 @@ void PaulstretchpluginAudioProcessorEditor::showAudioSetup()
 
 void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, int r)
 {
+    enum SettingsMenuIds
+    {
+        SettingsPlayHostTransId = 1,
+        SettingsCaptureHostTransId = 2,
+        SettingsAboutId = 3,
+        SettingsResetParametersId = 4,
+        SettingsLoadFileWithStateId = 5,
+        SettingsDumpPresetClipboardId = 6,
+        SettingsShowTechInfoId = 7,
+        SettingsMutePassthruCaptureId = 8,
+        SettingsSaveCaptureDiskId = 9,
+        SettingsMuteProcessedCaptureId = 10,
+    };
+
 	if (r >= 200 && r < 210)
 	{
 		int caplen = m_capturelens[r - 200];
 		*processor.getFloatParameter(cpi_max_capture_len) = (float)caplen;
 	}
-	else if (r == 1)
+	else if (r == SettingsPlayHostTransId)
 	{
 		toggleBool(processor.m_play_when_host_plays);
 	}
-	else if (r == 2)
+	else if (r == SettingsCaptureHostTransId)
 	{
 		toggleBool(processor.m_capture_when_host_plays);
 	}
-	else if (r == 8)
+	else if (r == SettingsMutePassthruCaptureId)
 	{
 		toggleBool(processor.m_mute_while_capturing);
 	}
-    else if (r == 10)
+    else if (r == SettingsMuteProcessedCaptureId)
     {
         toggleBool(processor.m_mute_processed_while_capturing);
     }
-	else if (r == 4)
+	else if (r == SettingsResetParametersId)
 	{
 		processor.resetParameters();
 	}
-	else if (r == 5)
+	else if (r == SettingsLoadFileWithStateId)
 	{
 		toggleBool(processor.m_load_file_with_state);
 	}
-	else if (r == 9)
+	else if (r == SettingsSaveCaptureDiskId)
 	{
 		toggleBool(processor.m_save_captured_audio);
 	}
-	else if (r == 3)
+    else if (r == SettingsSliderSnapId)
+    {
+        toggleBool(processor.m_use_jumpsliders);
+    }
+	else if (r == SettingsAboutId)
 	{
 		showAbout();
 	}
-    else if (r == 11)
+    else if (r == SettingsAudioSettingsId)
     {
         showAudioSetup();
     }
 
-	else if (r == 6)
+	else if (r == SettingsDumpPresetClipboardId)
 	{
 		ValueTree tree = processor.getStateTree(true, true);
 		MemoryBlock destData;
@@ -577,18 +612,31 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
 		String txt = Base64::toBase64(destData.getData(), destData.getSize());
 		SystemClipboard::copyTextToClipboard(txt);
 	}
-	else if (r == 7)
+	else if (r == SettingsShowTechInfoId)
 	{
 		toggleBool(processor.m_show_technical_info);
 		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
 	}
 }
 
+void PaulstretchpluginAudioProcessorEditor::updateAllSliders()
+{
+    for (auto& e : m_parcomps) {
+        if (!e) continue;
+        if (auto * slider = e->getSlider()) {
+            slider->setSliderSnapsToMousePosition(processor.m_use_jumpsliders);
+        }
+    }
+
+    m_free_filter_component.setSlidersSnap(processor.m_use_jumpsliders);
+    m_ratiomixeditor.setSlidersSnap(processor.m_use_jumpsliders);;
+}
 
 
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
-	g.fillAll(Colour(0xff404040));
+    // g.fillAll(Colour(0xff404040));
+    g.fillAll(Colour(0xff303030));
 }
 
 void PaulstretchpluginAudioProcessorEditor::resized()
@@ -1015,6 +1063,8 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
             m_stretchgroup->replaceParameterComponent(m_parcomps[cpi_dryplayrate].get(), m_parcomps[cpi_stretchamount].get());
         }
 
+        updateAllSliders();
+
 		//m_parcomps[cpi_dryplayrate]->setVisible(*processor.getBoolParameter(cpi_bypass_stretch));
         //m_parcomps[cpi_stretchamount]->setVisible(!*processor.getBoolParameter(cpi_bypass_stretch));
 
@@ -1069,19 +1119,21 @@ bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 
 void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 {
+
+
     PopupMenu m_settings_menu;
     if (JUCEApplicationBase::isStandaloneApp()) {
         m_settings_menu.addItem(11, "Audio Setup...", true, false);
     }
-    m_settings_menu.addItem(4, "Reset parameters", true, false);
+    m_settings_menu.addItem(SettingsResetParametersId, "Reset parameters", true, false);
     m_settings_menu.addSeparator();
-	m_settings_menu.addItem(5, "Load file with plugin state", true, processor.m_load_file_with_state);
-	m_settings_menu.addItem(1, "Play when host transport running", true, processor.m_play_when_host_plays);
-	m_settings_menu.addItem(2, "Capture when host transport running", true, processor.m_capture_when_host_plays);
+	m_settings_menu.addItem(SettingsLoadFileWithStateId, "Load file with plugin state", true, processor.m_load_file_with_state);
+	m_settings_menu.addItem(SettingsPlayHostTransId, "Play when host transport running", true, processor.m_play_when_host_plays);
+	m_settings_menu.addItem(SettingsCaptureHostTransId, "Capture when host transport running", true, processor.m_capture_when_host_plays);
     m_settings_menu.addSeparator();
-	m_settings_menu.addItem(8, "Mute passthrough while capturing", true, processor.m_mute_while_capturing);
-    m_settings_menu.addItem(10, "Mute processed audio output while capturing", true, processor.m_mute_processed_while_capturing);
-	m_settings_menu.addItem(9, "Save captured audio to disk", true, processor.m_save_captured_audio);
+	m_settings_menu.addItem(SettingsMutePassthruCaptureId, "Mute passthrough while capturing", true, processor.m_mute_while_capturing);
+    m_settings_menu.addItem(SettingsMuteProcessedCaptureId, "Mute processed audio output while capturing", true, processor.m_mute_processed_while_capturing);
+	m_settings_menu.addItem(SettingsSaveCaptureDiskId, "Save captured audio to disk", true, processor.m_save_captured_audio);
 	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
 	PopupMenu capturelenmenu;
 	
@@ -1090,11 +1142,12 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	m_settings_menu.addSubMenu("Capture buffer length", capturelenmenu);
 	
     m_settings_menu.addSeparator();
-	m_settings_menu.addItem(3, "About...", true, false);
+	m_settings_menu.addItem(SettingsAboutId, "About...", true, false);
+    m_settings_menu.addItem(SettingsSliderSnapId, "Sliders jump to position ", true, processor.m_use_jumpsliders);
 #ifdef JUCE_DEBUG
-	m_settings_menu.addItem(6, "Dump preset to clipboard", true, false);
+	m_settings_menu.addItem(SettingsDumpPresetClipboardId, "Dump preset to clipboard", true, false);
 #endif
-	m_settings_menu.addItem(7, "Show technical info", true, processor.m_show_technical_info);
+	m_settings_menu.addItem(SettingsShowTechInfoId, "Show technical info", true, processor.m_show_technical_info);
 
     auto options = PopupMenu::Options().withTargetComponent(&m_settings_button);
 #if JUCE_IOS
@@ -1967,6 +2020,8 @@ void ParameterComponent::resized()
         }
 		m_label.setBounds(0, 0, labw, h);
 		m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), h);
+
+        m_slider->setMouseDragSensitivity(jmax(128, m_slider->getWidth() - m_slider->getTextBoxWidth()));
 	}
     else if (m_togglebut) {
 		m_togglebut->setBounds(1, 0, getWidth() - 1, h);
@@ -2127,7 +2182,7 @@ void PerfMeterComponent::mouseDown(const MouseEvent & ev)
 {
 	PopupMenu bufferingmenu;
 	int curbufamount = m_proc->getPreBufferAmount();
-	bufferingmenu.addItem(100, "None", true, curbufamount == -1);
+	bufferingmenu.addItem(100, "None (risky)", true, curbufamount == -1);
 	bufferingmenu.addItem(101, "Small", true, curbufamount == 1);
 	bufferingmenu.addItem(102, "Medium", true, curbufamount == 2);
 	bufferingmenu.addItem(103, "Large", true, curbufamount == 3);
@@ -2349,6 +2404,8 @@ void RatioMixerEditor::resized()
     for (int i = 0; i < nsliders; ++i)
     {
         m_labels[i]->setBounds(m_ratio_level_sliders[i]->getX(), m_ratio_level_sliders[i]->getY() + 1, m_ratio_level_sliders[i]->getWidth() - 2 , 16);
+        m_ratio_level_sliders[i]->setMouseDragSensitivity(jmax(128, m_ratio_level_sliders[i]->getHeight()));
+        m_ratio_sliders[i]->setMouseDragSensitivity(jmax(128, m_ratio_sliders[i]->getWidth()));
     }
 }
 
@@ -2366,6 +2423,15 @@ void RatioMixerEditor::timerCallback()
 			m_ratio_level_sliders[i]->setValue(v, dontSendNotification);
 	}
 }
+
+void RatioMixerEditor::setSlidersSnap(bool flag)
+{
+    for (int i = 0; i < m_ratio_level_sliders.size(); ++i) {
+        m_ratio_level_sliders[i]->setSliderSnapsToMousePosition(flag);
+        m_ratio_sliders[i]->setSliderSnapsToMousePosition(flag);
+    }
+}
+
 
 void RatioMixerEditor::paint(Graphics & g)
 {
@@ -2467,6 +2533,12 @@ void FreeFilterComponent::resized()
     m_container.setBounds(contbounds);
     slidbox.performLayout(contbounds);
 
+    for (int i = 0; i < m_parcomps.size(); ++i)
+    {
+        if (auto * slid = m_parcomps[i]->getSlider()) {
+            slid->setMouseDragSensitivity(jmax(128, slid->getWidth() - slid->getTextBoxWidth()));
+        }
+    }
 }
 
 void FreeFilterComponent::paint(Graphics & g)
@@ -2481,6 +2553,15 @@ void FreeFilterComponent::updateParameterComponents()
 	for (auto& e : m_parcomps)
 		e->updateComponent();
 }
+
+void FreeFilterComponent::setSlidersSnap(bool flag)
+{
+    for (auto& e : m_parcomps) {
+        if (auto * slid = e->getSlider())
+            slid->setSliderSnapsToMousePosition(flag);
+    }
+}
+
 
 ParameterGroupComponent::ParameterGroupComponent(const String & name_, int groupid, PaulstretchpluginAudioProcessor* proc, bool showtoggle)
 :name(name_), groupId(groupid), m_proc(proc), m_bgcolor(0xff1a1a1a), m_selbgcolor(0xff141f28)

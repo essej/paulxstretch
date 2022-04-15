@@ -282,9 +282,26 @@ void StretchAudioSource::setSpectralOrderPreset(int id)
 void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & bufferToFill)
 {
 	ScopedLock locker(m_cs);
-	if (m_preview_dry == true && m_inputfile!=nullptr && m_inputfile->info.nsamples>0)
+	if ( m_preview_dry == true && m_inputfile!=nullptr && m_inputfile->info.nsamples>0)
 	{
-		playDrySound(bufferToFill);
+        if (m_pause_state != 2)
+            playDrySound(bufferToFill);
+
+        if (m_pause_state == 1)
+        {
+            bufferToFill.buffer->applyGainRamp(bufferToFill.startSample, bufferToFill.numSamples, 1.0f, 0.0f);
+            m_pause_state = 2;
+        }
+        else if (m_pause_state == 2)
+        {
+            bufferToFill.buffer->clear(bufferToFill.startSample,bufferToFill.numSamples);
+        }
+        else if (m_pause_state == 3)
+        {
+            bufferToFill.buffer->applyGainRamp(bufferToFill.startSample, bufferToFill.numSamples, 0.0f, 1.0f);
+            m_pause_state = 0;
+        }
+
 		return;
 	}
 	double maingain = Decibels::decibelsToGain(m_main_volume);

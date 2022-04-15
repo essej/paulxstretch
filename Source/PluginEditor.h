@@ -297,6 +297,7 @@ public:
 	std::function<double(int which, int index)> GetParameterValue;
 	void timerCallback() override;
 	void paint(Graphics& g) override;
+    void setSlidersSnap(bool flag);
 private:
 	uptrvec<Slider> m_ratio_sliders;
 	uptrvec<Slider> m_ratio_level_sliders;
@@ -311,6 +312,7 @@ public:
 	EnvelopeComponent* getEnvelopeComponent() { return &m_env; }
 	void paint(Graphics &g) override;
 	void updateParameterComponents();
+    void setSlidersSnap(bool flag);
 private:
 	EnvelopeComponent m_env;
 	uptrvec<ParameterComponent> m_parcomps;
@@ -556,6 +558,8 @@ private:
 
     bool isSpectrumProcGroupEnabled(int groupid);
     void setSpectrumProcGroupEnabled(int groupid, bool enabled);
+
+    void updateAllSliders();
 
     CustomLookAndFeel m_lookandfeel;
 

@@ -91,7 +91,7 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	m_free_filter_envelope->AddNode({ 0.0,0.75 });
 	m_free_filter_envelope->AddNode({ 1.0,0.75 });
 	m_free_filter_envelope->set_reset_nodes(m_free_filter_envelope->get_all_nodes());
-    m_recbuffer.setSize(2, 44100);
+    m_recbuffer.setSize(2, 48000);
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();
@@ -316,6 +316,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
 
     storeToTreeProperties(paramtree, nullptr, "pluginwidth", mPluginWindowWidth);
     storeToTreeProperties(paramtree, nullptr, "pluginheight", mPluginWindowHeight);
+    storeToTreeProperties(paramtree, nullptr, "jumpsliders", m_use_jumpsliders);
 
     return paramtree;
 }
@@ -335,6 +336,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			getFromTreeProperties(tree, "tabaindex", m_cur_tab_index);
             getFromTreeProperties(tree, "pluginwidth", mPluginWindowWidth);
             getFromTreeProperties(tree, "pluginheight", mPluginWindowHeight);
+            getFromTreeProperties(tree, "jumpsliders", m_use_jumpsliders);
 
 			if (tree.hasProperty("numspectralstagesb"))
 			{
@@ -561,17 +563,25 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 {
 	auto task = [this]()
 	{
-		int inchans = *getIntParameter(cpi_num_inchans);
+		int inchans = jmin(getMainBusNumInputChannels(), getIntParameter(cpi_num_inchans)->get());
 		if (inchans < 1)
 			return;
 		Uuid uid;
 		WavAudioFormat wavformat;
-		String propsdir = m_propsfile->m_props_file->getFile().getParentDirectory().getFullPathName();
-		String outfn;
-		if (m_capture_location.isEmpty())
-			outfn = propsdir + "/paulxstretchaudiocaptures/" + uid.toString() + ".wav";
-		else
-			outfn = m_capture_location + "/pxscapture_" + uid.toString() + ".wav";
+        String outfn;
+        if (m_capture_location.isEmpty()) {
+            File capdir;
+#if JUCE_IOS
+            capdir = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
+            outfn = capdir.getChildFile("Captures").getChildFile( uid.toString() + ".wav").getFullPathName();
+#else
+            capdir = m_propsfile->m_props_file->getFile().getParentDirectory();
+            outfn = capdir.getChildFile("paulxstretchaudiocaptures").getChildFile( uid.toString() + ".wav").getFullPathName();
+#endif
+        }
+        else {
+			outfn = File(m_capture_location).getChildFile("pxscapture_" + uid.toString() + ".wav").getFullPathName();
+        }
 		File outfile(outfn);
 		outfile.create();
 		if (outfile.existsAsFile())
@@ -608,6 +618,8 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 {
 	File outputfiletouse = renderpars.outputfile.getNonexistentSibling();
 	ValueTree state{ getStateTree(false, false) };
+    // override this to always load file with state if possible
+    state.setProperty("loadfilewithstate", true, nullptr);
 	auto processor = std::make_shared<PaulstretchpluginAudioProcessor>(true);
 	processor->setNonRealtime(true);
 	processor->setStateFromTree(state);
@@ -615,8 +627,9 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
     double outsr{ renderpars.outsr };
     if (outsr < 10.0) {
         outsr = processor->getStretchSource()->getInfileSamplerate();
-        if (outsr < 10.0)
-            outsr = 44100;
+        if (outsr < 10.0) {
+            outsr = getSampleRateChecked();
+        }
     }
 
     Logger::writeToLog(outputfiletouse.getFullPathName() + " " + String(outsr) + " " + String(renderpars.outputformat));
@@ -633,9 +646,18 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 
     *(processor->getBoolParameter(cpi_pause_enabled)) = false;
 
+    if (m_using_memory_buffer) {
+        // copy it from the original
+        processor->m_recbuffer.makeCopyOf(m_recbuffer);
+        processor->m_using_memory_buffer = true;
+    }
+
 	sc->setMainVolume(*processor->getFloatParameter(cpi_main_volume));
 	sc->setRate(*processor->getFloatParameter(cpi_stretchamount));
+    sc->setPreviewDry(*processor->getBoolParameter(cpi_bypass_stretch));
 	sc->setDryPlayrate(*processor->getFloatParameter(cpi_dryplayrate));
+    sc->setPaused(false);
+
 	processor->setFFTSize(*processor->getFloatParameter(cpi_fftsize), true);
 	processor->updateStretchParametersFromPluginParameters(processor->m_ppar);
 	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
@@ -921,8 +943,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	
 	
 	
-	m_stretch_source->setFreezing(getParameter(cpi_freeze));
-	m_stretch_source->setPaused(getParameter(cpi_pause_enabled));
+	m_stretch_source->setFreezing(*getBoolParameter(cpi_freeze));
+	m_stretch_source->setPaused(*getBoolParameter(cpi_pause_enabled));
 	if (m_midinote_control == true)
 	{
 		MidiBuffer::Iterator midi_it(midiMessages);
@@ -1041,7 +1063,7 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	{
 		m_using_memory_buffer = true;
 		m_current_file = URL();
-		int numchans = *m_inchansparam;
+		int numchans = jmin(getMainBusNumInputChannels(), m_inchansparam->get());
 		m_recbuffer.setSize(numchans, m_max_reclen*getSampleRateChecked()+4096,false,false,true);
 		m_recbuffer.clear();
 		m_rec_pos = 0;

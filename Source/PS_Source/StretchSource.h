@@ -142,7 +142,7 @@ private:
 	
 	bool m_freezing = false;
 	
-	int m_pause_state = 0;
+	int m_pause_state = 2; // start paused
 	Range<double> m_playrange{ 0.0,1.0 };
 	int64_t m_rand_count = 0;
 	

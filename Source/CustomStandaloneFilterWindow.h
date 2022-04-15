@@ -82,7 +82,8 @@ public:
 
         : settings (settingsToUse, takeOwnershipOfSettings),
           channelConfiguration (channels),
-          shouldMuteInput (! isInterAppAudioConnected()),
+    shouldMuteInput(false),
+    //shouldMuteInput (! isInterAppAudioConnected()),
           autoOpenMidiDevices (shouldAutoOpenMidiDevices)
     {
         createPlugin();
@@ -142,7 +143,7 @@ public:
         int outChannels = (channelConfiguration.size() > 0 ? channelConfiguration[0].numOuts
                                                            : processor->getMainBusNumOutputChannels());
 
-        processorHasPotentialFeedbackLoop = (inChannels > 0 && outChannels > 0);
+        // processorHasPotentialFeedbackLoop = (inChannels > 0 && outChannels > 0);
     }
 
     virtual void deletePlugin()
@@ -441,7 +442,7 @@ public:
     Array<PluginInOuts> channelConfiguration;
 
     // avoid feedback loop by default
-    bool processorHasPotentialFeedbackLoop = true;
+    bool processorHasPotentialFeedbackLoop = false; // or not
     Value shouldMuteInput;
     AudioBuffer<float> emptyBuffer;
     bool autoOpenMidiDevices = false;
@@ -547,12 +548,14 @@ private:
 
         player.audioDeviceAboutToStart (device);
         player.setMidiOutput (deviceManager.getDefaultMidiOutput());
-        
+
+#if 0
 #if JUCE_IOS
         if (auto iosdevice = dynamic_cast<iOSAudioIODevice*> (deviceManager.getCurrentAudioDevice())) {
             processorHasPotentialFeedbackLoop = !iosdevice->isHeadphonesConnected() && device->getActiveInputChannels() > 0;
             shouldMuteInput.setValue(processorHasPotentialFeedbackLoop);
         }
+#endif
 #endif
     }
 

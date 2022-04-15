@@ -25,6 +25,7 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
     m_proc = mc;
 	addAndMakeVisible(&m_labelMaxOutDuration);
 	m_labelMaxOutDuration.setText("Max output duration (hours) :", dontSendNotification);
+    m_labelMaxOutDuration.setJustificationType(Justification::centredRight);
 	addAndMakeVisible(&m_editorMaxOutDuration);
 	m_editorMaxOutDuration.setText("1.0", dontSendNotification);
 	addAndMakeVisible(&m_toggleFloatClip);
@@ -32,6 +33,7 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 	m_toggleFloatClip.setToggleState(false, dontSendNotification);
 	addAndMakeVisible(&labelSamplerate);
 	labelSamplerate.setText("Sample rate :", dontSendNotification);
+    labelSamplerate.setJustificationType(Justification::centredRight);
 	addAndMakeVisible(&comboBoxSamplerate);
     comboBoxSamplerate.addItem("Source sample rate", 1);
 	comboBoxSamplerate.addItem("44100", 44100);
@@ -43,6 +45,7 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 
 	addAndMakeVisible(&labelBitDepth);
 	labelBitDepth.setText("Format :", dontSendNotification);
+    labelBitDepth.setJustificationType(Justification::centredRight);
 	addAndMakeVisible(&comboBoxBitDepth);
     comboBoxBitDepth.addItem (TRANS("16 bit PCM"), 1);
     comboBoxBitDepth.addItem (TRANS("24 bit PCM"), 2);
@@ -64,7 +67,8 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 
 	addAndMakeVisible(&label4);
 	label4.setText("Output file :\n", dontSendNotification);
-    
+    label4.setJustificationType(Justification::centredRight);
+
 #if JUCE_IOS
     addAndMakeVisible(&m_shareAfterRenderToggle);
     m_shareAfterRenderToggle.setButtonText("Share after render");
@@ -120,7 +124,7 @@ void RenderSettingsComponent::paint (Graphics& g)
 void RenderSettingsComponent::resized()
 {
 	int labelw = 100;
-    int medlabelw = 120;
+    int medlabelw = 150;
     int widelabelw = 210;
 	int itemh = 28;
     int tallitemh = 40;
@@ -168,7 +172,7 @@ void RenderSettingsComponent::resized()
 
     FlexBox buttonbox;
     buttonbox.flexDirection = FlexBox::Direction::row;
-    buttonbox.items.add(FlexItem(minitemw, itemh).withFlex(1));
+    buttonbox.items.add(FlexItem(2, itemh).withFlex(1));
 #if JUCE_IOS
     buttonbox.items.add(FlexItem(labelw, itemh, m_shareAfterRenderToggle).withMargin(margin).withFlex(1));
     buttonbox.items.add(FlexItem(4, itemh).withFlex(0.1).withMaxWidth(20));
