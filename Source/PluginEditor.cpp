@@ -115,7 +115,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 		m_render_button.onClick = [this]() { showRenderDialog(); };
 	}
 
-    // jlc
+
     m_rewind_button = std::make_unique<DrawableButton>("rewind", DrawableButton::ButtonStyle::ImageFitted);
     std::unique_ptr<Drawable> rewimg(Drawable::createFromImageData(BinaryData::skipback_icon_svg, BinaryData::skipback_icon_svgSize));
     m_rewind_button->setImages(rewimg.get());
@@ -264,7 +264,6 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_stretchgroup->EnabledChangedCallback = [this]() {
         toggleBool(processor.getBoolParameter(cpi_bypass_stretch));
         m_stretchgroup->setToggleEnabled( ! *processor.getBoolParameter(cpi_bypass_stretch));
-        // jlc
     };
 
     addAndMakeVisible(m_stretchgroup.get());
@@ -463,12 +462,39 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_wave_container->addAndMakeVisible(&m_wavecomponent);
 
-    auto tabbgcol = Colour(0xff555555);
+    auto tabbgcol = Colour(0xff444444);
 
 	m_wavefilter_tab.addTab("Waveform", tabbgcol, m_wave_container, true);
 	m_wavefilter_tab.addTab("Ratio mixer", tabbgcol, &m_ratiomixeditor, false);
 	m_wavefilter_tab.addTab("Free filter", tabbgcol, &m_free_filter_component, false);
 	//m_wavefilter_tab.addTab("Spectrum", Colours::white, &m_sonogram, false);
+
+
+#if 0
+    // TODO
+    auto * ratiotoggle = new DrawableButton("rt", DrawableButton::ImageFitted);
+    std::unique_ptr<Drawable> powerimg(Drawable::createFromImageData(BinaryData::power_svg, BinaryData::power_svgSize));
+    std::unique_ptr<Drawable> powerselimg(Drawable::createFromImageData(BinaryData::power_sel_svg, BinaryData::power_sel_svgSize));
+    ratiotoggle->setImages(powerimg.get(), nullptr, nullptr, nullptr, powerselimg.get());
+    ratiotoggle->setClickingTogglesState(true);
+    ratiotoggle->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
+    ratiotoggle->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+    ratiotoggle->onClick = [this]() {
+        setSpectrumProcGroupEnabled(RatiosGroup, !isSpectrumProcGroupEnabled(RatiosGroup));
+    };
+
+    auto * fftoggle = new DrawableButton("rt", DrawableButton::ImageFitted);
+    fftoggle->setImages(powerimg.get(), nullptr, nullptr, nullptr, powerselimg.get());
+    fftoggle->setClickingTogglesState(true);
+    fftoggle->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
+    fftoggle->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+    fftoggle->onClick = [this]() {
+        setSpectrumProcGroupEnabled(FreeFilterGroup, !isSpectrumProcGroupEnabled(FreeFilterGroup));
+    };
+
+    m_wavefilter_tab.getTabbedButtonBar().getTabButton(1)->setExtraComponent(ratiotoggle, TabBarButton::ExtraComponentPlacement::beforeText);
+    m_wavefilter_tab.getTabbedButtonBar().getTabButton(2)->setExtraComponent(fftoggle, TabBarButton::ExtraComponentPlacement::beforeText);
+#endif
 
 	addAndMakeVisible(&m_wavefilter_tab);
 
@@ -636,7 +662,7 @@ void PaulstretchpluginAudioProcessorEditor::updateAllSliders()
 void PaulstretchpluginAudioProcessorEditor::paint (Graphics& g)
 {
     // g.fillAll(Colour(0xff404040));
-    g.fillAll(Colour(0xff303030));
+    g.fillAll(Colour(0xff101010));
 }
 
 void PaulstretchpluginAudioProcessorEditor::resized()
@@ -2543,7 +2569,7 @@ void FreeFilterComponent::resized()
 
 void FreeFilterComponent::paint(Graphics & g)
 {
-	g.setColour(Colour(0xff222222));
+    g.setColour(Colour(0xff222222));
 
 	g.fillRect(0, 0, getWidth(), getHeight());
 }
