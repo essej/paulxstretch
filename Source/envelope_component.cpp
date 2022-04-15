@@ -26,13 +26,13 @@ EnvelopeComponent::EnvelopeComponent(CriticalSection* cs) : m_cs(cs)
 	addChildComponent(&m_bubble);
     setOpaque(true);
 
-//#if JUCE_IOS
+#if JUCE_IOS
     m_menubutton.setButtonText("...");
     m_menubutton.onClick = [this]() {
         showPopupMenu();
     };
     addAndMakeVisible(&m_menubutton);
-//#endif
+#endif
 }
 
 EnvelopeComponent::~EnvelopeComponent()
@@ -101,13 +101,17 @@ void EnvelopeComponent::paint(Graphics& g)
 		g.drawText("Envelope is orphaned (may be a bug)", 10, 10, getWidth(), getHeight(), Justification::centred);
 		return;
 	}
-	for (int i = 0; i < 10; ++i)
+
+    int freqdivs = jmax(2, jmin(10, (int) (getWidth() / 60.0f)));
+    int divwidth = getWidth() / freqdivs;
+
+	for (int i = 0; i < freqdivs; ++i)
 	{
-		double norm = 1.0 / 10 * i;
+		double norm = 1.0 / freqdivs * i;
 		double hz = XFromNormalized(norm);
-		int xcor = getWidth() / 10 * i;
-		g.drawText(String(hz, 1), xcor, getHeight() - 20, 100, 20, Justification::topLeft);
-	}
+		int xcor = divwidth * i;
+		g.drawFittedText(String(hz, 1), xcor, getHeight() - 20, divwidth, 20, Justification::topLeft, 1);
+    }
 	String name = m_envelope->GetName();
 	if (name.isEmpty() == true)
 		name = "Untitled envelope";

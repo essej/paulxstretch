@@ -607,7 +607,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int minh = 32;
     int buttw = 60;
     int buttminw = 36;
-    int minitemw = 300;
+    int minitemw = 260;
     int margin = 1;
 
 #if JUCE_IOS
@@ -650,7 +650,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     togglesbox.alignContent = FlexBox::AlignContent::flexStart;
 
     togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_parcomps[cpi_capture_trigger]).withMargin(margin).withFlex(1).withMaxWidth(65));
-    togglesbox.items.add(FlexItem(buttminw, buttonrowheight).withFlex(0.1));
+    togglesbox.items.add(FlexItem(3, buttonrowheight).withFlex(0.1));
 
     togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_rewind_button).withMargin(1).withFlex(1).withMaxWidth(65));
     togglesbox.items.add(FlexItem(0, buttonrowheight).withFlex(0.1).withMaxWidth(10));
@@ -660,7 +660,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     togglesbox.items.add(FlexItem(0, buttonrowheight).withFlex(0.1).withMaxWidth(10));
     togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_parcomps[cpi_freeze]).withMargin(margin).withFlex(1).withMaxWidth(65));
 
-    togglesbox.items.add(FlexItem(buttminw, buttonrowheight).withFlex(0.1));
+    togglesbox.items.add(FlexItem(3, buttonrowheight).withFlex(0.1));
 
     //togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_bypass_stretch]).withMargin(margin).withFlex(1).withMaxWidth(150));
     togglesbox.items.add(FlexItem(buttminw + 15, buttonrowheight, *m_parcomps[cpi_passthrough]).withMargin(margin).withFlex(1.5).withMaxWidth(85));
@@ -680,7 +680,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
 #if !JUCE_IOS
     FlexBox inoutbox;
-    int inoutminw = 170;
+    int inoutminw = 140;
     int inoutmaxw = 200;
 
     inoutbox.flexDirection = FlexBox::Direction::row;
@@ -895,14 +895,14 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     mainbox.performLayout(bounds);
 
     if ( m_shortMode) {
-        auto totgroupw = jmax(360, m_groupviewport->getWidth()) - scrollw;
+        auto totgroupw = jmax(260, m_groupviewport->getWidth()) - scrollw;
         auto groupsbounds = Rectangle<int>(0, 0, totgroupw, useh);
         auto layoutbounds = groupsbounds.translated(2, 0).withWidth(totgroupw - 3);
         m_groupcontainer->setBounds(groupsbounds);
         groupsbox.performLayout(layoutbounds);
     }
     else {
-        auto totgroupw = jmax(360, w) - scrollw;
+        auto totgroupw = jmax(260, w) - scrollw;
         auto groupsbounds = Rectangle<int>(0, 0, totgroupw, useh);
         m_groupcontainer->setBounds(groupsbounds);
         groupsbox.performLayout(groupsbounds);
@@ -1411,8 +1411,10 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 {
 	m_mousedown = true;
 	m_lock_timesel_set = true;
+    m_timedrag_started = false;
+
 	double pos = viewXToNormalized(e.x);
-	if (e.y < m_topmargin || e.mods.isCommandDown())
+	if (e.mods.isCommandDown())
 	{
 		if (SeekCallback)
 		{
@@ -1435,23 +1437,47 @@ void WaveformComponent::mouseDown(const MouseEvent & e)
 	repaint();
 }
 
-void WaveformComponent::mouseUp(const MouseEvent & /*e*/)
+void WaveformComponent::mouseUp(const MouseEvent & e)
 {
-	m_is_dragging_selection = false;
-	m_lock_timesel_set = false;
-	m_mousedown = false;
-	m_didseek = false;
+    int seektopmargin = getHeight() / 2;
+
 	if (m_didchangetimeselection)
 	{
 		TimeSelectionChangedCallback(Range<double>(m_time_sel_start, m_time_sel_end), 1);
 		m_didchangetimeselection = false;
 	}
+    else if (e.y < seektopmargin) {
+        double pos = viewXToNormalized(e.x);
+        if (SeekCallback)
+        {
+            SeekCallback(pos);
+            m_last_startpos = pos;
+        }
+    }
+
+    m_is_dragging_selection = false;
+    m_lock_timesel_set = false;
+    m_mousedown = false;
+    m_didseek = false;
+    m_timedrag_started = false;
 }
 
 void WaveformComponent::mouseDrag(const MouseEvent & e)
 {
 	if (m_didseek == true)
 		return;
+
+    int dragthresh = 3;
+#if JUCE_IOS
+    dragthresh = 6;
+#endif
+
+    if (!m_timedrag_started && abs(e.getDistanceFromDragStartX()) > dragthresh) {
+        m_timedrag_started = true;
+    }
+
+    if (!m_timedrag_started) return;
+
 	if (m_time_sel_drag_target == 0 && e.y>=50 && m_is_dragging_selection==false)
 	{
 		m_time_sel_start = m_drag_time_start;
@@ -1580,11 +1606,15 @@ void WaveformComponent::setTimeSelection(Range<double> rng)
 
 int WaveformComponent::getTimeSelectionEdge(int x, int y)
 {
+    int touchradius = 5;
+#if JUCE_IOS
+    touchradius = 10;
+#endif
 	int xcorleft = (int)jmap<double>(m_time_sel_start, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
 	int xcorright = (int)jmap<double>(m_time_sel_end, m_view_range.getStart(), m_view_range.getEnd(), 0, getWidth());
-	if (juce::Rectangle<int>(xcorleft - 5, m_topmargin, 10, getHeight() - m_topmargin).contains(x, y))
+	if (juce::Rectangle<int>(xcorleft - touchradius, m_topmargin, 2*touchradius, getHeight() - m_topmargin).contains(x, y))
 		return 1;
-	if (juce::Rectangle<int>(xcorright - 5, m_topmargin, 10, getHeight() - m_topmargin).contains(x, y))
+	if (juce::Rectangle<int>(xcorright - touchradius, m_topmargin, 2*touchradius, getHeight() - m_topmargin).contains(x, y))
 		return 2;
 	return 0;
 }
@@ -1855,6 +1885,7 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 	m_labeldefcolor = m_label.findColour(Label::textColourId);
 	m_label.setText(par->getName(50), dontSendNotification);
     m_label.setJustificationType(Justification::centredRight);
+    m_label.setFont(16.0f);
 
 	AudioParameterFloat* floatpar = dynamic_cast<AudioParameterFloat*>(par);
 	if (floatpar)
@@ -1924,8 +1955,16 @@ void ParameterComponent::resized()
 	{
 		//int labw = 200;
         int labw = 120;
-        if (getWidth() < 350)
+        if (getWidth() < 280) {
+            labw = 60;
+            m_label.setFont(12.0f);
+        }
+        else if (getWidth() < 350) {
             labw = 100;
+            m_label.setFont(14.0f);
+        } else {
+            m_label.setFont(16.0f);
+        }
 		m_label.setBounds(0, 0, labw, h);
 		m_slider->setBounds(m_label.getRight() + 1, 0, getWidth() - 2 - m_label.getWidth(), h);
 	}
@@ -2243,11 +2282,13 @@ RatioMixerEditor::RatioMixerEditor(int numratios)
 		auto ratslid = std::make_unique<Slider>(Slider::LinearHorizontal,Slider::TextBoxBelow);
 		ratslid->setRange(0.125, 8.0);
 		ratslid->onValueChange = [this,i]() {OnRatioChanged(i, m_ratio_sliders[i]->getValue()); };
-		addAndMakeVisible(ratslid.get());
+        ratslid->setNumDecimalPlacesToDisplay(3);
+        addAndMakeVisible(ratslid.get());
 		m_ratio_sliders.emplace_back(std::move(ratslid));
 		
 		auto ratlevslid = std::make_unique<Slider>();
 		ratlevslid->setRange(0.0, 1.0);
+        ratlevslid->setNumDecimalPlacesToDisplay(3);
 		ratlevslid->setSliderStyle(Slider::LinearVertical);
 		if (i==3)
 			ratlevslid->setValue(1.0,dontSendNotification);
@@ -2255,20 +2296,60 @@ RatioMixerEditor::RatioMixerEditor(int numratios)
 		ratlevslid->onValueChange = [this, i]() { OnRatioLevelChanged(i, m_ratio_level_sliders[i]->getValue()); };
 		addAndMakeVisible(ratlevslid.get());
 		m_ratio_level_sliders.emplace_back(std::move(ratlevslid));
+
+        auto ratlab = std::make_unique<Label>();
+        ratlab->setJustificationType(Justification::centred);
+        ratlab->setText(String(i+1), dontSendNotification);
+        addAndMakeVisible(ratlab.get());
+        m_labels.emplace_back(std::move(ratlab));
 	}
+
+    if (numratios > 0) m_ratio_sliders[0]->setDoubleClickReturnValue(true, 0.25);
+    if (numratios > 1) m_ratio_sliders[1]->setDoubleClickReturnValue(true, 0.5);
+    if (numratios > 2) m_ratio_sliders[2]->setDoubleClickReturnValue(true, 1.0);
+    if (numratios > 3) m_ratio_sliders[3]->setDoubleClickReturnValue(true, 2.0);
+    if (numratios > 4) m_ratio_sliders[4]->setDoubleClickReturnValue(true, 3.0);
+    if (numratios > 5) m_ratio_sliders[5]->setDoubleClickReturnValue(true, 4.0);
+    if (numratios > 6) m_ratio_sliders[6]->setDoubleClickReturnValue(true, 1.5);
+    if (numratios > 7) m_ratio_sliders[7]->setDoubleClickReturnValue(true, 2/3.0);
+
 	startTimer(200);
 	setOpaque(true);
 }
 
 void RatioMixerEditor::resized()
 {
-	int nsliders = m_ratio_sliders.size();
+    int minslidw = 65;
+    int maxslidw = 120;
+    int minslidh = 55;
+    int minrslidh = 32;
+    int maxrslidh = 45;
+    FlexBox contentbox;
+    contentbox.flexDirection = FlexBox::Direction::row;
+    contentbox.flexWrap = FlexBox::Wrap::wrap;
+    //contentbox.alignContent = FlexBox::AlignContent::flexStart;
+
+    std::vector<FlexBox> itemboxes;
+    itemboxes.resize(m_ratio_sliders.size());
+
+	int nsliders = (int) m_ratio_sliders.size();
 	int slidw = getWidth() / nsliders;
-	for (int i = 0; i < nsliders; ++i)
+
+    for (int i = 0; i < nsliders; ++i)
 	{
-		m_ratio_level_sliders[i]->setBounds(slidw/2+slidw * i-10, 15, 20, getHeight() - 55);
-		m_ratio_sliders[i]->setBounds(slidw * i, getHeight() - 48, slidw - 5, 45);
+        itemboxes[i].flexDirection = FlexBox::Direction::column;
+        itemboxes[i].items.add(FlexItem(minslidw, minslidh, *m_ratio_level_sliders[i]).withFlex(1));
+        itemboxes[i].items.add(FlexItem(minslidw, minrslidh, *m_ratio_sliders[i]).withFlex(1).withMaxHeight(maxrslidh));
+
+        contentbox.items.add(FlexItem(minslidw, minslidh + minrslidh, itemboxes[i]).withMargin(1).withFlex(1).withMaxWidth(maxslidw));
 	}
+
+    contentbox.performLayout(getLocalBounds().reduced(1));
+
+    for (int i = 0; i < nsliders; ++i)
+    {
+        m_labels[i]->setBounds(m_ratio_level_sliders[i]->getX(), m_ratio_level_sliders[i]->getY() + 1, m_ratio_level_sliders[i]->getWidth() - 2 , 16);
+    }
 }
 
 void RatioMixerEditor::timerCallback()
@@ -2289,11 +2370,13 @@ void RatioMixerEditor::timerCallback()
 void RatioMixerEditor::paint(Graphics & g)
 {
 	g.fillAll(Colour(0xff222222));
-	g.setColour(Colours::white);
+    /*
+    g.setColour(Colours::white);
 	auto nsliders = m_ratio_sliders.size();
 	int slidw = getWidth() / nsliders;
 	for (int i = 0; i < 8; ++i)
 		g.drawText(String(i + 1), slidw / 2 + slidw * i - 8, 1, 15, 15, Justification::centred);
+     */
 }
 
 FreeFilterComponent::FreeFilterComponent(PaulstretchpluginAudioProcessor* proc) 
@@ -2485,7 +2568,7 @@ int ParameterGroupComponent::doLayout(Rectangle<int> bounds)
     int titlew = m_namelabel ? 100 : m_enableButton ? 40 : 0;
     int enablew = m_enableButton ? 40 : 0;
     int enablemaxh = 34;
-    int minitemw = 300;
+    int minitemw = 260;
     int minitemh = 26;
     int margin = 1;
     int outsidemargin = 4;

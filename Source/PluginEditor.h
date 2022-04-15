@@ -225,6 +225,7 @@ private:
 	bool m_didseek = false;
 	bool m_didchangetimeselection = false;
 	int m_topmargin = 0;
+    bool m_timedrag_started = false;
 	int getTimeSelectionEdge(int x, int y);
 	std::pair<Range<double>, Range<double>> m_file_cached;
 	bool m_image_dirty = false;
@@ -299,6 +300,7 @@ public:
 private:
 	uptrvec<Slider> m_ratio_sliders;
 	uptrvec<Slider> m_ratio_level_sliders;
+    uptrvec<Label> m_labels;
 };
 
 class FreeFilterComponent : public Component

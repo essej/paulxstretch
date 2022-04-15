@@ -279,7 +279,7 @@ private:
     int mPluginWindowWidth = 820;
     int mPluginWindowHeight = 710;
 
-	void setFFTSize(double size);
+	void setFFTSize(double size, bool force=false);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
 	AudioParameterInt* m_outchansparam = nullptr;

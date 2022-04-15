@@ -673,10 +673,10 @@ void StretchAudioSource::setFFTWindowingType(int windowtype)
 	}
 }
 
-void StretchAudioSource::setFFTSize(int size)
+void StretchAudioSource::setFFTSize(int size, bool force)
 {
     jassert(size>0);
-    if (m_xfadetask.state == 0 && (m_process_fftsize == 0 || size != m_process_fftsize))
+    if (force || (m_xfadetask.state == 0 && (m_process_fftsize == 0 || size != m_process_fftsize)))
 	{
 		ScopedLock locker(m_cs);
 		if (m_xfadetask.buffer.getNumChannels() < m_num_outchans)
@@ -684,7 +684,7 @@ void StretchAudioSource::setFFTSize(int size)
 			m_xfadetask.buffer.setSize(m_num_outchans, m_xfadetask.buffer.getNumSamples());
 			
 		}
-		if (m_process_fftsize > 0)
+		if (!force && m_process_fftsize > 0)
 		{
 			m_xfadetask.state = 1;
 			m_xfadetask.counter = 0;
@@ -761,11 +761,11 @@ void StretchAudioSource::setOnsetDetection(double x)
 	}
 }
 
-void StretchAudioSource::setPlayRange(Range<double> playrange)
+void StretchAudioSource::setPlayRange(Range<double> playrange, bool force)
 {
-	if (playrange == m_playrange || playrange == m_inputfile->getActiveRange())
+	if (!force && (playrange == m_playrange || playrange == m_inputfile->getActiveRange()))
 		return;
-	if (m_cs.tryEnter())
+	if (m_cs.tryEnter() || force)
 	{
 		if (playrange.isEmpty())
 			m_playrange = { 0.0,1.0 };

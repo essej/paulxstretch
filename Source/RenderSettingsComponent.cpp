@@ -28,7 +28,7 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
 	addAndMakeVisible(&m_editorMaxOutDuration);
 	m_editorMaxOutDuration.setText("1.0", dontSendNotification);
 	addAndMakeVisible(&m_toggleFloatClip);
-	m_toggleFloatClip.setButtonText("Clip floating point output");
+	m_toggleFloatClip.setButtonText("Clip");
 	m_toggleFloatClip.setToggleState(false, dontSendNotification);
 	addAndMakeVisible(&labelSamplerate);
 	labelSamplerate.setText("Sample rate :", dontSendNotification);
@@ -119,7 +119,8 @@ void RenderSettingsComponent::paint (Graphics& g)
 
 void RenderSettingsComponent::resized()
 {
-	int labelw = 120;
+	int labelw = 100;
+    int medlabelw = 120;
     int widelabelw = 210;
 	int itemh = 28;
     int tallitemh = 40;
@@ -157,7 +158,7 @@ void RenderSettingsComponent::resized()
 
     FlexBox loopbox;
     loopbox.flexDirection = FlexBox::Direction::row;
-    loopbox.items.add(FlexItem(labelw, tallitemh, label3).withMargin(margin));
+    loopbox.items.add(FlexItem(medlabelw, tallitemh, label3).withMargin(margin));
     loopbox.items.add(FlexItem(smallitemw, itemh, numLoopsEditor).withMargin(margin).withMaxHeight(itemh).withAlignSelf(FlexItem::AlignSelf::flexStart));
 
     FlexBox maxbox;

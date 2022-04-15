@@ -65,7 +65,7 @@ public:
 	double getOutputSamplerate() const { return m_outsr; }
 	void setProcessParameters(ProcessParameters* pars);
 	const ProcessParameters& getProcessParameters();
-	void setFFTSize(int size);
+	void setFFTSize(int size, bool force=false);
 	int getFFTSize() { return m_process_fftsize; }
 	
 	double getFreezePos() const { return m_freeze_pos; }
@@ -80,7 +80,7 @@ public:
 	double getOutputDurationSecondsForRange(Range<double> range, int fftsize);
 	
 	void setOnsetDetection(double x);
-	void setPlayRange(Range<double> playrange);
+	void setPlayRange(Range<double> playrange, bool force=false);
 	Range<double> getPlayRange() { return m_playrange; }
 	bool isLoopEnabled();
 	bool hasReachedEnd();

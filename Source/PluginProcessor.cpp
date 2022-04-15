@@ -213,9 +213,13 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
-	setPreBufferAmount(2);
-    startTimer(1, 50);
-	m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
+
+    if (!m_is_stand_alone_offline) {
+        setPreBufferAmount(2);
+        startTimer(1, 50);
+    }
+
+    m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
 	
 }
 
@@ -355,7 +359,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 		if (prebufamt == -1)
 			m_use_backgroundbuffering = false;
 		else
-			setPreBufferAmount(prebufamt);
+			setPreBufferAmount(m_is_stand_alone_offline ? 0 : prebufamt);
 		if (m_load_file_with_state == true)
 		{
             String fn = tree.getProperty("importedfile");
@@ -464,14 +468,14 @@ void PaulstretchpluginAudioProcessor::parameterGestureChanged(int parameterIndex
 {
 }
 
-void PaulstretchpluginAudioProcessor::setFFTSize(double size)
+void PaulstretchpluginAudioProcessor::setFFTSize(double size, bool force)
 {
 	if (m_prebuffer_amount == 5)
 		m_fft_size_to_use = pow(2, 7.0 + size * 14.5);
 	else m_fft_size_to_use = pow(2, 7.0 + size * 10.0); // chicken out from allowing huge FFT sizes if not enough prebuffering
 	int optim = optimizebufsize(m_fft_size_to_use);
 	m_fft_size_to_use = optim;
-	m_stretch_source->setFFTSize(optim);
+	m_stretch_source->setFFTSize(optim, force);
 	//Logger::writeToLog(String(m_fft_size_to_use));
 }
 
@@ -622,19 +626,26 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	double t0 = *processor->getFloatParameter(cpi_soundstart);
 	double t1 = *processor->getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
-	sc->setPlayRange({ t0,t1 });
+	sc->setPlayRange({ t0,t1 }, true);
+
+    DBG("play range: " << t0 << " " << t1);
+    DBG("SC play range s: " << sc->getPlayRange().getStart() << "  e: " << sc->getPlayRange().getEnd());
 
     *(processor->getBoolParameter(cpi_pause_enabled)) = false;
 
 	sc->setMainVolume(*processor->getFloatParameter(cpi_main_volume));
 	sc->setRate(*processor->getFloatParameter(cpi_stretchamount));
 	sc->setDryPlayrate(*processor->getFloatParameter(cpi_dryplayrate));
-	processor->setFFTSize(*processor->getFloatParameter(cpi_fftsize));
+	processor->setFFTSize(*processor->getFloatParameter(cpi_fftsize), true);
 	processor->updateStretchParametersFromPluginParameters(processor->m_ppar);
 	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
 	processor->prepareToPlay(outsr, blocksize);
-	
-	
+
+    //sc->setProcessParameters(&processor->m_ppar);
+    //sc->setFFTWindowingType(1);
+
+    DBG("SC post play range s: " << sc->getPlayRange().getStart() << "  e: " << sc->getPlayRange().getEnd() << "  fft: " << sc->getFFTSize() << " ourdur: " << sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize()));
+
 	auto rendertask = [sc,processor,outputfiletouse, renderpars,blocksize,numoutchans, outsr,this]()
 	{
 		WavAudioFormat wavformat;
@@ -671,10 +682,18 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
             AudioBuffer<float> renderbuffer{ numoutchans, blocksize };
             MidiBuffer dummymidi;
             double outlensecs = sc->getOutputDurationSecondsForRange(sc->getPlayRange(),sc->getFFTSize());
+
+            if (*processor->getBoolParameter(cpi_looping_enabled)) {
+                outlensecs *= jmax(1, renderpars.numloops);
+            }
+            outlensecs = jmin(outlensecs, renderpars.maxoutdur);
+
             int64_t outlenframes = outlensecs * outsr;
             int64_t outcounter{ 0 };
             m_offline_render_state = 0;
             m_offline_render_cancel_requested = false;
+
+            DBG("Starting rendering of " << outlenframes << " frames, " << outlensecs << " secs" << ", loops: " << renderpars.numloops << " play range s: " << sc->getPlayRange().getStart() << "  e: " << sc->getPlayRange().getEnd());
 
             while (outcounter < outlenframes)
             {
