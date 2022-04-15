@@ -82,7 +82,7 @@ public:
 
         : settings (settingsToUse, takeOwnershipOfSettings),
           channelConfiguration (channels),
-    shouldMuteInput(false),
+    shouldMuteInput(var((bool)false)),
     //shouldMuteInput (! isInterAppAudioConnected()),
           autoOpenMidiDevices (shouldAutoOpenMidiDevices)
     {
