@@ -89,7 +89,7 @@
     <XCODE_MAC targetFolder="Builds/MacOSX" externalLibraries="fftw3f" microphonePermissionNeeded="1"
                microphonePermissionsText="This application requires audio input to capture live audio for processing"
                hardenedRuntime="1" hardenedRuntimeOptions="com.apple.security.device.audio-input"
-               xcodeValidArchs="arm64,x86_64" buildNumber="105" applicationCategory="public.app-category.music"
+               xcodeValidArchs="arm64,x86_64" buildNumber="106" applicationCategory="public.app-category.music"
                smallIcon="Yny1oQ" bigIcon="hG1CYd" iosDevelopmentTeamID="XCS435894D">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" enablePluginBinaryCopyStep="1" isDebug="1" optimisation="1"
