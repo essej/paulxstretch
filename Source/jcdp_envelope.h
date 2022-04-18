@@ -390,6 +390,13 @@ public:
         if (indx>(int)m_nodes.size()-1) i=(int)m_nodes.size()-1;
         m_nodes[i].Status=nstatus;
     }
+    void SetNodeStatusForAll(int nstatus)
+    {
+        for (int i=0; i < m_nodes.size(); ++i) {
+            m_nodes[i].Status = nstatus;
+        }
+    }
+
     void SetNode(int indx, envelope_point anode)
     {
         int i=indx;

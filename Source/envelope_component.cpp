@@ -60,17 +60,17 @@ void EnvelopeComponent::show_bubble(int x, int y, const envelope_point& node)
 
 void EnvelopeComponent::resized()
 {
-//#if JUCE_IOS
+#if JUCE_IOS
     int butw = 38;
-    int buth = 38;
-    m_menubutton.setBounds(getWidth() - butw - 1, 1, butw, buth);
-//#endif
+    int buth = 34;
+    m_menubutton.setBounds((getWidth() - butw)/2, 1, butw, buth);
+#endif
 }
 
 
 void EnvelopeComponent::paint(Graphics& g)
 {
-    float targsize = 8.0;
+    float targsize = 10.0;
 #if JUCE_IOS
     targsize = 16.0;
 #endif
@@ -208,8 +208,8 @@ void EnvelopeComponent::mouseDrag(const MouseEvent& ev)
 		{
 			right_bound = m_envelope->GetNodeAtIndex(m_node_to_drag + 1).pt_x;
 		}
-		double normx = jmap((double)ev.x, 0.0, (double)getWidth(), m_view_start_time, m_view_end_time);
-		double normy = jmap((double)getHeight() - ev.y, 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
+		double normx = jmap((double)ev.x - m_touch_offset.x, 0.0, (double)getWidth(), m_view_start_time, m_view_end_time);
+		double normy = jmap((double)getHeight() - (ev.y - m_touch_offset.y ), 0.0, (double)getHeight(), m_view_start_value, m_view_end_value);
 		pt.pt_x=jlimit(left_bound+0.001, right_bound - 0.001, normx);
 		pt.pt_y=jlimit(0.0,1.0,normy);
 		m_envelope->updateMinMaxValues();
@@ -230,8 +230,10 @@ void EnvelopeComponent::mouseMove(const MouseEvent & ev)
 	{
 		if (m_mouse_down == false)
 		{
+#if !JUCE_IOS
 			show_bubble(ev.x, ev.y, m_envelope->GetNodeAtIndex(m_node_to_drag));
 			setMouseCursor(MouseCursor::PointingHandCursor);
+#endif
 		}
 	}
 	else
@@ -250,6 +252,7 @@ void EnvelopeComponent::showPopupMenu()
     PopupMenu menu;
     PopupMenu::Options opts;
     menu.addItem(1, "Reset");
+    menu.addItem(5, "Delete selected");
     menu.addItem(2, "Invert");
     menu.addItem(3, "Wrap envelope X transform", true, m_envelope->m_transform_wrap_x);
     menu.addItem(4, "Envelope Y random linear interpolation", true, m_envelope->m_transform_y_random_linear_interpolation);
@@ -262,7 +265,7 @@ void EnvelopeComponent::showPopupMenu()
             ScopedLock locker(*m_cs);
             m_envelope->ResetEnvelope();
         }
-        if (r == 2)
+        else if (r == 2)
         {
             for (int i = 0; i < m_envelope->GetNumPoints(); ++i)
             {
@@ -270,13 +273,17 @@ void EnvelopeComponent::showPopupMenu()
                 m_envelope->GetNodeAtIndex(i).pt_y = val;
             }
         }
-        if (r == 3)
+        else if (r == 3)
         {
             toggleBool(m_envelope->m_transform_wrap_x);
         }
-        if (r == 4)
+        else if (r == 4)
         {
             toggleBool(m_envelope->m_transform_y_random_linear_interpolation);
+        }
+        else if (r == 5)
+        {
+            deleteSelectedNodes();
         }
         repaint();
     };
@@ -299,6 +306,7 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
         return;
 	}
 	m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
+    m_touch_offset = {0, 0};
 	m_mouse_down = true;
 	m_segment_drag_info = { findHotEnvelopeSegment(ev.x, ev.y, true),false };
 	if (m_segment_drag_info.first >= 0)
@@ -322,9 +330,18 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		repaint();
 		return;
 	}
-	if (m_node_to_drag >= 0 && ev.mods.isShiftDown()==true)
+	if (m_node_to_drag >= 0)
 	{
-		int oldstatus = m_envelope->GetNodeAtIndex(m_node_to_drag).Status;
+        const envelope_point& pt = m_envelope->GetNodeAtIndex(m_node_to_drag);
+        double xcor = jmap(pt.pt_x, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
+        double ycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
+        m_touch_offset = { ev.x - (int)xcor , ev.y - (int)ycor };
+
+        if (!ev.mods.isShiftDown()) {
+            m_envelope->SetNodeStatusForAll(0);
+        }
+        int oldstatus = m_envelope->GetNodeAtIndex(m_node_to_drag).Status;
+
 		if (oldstatus==0)
 			m_envelope->GetNodeAtIndex(m_node_to_drag).Status=1;
 		else m_envelope->GetNodeAtIndex(m_node_to_drag).Status=0;
@@ -342,6 +359,10 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 		m_envelope->updateMinMaxValues();
 
         m_node_to_drag = find_hot_envelope_point(ev.x, ev.y);
+        // deselect all
+        m_envelope->SetNodeStatusForAll(0);
+        m_envelope->GetNodeAtIndex(m_node_to_drag).Status=1; // select it
+
 		//m_mouse_down = false;
 		OnEnvelopeEdited(m_envelope.get());
 		repaint();
@@ -350,8 +371,12 @@ void EnvelopeComponent::mouseDown(const MouseEvent & ev)
 
 void EnvelopeComponent::mouseUp(const MouseEvent &ev)
 {
-	if (ev.mods == ModifierKeys::noModifiers)
-		m_bubble.setVisible(false);
+#if JUCE_IOS
+    m_bubble.setVisible(false);
+#endif
+    if (ev.mods == ModifierKeys::noModifiers) {
+        m_bubble.setVisible(false);
+    }
 	if (m_node_that_was_dragged >= 0 || m_segment_drag_info.second==true)
 	{
 		OnEnvelopeEdited(m_envelope.get());
@@ -365,6 +390,19 @@ void EnvelopeComponent::mouseUp(const MouseEvent &ev)
 		m_envelope->endRelativeTransformation();
 	}
 }
+
+void EnvelopeComponent::deleteSelectedNodes()
+{
+    m_node_to_drag = -1;
+    {
+        ScopedLock locker(*m_cs);
+        m_envelope->removePointsConditionally([](const envelope_point& pt) { return pt.Status == 1; });
+        if (m_envelope->GetNumPoints() == 0)
+            m_envelope->AddNode({ 0.0,0.5 });
+    }
+    OnEnvelopeEdited(m_envelope.get());
+}
+
 
 bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 {
@@ -418,15 +456,8 @@ bool EnvelopeComponent::keyPressed(const KeyPress & ev)
 
 	if (ev == KeyPress::deleteKey)
 	{
-		m_node_to_drag = -1;
-		{
-			ScopedLock locker(*m_cs);
-			m_envelope->removePointsConditionally([](const envelope_point& pt) { return pt.Status == 1; });
-			if (m_envelope->GetNumPoints() == 0)
-				m_envelope->AddNode({ 0.0,0.5 });
-		}
-		repaint();
-		OnEnvelopeEdited(m_envelope.get());
+        deleteSelectedNodes();
+        repaint();
 		return true;
 	}
 	return false;
@@ -441,7 +472,7 @@ int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
 		const envelope_point& pt = m_envelope->GetNodeAtIndex(i);
 		double ptxcor = jmap(pt.pt_x, m_view_start_time, m_view_end_time, 0.0, (double)getWidth());
 		double ptycor = (double)getHeight() - jmap(pt.pt_y, m_view_start_value, m_view_end_value, 0.0, (double)getHeight());
-        float targsize = 8.0;
+        float targsize = 10.0;
 #if JUCE_IOS
         targsize = 20;
 #endif
@@ -456,7 +487,7 @@ int EnvelopeComponent::find_hot_envelope_point(double xcor, double ycor)
 
 int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool detectsegment)
 {
-    float targsize = 8.0;
+    float targsize = 10.0;
 #if JUCE_IOS
     targsize = 20.0;
 #endif
@@ -470,7 +501,7 @@ int EnvelopeComponent::findHotEnvelopeSegment(double xcor, double ycor, bool det
 		float xcor0 = (float)jmap<double>(pt0.pt_x, m_view_start_time, m_view_end_time, 0.0, getWidth());
 		float xcor1 = (float)jmap<double>(pt1.pt_x, m_view_start_time, m_view_end_time, 0.0, getWidth());
 		float segwidth = xcor1 - xcor0;
-		juce::Rectangle<float> segrect(xcor0+8.0f, 0.0f, segwidth-16.0f, (float)getHeight());
+		juce::Rectangle<float> segrect(xcor0+targsize, 0.0f, segwidth-2*targsize, (float)getHeight());
 		if (segrect.contains((float)xcor, (float)ycor))
 		{
 			if (detectsegment == false)

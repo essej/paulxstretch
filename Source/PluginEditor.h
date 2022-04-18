@@ -204,6 +204,7 @@ public:
 	void mouseMove(const MouseEvent& e) override;
 	void mouseDoubleClick(const MouseEvent& e) override;
 	void mouseWheelMove(const MouseEvent& e, const MouseWheelDetails& wd) override;
+    void mouseMagnify (const MouseEvent& event, float scaleFactor) override;
 	void setAudioInfo(double sr, double seekpos, int fftsize);
 	Range<double> getTimeSelection();
 	void setTimeSelection(Range<double> rng);

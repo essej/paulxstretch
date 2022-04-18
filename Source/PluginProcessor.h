@@ -216,7 +216,9 @@ public:
 	bool m_mute_while_capturing = false;
     bool m_mute_processed_while_capturing = false;
     bool m_use_backgroundbuffering = true;
-	void resetParameters();
+    bool m_restore_playstate = true;
+
+    void resetParameters();
     void setPreBufferAmount(int x);
 	int getPreBufferAmount();
 	bool m_load_file_with_state = true;

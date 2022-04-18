@@ -159,7 +159,7 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
 	m_outchansparam = new AudioParameterInt("numoutchans0", "Num outs", 2, 8, 2); // 27
 	addParameter(m_outchansparam); // 27
-	addParameter(new AudioParameterBool("pause_enabled0", "Pause", false)); // 28
+	addParameter(new AudioParameterBool("pause_enabled0", "Pause", true)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
@@ -317,6 +317,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
     storeToTreeProperties(paramtree, nullptr, "pluginwidth", mPluginWindowWidth);
     storeToTreeProperties(paramtree, nullptr, "pluginheight", mPluginWindowHeight);
     storeToTreeProperties(paramtree, nullptr, "jumpsliders", m_use_jumpsliders);
+    storeToTreeProperties(paramtree, nullptr, "restoreplaystate", m_restore_playstate);
 
     return paramtree;
 }
@@ -325,6 +326,8 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 {
 	if (tree.isValid())
 	{
+        bool origpaused =  getBoolParameter(cpi_pause_enabled)->get();
+
 		{
 			ScopedLock locker(m_cs);
             ValueTree freefilterstate = tree.getChildWithName("freefilter_envelope");
@@ -337,6 +340,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             getFromTreeProperties(tree, "pluginwidth", mPluginWindowWidth);
             getFromTreeProperties(tree, "pluginheight", mPluginWindowHeight);
             getFromTreeProperties(tree, "jumpsliders", m_use_jumpsliders);
+            getFromTreeProperties(tree, "restoreplaystate", m_restore_playstate);
 
 			if (tree.hasProperty("numspectralstagesb"))
 			{
@@ -362,6 +366,12 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			m_use_backgroundbuffering = false;
 		else
 			setPreBufferAmount(m_is_stand_alone_offline ? 0 : prebufamt);
+
+        if (!m_restore_playstate) {
+            // use previous paused value
+            *(getBoolParameter(cpi_pause_enabled)) = origpaused;
+        }
+
 		if (m_load_file_with_state == true)
 		{
             String fn = tree.getProperty("importedfile");

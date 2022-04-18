@@ -56,6 +56,8 @@ public:
 private:
     void showPopupMenu();
 
+    void deleteSelectedNodes();
+
 	std::shared_ptr<breakpoint_envelope> m_envelope;
 	String m_name;
 	Colour m_env_color{ Colours::yellow };
@@ -67,8 +69,10 @@ private:
 	int findHotEnvelopeSegment(double xcor, double ycor, bool detectsegment);
 	bool m_mouse_down = false;
 	int m_node_to_drag = -1;
+    Point<int> m_touch_offset;
 	std::pair<int, bool> m_segment_drag_info{ -1,false };
 	int m_node_that_was_dragged = -1;
+    int m_selected_node = -1;
 	String m_last_tip;
 	BubbleMessageComponent m_bubble;
     TextButton m_menubutton;

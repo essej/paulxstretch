@@ -241,7 +241,11 @@ Rectangle<int> CustomLookAndFeel::getTabButtonExtraComponentBounds (const TabBar
 void CustomLookAndFeel::createTabTextLayout (const TabBarButton& button, float length, float depth,
                                           Colour colour, TextLayout& textLayout)
 {
-    float fontsize = button.getExtraComponent() != nullptr ? jmin(depth, 32.0f) * 0.85f : jmin(depth, 32.0f) * 0.5f;
+    float hscale = 0.6f;
+#if JUCE_IOS
+    hscale = 0.5f;
+#endif
+    float fontsize = button.getExtraComponent() != nullptr ? jmin(depth, 32.0f) * hscale : jmin(depth, 32.0f) * hscale;
     Font font = myFont.withHeight(fontsize * fontScale);
     font.setUnderline (button.hasKeyboardFocus (false));
 

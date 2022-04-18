@@ -54,7 +54,8 @@ enum SettingsMenuIds
     SettingsSaveCaptureDiskId = 9,
     SettingsMuteProcessedCaptureId = 10,
     SettingsAudioSettingsId = 11,
-    SettingsSliderSnapId = 12
+    SettingsSliderSnapId = 12,
+    SettingsRestorePlayStateId = 13
 };
 
 
@@ -326,6 +327,12 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     auto filtgroup = std::make_unique<ParameterGroupComponent>("", FilterGroup, &processor);
     filtgroup->addParameterComponent(m_parcomps[cpi_filter_low].get());
     filtgroup->addParameterComponent(m_parcomps[cpi_filter_high].get());
+    if (auto * slid = m_parcomps[cpi_filter_low]->getSlider()) {
+        slid->setNumDecimalPlacesToDisplay(0);
+    }
+    if (auto * slid = m_parcomps[cpi_filter_high]->getSlider()) {
+        slid->setNumDecimalPlacesToDisplay(0);
+    }
     filtgroup->EnabledChangedCallback = [this]() {
         processor.setDirty();
     };
@@ -470,7 +477,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	//m_wavefilter_tab.addTab("Spectrum", Colours::white, &m_sonogram, false);
 
 
-#if 0
+#if 1
     // TODO
     auto * ratiotoggle = new DrawableButton("rt", DrawableButton::ImageFitted);
     std::unique_ptr<Drawable> powerimg(Drawable::createFromImageData(BinaryData::power_svg, BinaryData::power_svgSize));
@@ -479,6 +486,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     ratiotoggle->setClickingTogglesState(true);
     ratiotoggle->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
     ratiotoggle->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+    ratiotoggle->setSize(32,32);
     ratiotoggle->onClick = [this]() {
         setSpectrumProcGroupEnabled(RatiosGroup, !isSpectrumProcGroupEnabled(RatiosGroup));
     };
@@ -488,6 +496,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     fftoggle->setClickingTogglesState(true);
     fftoggle->setColour(DrawableButton::backgroundColourId, Colours::transparentBlack);
     fftoggle->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+    fftoggle->setSize(32,32);
     fftoggle->onClick = [this]() {
         setSpectrumProcGroupEnabled(FreeFilterGroup, !isSpectrumProcGroupEnabled(FreeFilterGroup));
     };
@@ -619,6 +628,10 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
     else if (r == SettingsSliderSnapId)
     {
         toggleBool(processor.m_use_jumpsliders);
+    }
+    else if (r == SettingsRestorePlayStateId)
+    {
+        toggleBool(processor.m_restore_playstate);
     }
 	else if (r == SettingsAboutId)
 	{
@@ -793,18 +806,19 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     FlexBox scompbox;
 
     if (w >= 700) {
+        int halfgroupw = groupw/2 - 2*groupmargin;
         shiftbox.flexDirection = FlexBox::Direction::row;
-        minh = m_pargroups[FrequencyShiftGroup]->getMinimumHeight(minw);
+        minh = m_pargroups[FrequencyShiftGroup]->getMinimumHeight(halfgroupw);
         shiftbox.items.add(FlexItem(minw, minh, *m_pargroups[FrequencyShiftGroup]).withFlex(1));
-        shiftbox.items.add(FlexItem(4, minh));
+        shiftbox.items.add(FlexItem(groupmargin*2, minh));
         shiftbox.items.add(FlexItem(minw, minh, *m_pargroups[PitchShiftGroup]).withFlex(1));
         groupsbox.items.add(FlexItem(minw, minh, shiftbox).withMargin(groupmargin));
         gheight += minh + 2*groupmargin;
 
         scompbox.flexDirection = FlexBox::Direction::row;
-        minh = m_pargroups[FrequencySpreadGroup]->getMinimumHeight(minw);
+        minh = m_pargroups[FrequencySpreadGroup]->getMinimumHeight(halfgroupw);
         scompbox.items.add(FlexItem(minw, minh, *m_pargroups[FrequencySpreadGroup]).withFlex(1));
-        scompbox.items.add(FlexItem(4, minh));
+        scompbox.items.add(FlexItem(groupmargin*2, minh));
         scompbox.items.add(FlexItem(minw, minh, *m_pargroups[CompressGroup]).withFlex(1));
         groupsbox.items.add(FlexItem(minw, minh, scompbox).withMargin(groupmargin));
         gheight += minh + 2*groupmargin;
@@ -918,8 +932,11 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
             if (m_wavefilter_tab.getNumTabs() > 3) {
                 // bring it back
+                int currtab = m_wavefilter_tab.getCurrentTabIndex();
                 m_wavefilter_tab.removeTab(3);
-                m_wavefilter_tab.setCurrentTabIndex(0);
+                if (currtab == 3) {
+                    m_wavefilter_tab.setCurrentTabIndex(0);
+                }
                 addAndMakeVisible(m_groupviewport.get());
             }
             m_shortMode = false;
@@ -931,8 +948,11 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
         if (m_wavefilter_tab.getNumTabs() > 3) {
             // bring it back
+            int currtab = m_wavefilter_tab.getCurrentTabIndex();
             m_wavefilter_tab.removeTab(3);
-            m_wavefilter_tab.setCurrentTabIndex(0);
+            if (currtab == 3) {
+                m_wavefilter_tab.setCurrentTabIndex(0);
+            }
             addAndMakeVisible(m_groupviewport.get());
         }
 
@@ -946,6 +966,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
         //mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
         mainbox.items.add(FlexItem(minw, volh, volbox).withMargin(margin).withFlex(0));
+        mainbox.items.add(FlexItem(6, 3));
         mainbox.items.add(FlexItem(minw, stretchH, *m_stretchgroup).withMargin(margin).withFlex(0));
     }
 
@@ -1089,6 +1110,13 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
             m_stretchgroup->replaceParameterComponent(m_parcomps[cpi_dryplayrate].get(), m_parcomps[cpi_stretchamount].get());
         }
 
+        if (auto * toggle = dynamic_cast<Button*>(m_wavefilter_tab.getTabbedButtonBar().getTabButton(1)->getExtraComponent())) {
+            toggle->setToggleState(isSpectrumProcGroupEnabled(RatiosGroup), dontSendNotification);
+        }
+        if (auto * toggle = dynamic_cast<Button*>(m_wavefilter_tab.getTabbedButtonBar().getTabButton(2)->getExtraComponent())) {
+            toggle->setToggleState(isSpectrumProcGroupEnabled(FreeFilterGroup), dontSendNotification);
+        }
+
         updateAllSliders();
 
 		//m_parcomps[cpi_dryplayrate]->setVisible(*processor.getBoolParameter(cpi_bypass_stretch));
@@ -1156,6 +1184,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	m_settings_menu.addItem(SettingsLoadFileWithStateId, "Load file with plugin state", true, processor.m_load_file_with_state);
 	m_settings_menu.addItem(SettingsPlayHostTransId, "Play when host transport running", true, processor.m_play_when_host_plays);
 	m_settings_menu.addItem(SettingsCaptureHostTransId, "Capture when host transport running", true, processor.m_capture_when_host_plays);
+    m_settings_menu.addItem(SettingsRestorePlayStateId, "Restore playing state", true, processor.m_restore_playstate);
     m_settings_menu.addSeparator();
 	m_settings_menu.addItem(SettingsMutePassthruCaptureId, "Mute passthrough while capturing", true, processor.m_mute_while_capturing);
     m_settings_menu.addItem(SettingsMuteProcessedCaptureId, "Mute processed audio output while capturing", true, processor.m_mute_processed_while_capturing);
@@ -1626,8 +1655,6 @@ void WaveformComponent::mouseDoubleClick(const MouseEvent & e)
 
 void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDetails & wd)
 {
-	//return;
-
     double width = getWidth();
 	double normt = viewXToNormalized(e.x);
 	double curlen = m_view_range.getLength();
@@ -1656,6 +1683,39 @@ void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDet
 	m_image_dirty = true;
 	repaint();
 
+}
+
+void WaveformComponent::mouseMagnify (const MouseEvent& e, float scaleFactor)
+{
+#if 0
+    double width = getWidth();
+    double normt = viewXToNormalized(e.x);
+    double curlen = m_view_range.getLength();
+    double zoomFactor = 1.0 - curlen;
+
+    double newfact = jlimit(0.0, 1.0, zoomFactor + scaleFactor);
+    double xratio = e.x / width;
+    auto newScale = jmax (0.001, 1.0 * (1.0 - jlimit (0.0, 0.99, newfact)));
+
+    double t0 = normt - newScale * xratio;
+    double t1 = normt + newScale * (1.0 - xratio);
+
+    t0 = jlimit(0.0,1.0, t0);
+    t1 = jlimit(0.0,1.0, t1);
+
+    DBG("MAG normt: " << normt << " posratio: " << xratio << " curlen: " << curlen << " t0: " << t0 << " t1: " << t1 << " mscale: " << scaleFactor);
+
+    jassert(t1 > t0);
+    m_view_range = { t0,t1 };
+
+    //m_view_range = m_view_range.constrainRange({ 0.0, 1.0 });
+    jassert(m_view_range.getStart() >= 0.0 && m_view_range.getEnd() <= 1.0);
+    jassert(m_view_range.getLength() > 0.001);
+    if (ViewRangeChangedCallback)
+        ViewRangeChangedCallback(m_view_range);
+    m_image_dirty = true;
+    repaint();
+#endif
 }
 
 void WaveformComponent::setAudioInfo(double sr, double seekpos, int fftsize)
@@ -1991,8 +2051,8 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
         m_slider->setTextBoxStyle(Slider::TextBoxLeft, false, 60, 34);
 		m_slider->addListener(this);
         m_slider->setViewportIgnoreDragFlag(true);
-        m_slider->setScrollWheelEnabled(false
-                                        );
+        m_slider->setDoubleClickReturnValue(true, intpar->convertFrom0to1(par->getDefaultValue()));
+        m_slider->setScrollWheelEnabled(false);
         m_slider->setTitle(intpar->getName(50));
 	}
 	AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(par);
@@ -2032,13 +2092,20 @@ void ParameterComponent::resized()
     int h = getHeight();
 	if (m_slider)
 	{
+        int smallWidthThresh = 280;
+        int medWidthThresh = 350;
+#if JUCE_IOS
+        smallWidthThresh = 360;
+        medWidthThresh = 420;
+#endif
+
 		//int labw = 200;
         int labw = 120;
-        if (getWidth() < 280) {
+        if (getWidth() < smallWidthThresh) {
             labw = 60;
             m_label.setFont(12.0f);
         }
-        else if (getWidth() < 350) {
+        else if (getWidth() < medWidthThresh) {
             labw = 100;
             m_label.setFont(14.0f);
         } else {
@@ -2371,9 +2438,14 @@ RatioMixerEditor::RatioMixerEditor(int numratios)
 		ratlevslid->setRange(0.0, 1.0);
         ratlevslid->setNumDecimalPlacesToDisplay(3);
 		ratlevslid->setSliderStyle(Slider::LinearVertical);
-		if (i==3)
-			ratlevslid->setValue(1.0,dontSendNotification);
-		else ratlevslid->setValue(0.0,dontSendNotification);
+        if (i==2) {
+            ratlevslid->setValue(1.0,dontSendNotification);
+            ratlevslid->setDoubleClickReturnValue(true, 1.0);
+        }
+        else {
+            ratlevslid->setValue(0.0,dontSendNotification);
+            ratlevslid->setDoubleClickReturnValue(true, 0.0);
+        }
 		ratlevslid->onValueChange = [this, i]() { OnRatioLevelChanged(i, m_ratio_level_sliders[i]->getValue()); };
 		addAndMakeVisible(ratlevslid.get());
 		m_ratio_level_sliders.emplace_back(std::move(ratlevslid));

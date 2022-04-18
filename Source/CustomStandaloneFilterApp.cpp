@@ -138,8 +138,10 @@ public:
     void shutdown() override
     {
         DBG("shutdown");
-        if (mainWindow.get() != nullptr)
+        if (mainWindow.get() != nullptr) {
             mainWindow->pluginHolder->savePluginState();
+            mainWindow->pluginHolder->saveAudioDeviceState();
+        }
         
         mainWindow = nullptr;
         appProperties.saveIfNeeded();
@@ -148,8 +150,20 @@ public:
     void suspended() override
     {
         DBG("suspended");
-        if (mainWindow.get() != nullptr)
+        if (mainWindow.get() != nullptr) {
             mainWindow->pluginHolder->savePluginState();
+            mainWindow->pluginHolder->saveAudioDeviceState();
+
+            if (auto * sonoproc = dynamic_cast<PaulstretchpluginAudioProcessor*>(mainWindow->pluginHolder->processor.get())) {
+                if (sonoproc->getBoolParameter(cpi_pause_enabled)->get() && !sonoproc->isRecordingEnabled()
+                    && !mainWindow->pluginHolder->isInterAppAudioConnected()) {
+                    // shutdown audio engine
+                    DBG("not active, shutting down audio");
+                    mainWindow->getDeviceManager().closeAudioDevice();
+                    sonoproc->setPlayHead (nullptr);
+                }
+            }
+        }
 
         appProperties.saveIfNeeded();
 
@@ -158,15 +172,27 @@ public:
     
     void resumed() override
     {
-        Desktop::getInstance().setScreenSaverEnabled(false);                
+        Desktop::getInstance().setScreenSaverEnabled(false);
+        if (auto * dev = mainWindow->getDeviceManager().getCurrentAudioDevice()) {
+            if (!dev->isPlaying()) {
+                DBG("dev not playing, restarting");
+                mainWindow->getDeviceManager().restartLastAudioDevice();
+            }
+        }
+        else {
+            DBG("was not actve: restarting");
+            mainWindow->getDeviceManager().restartLastAudioDevice();
+        }
     }
     
     //==============================================================================
     void systemRequestedQuit() override
     {
         DBG("Requested quit");
-        if (mainWindow.get() != nullptr)
+        if (mainWindow.get() != nullptr) {
             mainWindow->pluginHolder->savePluginState();
+            mainWindow->pluginHolder->saveAudioDeviceState();
+        }
 
         appProperties.saveIfNeeded();
 

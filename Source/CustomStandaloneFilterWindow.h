@@ -239,7 +239,7 @@ public:
        #if JucePlugin_Enable_IAA && JUCE_IOS
         if (auto device = dynamic_cast<iOSAudioIODevice*> (deviceManager.getCurrentAudioDevice()))
         {
-            processor->setPlayHead (device->getAudioPlayHead());
+             processor->setPlayHead (device->getAudioPlayHead());
             device->setMidiMessageCollector (&player.getMidiMessageCollector());
         }
        #endif
