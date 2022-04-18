@@ -121,6 +121,11 @@ void FFT::smp2freq()
 
     //DebugLogC("post fft: %g %g\n", A.realp[fftFrameSize/4], A.imagp[fftFrameSize/4 + 1]);
 
+    // forward scale
+    const float scale = 0.5f;
+    vDSP_vsmul(A.realp, 1, &scale, A.realp, 1, halfsamples);
+    vDSP_vsmul(A.imagp, 1, &scale, A.imagp, 1, halfsamples);
+
     // Absolute square (equivalent to mag^2)
     vDSP_zvmags(&A, 1, freq.data(), 1, halfsamples);
 
@@ -183,8 +188,7 @@ void FFT::freq2smp()
     vDSP_ztoc(&A, 1, (COMPLEX*)data.data(), 2, halfsamples);
 
     // scale
-    //float scale = 1.f/data[0]; // 1.0f / nsamples  ??
-    float scale = 1.f / nsamples; // 1.0f / nsamples  ??
+    float scale = 1.f / nsamples;
     vDSP_vsmul(data.data(), 1, &scale, smp.data(), 1, nsamples);
 
 
@@ -426,7 +430,7 @@ REALTYPE Stretch::process(REALTYPE *smps,int nsmps)
 		REALTYPE hinv_sqrt2=0.853553390593f;//(1.0+1.0/sqrt(2))*0.5;
 
 		REALTYPE ampfactor=2.0f;
-		
+
 		//remove the resulted unwanted amplitude modulation (caused by the interference of N and N+1 windowed buffer and compute the output buffer
 		for (int i=0;i<bufsize;i++) {
 			REALTYPE a=(float)((0.5+0.5*cos(i*tmp)));
