@@ -10,24 +10,25 @@ VERSION=$1
 
 MAINNAME="PaulXStretch"
 
-BUILDDIR=../Builds/MacOSX/build/Release
-#BUILDDIR=../build/SonoBus_artefacts/Release
-#INSTBUILDDIR=../build/SonoBusInst_artefacts/Release
+#BUILDDIR=../Builds/MacOSX/build/Release
+BUILDDIR=../build/${MAINNAME}_artefacts/Release
+#INSTBUILDDIR=../build/${MAINNAME}Inst_artefacts/Release
 
 rm -rf ${MAINNAME}
 
 mkdir -p ${MAINNAME}
 
 
-#cp ../doc/README_MAC.txt SonoBus/
+#cp ../doc/README_MAC.txt ${MAINNAME}/
 
-#cp -pLRv ${BUILDDIR}/Standalone/${MAINNAME}.app  ${MAINNAME}/
-#cp -pLRv ${BUILDDIR}/AU/${MAINNAME}.component  ${MAINNAME}/
-#cp -pLRv ${BUILDDIR}/VST3/${MAINNAME}.vst3 ${MAINNAME}/
+cp -pLRv ${BUILDDIR}/Standalone/${MAINNAME}.app  ${MAINNAME}/
+cp -pLRv ${BUILDDIR}/AU/${MAINNAME}.component  ${MAINNAME}/
+cp -pLRv ${BUILDDIR}/VST3/${MAINNAME}.vst3 ${MAINNAME}/
+cp -pRHv ${BUILDDIR}/AAX/${MAINNAME}.aaxplugin  ${MAINNAME}/
 
-cp -pLRv ${BUILDDIR}/${MAINNAME}.app  ${MAINNAME}/
-cp -pLRv ${BUILDDIR}/${MAINNAME}.component  ${MAINNAME}/
-cp -pLRv ${BUILDDIR}/${MAINNAME}.vst3 ${MAINNAME}/
+#cp -pLRv ${BUILDDIR}/${MAINNAME}.app  ${MAINNAME}/
+#cp -pLRv ${BUILDDIR}/${MAINNAME}.component  ${MAINNAME}/
+#cp -pLRv ${BUILDDIR}/${MAINNAME}.vst3 ${MAINNAME}/
 
 
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
-cd ../Builds/MacOSX
+cd ..
+rm -rf build
 
-if ! xcodebuild -configuration Release -scheme "PaulXStretch - All" ; then
+./setupcmake.sh
 
-  echo Error BUILDING
-  exit 2
-fi
+./buildcmake.sh
+
 
 

@@ -31,7 +31,7 @@ Name: "app"; Description: "Standalone 64-bit application (.exe)"; Types: full cu
 ;Name: "vst2_64"; Description: "64-bit VST2 Plugin (.dll)"; Types: full custom; Check: Is64BitInstallMode;
 Name: "vst3_64"; Description: "64-bit VST3 Plugin (.vst3)"; Types: full custom; Check: Is64BitInstallMode;
 ;;Name: "aax_32"; Description: "32-bit AAX Plugin (.aaxplugin)"; Types: full custom;
-;Name: "aax_64"; Description: "64-bit AAX Plugin (.aaxplugin)"; Types: full custom; Check: Is64BitInstallMode;
+Name: "aax_64"; Description: "64-bit AAX Plugin (.aaxplugin)"; Types: full custom; Check: Is64BitInstallMode;
 ;Name: "vst2_32"; Description: "32-bit VST2 Plugin (.dll)"; Types: full custom;
 ;Name: "vst3_32"; Description: "32-bit VST3 Plugin (.vst3)"; Types: full custom;
 
@@ -41,9 +41,9 @@ Name: "vst3_64"; Description: "64-bit VST3 Plugin (.vst3)"; Types: full custom; 
 
 [Files]
 Source: "PaulXStretch\PaulXStretch.exe";  DestDir: "{app}" ; Check: Is64BitInstallMode; Components:app; Flags: ignoreversion signonce;
-;Source: "SonoBus\Plugins\SonoBus.dll"; DestDir: {code:GetVST2Dir|0}; Check: Is64BitInstallMode; Components:vst2_64; Flags: ignoreversion signonce;
+;Source: "SonoBus\Plugins\PaulXStretch.dll"; DestDir: {code:GetVST2Dir|0}; Check: Is64BitInstallMode; Components:vst2_64; Flags: ignoreversion signonce;
 Source: "PaulXStretch\Plugins\PaulXStretch.vst3"; DestDir: "{commoncf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64; Flags: ignoreversion signonce ;
-;Source: "SonoBus\Plugins\SonoBus.aaxplugin"; DestDir: "{commoncf64}\Avid\Audio\Plug-Ins\"; Check: Is64BitInstallMode; Components:aax_64; Flags: ignoreversion recursesubdirs createallsubdirs ;
+Source: "SonoBus\Plugins\PaulXStretch.aaxplugin"; DestDir: "{commoncf64}\Avid\Audio\Plug-Ins\"; Check: Is64BitInstallMode; Components:aax_64; Flags: ignoreversion recursesubdirs createallsubdirs ;
 
 ;Source: "SonoBus\SonoBus32.exe"; DestDir: "{app}" ;  DestName:"SonoBus.exe"; Check: not Is64BitInstallMode;  Components:app32; Flags: ignoreversion signonce;
 ;Source: "SonoBus\Plugins32\SonoBus.dll"; DestDir: {code:GetVST2Dir|1}; Components:vst2_32; Flags: ignoreversion signonce;

@@ -13,14 +13,12 @@ codesign ${POPTS} --entitlements ${MAINNAME}.entitlements  ${MAINNAME}/${MAINNAM
 codesign ${POPTS} --entitlements ${MAINNAME}.entitlements ${MAINNAME}/${MAINNAME}.vst3
 
 
-if false ; then
-
-  # AAX is special
-  if [ -n "${AAXSIGNCMD}" ]; then
+# AAX is special
+if [ -n "${AAXSIGNCMD}" ]; then
    echo "Signing AAX plugin"
    ${AAXSIGNCMD}  --in ${MAINNAME}/${MAINNAME}.aaxplugin --out ${MAINNAME}/${MAINNAME}.aaxplugin
-  fi
 fi
+
 
 
 if [ "x$1" = "xonly" ] ; then
@@ -52,14 +50,5 @@ if ! ./notarize-app.sh --resume=tmp/sbvst3.uuid ${MAINNAME}/${MAINNAME}.vst3 ; t
   echo Notarization VST3 failed
   exit 2
 fi
-
-
-#if ! ./notarize-app.sh SonoBus/SonoBus.aaxplugin ; then
-#  echo Notarization AAX failed
-#  exit 2
-#fi
-
-
-
 
 
