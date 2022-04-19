@@ -12,8 +12,11 @@ https://github.com/essej/paulxstretch
 
 Requirements for building from source code :
   - A modern C++ compiler and standard library (C++14, some C++17 needs to be supported)
-  - JUCE 6.X : https://github.com/juce-framework/JUCE
-  - FFTW3.3.6
+  - JUCE 6.X is included in deps/juce and is a slightly modified branch with
+    some improvements/augmentations. It is managed via the tool git-subrepo
+and the original repository is: https://github.com/essej/JUCE in the
+```sono6good``` branch
+  - FFTW >= 3.3.6
 
 # Contributors
 
