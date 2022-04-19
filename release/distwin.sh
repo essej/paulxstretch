@@ -16,8 +16,11 @@ if [ -z "$CERTFILE" ] ; then
   exit 2
 fi
 
-BUILDDIR='../Builds/VisualStudio2019/x64/Release'
-BUILDDIR32='../Builds/VisualStudio2019/Win32/Release32'
+BUILDDIR="../build/${BASENAME}_artefacts/Release"
+BUILDDIR32="../build32/${BASENAME}_artefacts/Release"
+
+#BUILDDIR='../Builds/VisualStudio2019/x64/Release'
+#BUILDDIR32='../Builds/VisualStudio2019/Win32/Release32'
 
 mkdir -p ${BASENAME}/Plugins
 
@@ -25,7 +28,7 @@ mkdir -p ${BASENAME}/Plugins
 cp -v ${BUILDDIR}/Standalone\ Plugin/${BASENAME}.exe ${BASENAME}/
 cp -v ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/
 #cp -v ${BUILDDIR}/VST/SonoBus.dll ${BASENAME}/Plugins/
-#cp -pHLRv ${BUILDDIR}/AAX/SonoBus.aaxplugin ${BASENAME}/Plugins/
+cp -pHLRv ${BUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/
 
 
 #mkdir -p SonoBus/Plugins32
@@ -37,10 +40,10 @@ cp -v ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/
 
 
 # sign AAX
-#if [ -n "${AAXSIGNCMD}" ]; then
-#  echo "Signing AAX plugin"
-#  ${AAXSIGNCMD} --keypassword "${CERTPASS}"  --in 'SonoBus\Plugins\Sonobus.aaxplugin' --out 'SonoBus\Plugins\Sonobus.aaxplugin'
-#fi
+if [ -n "${AAXSIGNCMD}" ]; then
+  echo "Signing AAX plugin"
+  ${AAXSIGNCMD} --keypassword "${CERTPASS}"  --in ${BASENAME}'\Plugins\'${BASENAME}.aaxplugin --out ${BASENAME}'\Plugins\'${BASENAME}.aaxplugin
+fi
 
 
 # sign executable

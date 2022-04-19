@@ -220,9 +220,11 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         endif()
 
         list (APPEND PLAT_COMPILE_DEFS
+            JUCE_MODAL_LOOPS_PERMITTED
             _USE_MATH_DEFINES
             WINVER=0x0601
-            _WIN32_WINNT=0x0601)
+            _WIN32_WINNT=0x0601
+	    NOMINMAX)
     else()
         # Linux
         list (APPEND PlatSourceFiles  Source/CrossPlatformUtilsLinux.cpp)
@@ -265,7 +267,6 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         Source/PS_Source/StretchSource.cpp
         Source/PS_Source/Player.h
         Source/PS_Source/globals.h
-        Source/PS_Source/globals.cpp
         Source/PS_Source/Stretch.cpp
         Source/PS_Source/FreeEdit.h
         Source/PS_Source/FreeEdit.cpp
