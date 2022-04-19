@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=PaulXStretch
+Comment=Extreme Time Stretching
+GenericName=Extreme Time Stretching
+Exec=paulxstretch %u
+Icon=paulxstretch
+Terminal=false
+Type=Application
+Categories=AudioVideo;Audio;Mixer;
+Keywords=live;online;music;conference;
+MimeType=x-scheme-handler/paulxstretch
