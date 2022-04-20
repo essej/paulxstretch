@@ -1,11 +1,18 @@
 #!/bin/bash
 
 cd ..
-./setupcmake.sh
 
-#make -C build clean
+if ./setupcmake.sh
+then
 
-./buildcmake.sh
+   #make -C build clean
+
+   ./buildcmake.sh
+else
+  echo 
+  echo "ERROR setting up cmake, look for errors above and report them if asking for help."
+  echo
+fi
 
 
 
