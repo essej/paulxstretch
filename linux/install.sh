@@ -22,7 +22,7 @@ cp paulxstretch.desktop ${PREFIX}/share/applications/paulxstretch.desktop
 chmod +x ${PREFIX}/share/applications/paulxstretch.desktop
 
 mkdir -p ${PREFIX}/share/pixmaps
-cp ../images/paulxstretch_logo@2x.png ${PREFIX}/share/pixmaps/paulxstretch.png
+cp ../images/paulxstretch_icon_1024_rounded.png ${PREFIX}/share/pixmaps/paulxstretch.png
 
 if [ -d ${BUILDDIR}/VST3/PaulXStretch.vst3 ] ; then
   mkdir -p ${PREFIX}/lib/vst3
