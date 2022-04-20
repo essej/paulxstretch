@@ -26,6 +26,7 @@ On other distros you'll have to install the following development packages manua
 * `libgl-dev`
 * `libfreetype6-dev` or `libfreetype-dev`
 * `libcurl4-openssl-dev` or `libcurl4-gnutls-dev`
+* `cmake`
 
 ### Building
 Run the build script, both the standalone application and the VST3 plugin will be built:
