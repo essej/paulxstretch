@@ -14,6 +14,7 @@ PREREQS="jack-audio-connection-kit \
 	libXcursor-devel \
 	freetype-devel \
 	libcurl-devel \
+	fftw-devel \
 	cmake
         "
 
