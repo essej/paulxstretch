@@ -4,6 +4,9 @@ This application/plugin is based on the PaulStretch algorithm. (Paul’s Extreme
 
 PaulXStretch is only suitable for radical transformation of sounds. It is not suitable at all for subtle time or pitch corrections and such. Ambient music and sound design are probably the most suitable use cases. It can turn any short audio into an hours long ambient soundscape without batting an eye!
 
+Works as a standalone application on macOS, Windows, Linux, and iOS, and as an audio plugin (AU, VST3) on macOS, Windows and iOS (AUv3).
+
+
 <img src="https://sonosaurus.com/paulxstretch/assets/images/paulxstretch_screenshot.png" width="938" />
 
 # Installing
