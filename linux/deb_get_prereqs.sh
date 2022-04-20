@@ -12,7 +12,6 @@ PREREQS="libjack-jackd2-dev \
     libxrandr-dev \
     libxcursor-dev \
     libfftw3-dev \
-    libfftw3-single3 \
     cmake
     "
 FREETYPES=$(apt-cache pkgnames libfreetype)

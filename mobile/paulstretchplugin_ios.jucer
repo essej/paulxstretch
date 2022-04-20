@@ -15,75 +15,75 @@
               jucerFormatVersion="1" useAppConfig="0" defines="JUCE_USE_CUSTOM_PLUGIN_STANDALONE_APP=1">
   <MAINGROUP id="nozXHl" name="PaulXStretch">
     <GROUP id="{69E87EB6-7140-DB40-3383-82191582FEA1}" name="images">
-      <FILE id="krdp8M" name="freeze.svg" compile="0" resource="1" file="images/freeze.svg"/>
-      <FILE id="DHdvWm" name="loop_icon.svg" compile="0" resource="1" file="images/loop_icon.svg"/>
-      <FILE id="eqafbl" name="passthru.svg" compile="0" resource="1" file="images/passthru.svg"/>
+      <FILE id="krdp8M" name="freeze.svg" compile="0" resource="1" file="../images/freeze.svg"/>
+      <FILE id="DHdvWm" name="loop_icon.svg" compile="0" resource="1" file="../images/loop_icon.svg"/>
+      <FILE id="eqafbl" name="passthru.svg" compile="0" resource="1" file="../images/passthru.svg"/>
       <FILE id="JDf2c6" name="passthru_enabled.svg" compile="0" resource="1"
-            file="images/passthru_enabled.svg"/>
+            file="../images/passthru_enabled.svg"/>
       <FILE id="yM4pfJ" name="paulxstretch_icon_256.png" compile="0" resource="0"
-            file="images/paulxstretch_icon_256.png"/>
+            file="../images/paulxstretch_icon_256.png"/>
       <FILE id="eZYcsl" name="paulxstretch_icon_1024.png" compile="0" resource="0"
-            file="images/paulxstretch_icon_1024.png"/>
-      <FILE id="bg7hAk" name="pause_icon.svg" compile="0" resource="1" file="images/pause_icon.svg"/>
-      <FILE id="uGTN39" name="play_icon.svg" compile="0" resource="1" file="images/play_icon.svg"/>
-      <FILE id="OyhaIc" name="power.svg" compile="0" resource="1" file="images/power.svg"/>
-      <FILE id="uMLkyi" name="power_sel.svg" compile="0" resource="1" file="images/power_sel.svg"/>
-      <FILE id="kOKR8S" name="record.svg" compile="0" resource="1" file="images/record.svg"/>
+            file="../images/paulxstretch_icon_1024.png"/>
+      <FILE id="bg7hAk" name="pause_icon.svg" compile="0" resource="1" file="../images/pause_icon.svg"/>
+      <FILE id="uGTN39" name="play_icon.svg" compile="0" resource="1" file="../images/play_icon.svg"/>
+      <FILE id="OyhaIc" name="power.svg" compile="0" resource="1" file="../images/power.svg"/>
+      <FILE id="uMLkyi" name="power_sel.svg" compile="0" resource="1" file="../images/power_sel.svg"/>
+      <FILE id="kOKR8S" name="record.svg" compile="0" resource="1" file="../images/record.svg"/>
       <FILE id="aogj2H" name="record_active.svg" compile="0" resource="1"
-            file="images/record_active.svg"/>
+            file="../images/record_active.svg"/>
       <FILE id="MKkrTg" name="skipback_icon.svg" compile="0" resource="1"
-            file="images/skipback_icon.svg"/>
+            file="../images/skipback_icon.svg"/>
     </GROUP>
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
-        <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="Source/PS_Source/globals.h"/>
+        <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="../Source/PS_Source/globals.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
-              file="Source/PS_Source/ProcessedStretch.h"/>
-        <FILE id="TcGuiz" name="Stretch.h" compile="0" resource="0" file="Source/PS_Source/Stretch.h"/>
-        <FILE id="yz0SM3" name="StretchSource.h" compile="0" resource="0" file="Source/PS_Source/StretchSource.h"/>
-        <FILE id="G6XXRZ" name="AInputS.h" compile="0" resource="0" file="Source/PS_Source/Input/AInputS.h"/>
-        <FILE id="jSSkH5" name="InputS.h" compile="0" resource="0" file="Source/PS_Source/Input/InputS.h"/>
+              file="../Source/PS_Source/ProcessedStretch.h"/>
+        <FILE id="TcGuiz" name="Stretch.h" compile="0" resource="0" file="../Source/PS_Source/Stretch.h"/>
+        <FILE id="yz0SM3" name="StretchSource.h" compile="0" resource="0" file="../Source/PS_Source/StretchSource.h"/>
+        <FILE id="G6XXRZ" name="AInputS.h" compile="0" resource="0" file="../Source/PS_Source/Input/AInputS.h"/>
+        <FILE id="jSSkH5" name="InputS.h" compile="0" resource="0" file="../Source/PS_Source/Input/InputS.h"/>
         <FILE id="EIKlL1" name="ProcessedStretch.cpp" compile="1" resource="0"
-              file="Source/PS_Source/ProcessedStretch.cpp"/>
-        <FILE id="x1qOMW" name="Stretch.cpp" compile="1" resource="0" file="Source/PS_Source/Stretch.cpp"/>
+              file="../Source/PS_Source/ProcessedStretch.cpp"/>
+        <FILE id="x1qOMW" name="Stretch.cpp" compile="1" resource="0" file="../Source/PS_Source/Stretch.cpp"/>
         <FILE id="a7ur6I" name="StretchSource.cpp" compile="1" resource="0"
-              file="Source/PS_Source/StretchSource.cpp"/>
+              file="../Source/PS_Source/StretchSource.cpp"/>
       </GROUP>
       <FILE id="zvau5B" name="CrossPlatformUtils.h" compile="0" resource="0"
-            file="Source/CrossPlatformUtils.h"/>
+            file="../Source/CrossPlatformUtils.h"/>
       <FILE id="H0XjG1" name="CrossPlatformUtilsIOS.mm" compile="1" resource="0"
-            file="Source/CrossPlatformUtilsIOS.mm"/>
+            file="../Source/CrossPlatformUtilsIOS.mm"/>
       <FILE id="fjYsFD" name="CrossPlatformUtilsMac.mm" compile="1" resource="0"
-            file="Source/CrossPlatformUtilsMac.mm"/>
+            file="../Source/CrossPlatformUtilsMac.mm"/>
       <FILE id="rHA1fu" name="CustomLookAndFeel.cpp" compile="1" resource="0"
-            file="Source/CustomLookAndFeel.cpp"/>
+            file="../Source/CustomLookAndFeel.cpp"/>
       <FILE id="Y4DgKq" name="CustomLookAndFeel.h" compile="0" resource="0"
-            file="Source/CustomLookAndFeel.h"/>
+            file="../Source/CustomLookAndFeel.h"/>
       <FILE id="RsxiMD" name="CustomStandaloneFilterApp.cpp" compile="1"
-            resource="0" file="Source/CustomStandaloneFilterApp.cpp"/>
+            resource="0" file="../Source/CustomStandaloneFilterApp.cpp"/>
       <FILE id="EUS9Ff" name="CustomStandaloneFilterWindow.h" compile="0"
-            resource="0" file="Source/CustomStandaloneFilterWindow.h"/>
+            resource="0" file="../Source/CustomStandaloneFilterWindow.h"/>
       <FILE id="Mz5aVb" name="envelope_component.cpp" compile="1" resource="0"
-            file="Source/envelope_component.cpp"/>
+            file="../Source/envelope_component.cpp"/>
       <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
-            file="Source/envelope_component.h"/>
-      <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="Source/jcdp_envelope.h"/>
+            file="../Source/envelope_component.h"/>
+      <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="../Source/jcdp_envelope.h"/>
       <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+            file="../Source/PluginEditor.cpp"/>
+      <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="../Source/PluginEditor.h"/>
       <FILE id="jdPS0A" name="PluginProcessor.cpp" compile="1" resource="0"
-            file="Source/PluginProcessor.cpp"/>
+            file="../Source/PluginProcessor.cpp"/>
       <FILE id="pt5tX8" name="PluginProcessor.h" compile="0" resource="0"
-            file="Source/PluginProcessor.h"/>
+            file="../Source/PluginProcessor.h"/>
       <FILE id="KcXfhC" name="ps3_BufferingAudioSource.cpp" compile="1" resource="0"
-            file="Source/ps3_BufferingAudioSource.cpp"/>
+            file="../Source/ps3_BufferingAudioSource.cpp"/>
       <FILE id="oWbh5E" name="ps3_BufferingAudioSource.h" compile="0" resource="0"
-            file="Source/ps3_BufferingAudioSource.h"/>
+            file="../Source/ps3_BufferingAudioSource.h"/>
       <FILE id="RanaVV" name="RenderSettingsComponent.cpp" compile="1" resource="0"
-            file="Source/RenderSettingsComponent.cpp"/>
+            file="../Source/RenderSettingsComponent.cpp"/>
       <FILE id="L4CoFz" name="RenderSettingsComponent.h" compile="0" resource="0"
-            file="Source/RenderSettingsComponent.h"/>
-      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="Source/WDL/resample.cpp"/>
+            file="../Source/RenderSettingsComponent.h"/>
+      <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="../Source/WDL/resample.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
@@ -95,26 +95,24 @@
                   smallIcon="yM4pfJ" bigIcon="eZYcsl" iosBluetoothPermissionNeeded="1"
                   iosBackgroundBle="1">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/iosstatic/include"
-                       libraryPath="${HOME}/iosstatic/lib&#10;"/>
-        <CONFIGURATION isDebug="0" name="Release" libraryPath="${HOME}/iosstatic/lib&#10;"
-                       headerPath="Source/PS_Source&#10;Source/WDL&#10;${HOME}/iosstatic/include"/>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="../Source/PS_Source&#10;../Source/WDL&#10;"/>
+        <CONFIGURATION isDebug="0" name="Release" headerPath="../Source/PS_Source&#10;../Source/WDL&#10;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_extra" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_events" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_dsp" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_cryptography" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_core" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="deps/juce/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="deps/juce/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_events" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_dsp" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_core" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../deps/juce/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../deps/juce/modules"/>
       </MODULEPATHS>
     </XCODE_IPHONE>
   </EXPORTFORMATS>
