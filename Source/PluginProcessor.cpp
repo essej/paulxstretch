@@ -995,7 +995,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		m_buffering_source->getNextAudioBlock(aif);
 	}
-	if (m_is_recording == false && getParameter(cpi_passthrough) > 0.5f)
+	if ( getParameter(cpi_passthrough) > 0.5f)
 	{
 		for (int i = 0; i < totalNumInputChannels; ++i)
 		{
