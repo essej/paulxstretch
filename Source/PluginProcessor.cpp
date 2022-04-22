@@ -211,7 +211,7 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
                                                                          nullptr, // std::function<float (const String&)> textToValueFunction,
                                                                          true, // bool isMetaParameter,
                                                                          false, // bool isAutomatableParameter,
-                                                                         true, // bool isDiscrete,
+                                                                         false, // bool isDiscrete,
                                                                          AudioProcessorParameter::Category::genericParameter, // AudioProcessorParameter::Category parameterCategory,
                                                                          true));//bool isBoolean));
 
