@@ -80,7 +80,7 @@ Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 # License and 3rd Party Software
 
 Released under GNU General Public License v.3 license with App Store license
-exception. The full license text is in the LICENSE and LICENSE_EXCEPTION files. Paul Nasca, Xenakios and Jesse Chappell all explicitly permitted the license exception clause.
+exception. The full license text is in the LICENSE file. Paul Nasca, Xenakios and Jesse Chappell all explicitly permitted the license exception clause.
 
 
 It is built using JUCE 6 (slightly modified on a public fork), I'm using the very handy tool `git-subrepo` to include the source code for my forks of those software libraries in this repository.

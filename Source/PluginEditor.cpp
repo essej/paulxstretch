@@ -116,7 +116,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_rewind_button->setTooltip("Return to start");
 	m_rewind_button->onClick = [this]()
 	{
-		*processor.getBoolParameter(cpi_rewind) = true;
+		processor.setParameter( cpi_rewind, 1.0f);
 		//processor.getStretchSource()->seekPercent(processor.getStretchSource()->getPlayRange().getStart());
 	};
 

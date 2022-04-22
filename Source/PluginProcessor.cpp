@@ -199,7 +199,22 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	}
 
 	addParameter(new AudioParameterBool("loop_enabled0", "Loop", true)); // 60
-	addParameter(new AudioParameterBool("rewind0", "Rewind", false)); // 61
+
+    //addParameter(new AudioParameterBool("rewind0", "Rewind", false)); // 61
+    // have to add it this way to specify rewind as a Meta parameter, so that Apple auval will pass it
+    addParameter(new AudioProcessorValueTreeState::Parameter ("rewind0",
+                                                                         "Rewind",
+                                                                         "",
+                                                                         NormalisableRange<float>(0.0f, 1.0f),
+                                                                         0.0f, // float defaultParameterValue,
+                                                                         nullptr, //std::function<String (float)> valueToTextFunction,
+                                                                         nullptr, // std::function<float (const String&)> textToValueFunction,
+                                                                         true, // bool isMetaParameter,
+                                                                         false, // bool isAutomatableParameter,
+                                                                         true, // bool isDiscrete,
+                                                                         AudioProcessorParameter::Category::genericParameter, // AudioProcessorParameter::Category parameterCategory,
+                                                                         true));//bool isBoolean));
+
 	auto dprate_convertFrom0To1Func = [](float rangemin, float rangemax, float value)
 	{
 		if (value < 0.5f)
@@ -772,7 +787,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
 	m_input_buffer.setSize(getTotalNumInputChannels(), samplesPerBlock);
-	*getBoolParameter(cpi_rewind) = false;
+	setParameter(cpi_rewind, 0.0f);
 	m_lastrewind = false;
 	int numoutchans = *m_outchansparam;
 	if (numoutchans != m_cur_num_out_chans)
@@ -1042,12 +1057,12 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 
 	if (m_stretch_source->isLoopEnabled() != *getBoolParameter(cpi_looping_enabled))
 		m_stretch_source->setLoopingEnabled(*getBoolParameter(cpi_looping_enabled));
-	bool rew = *getBoolParameter(cpi_rewind);
+	bool rew = getParameter(cpi_rewind) > 0.0f;
 	if (rew != m_lastrewind)
 	{
 		if (rew == true)
 		{
-			*getBoolParameter(cpi_rewind) = false;
+			setParameter(cpi_rewind, 0.0f);
 			m_stretch_source->seekPercent(m_stretch_source->getPlayRange().getStart());
 		}
 		m_lastrewind = rew;
