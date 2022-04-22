@@ -1,6 +1,16 @@
 
 ## PaulXStretch History :
 
+04-22-2022 1.5.1
+ - fixed passthrough when capturing
+ - added declicking fades when bypassing input passthrough, playback, and recording
+ - layout tweaks for extra small windows
+ - waveform scrollbar improvements, visible edge drag handles, and allows dragging from anywhere
+ - minor visual tweaks
+ - fixed AudioUnit validation problem (Mac)
+ - fixed VST3 installation issue on windows 
+    (be sure to uninstall first, you may need to manually remove the C:\Program Files\Common Files\VST3\PaulXStretch.vst3)
+ 
 04-14-2022 1.5.0
   - UI layout redesign to adapt to different window sizes and changed look
     and feel.
