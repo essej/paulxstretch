@@ -7,6 +7,7 @@
  - layout tweaks for extra small windows
  - waveform scrollbar improvements, visible edge drag handles, and allows dragging from anywhere
  - minor visual tweaks
+ - plugin supports multi-bus inputs and outputs
  - fixed AudioUnit validation problem (Mac)
  - fixed VST3 installation issue on windows 
     (be sure to uninstall first, you may need to manually remove the C:\Program Files\Common Files\VST3\PaulXStretch.vst3)
