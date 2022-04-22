@@ -23,13 +23,14 @@ BUILDDIR32="../build32/${BASENAME}_artefacts/Release"
 #BUILDDIR32='../Builds/VisualStudio2019/Win32/Release32'
 
 rm -rf ${BASENAME}/Plugins
-mkdir -p ${BASENAME}/Plugins
+mkdir -p ${BASENAME}/Plugins/VST3 
+mkdir -p ${BASENAME}/Plugins/AAX
 
 #cp -v ../doc/README_WINDOWS.txt SonoBus/README.txt
 cp -v ${BUILDDIR}/Standalone\ Plugin/${BASENAME}.exe ${BASENAME}/
-cp -pHLRv ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/
+cp -pHLRv ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/VST3/
 #cp -v ${BUILDDIR}/VST/SonoBus.dll ${BASENAME}/Plugins/
-cp -pHLRv ${BUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/
+cp -pHLRv ${BUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/AAX/
 
 
 #mkdir -p SonoBus/Plugins32
@@ -43,7 +44,7 @@ cp -pHLRv ${BUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/
 # sign AAX
 if [ -n "${AAXSIGNCMD}" ]; then
   echo "Signing AAX plugin"
-  ${AAXSIGNCMD} --keypassword "${CERTPASS}"  --in ${BASENAME}'\Plugins\'${BASENAME}.aaxplugin --out ${BASENAME}'\Plugins\'${BASENAME}.aaxplugin
+  ${AAXSIGNCMD} --keypassword "${CERTPASS}"  --in ${BASENAME}'\Plugins\AAX\'${BASENAME}.aaxplugin --out ${BASENAME}'\Plugins\AAX\'${BASENAME}.aaxplugin
 fi
 
 
