@@ -1,20 +1,6 @@
-/*
-
-Copyright (C) 2017 Xenakios
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 3 of the GNU General Public License
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License (version 3) for more details.
-
-www.gnu.org/licenses
-
-*/
-
+// SPDX-License-Identifier: GPLv3-or-later WITH Appstore-exception
+// Copyright (C) 2017 Xenakios
+// Copyright (C) 2020 Jesse Chappell
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -84,7 +70,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	{
 		return jmap<double>(x, 0.0, 1.0, -48.0, 12.0);
 	};
-    int tabdepth = 24;
+    int tabdepth = 26;
 
 #if JUCE_IOS
     tabdepth = 36;
@@ -209,6 +195,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
         std::unique_ptr<Drawable> pauseimg(Drawable::createFromImageData(BinaryData::pause_icon_svg, BinaryData::pause_icon_svgSize));
         pausebut->setImages(pauseimg.get(), nullptr, nullptr, nullptr, playimg.get());
         pausebut->setColour(DrawableButton::backgroundColourId, Colour::fromFloatRGBA(0.1f, 0.5f, 0.1f, 0.55f));
+        pausebut->setTooltip("Play / Pause");
     }
 
     if (auto * loopbut = m_parcomps[cpi_looping_enabled]->getDrawableButton()) {
@@ -469,7 +456,7 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	};
 	m_wave_container->addAndMakeVisible(&m_wavecomponent);
 
-    auto tabbgcol = Colour(0xff444444);
+    auto tabbgcol = Colour(0xff303030);
 
 	m_wavefilter_tab.addTab("Waveform", tabbgcol, m_wave_container, true);
 	m_wavefilter_tab.addTab("Ratio mixer", tabbgcol, &m_ratiomixeditor, false);
@@ -873,9 +860,6 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     mainbox.items.add(FlexItem(6, 2));
 
-    mainbox.items.add(FlexItem(minw, topboxh, topbox).withMargin(margin).withFlex(0));
-
-    mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
 
 
     auto reparentIfNecessary = [] (Component * comp, Component *newparent) {
@@ -899,6 +883,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int totminh = vpminh + orderminh + tabminh + topboxh + toggleh + volh + stretchH + 18;
 
     int shortthresh = vpminh + orderminh + tabminh + topboxh + toggleh;
+    int veryshortthresh = tabminh + topboxh + toggleh;
 
     if (getHeight() < totminh) {
         // not enough vertical space, put the top items in the scrollable viewport
@@ -916,19 +901,41 @@ void PaulstretchpluginAudioProcessorEditor::resized()
         if (getHeight() < shortthresh) {
             // really not much space, put group scroll in a new tab
             if (m_wavefilter_tab.getNumTabs() <= 3) {
-                m_wavefilter_tab.addTab("Controls", Colour(0xff555555), m_groupviewport.get(), false);
+                m_wavefilter_tab.addTab("Controls", Colour(0xff333333), m_groupviewport.get(), false);
                 m_wavefilter_tab.setCurrentTabIndex(3);
+            }
+
+            if (getHeight() < veryshortthresh) {
+
+                reparentItemsIfNecessary(topbox, m_groupcontainer.get());
+                reparentItemsIfNecessary(togglesbox, m_groupcontainer.get());
+
+                groupsbox.items.insert(0, FlexItem(minw, toggleh, togglesbox).withMargin(groupmargin).withFlex(0));
+                groupsbox.items.insert(0, FlexItem(minw, topboxh, topbox).withMargin(groupmargin).withFlex(0));
+
+                useh += toggleh + topboxh + groupmargin*4;
+            }
+            else {
+                reparentItemsIfNecessary(topbox, this);
+                reparentItemsIfNecessary(togglesbox, this);
+
+                mainbox.items.add(FlexItem(minw, topboxh, topbox).withMargin(margin).withFlex(0));
+                mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
+
             }
 
             reparentIfNecessary(&m_spec_order_ed, m_groupcontainer.get());
 
             groupsbox.items.add(FlexItem(minw, orderminh, m_spec_order_ed).withMargin(2));
 
+
             useh += orderminh + 4;
 
             m_shortMode = true;
         } else {
             reparentIfNecessary(&m_spec_order_ed, this);
+            reparentItemsIfNecessary(topbox, this);
+            reparentItemsIfNecessary(togglesbox, this);
 
             if (m_wavefilter_tab.getNumTabs() > 3) {
                 // bring it back
@@ -940,6 +947,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
                 addAndMakeVisible(m_groupviewport.get());
             }
             m_shortMode = false;
+
+            mainbox.items.add(FlexItem(minw, topboxh, topbox).withMargin(margin).withFlex(0));
+            mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
+
         }
 
 
@@ -960,11 +971,13 @@ void PaulstretchpluginAudioProcessorEditor::resized()
         reparentIfNecessary(m_groupviewport.get(), this);
         reparentIfNecessary(&m_spec_order_ed, this);
         reparentIfNecessary(m_stretchgroup.get(), this);
-        //reparentItemsIfNecessary(togglesbox, this);
         reparentItemsIfNecessary(volbox, this);
+        reparentItemsIfNecessary(topbox, this);
+        reparentItemsIfNecessary(togglesbox, this);
 
+        mainbox.items.add(FlexItem(minw, topboxh, topbox).withMargin(margin).withFlex(0));
+        mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
 
-        //mainbox.items.add(FlexItem(minw, toggleh, togglesbox).withMargin(margin).withFlex(0));
         mainbox.items.add(FlexItem(minw, volh, volbox).withMargin(margin).withFlex(0));
         mainbox.items.add(FlexItem(6, 3));
         mainbox.items.add(FlexItem(minw, stretchH, *m_stretchgroup).withMargin(margin).withFlex(0));
@@ -1015,6 +1028,12 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
 	m_zs.setBounds(m_wave_container->getX(), m_wavecomponent.getBottom(), m_wave_container->getWidth(), zscrollh);
 	//m_wavecomponent.setBounds(1, m_spec_order_ed.getBottom()+1, getWidth()-2, remain_h/5*4);
+
+    if (m_filechooser && m_filechooser->isVisible()) {
+        auto importbounds = getLocalArea(nullptr, m_import_button.getScreenBounds());
+        m_filechooser->setBounds(0,  importbounds.getBottom(), getWidth()/2, getHeight() - 75);
+        m_filechooser->toFront(false);
+    }
 
     if (m_shortMode) {
         m_groupcontainer->repaint();
@@ -1317,7 +1336,8 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 		m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
 		addChildComponent(m_filechooser.get());
 	}
-	m_filechooser->setBounds(0, m_import_button.getBottom(), getWidth()/2, getHeight() - 75);
+    auto bounds = getLocalArea(nullptr, m_import_button.getScreenBounds());
+	m_filechooser->setBounds(0,  bounds.getBottom(), getWidth()/2, getHeight() - 75);
 	m_filechooser->setVisible(!m_filechooser->isVisible());
 	if (m_filechooser->isVisible())
 		m_import_button.setButtonText("Hide browser");
@@ -1666,6 +1686,14 @@ void WaveformComponent::mouseWheelMove(const MouseEvent & e, const MouseWheelDet
 
     double t0 = normt - newScale * xratio;
     double t1 = normt + newScale * (1.0 - xratio);
+
+    if (abs(wd.deltaX) > 0.0) {
+        auto deltax = 0.15f * wd.deltaX;
+        double old_len = t1 - t0;
+        t0 = (jlimit(0.0, 1.0 - old_len, t0 + deltax));
+        t1 = (jlimit(old_len, t0 + old_len, t1 + deltax));
+    }
+
 
     t0 = jlimit(0.0,1.0, t0);
     t1 = jlimit(0.0,1.0, t1);
@@ -2310,7 +2338,17 @@ void PerfMeterComponent::timerCallback()
 
 void zoom_scrollbar::mouseDown(const MouseEvent &e)
 {
+    auto ha = get_hot_area(e.x, e.y);
 	m_drag_start_x = e.x;
+
+    m_handle_off_x = 0;
+
+    if (ha == ha_left_edge) {
+        m_handle_off_x = e.x - m_therange.getStart() * getWidth();
+    }
+    else if (ha == ha_right_edge) {
+        m_handle_off_x = e.x - m_therange.getEnd() * getWidth();
+    }
 }
 
 void zoom_scrollbar::mouseDoubleClick (const MouseEvent&)
@@ -2341,21 +2379,19 @@ void zoom_scrollbar::mouseMove(const MouseEvent &e)
 
 void zoom_scrollbar::mouseDrag(const MouseEvent &e)
 {
-	if (m_hot_area == ha_none)
-		return;
 	if (m_hot_area == ha_left_edge)
 	{
-		double new_left_edge = 1.0 / getWidth()*e.x;
+		double new_left_edge = 1.0 / getWidth()*(e.x - m_handle_off_x);
 		m_therange.setStart(jlimit(0.0, m_therange.getEnd() - 0.01, new_left_edge));
 		repaint();
 	}
-	if (m_hot_area == ha_right_edge)
+	else if (m_hot_area == ha_right_edge)
 	{
-		double new_right_edge = 1.0 / getWidth()*e.x;
+        double new_right_edge = 1.0 / getWidth()*(e.x - m_handle_off_x);
 		m_therange.setEnd(jlimit(m_therange.getStart() + 0.01, 1.0, new_right_edge));
 		repaint();
 	}
-	if (m_hot_area == ha_handle)
+	else if (m_hot_area == ha_handle || m_hot_area == ha_none)
 	{
 		double delta = 1.0 / getWidth()*(e.x - m_drag_start_x);
 		//double old_start = m_start;
@@ -2369,6 +2405,21 @@ void zoom_scrollbar::mouseDrag(const MouseEvent &e)
 	if (RangeChanged)
 		RangeChanged(m_therange);
 }
+
+void zoom_scrollbar::mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wd)
+{
+    float delta =  -0.1f * wd.deltaY;
+
+    double old_len = m_therange.getLength();
+    m_therange.setStart(jlimit(0.0, 1.0 - old_len, m_therange.getStart() + delta));
+    m_therange.setEnd(jlimit(old_len, m_therange.getStart() + old_len, m_therange.getEnd() + delta));
+
+    repaint();
+
+    if (RangeChanged)
+        RangeChanged(m_therange);
+}
+
 
 void zoom_scrollbar::mouseEnter(const MouseEvent & event)
 {
@@ -2384,15 +2435,41 @@ void zoom_scrollbar::mouseExit(const MouseEvent &)
 
 void zoom_scrollbar::paint(Graphics &g)
 {
-	g.setColour(Colours::darkgrey);
+    int radius = 16;
+#if JUCE_IOS
+    radius *= 2;
+#endif
+
+    Colour basecolor = Colours::darkgrey;
+    g.setColour(basecolor);
+
+    Colour barcolor = Colours::grey;
+
 	g.fillRect(0, 0, getWidth(), getHeight());
 	int x0 = (int)(getWidth()*m_therange.getStart());
 	int x1 = (int)(getWidth()*m_therange.getEnd());
-	if (m_hot_area != ha_none)
-		g.setColour(Colours::white.withAlpha(0.8f));
-	else g.setColour(Colours::grey);
-	//g.fillRect(x0, 0, x1 - x0, getHeight());
+    if (m_hot_area == ha_handle)
+        barcolor = barcolor.brighter(0.5f); //Colours::white.withAlpha(0.8f);
+
+    g.setColour(barcolor);
+
+    //g.fillRect(x0, 0, x1 - x0, getHeight());
     g.fillRoundedRectangle(x0, 0, x1 - x0, getHeight(), 8.0f);
+
+    // edge handles
+
+    Colour handlecol = barcolor.brighter();
+    if (m_hot_area == ha_left_edge)
+        g.setColour(handlecol.brighter());
+    else g.setColour(handlecol);
+
+    g.fillRoundedRectangle(x0, 0, radius, getHeight(), 8.0f);
+
+    if (m_hot_area == ha_right_edge)
+        g.setColour(handlecol.brighter());
+    else g.setColour(handlecol);
+
+    g.fillRoundedRectangle(x1 - radius, 0, radius, getHeight(), 8.0f);
 
 }
 
@@ -2408,7 +2485,7 @@ void zoom_scrollbar::setRange(Range<double> rng, bool docallback)
 
 zoom_scrollbar::hot_area zoom_scrollbar::get_hot_area(int x, int)
 {
-    int radius = 10;
+    int radius = 16;
 #if JUCE_IOS
     radius *= 2;
 #endif

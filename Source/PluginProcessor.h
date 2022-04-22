@@ -1,19 +1,6 @@
-/*
-
-Copyright (C) 2017 Xenakios
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 3 of the GNU General Public License
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License (version 3) for more details. 
-
-www.gnu.org/licenses
-
-*/
+// SPDX-License-Identifier: GPLv3-or-later WITH Appstore-exception
+// Copyright (C) 2017 Xenakios
+// Copyright (C) 2020 Jesse Chappell
 
 #pragma once
 
@@ -198,7 +185,7 @@ public:
 
 	void setDirty();
 	void setRecordingEnabled(bool b);
-	bool isRecordingEnabled() { return m_is_recording; }
+	bool isRecordingEnabled() { return m_is_recording_pending; }
 	double getRecordingPositionPercent();
 	String setAudioFile(const URL& url);
 	URL getAudioFile() { return m_current_file; }
@@ -217,6 +204,8 @@ public:
     bool m_mute_processed_while_capturing = false;
     bool m_use_backgroundbuffering = true;
     bool m_restore_playstate = true;
+    bool m_lastpassthru = false;
+    bool m_standalone = false;
 
     void resetParameters();
     void setPreBufferAmount(int x);
@@ -268,6 +257,8 @@ private:
 	URL m_current_file;
     Time m_current_file_date;
 	bool m_is_recording = false;
+    volatile bool m_is_recording_pending = false;
+    volatile bool m_is_recording_finished = false;
 	TimeSliceThread m_bufferingthread;
 	std::unique_ptr<StretchAudioSource> m_stretch_source;
 	std::unique_ptr<MyBufferingAudioSource> m_buffering_source;

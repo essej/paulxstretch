@@ -63,6 +63,7 @@ CustomLookAndFeel::CustomLookAndFeel()
     setColour (Slider::rotarySliderFillColourId, Colour::fromFloatRGBA(0.5, 0.4, 0.6, 0.9));
     
     setColour (TabbedButtonBar::tabOutlineColourId, Colour::fromFloatRGBA(0.3, 0.3, 0.3, 0.6));
+    setColour (TabbedComponent::outlineColourId, Colour::fromFloatRGBA(0.2, 0.2, 0.2, 0.5));
 
 
     
@@ -662,7 +663,7 @@ void CustomLookAndFeel::drawFileBrowserRow (Graphics& g, int width, int height,
 
     g.setColour (fileListComp != nullptr ? fileListComp->findColour (DirectoryContentsDisplayComponent::textColourId)
                  : findColour (DirectoryContentsDisplayComponent::textColourId));
-    g.setFont (myFont.withHeight(height * 0.5f));
+    g.setFont (myFont.withHeight(height * 0.6f));
 
     if (width > 450 && ! isDirectory)
     {
@@ -673,7 +674,7 @@ void CustomLookAndFeel::drawFileBrowserRow (Graphics& g, int width, int height,
                           x, 0, sizeX - x, height,
                           Justification::centredLeft, 1);
 
-        g.setFont (myFont.withHeight(height * 0.5f));
+        g.setFont (myFont.withHeight(height * 0.6f));
         g.setColour (Colours::darkgrey);
 
         if (! isDirectory)

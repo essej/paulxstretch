@@ -1,19 +1,6 @@
-/*
-
-Copyright (C) 2017 Xenakios
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 3 of the GNU General Public License
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License (version 3) for more details.
-
-www.gnu.org/licenses
-
-*/
+// SPDX-License-Identifier: GPLv3-or-later WITH Appstore-exception
+// Copyright (C) 2017 Xenakios
+// Copyright (C) 2020 Jesse Chappell
 
 #pragma once
 
@@ -41,6 +28,7 @@ public:
 	void mouseEnter(const MouseEvent &event) override;
 	void mouseExit(const MouseEvent &event) override;
     void mouseDoubleClick (const MouseEvent&) override;
+    void mouseWheelMove (const MouseEvent& e, const MouseWheelDetails& wd) override;
 
 	void paint(Graphics &g) override;
 	std::function<void(Range<double>)> RangeChanged;
@@ -52,6 +40,7 @@ private:
 	hot_area m_hot_area = ha_none;
 	hot_area get_hot_area(int x, int y);
 	int m_drag_start_x = 0;
+    int m_handle_off_x = 0;
 };
 
 

@@ -1,19 +1,7 @@
-/*
+// SPDX-License-Identifier: GPLv3-or-later WITH Appstore-exception
+// Copyright (C) 2017 Xenakios
+// Copyright (C) 2020 Jesse Chappell
 
-Copyright (C) 2017 Xenakios
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of version 3 of the GNU General Public License
-as published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License (version 3) for more details.
-
-www.gnu.org/licenses
-
-*/
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
@@ -61,11 +49,19 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 	return new AudioParameterFloat(id, name, NormalisableRange<float>(minv, maxv, step, skew), defv);
 }
 
+#if JUCE_IOS
+#define ALTBUS_ACTIVE true
+#else
+#define ALTBUS_ACTIVE false
+#endif
+
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor(bool is_stand_alone_offline)
-	: AudioProcessor(PaulstretchpluginAudioProcessor::BusesProperties().withInput("Main In",  AudioChannelSet::stereo(), true).withOutput ("Main Out", AudioChannelSet::stereo(), true)),
+	: AudioProcessor(PaulstretchpluginAudioProcessor::BusesProperties().withInput("Main In",  AudioChannelSet::stereo(), true).withOutput ("Main Out", AudioChannelSet::stereo(), true).withInput ("Aux 1 In", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withInput ("Aux 2 In", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withInput ("Aux 3 In", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withOutput ("Aux 1 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withOutput ("Aux 2 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withOutput ("Aux 3 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)),
 m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_alone_offline)
 {
+    DBG("Attempt proc const");
+
 	m_filechoose_callback = [this](const FileChooser& chooser)
 	{
 		URL resu = chooser.getURLResult();
@@ -91,13 +87,18 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	m_free_filter_envelope->AddNode({ 0.0,0.75 });
 	m_free_filter_envelope->AddNode({ 1.0,0.75 });
 	m_free_filter_envelope->set_reset_nodes(m_free_filter_envelope->get_all_nodes());
+
+    DBG("recbuffer");
+
     m_recbuffer.setSize(2, 48000);
 	m_recbuffer.clear();
 	if (m_afm->getNumKnownFormats()==0)
 		m_afm->registerBasicFormats();
 	if (m_is_stand_alone_offline == false)
 		m_thumb = std::make_unique<AudioThumbnail>(512, *m_afm, *m_thumbcache);
-	
+
+    DBG("making bool pars");
+
 	m_sm_enab_pars[0] = new AudioParameterBool("enab_specmodule0", "Enable harmonics", false);
 	m_sm_enab_pars[1] = new AudioParameterBool("enab_specmodule1", "Enable tonal vs noise", false);
 	m_sm_enab_pars[2] = new AudioParameterBool("enab_specmodule2", "Enable frequency shift", true);
@@ -108,12 +109,17 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable free filter", true);
 	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable compressor", false);
 	
+    DBG("making stretch source");
 
 	m_stretch_source = std::make_unique<StretchAudioSource>(2, m_afm,m_sm_enab_pars);
 	
 	m_stretch_source->setOnsetDetection(0.0);
 	m_stretch_source->setLoopingEnabled(true);
 	m_stretch_source->setFFTWindowingType(1);
+
+    DBG("About to add parameters");
+
+
 	addParameter(make_floatpar("mainvolume0", "Main volume", -24.0, 12.0, -3.0, 0.1, 1.0)); 
 	addParameter(make_floatpar("stretchamount0", "Stretch amount", 0.1, 1024.0, 2.0, 0.1, 0.25)); 
 	addParameter(make_floatpar("fftsize0", "FFT size", 0.0, 1.0, 0.7, 0.01, 1.0));
@@ -216,11 +222,12 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 
     if (!m_is_stand_alone_offline) {
         setPreBufferAmount(2);
-        startTimer(1, 50);
+        startTimer(1, 40);
     }
 
     m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
-	
+
+    DBG("Constructed PS plugin");
 }
 
 PaulstretchpluginAudioProcessor::~PaulstretchpluginAudioProcessor()
@@ -764,7 +771,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	m_adsr.setSampleRate(sampleRate);
 	m_cur_sr = sampleRate;
 	m_curmaxblocksize = samplesPerBlock;
-	m_input_buffer.setSize(getMainBusNumInputChannels(), samplesPerBlock);
+	m_input_buffer.setSize(getTotalNumInputChannels(), samplesPerBlock);
 	*getBoolParameter(cpi_rewind) = false;
 	m_lastrewind = false;
 	int numoutchans = *m_outchansparam;
@@ -794,6 +801,8 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	{
 		m_buffering_source->prepareToPlay(samplesPerBlock, getSampleRateChecked());
 	}
+
+    m_standalone = juce::PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_Standalone;
 }
 
 void PaulstretchpluginAudioProcessor::releaseResources()
@@ -808,10 +817,14 @@ bool PaulstretchpluginAudioProcessor::isBusesLayoutSupported (const BusesLayout&
     ignoreUnused (layouts);
     return true;
   #else
+
+     // support anything
+    return true;
+
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
-    if (layouts.getMainOutputChannelSet() != AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
+    if ( /* layouts.getMainOutputChannelSet() != AudioChannelSet::mono() && */
+        layouts.getMainOutputChannelSet() != AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
@@ -825,21 +838,42 @@ bool PaulstretchpluginAudioProcessor::isBusesLayoutSupported (const BusesLayout&
 }
 #endif
 
-void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, AudioBuffer<float>& dest, int destbufpos, int maxdestpos)
+static void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, int numSamples, AudioBuffer<float>& dest, int destbufpos, int maxdestpos, float fademode)
 {
+    int useNumSamples = jmin(numSamples, src.getNumSamples());
+
 	for (int i = 0; i < dest.getNumChannels(); ++i)
 	{
 		int channel_to_copy = i % src.getNumChannels();
-		if (destbufpos + src.getNumSamples() > maxdestpos)
+		if (destbufpos + useNumSamples > maxdestpos)
 		{
-			int wrappos = (destbufpos + src.getNumSamples()) % maxdestpos;
-			int partial_len = src.getNumSamples() - wrappos;
-			dest.copyFrom(channel_to_copy, destbufpos, src, channel_to_copy, 0, partial_len);
-			dest.copyFrom(channel_to_copy, partial_len, src, channel_to_copy, 0, wrappos);
+			int wrappos = (destbufpos + useNumSamples) % maxdestpos;
+			int partial_len = useNumSamples - wrappos;
+
+            if (fademode == 0.0f) {
+                dest.copyFrom(i, destbufpos, src, channel_to_copy, 0, partial_len);
+                dest.copyFrom(i, partial_len, src, channel_to_copy, 0, wrappos);
+            } else {
+                //DBG("recfade wrap: " << fademode);
+                if (fademode > 0.0f) {
+                    // fade in
+                    dest.copyFromWithRamp(i, destbufpos, src.getReadPointer(channel_to_copy), partial_len, fademode > 0.0f ? 0.0f : 1.0f, fademode > 0.0f ? 1.0f : 0.0f);
+                    dest.copyFrom(i, partial_len, src, channel_to_copy, 0, wrappos);
+                } else {
+                    // fade out
+                    dest.copyFrom(i, destbufpos, src, channel_to_copy, 0, partial_len);
+                    dest.copyFromWithRamp(i, partial_len, src.getReadPointer(channel_to_copy), wrappos, fademode > 0.0f ? 0.0f : 1.0f, fademode > 0.0f ? 1.0f : 0.0f);
+                }
+            }
 		}
 		else
 		{
-			dest.copyFrom(channel_to_copy, destbufpos, src, channel_to_copy, 0, src.getNumSamples());
+            if (fademode == 0.0f) {
+                dest.copyFrom(i, destbufpos, src, channel_to_copy, 0, useNumSamples);
+            } else {
+                //DBG("recfade: " << fademode);
+                dest.copyFromWithRamp(i, destbufpos, src.getReadPointer(channel_to_copy), useNumSamples, fademode > 0.0f ? 0.0f : 1.0f, fademode > 0.0f ? 1.0f : 0.0f);
+            }
 		}
 	}
 }
@@ -856,44 +890,110 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	ScopedLock locker(m_cs);
 	const int totalNumInputChannels = getTotalNumInputChannels();
 	const int totalNumOutputChannels = getTotalNumOutputChannels();
-	AudioPlayHead* phead = getPlayHead();
+    bool passthruEnabled = getParameter(cpi_passthrough) > 0.5f;
+
+    AudioPlayHead* phead = getPlayHead();
+    bool seektostart = false;
 	if (phead != nullptr)
 	{
 		phead->getCurrentPosition(m_playposinfo);
+
+        if (m_playposinfo.isPlaying && m_playposinfo.ppqPosition == 0.0 || m_playposinfo.timeInSamples == 0) {
+            seektostart = true;
+        }
 	}
-	else
+    else {
 		m_playposinfo.isPlaying = false;
+    }
+
 	ScopedNoDenormals noDenormals;
 	double srtemp = getSampleRate();
 	if (srtemp != m_cur_sr)
 		m_cur_sr = srtemp;
 	m_prebufsmoother.setSlope(0.9, srtemp / buffer.getNumSamples());
 	m_smoothed_prebuffer_ready = m_prebufsmoother.process(m_buffering_source->getPercentReady());
-	
+
+    if (buffer.getNumSamples() > m_input_buffer.getNumSamples()) {
+        // just in case
+        m_input_buffer.setSize(totalNumInputChannels, buffer.getNumSamples(), false, false, true);
+    }
+
+
 	for (int i = 0; i < totalNumInputChannels; ++i)
 		m_input_buffer.copyFrom(i, 0, buffer, i, 0, buffer.getNumSamples());
     for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+
+    float fadepassthru = 0.0f;
+    if (!passthruEnabled) {
+        if (m_lastpassthru != passthruEnabled)  {
+            // ramp it down
+            fadepassthru = -1.0f;
+            for (int i = 0; i < totalNumInputChannels; ++i)
+                buffer.applyGainRamp(i, 0, buffer.getNumSamples(), 1.0f, 0.0f);
+        }
+        else {
+            for (int i = 0; i < totalNumInputChannels; ++i)
+                buffer.clear (i, 0, buffer.getNumSamples());
+        }
+    }
+    else if (passthruEnabled != m_lastpassthru) {
+        // ramp it up
+        fadepassthru = 1.0f;
+        for (int i = 0; i < totalNumInputChannels; ++i)
+            buffer.applyGainRamp(i, 0, buffer.getNumSamples(), 0.0f, 1.0f);
+    }
+
+    m_lastpassthru = passthruEnabled;
+
+    float recfade = 0.0f;
+    if (m_is_recording != m_is_recording_pending) {
+        recfade = m_is_recording_pending ? 1.0f : -1.0f;
+        m_is_recording = m_is_recording_pending;
+    }
+
+
 	if (m_previewcomponent != nullptr)
 	{
 		m_previewcomponent->processBlock(getSampleRate(), buffer);
 		return;
 	}
-	if (m_prebuffering_inited == false)
+
+    if (m_prebuffering_inited == false)
 		return;
-	if (m_is_recording == true)
+
+    if (m_is_recording == true || recfade != 0.0f)
 	{
-		if (m_playposinfo.isPlaying == false && m_capture_when_host_plays == true)
+        if (m_playposinfo.isPlaying == false && m_capture_when_host_plays == true && !m_standalone) {
+            if (!m_is_recording)
+                m_is_recording_finished = true;
 			return;
+        }
+
 		int recbuflenframes = m_max_reclen * getSampleRate();
-		copyAudioBufferWrappingPosition(buffer, m_recbuffer, m_rec_pos, recbuflenframes);
-		m_thumb->addBlock(m_rec_pos, buffer, 0, buffer.getNumSamples());
+		copyAudioBufferWrappingPosition(m_input_buffer, buffer.getNumSamples(), m_recbuffer, m_rec_pos, recbuflenframes, recfade);
+		m_thumb->addBlock(m_rec_pos, m_input_buffer, 0, buffer.getNumSamples());
 		m_rec_pos = (m_rec_pos + buffer.getNumSamples()) % recbuflenframes;
 		m_rec_count += buffer.getNumSamples();
+
+        if (!m_is_recording) {
+            // to signal that it may be written, etc
+            m_is_recording_finished = true;
+        }
+
 		if (m_rec_count<recbuflenframes)
 			m_recorded_range = { 0, m_rec_count };
-		if (m_mute_while_capturing == true)
-			buffer.clear();
+        if (m_mute_while_capturing == true && passthruEnabled) {
+            if (recfade < 0.0f) {
+                buffer.applyGainRamp(0, buffer.getNumSamples(), 1.0f, 0.0f);
+            }
+            else if (recfade > 0.0f) {
+                buffer.applyGainRamp(0, buffer.getNumSamples(), 0.0f, 1.0f);
+            }
+            else {
+                buffer.clear();
+            }
+        }
 
         if (m_mute_processed_while_capturing == true)
             return;
@@ -904,17 +1004,30 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	double t1 = *getFloatParameter(cpi_soundend);
 	sanitizeTimeRange(t0, t1);
 	m_stretch_source->setPlayRange({ t0,t1 });
+
+    float fadeproc = 0.0f;
+
 	if (m_last_host_playing == false && m_playposinfo.isPlaying)
 	{
-		m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
+        if (m_play_when_host_plays) {
+            // should we even do this ever?
+            if (seektostart)
+                m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
+            fadeproc = 1.0f; // fadein
+        }
 		m_last_host_playing = true;
 	}
 	else if (m_last_host_playing == true && m_playposinfo.isPlaying == false)
 	{
 		m_last_host_playing = false;
+        if (m_play_when_host_plays) {
+            fadeproc = -1.0f; // fadeout
+        }
 	}
-	if (m_play_when_host_plays == true && m_playposinfo.isPlaying == false)
+
+    if (m_play_when_host_plays == true && m_playposinfo.isPlaying == false && !m_standalone && fadeproc == 0.0f)
 		return;
+
 	m_free_filter_envelope->m_transform_x_shift = *getFloatParameter(cpi_freefilter_shiftx);
 	m_free_filter_envelope->m_transform_y_shift = *getFloatParameter(cpi_freefilter_shifty);
 	m_free_filter_envelope->m_transform_y_scale = *getFloatParameter(cpi_freefilter_scaley);
@@ -995,13 +1108,31 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		m_buffering_source->getNextAudioBlock(aif);
 	}
-	if ( getParameter(cpi_passthrough) > 0.5f)
+
+    // fade processing if necessary
+    if (fadeproc != 0.0f) {
+        buffer.applyGainRamp(0, buffer.getNumSamples(), fadeproc > 0.0f ? 0.0f : 1.0f, fadeproc > 0.0f ? 1.0f : 0.0f);
+    }
+
+	if (fadepassthru != 0.0f
+        || (passthruEnabled && (!m_is_recording || !m_mute_while_capturing))
+        || (recfade != 0.0f && m_mute_while_capturing))
 	{
+        if (recfade != 0.0f && m_mute_while_capturing) {
+            // DBG("Invert recfade");
+            fadepassthru = -recfade;
+        }
+
 		for (int i = 0; i < totalNumInputChannels; ++i)
 		{
-			buffer.addFrom(i, 0, m_input_buffer, i, 0, buffer.getNumSamples());
+            if (fadepassthru != 0.0f) {
+                buffer.addFromWithRamp(i, 0, m_input_buffer.getReadPointer(i), buffer.getNumSamples(), fadepassthru > 0.0f ? 0.0f : 1.0f, fadepassthru > 0.0f ? 1.0f : 0.0f);
+            }
+            else
+                buffer.addFrom(i, 0, m_input_buffer, i, 0, buffer.getNumSamples());
 		}
-	}
+    }
+
 	bool abnordetected = false;
 	for (int i = 0; i < buffer.getNumChannels(); ++i)
 	{
@@ -1078,22 +1209,23 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);
-		m_is_recording = true;
 		m_recorded_range = Range<int>();
 		m_rec_count = 0;
+        m_is_recording_pending = true;
 	}
 	else
 	{
-		if (m_is_recording == true)
-		{
-			finishRecording(lenbufframes);
-		}
+        if (m_is_recording == true) {
+
+            m_is_recording_finished = false; // will be marked true when the recording is truly done
+            m_is_recording_pending = false;
+        }
 	}
 }
 
 double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
 {
-	if (m_is_recording==false)
+	if (m_is_recording_pending==false)
 		return 0.0;
 	return 1.0 / m_recbuffer.getNumSamples()*m_rec_pos;
 }
@@ -1117,9 +1249,14 @@ String PaulstretchpluginAudioProcessor::setAudioFile(const URL & url)
 		}
 		if (m_thumb)
 			m_thumb->setSource(new FileInputSource(file));
-		ScopedLock locker(m_cs);
-		m_stretch_source->setAudioFile(url);
-		//Range<double> currange{ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) };
+
+
+        // lets not lock
+        //ScopedLock locker(m_cs);
+
+        m_stretch_source->setAudioFile(url);
+
+        //Range<double> currange{ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) };
 		//if (currange.contains(m_stretch_source->getInfilePositionPercent())==false)
 			m_stretch_source->seekPercent(*getFloatParameter(cpi_soundstart));
 		m_current_file = url;
@@ -1160,16 +1297,25 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 			m_max_reclen = *getFloatParameter(cpi_max_capture_len);
 			//Logger::writeToLog("Changing max capture len to " + String(m_max_reclen));
 		}
-		if (capture == true && m_is_recording == false)
+		if (capture == true && m_is_recording_pending == false)
 		{
 			setRecordingEnabled(true);
 			return;
 		}
-		if (capture == false && m_is_recording == true)
+		if (capture == false && m_is_recording_pending == true)
 		{
 			setRecordingEnabled(false);
 			return;
 		}
+
+        if (m_is_recording_finished) {
+            DBG("Recording is actually done, commit the finish");
+            int lenbufframes = getSampleRateChecked()*m_max_reclen;
+            finishRecording(lenbufframes);
+            m_is_recording_finished = false;
+        }
+
+
 		if (m_cur_num_out_chans != *m_outchansparam)
 		{
 			jassert(m_curmaxblocksize > 0);
@@ -1224,7 +1370,8 @@ pointer_sized_int PaulstretchpluginAudioProcessor::handleVstManufacturerSpecific
 
 void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
 {
-	m_is_recording = false;
+    m_is_recording_finished = false;
+	m_is_recording_pending = false;
 	m_current_file = URL();
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	*getFloatParameter(cpi_soundstart) = 0.0f;

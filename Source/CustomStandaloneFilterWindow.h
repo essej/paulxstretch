@@ -1,28 +1,4 @@
-/*
-  ==============================================================================
-
-   This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
-
-   JUCE is an open source library subject to commercial or open-source
-   licensing.
-
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
-
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
-
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
-
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
-
-  ==============================================================================
-*/
+// SPDX-License-Identifier: GPLv3-or-later WITH Appstore-exception
 
 //#if JUCE_MODULE_AVAILABLE_juce_audio_plugin_client
 //extern juce::AudioProcessor* JUCE_API JUCE_CALLTYPE createPluginFilterOfType (juce::AudioProcessor::WrapperType type);
@@ -271,11 +247,19 @@ public:
             updateMinAndMax ((int) defaultConfig.numOuts, minNumOutputs, maxNumOutputs);
         }
 
-        if (auto* bus = processor->getBus (true, 0))
+        if (auto* bus = processor->getBus (true, 0)) {
             updateMinAndMax (bus->getDefaultLayout().size(), minNumInputs, maxNumInputs);
+            if (bus->isNumberOfChannelsSupported(1)) {
+                updateMinAndMax (1, minNumInputs, maxNumInputs);
+            }
+        }
 
-        if (auto* bus = processor->getBus (false, 0))
+        if (auto* bus = processor->getBus (false, 0)) {
             updateMinAndMax (bus->getDefaultLayout().size(), minNumOutputs, maxNumOutputs);
+            if (bus->isNumberOfChannelsSupported(1)) {
+                updateMinAndMax (1, minNumOutputs, maxNumOutputs);
+            }
+        }
 
         minNumInputs  = jmin (minNumInputs,  maxNumInputs);
         minNumOutputs = jmin (minNumOutputs, maxNumOutputs);
@@ -465,9 +449,9 @@ private:
               deviceSelector (deviceManagerToUse,
                               minAudioInputChannels, maxAudioInputChannels,
                               minAudioOutputChannels, maxAudioOutputChannels,
-                              true,
+                              true, // show midi
                               (pluginHolder.processor.get() != nullptr && pluginHolder.processor->producesMidi()),
-                              true, false),
+                              false, false),
               shouldMuteLabel  ("Feedback Loop:", "Feedback Loop:"),
               shouldMuteButton ("Mute audio input")
         {

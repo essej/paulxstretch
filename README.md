@@ -80,7 +80,8 @@ Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 # License and 3rd Party Software
 
 Released under GNU General Public License v.3 license with App Store license
-exception. The full license text is in the LICENSE and LICENSE_EXCEPTION files.
+exception. The full license text is in the LICENSE and LICENSE_EXCEPTION files. Paul Nasca, Xenakios and Jesse Chappell all explicitly permitted the license exception clause.
+
 
 It is built using JUCE 6 (slightly modified on a public fork), I'm using the very handy tool `git-subrepo` to include the source code for my forks of those software libraries in this repository.
 FFTW is required, but statically built libraries are included in `deps` for easier building on Mac and Windows.
@@ -89,6 +90,7 @@ My github forks of these that are referenced via `git-subrepo` in this repositor
 
 > https://github.com/essej/JUCE  in the sono6good branch.
 
+The version distributed on the iOS App Store by Sonosaurus is not built with FFTW, and the JUCE commercial license applies there.
 
 
 
