@@ -1,6 +1,13 @@
 
 ## PaulXStretch History :
 
+04-24-2022 v1.5.2
+ - Increased maximum number of channels to 32
+ - Optimized FFTW build to use available hardware
+ - Fixed crash issue some people were seeing on older windows systems
+ - Added option (now default) to end recording automatically when chosen buffer size is reached.
+ - More extremely small window size tweaks
+
 04-22-2022 1.5.1
  - fixed passthrough when capturing
  - added declicking fades when bypassing input passthrough, playback, and recording
