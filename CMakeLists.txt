@@ -414,6 +414,11 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
             ${target_name}_PSData
 
             fftw3f
+	    $<$<PLATFORM_ID:Windows>:mingwex>
+	    $<$<PLATFORM_ID:Windows>:gcc>
+	    $<$<PLATFORM_ID:Windows>:mingw32>
+	    $<$<PLATFORM_ID:Windows>:msvcrt>
+
         PUBLIC
             juce::juce_recommended_config_flags
             juce::juce_recommended_lto_flags
