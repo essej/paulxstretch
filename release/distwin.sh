@@ -22,12 +22,12 @@ BUILDDIR32="../build32/${BASENAME}_artefacts/Release"
 #BUILDDIR='../Builds/VisualStudio2019/x64/Release'
 #BUILDDIR32='../Builds/VisualStudio2019/Win32/Release32'
 
-rm -rf ${BASENAME}/Plugins
+rm -rf ${BASENAME}
 mkdir -p ${BASENAME}/Plugins/VST3 
 mkdir -p ${BASENAME}/Plugins/AAX
 
 #cp -v ../doc/README_WINDOWS.txt SonoBus/README.txt
-cp -v ${BUILDDIR}/Standalone\ Plugin/${BASENAME}.exe ${BASENAME}/
+cp -v ${BUILDDIR}/Standalone/${BASENAME}.exe ${BASENAME}/
 cp -pHLRv ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/VST3/
 #cp -v ${BUILDDIR}/VST/SonoBus.dll ${BASENAME}/Plugins/
 cp -pHLRv ${BUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/AAX/
