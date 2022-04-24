@@ -241,16 +241,21 @@ public:
 	String m_capture_location;
 	bool m_midinote_control = false;
     bool m_use_jumpsliders = true;
+    bool m_auto_finish_record = true;
 
 	std::function<void(const FileChooser&)> m_filechoose_callback;
 private:
+    static BusesProperties getDefaultLayout();
+
 	bool m_prebuffering_inited = false;
 	AudioBuffer<float> m_recbuffer;
 	double m_max_reclen = 10.0;
-	int m_rec_pos = 0;
-	int m_rec_count = 0;
-	Range<int> m_recorded_range;
-	void finishRecording(int lenrecorded);
+	int64 m_rec_pos = 0;
+	int64 m_rec_count = 0;
+    int64 m_next_rec_count = 0;
+	Range<int64> m_recorded_range;
+    void commitRecording(int lenrecorded);
+	void finishRecording(int lenrecorded, bool nosave=false);
 	bool m_using_memory_buffer = true;
 	int m_cur_num_out_chans = 2;
 	CriticalSection m_cs;

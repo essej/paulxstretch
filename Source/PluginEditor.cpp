@@ -41,7 +41,8 @@ enum SettingsMenuIds
     SettingsMuteProcessedCaptureId = 10,
     SettingsAudioSettingsId = 11,
     SettingsSliderSnapId = 12,
-    SettingsRestorePlayStateId = 13
+    SettingsRestorePlayStateId = 13,
+    SettingsAutoEndCaptureId = 14,
 };
 
 
@@ -554,6 +555,7 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
 	contentraw->setSize(prefw, prefh);
 	std::unique_ptr<Component> content(contentraw);
 	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
+    cb.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
 
 void PaulstretchpluginAudioProcessorEditor::showAudioSetup()
@@ -615,6 +617,10 @@ void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, i
     else if (r == SettingsSliderSnapId)
     {
         toggleBool(processor.m_use_jumpsliders);
+    }
+    else if (r == SettingsAutoEndCaptureId)
+    {
+        toggleBool(processor.m_auto_finish_record);
     }
     else if (r == SettingsRestorePlayStateId)
     {
@@ -849,12 +855,14 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     int useh = gheight;
     int vpminh = jmin(useh, 140);
-    int tabminh = 200;
+    int tabminh = 160;
     int orderminh = 38;
+    int ordermaxh = 44;
 
 #if JUCE_IOS
-    tabminh = 234;
+    tabminh = 160;
     orderminh = 44;
+    ordermaxh = 50;
 #endif
 
 
@@ -991,7 +999,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
         mainbox.items.add(FlexItem(6, 2));
 
-        mainbox.items.add(FlexItem(w-4, orderminh, m_spec_order_ed).withMargin(2).withFlex(0.1).withMaxHeight(60));
+        mainbox.items.add(FlexItem(w-4, orderminh, m_spec_order_ed).withMargin(2).withFlex(0.1).withMaxHeight(ordermaxh));
         mainbox.items.add(FlexItem(6, 2));
     }
 
@@ -1214,14 +1222,16 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 	for (int i=0;i<m_capturelens.size();++i)
 		capturelenmenu.addItem(200+i, String(m_capturelens[i])+" seconds", true, capturelen == m_capturelens[i]);
 	m_settings_menu.addSubMenu("Capture buffer length", capturelenmenu);
-	
+    m_settings_menu.addItem(SettingsAutoEndCaptureId, "End recording after capturing max length", true, processor.m_auto_finish_record);
+
     m_settings_menu.addSeparator();
-	m_settings_menu.addItem(SettingsAboutId, "About...", true, false);
-    m_settings_menu.addItem(SettingsSliderSnapId, "Sliders jump to position ", true, processor.m_use_jumpsliders);
+    m_settings_menu.addItem(SettingsSliderSnapId, "Sliders jump to position", true, processor.m_use_jumpsliders);
 #ifdef JUCE_DEBUG
 	m_settings_menu.addItem(SettingsDumpPresetClipboardId, "Dump preset to clipboard", true, false);
 #endif
-	m_settings_menu.addItem(SettingsShowTechInfoId, "Show technical info", true, processor.m_show_technical_info);
+	m_settings_menu.addItem(SettingsShowTechInfoId, "Show technical info in waveform", true, processor.m_show_technical_info);
+    m_settings_menu.addSeparator();
+    m_settings_menu.addItem(SettingsAboutId, "About...", true, false);
 
     auto options = PopupMenu::Options().withTargetComponent(&m_settings_button);
 #if JUCE_IOS
@@ -1290,7 +1300,9 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
     wrap->setSize(jmin(defWidth, getWidth() - 20), jmin(defHeight, getHeight() - 24));
 
     auto bounds = getLocalArea(nullptr, m_settings_button.getScreenBounds());
-    CallOutBox::launchAsynchronously(std::move(wrap), bounds, this);
+    auto & cb = CallOutBox::launchAsynchronously(std::move(wrap), bounds, this);
+    cb.setDismissalMouseClicksAreAlwaysConsumed(true);
+
 }
 
 void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
@@ -2551,7 +2563,7 @@ void RatioMixerEditor::resized()
 {
     int minslidw = 65;
     int maxslidw = 120;
-    int minslidh = 55;
+    int minslidh = 45;
     int minrslidh = 32;
     int maxrslidh = 45;
     FlexBox contentbox;

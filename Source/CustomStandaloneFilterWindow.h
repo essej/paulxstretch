@@ -240,24 +240,36 @@ public:
             maxValue = jmax (maxValue, newValue);
         };
 
+        /*
         if (channelConfiguration.size() > 0)
         {
             auto defaultConfig = channelConfiguration.getReference (0);
             updateMinAndMax ((int) defaultConfig.numIns,  minNumInputs,  maxNumInputs);
             updateMinAndMax ((int) defaultConfig.numOuts, minNumOutputs, maxNumOutputs);
         }
+         */
 
         if (auto* bus = processor->getBus (true, 0)) {
+            auto maxsup = bus->getMaxSupportedChannels(128);
+            updateMinAndMax (maxsup, minNumInputs, maxNumInputs);
             updateMinAndMax (bus->getDefaultLayout().size(), minNumInputs, maxNumInputs);
             if (bus->isNumberOfChannelsSupported(1)) {
                 updateMinAndMax (1, minNumInputs, maxNumInputs);
             }
+            if (bus->isNumberOfChannelsSupported(0)) {
+                updateMinAndMax (0, minNumInputs, maxNumInputs);
+            }
         }
 
         if (auto* bus = processor->getBus (false, 0)) {
+            auto maxsup = bus->getMaxSupportedChannels(128);
+            updateMinAndMax (maxsup, minNumOutputs, maxNumOutputs);
             updateMinAndMax (bus->getDefaultLayout().size(), minNumOutputs, maxNumOutputs);
             if (bus->isNumberOfChannelsSupported(1)) {
                 updateMinAndMax (1, minNumOutputs, maxNumOutputs);
+            }
+            if (bus->isNumberOfChannelsSupported(0)) {
+                updateMinAndMax (0, minNumOutputs, maxNumOutputs);
             }
         }
 
@@ -287,7 +299,8 @@ public:
             wrap->setSize(jmin(defWidth, calloutParent->getWidth() - 20), jmin(defHeight, calloutParent->getHeight() - 24));
 
             auto bounds = calloutParent->getLocalArea(nullptr, calloutTarget->getScreenBounds());
-            CallOutBox::launchAsynchronously(std::move(wrap), bounds, calloutParent);
+            auto & cb = CallOutBox::launchAsynchronously(std::move(wrap), bounds, calloutParent);
+            cb.setDismissalMouseClicksAreAlwaysConsumed(true);
         }
         else {
             DialogWindow::LaunchOptions o;
@@ -469,6 +482,10 @@ private:
 
                 shouldMuteLabel.attachToComponent (&shouldMuteButton, true);
             }
+
+#if JUCE_IOS || JUCE_ANDROID
+            deviceSelector.setItemHeight(38);
+#endif
         }
 
         void paint (Graphics& g) override

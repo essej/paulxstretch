@@ -36,9 +36,9 @@ endif()
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
-project(PaulXStretch VERSION 1.5.1)
+project(PaulXStretch VERSION 1.5.2)
 
-set(BUILDVERSION 108)
+set(BUILDVERSION 109)
 
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install

@@ -55,9 +55,50 @@ inline AudioParameterFloat* make_floatpar(String id, String name, float minv, fl
 #define ALTBUS_ACTIVE false
 #endif
 
+PaulstretchpluginAudioProcessor::BusesProperties PaulstretchpluginAudioProcessor::getDefaultLayout()
+{
+    auto props = PaulstretchpluginAudioProcessor::BusesProperties();
+    auto plugtype = PluginHostType::getPluginLoadedAs();
+
+    // common to all
+    props = props.withInput  ("Main In",  AudioChannelSet::stereo(), true)
+    .withOutput ("Main Out", AudioChannelSet::stereo(), true);
+
+
+    // extra inputs
+    if (plugtype == AudioProcessor::wrapperType_AAX) {
+        // only one sidechain mono allowed, doesn't even work anyway
+        props = props.withInput ("Aux 1 In", AudioChannelSet::mono(), ALTBUS_ACTIVE);
+    }
+    else {
+        // throw in some input sidechains
+        props = props.withInput  ("Aux 1 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 2 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 3 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 4 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 5 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 6 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 7 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withInput  ("Aux 8 In",  AudioChannelSet::stereo(), ALTBUS_ACTIVE);
+    }
+
+    // outputs
+
+    props = props.withOutput ("Aux 1 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 2 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 3 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 4 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 5 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 6 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 7 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)
+        .withOutput ("Aux 8 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE);
+
+    return props;
+}
+
 //==============================================================================
 PaulstretchpluginAudioProcessor::PaulstretchpluginAudioProcessor(bool is_stand_alone_offline)
-	: AudioProcessor(PaulstretchpluginAudioProcessor::BusesProperties().withInput("Main In",  AudioChannelSet::stereo(), true).withOutput ("Main Out", AudioChannelSet::stereo(), true).withInput ("Aux 1 In", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withInput ("Aux 2 In", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withInput ("Aux 3 In", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withOutput ("Aux 1 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withOutput ("Aux 2 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE).withOutput ("Aux 3 Out", AudioChannelSet::stereo(), ALTBUS_ACTIVE)),
+	: AudioProcessor(getDefaultLayout()),
 m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_alone_offline)
 {
     DBG("Attempt proc const");
@@ -163,13 +204,13 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 											 filt_convertFrom0To1Func,filt_convertTo0To1Func), 20000.0f));; // 24
 	addParameter(make_floatpar("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f, 0.01, 1.0)); // 25
 	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
-	m_outchansparam = new AudioParameterInt("numoutchans0", "Num outs", 2, 8, 2); // 27
+	m_outchansparam = new AudioParameterInt("numoutchans0", "Num outs", 1, 32, 2); // 27
 	addParameter(m_outchansparam); // 27
 	addParameter(new AudioParameterBool("pause_enabled0", "Pause", true)); // 28
 	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
 	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
 	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
-	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 2, 8, 2); // 32
+	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 1, 32, 2); // 32
 	addParameter(m_inchansparam); // 32
 	addParameter(new AudioParameterBool("bypass_stretch0", "Bypass stretch", false)); // 33
 	addParameter(new AudioParameterFloat("freefilter_shiftx_0", "Free filter shift X", -1.0f, 1.0f, 0.0f)); // 34
@@ -340,6 +381,7 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
     storeToTreeProperties(paramtree, nullptr, "pluginheight", mPluginWindowHeight);
     storeToTreeProperties(paramtree, nullptr, "jumpsliders", m_use_jumpsliders);
     storeToTreeProperties(paramtree, nullptr, "restoreplaystate", m_restore_playstate);
+    storeToTreeProperties(paramtree, nullptr, "autofinishrecord", m_auto_finish_record);
 
     return paramtree;
 }
@@ -363,6 +405,7 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
             getFromTreeProperties(tree, "pluginheight", mPluginWindowHeight);
             getFromTreeProperties(tree, "jumpsliders", m_use_jumpsliders);
             getFromTreeProperties(tree, "restoreplaystate", m_restore_playstate);
+            getFromTreeProperties(tree, "autofinishrecord", m_auto_finish_record);
 
 			if (tree.hasProperty("numspectralstagesb"))
 			{
@@ -598,21 +641,23 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		int inchans = jmin(getMainBusNumInputChannels(), getIntParameter(cpi_num_inchans)->get());
 		if (inchans < 1)
 			return;
-		Uuid uid;
 		WavAudioFormat wavformat;
         String outfn;
+        String filename = String("pxs_") + Time::getCurrentTime().formatted("%Y-%m-%d_%H.%M.%S");
+        filename = File::createLegalFileName(filename);
+
         if (m_capture_location.isEmpty()) {
             File capdir;
 #if JUCE_IOS
             capdir = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
-            outfn = capdir.getChildFile("Captures").getChildFile( uid.toString() + ".wav").getFullPathName();
+            outfn = capdir.getChildFile("Captures").getNonexistentChildFile(filename, ".wav").getFullPathName();
 #else
             capdir = m_propsfile->m_props_file->getFile().getParentDirectory();
-            outfn = capdir.getChildFile("paulxstretchaudiocaptures").getChildFile( uid.toString() + ".wav").getFullPathName();
+            outfn = capdir.getChildFile("Captures").getNonexistentChildFile(filename, ".wav").getFullPathName();
 #endif
         }
         else {
-			outfn = File(m_capture_location).getChildFile("pxscapture_" + uid.toString() + ".wav").getFullPathName();
+			outfn = File(m_capture_location).getNonexistentChildFile(filename, ".wav").getFullPathName();
         }
 		File outfile(outfn);
 		outfile.create();
@@ -694,6 +739,12 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
 	processor->updateStretchParametersFromPluginParameters(processor->m_ppar);
 	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
 	processor->prepareToPlay(outsr, blocksize);
+
+    if (renderpars.numloops == 1) {
+        // prevent any loop xfade getting into the output if only 1 loop selected
+        *processor->getBoolParameter(cpi_looping_enabled) = false;
+    }
+
 
     //sc->setProcessParameters(&processor->m_ppar);
     //sc->setFFTWindowingType(1);
@@ -913,7 +964,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	{
 		phead->getCurrentPosition(m_playposinfo);
 
-        if (m_playposinfo.isPlaying && m_playposinfo.ppqPosition == 0.0 || m_playposinfo.timeInSamples == 0) {
+        if (m_playposinfo.isPlaying && (m_playposinfo.ppqPosition == 0.0 || m_playposinfo.timeInSamples == 0)) {
             seektostart = true;
         }
 	}
@@ -967,6 +1018,14 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
         m_is_recording = m_is_recording_pending;
     }
 
+    if (m_is_recording && m_auto_finish_record && (m_rec_count + buffer.getNumSamples()) > m_max_reclen*getSampleRateChecked())
+    {
+        // finish recording automatically
+        recfade = -1.0f;
+        m_is_recording = m_is_recording_pending = false;
+        DBG("Finish record automatically");
+    }
+
 
 	if (m_previewcomponent != nullptr)
 	{
@@ -993,6 +1052,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 
         if (!m_is_recording) {
             // to signal that it may be written, etc
+            DBG("Signal finish");
             m_is_recording_finished = true;
         }
 
@@ -1224,8 +1284,9 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 		m_recbuffer.clear();
 		m_rec_pos = 0;
 		m_thumb->reset(m_recbuffer.getNumChannels(), getSampleRateChecked(), lenbufframes);
-		m_recorded_range = Range<int>();
+		m_recorded_range = Range<int64>();
 		m_rec_count = 0;
+        m_next_rec_count = getSampleRateChecked()*m_max_reclen;
         m_is_recording_pending = true;
 	}
 	else
@@ -1312,23 +1373,36 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 			m_max_reclen = *getFloatParameter(cpi_max_capture_len);
 			//Logger::writeToLog("Changing max capture len to " + String(m_max_reclen));
 		}
-		if (capture == true && m_is_recording_pending == false)
+		if (capture == true && m_is_recording_pending == false && !m_is_recording_finished)
 		{
+            DBG("start recording");
 			setRecordingEnabled(true);
 			return;
 		}
-		if (capture == false && m_is_recording_pending == true)
+		if (capture == false && m_is_recording_pending == true && !m_is_recording_finished)
 		{
+            DBG("stop recording");
 			setRecordingEnabled(false);
 			return;
 		}
+
+        bool loopcommit = false;
 
         if (m_is_recording_finished) {
             DBG("Recording is actually done, commit the finish");
             int lenbufframes = getSampleRateChecked()*m_max_reclen;
             finishRecording(lenbufframes);
-            m_is_recording_finished = false;
+
+            *getBoolParameter(cpi_capture_trigger) = false; // ensure it
         }
+        else if (m_is_recording && loopcommit && m_rec_count > m_next_rec_count) {
+            DBG("Recording commit loop: " << m_rec_count << " next: " << m_next_rec_count);
+            int lenbufframes = getSampleRateChecked()*m_max_reclen;
+            commitRecording(lenbufframes);
+
+            m_next_rec_count += lenbufframes;
+        }
+
 
 
 		if (m_cur_num_out_chans != *m_outchansparam)
@@ -1383,15 +1457,26 @@ pointer_sized_int PaulstretchpluginAudioProcessor::handleVstManufacturerSpecific
 	return pointer_sized_int();
 }
 
-void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording)
+void PaulstretchpluginAudioProcessor::commitRecording(int lenrecording)
+{
+    m_current_file = URL();
+    auto currpos = m_stretch_source->getLastSeekPos();
+    m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
+    //m_stretch_source->seekPercent(currpos);
+    *getFloatParameter(cpi_soundstart) = 0.0f;
+    *getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, (1.0 / lenrecording) * m_rec_count);
+}
+
+
+void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording, bool nosave)
 {
     m_is_recording_finished = false;
 	m_is_recording_pending = false;
 	m_current_file = URL();
 	m_stretch_source->setAudioBufferAsInputSource(&m_recbuffer, getSampleRateChecked(), lenrecording);
 	*getFloatParameter(cpi_soundstart) = 0.0f;
-	*getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, 1.0 / lenrecording * m_rec_count);
-	if (m_save_captured_audio == true)
+	*getFloatParameter(cpi_soundend) = jlimit<double>(0.01, 1.0, (1.0 / lenrecording) * m_rec_count);
+	if (nosave == false && m_save_captured_audio == true)
 	{
 		saveCaptureBuffer();
 	}
