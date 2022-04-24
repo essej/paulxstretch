@@ -62,10 +62,11 @@ Name: "PaulXStretchDesktop"; Description: "{cm:CreateDesktopIcon}"; Flags: unche
 [Icons]
 ;Name: "{group}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"
 ;Name: "{group}\README"; Filename: "{app}\README.txt"
+; Name: "{group}\Uninstall PaulXStretch"; Filename: "{app}\unins000.exe"; Components:app vst3_64 aax_64
 
 Name: "{group}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"; WorkingDir: "{app}"; Tasks: "PaulXStretchQuickLaunch"; Components:app
 Name: "{commondesktop}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"; WorkingDir: "{app}"; Tasks: "PaulXStretchDesktop"; Components:app
-Name: "{group}\Uninstall PaulXStretch"; Filename: "{app}\unins000.exe"; Components:app vst3_64 aax_64
+
 
 [Run]
 
