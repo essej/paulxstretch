@@ -240,7 +240,11 @@ public:
 	bool m_save_captured_audio = true;
 	String m_capture_location;
 	bool m_midinote_control = false;
+#if JUCE_IOS
+    bool m_use_jumpsliders = false;
+#else
     bool m_use_jumpsliders = true;
+#endif
     bool m_auto_finish_record = true;
 
 	std::function<void(const FileChooser&)> m_filechoose_callback;

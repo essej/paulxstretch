@@ -855,12 +855,12 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     int useh = gheight;
     int vpminh = jmin(useh, 140);
-    int tabminh = 160;
+    int tabminh = getHeight() > 500 ? 200 : 160;
     int orderminh = 38;
     int ordermaxh = 44;
 
 #if JUCE_IOS
-    tabminh = 160;
+    tabminh = getHeight() > 500 ? 234 : 170;
     orderminh = 44;
     ordermaxh = 50;
 #endif
@@ -891,7 +891,7 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     int totminh = vpminh + orderminh + tabminh + topboxh + toggleh + volh + stretchH + 18;
 
     int shortthresh = vpminh + orderminh + tabminh + topboxh + toggleh;
-    int veryshortthresh = tabminh + topboxh + toggleh;
+    int veryshortthresh = tabminh + topboxh + toggleh + 40;
 
     if (getHeight() < totminh) {
         // not enough vertical space, put the top items in the scrollable viewport
