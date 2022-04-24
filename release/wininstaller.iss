@@ -52,11 +52,26 @@ Source: "PaulXStretch\Plugins\AAX\PaulXStretch.aaxplugin"; DestDir: "{commoncf64
 
 ;Source: "SonoBus\README.txt"; DestDir: "{app}"; DestName: "README.txt"; Flags: isreadme
 
+[Tasks]
+
+Name: "PaulXStretchQuickLaunch"; Description: "{cm:CreateQuickLaunchIcon}"; Components:app
+Name: "PaulXStretchDesktop"; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked; Components:app
+
+
 
 [Icons]
-Name: "{group}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"
+;Name: "{group}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"
 ;Name: "{group}\README"; Filename: "{app}\README.txt"
-Name: "{group}\Uninstall PaulXStretch"; Filename: "{app}\unins000.exe"
+
+Name: "{group}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"; WorkingDir: "{app}"; Tasks: "PaulXStretchQuickLaunch"; Components:app
+Name: "{commondesktop}\PaulXStretch"; Filename: "{app}\PaulXStretch.exe"; WorkingDir: "{app}"; Tasks: "PaulXStretchDesktop"; Components:app
+Name: "{group}\Uninstall PaulXStretch"; Filename: "{app}\unins000.exe"; Components:app vst3_64 aax_64
+
+[Run]
+
+Filename: "{app}\PaulXStretch.exe"; Flags: postinstall nowait unchecked skipifdoesntexist ; Description: "{cm:LaunchProgram,PaulXStretch}"; WorkingDir: "{app}"; Components:app
+
+
 
 ;[Registry]
 ;Root: HKCR; Subkey: "sonobus"; ValueType: "string"; ValueData: "URL:sonobus Protocol"; Flags: uninsdeletekey
