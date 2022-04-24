@@ -87,6 +87,14 @@ public:
         {
             controller.reset ([controllerClassInstance initWithDocumentTypes: utTypeArray
                                                                       inMode: UIDocumentPickerModeOpen]);
+
+            if (@available(iOS 13, *)) {
+                if (owner.startingFile.exists()) {
+                    auto url = [[NSURL alloc] initFileURLWithPath: juceStringToNS (owner.startingFile.getFullPathName())];
+                    [controller.get() setDirectoryURL:url];
+                    [url release];
+                }
+            }
         }
 
         FileChooserControllerClass::setOwner (controller.get(), this);
