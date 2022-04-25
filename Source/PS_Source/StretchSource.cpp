@@ -313,10 +313,10 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
     
 	
 	if (m_vol_smoother.getTargetValue() != maingain)
-		m_vol_smoother.setValue(maingain);
+		m_vol_smoother.setTargetValue(maingain);
 	FloatVectorOperations::disableDenormalisedNumberSupport();
 	float** outarrays = bufferToFill.buffer->getArrayOfWritePointers();
-	int outbufchans = m_num_outchans; // bufferToFill.buffer->getNumChannels();
+	int outbufchans = jmin(m_num_outchans, bufferToFill.buffer->getNumChannels());
 	int offset = bufferToFill.startSample;
 	if (m_stretchers.size() == 0)
 		return;
@@ -430,7 +430,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			m_xfadetask.state = 2;
 		}
 	};
-	
+
 	resamplertask();
 	if (previousxfadestate == 1 && m_xfadetask.state == 2)
 	{
@@ -547,6 +547,10 @@ void StretchAudioSource::initObjects()
 		//Logger::writeToLog("Resizing circular buffer to " + String(newsize));
 		m_stretchoutringbuf.resize(newsize);
 	}
+    if (m_xfadetask.buffer.getNumChannels() < m_num_outchans)
+    {
+        m_xfadetask.buffer.setSize(m_num_outchans, m_xfadetask.buffer.getNumSamples());
+    }
 	m_stretchoutringbuf.clear();
 	m_resampler->Reset();
 	m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
