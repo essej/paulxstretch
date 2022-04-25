@@ -1,14 +1,14 @@
 
-## PaulXStretch History :
+## PaulXStretch Change History
 
-04-24-2022 v1.5.2
+**v1.5.2**  (04-24-2022)
  - Increased maximum number of channels to 32
  - Optimized FFTW build to use available hardware
  - Fixed crash issue some people were seeing on older windows systems
  - Added option (now default) to end recording automatically when chosen buffer size is reached.
  - More extremely small window size tweaks
 
-04-22-2022 1.5.1
+**v1.5.1** (04-22-2022)
  - fixed passthrough when capturing
  - added declicking fades when bypassing input passthrough, playback, and recording
  - layout tweaks for extra small windows
@@ -19,12 +19,15 @@
  - fixed VST3 installation issue on windows 
     (be sure to uninstall first, you may need to manually remove the C:\Program Files\Common Files\VST3\PaulXStretch.vst3)
  
-04-14-2022 1.5.0
+**v1.5.0** (04-14-2022)
   - UI layout redesign to adapt to different window sizes and changed look
     and feel.
   - Added iOS support for standalone and AUv3
   - Other improvements
   - JUCE update integration to 6.1
+
+
+### Maintenance transition from Xenakios to Sonosaurus
 
 02-26-2019 1.2.4
   - Changed Import file button to show/hide an overlaid file browser for audio files. (This seems to be the only 
