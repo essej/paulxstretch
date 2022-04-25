@@ -1,6 +1,9 @@
 
 ## PaulXStretch Change History
 
+**v1.5.3**  (04-25-2022)
+ - Fixed Mac AudioUnit validation error and potentional crash risk when using more than 8 channels.
+
 **v1.5.2**  (04-24-2022)
  - Increased maximum number of channels to 32
  - Optimized FFTW build to use available hardware
