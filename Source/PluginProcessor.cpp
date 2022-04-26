@@ -20,8 +20,11 @@ int get_optimized_updown(int n, bool up) {
 	while (true) {
 		n = orig_n;
 
+#if PS_USE_VDSP_FFT
         // only powers of two allowed if using VDSP FFT
-#if !PS_USE_VDSP_FFT
+#elif PS_USE_PFFFT
+        // only powers of two allowed if using pffft
+#else
         while (!(n % 11)) n /= 11;
 		while (!(n % 7)) n /= 7;
 		while (!(n % 5)) n /= 5;
@@ -320,9 +323,11 @@ void PaulstretchpluginAudioProcessor::setPreBufferAmount(int x)
         m_cur_num_out_chans = *m_outchansparam;
         //Logger::writeToLog("Switching to use " + String(m_cur_num_out_chans) + " out channels");
         String err;
+        setFFTSize(*getFloatParameter(cpi_fftsize), true);
         startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
                   m_cur_num_out_chans, m_curmaxblocksize, err);
-        
+        m_stretch_source->seekPercent(m_stretch_source->getLastSourcePositionPercent());
+
 		m_prebuffering_inited = true;
 	}
 }
@@ -545,15 +550,20 @@ void PaulstretchpluginAudioProcessor::parameterGestureChanged(int parameterIndex
 {
 }
 
-void PaulstretchpluginAudioProcessor::setFFTSize(double size, bool force)
+void PaulstretchpluginAudioProcessor::setFFTSize(float size, bool force)
 {
-	if (m_prebuffer_amount == 5)
-		m_fft_size_to_use = pow(2, 7.0 + size * 14.5);
-	else m_fft_size_to_use = pow(2, 7.0 + size * 10.0); // chicken out from allowing huge FFT sizes if not enough prebuffering
-	int optim = optimizebufsize(m_fft_size_to_use);
-	m_fft_size_to_use = optim;
-	m_stretch_source->setFFTSize(optim, force);
-	//Logger::writeToLog(String(m_fft_size_to_use));
+    if (fabsf(m_last_fftsizeparamval - size) > 0.00001f || force) {
+
+        if (m_prebuffer_amount == 5)
+            m_fft_size_to_use = pow(2, 7.0 + size * 14.5);
+        else m_fft_size_to_use = pow(2, 7.0 + size * 10.0); // chicken out from allowing huge FFT sizes if not enough prebuffering
+        int optim = optimizebufsize(m_fft_size_to_use);
+        m_fft_size_to_use = optim;
+        m_stretch_source->setFFTSize(optim, force);
+
+        m_last_fftsizeparamval = size;
+        //Logger::writeToLog(String(m_fft_size_to_use));
+    }
 }
 
 void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err)
@@ -575,7 +585,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
         m_bufferingthread.startThread();
     }
 	m_stretch_source->setNumOutChannels(numoutchans);
-	m_stretch_source->setFFTSize(m_fft_size_to_use);
+	m_stretch_source->setFFTSize(m_fft_size_to_use, true);
 	m_stretch_source->setProcessParameters(&m_ppar);
 	m_stretch_source->m_prebuffersize = bufamt;
 	
@@ -854,7 +864,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	}
 	if (m_prebuffering_inited == false)
 	{
-		setFFTSize(*getFloatParameter(cpi_fftsize));
+		setFFTSize(*getFloatParameter(cpi_fftsize), true);
 		m_stretch_source->setProcessParameters(&m_ppar);
 		m_stretch_source->setFFTWindowingType(1);
 		String err;

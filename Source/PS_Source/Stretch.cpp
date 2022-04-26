@@ -59,6 +59,13 @@ FFT::FFT(int nsamples_, bool no_inverse)
     m_workImag.resize(nsamples,false);
 
     //Logger::writeToLog("fftsize: "  + String(nsamples) + " log2N: " + String(log2N));
+#elif PS_USE_PFFFT
+
+    planpffft = pffft_new_setup(nsamples, PFFFT_REAL);
+
+    m_work.resize(2*nsamples,false);
+
+    //Logger::writeToLog("fftsize: "  + String(nsamples) + " log2N: " + String(log2N));
 
 #else
     if (allow_long_planning)
@@ -88,6 +95,10 @@ FFT::~FFT()
 {
 #if PS_USE_VDSP_FFT
     vDSP_destroy_fftsetup((FFTSetup)planfft);
+#elif PS_USE_PFFFT
+    if (planpffft) {
+        pffft_destroy_setup(planpffft);
+    }
 #else
     fftwf_destroy_plan(planfftw);
 	if (planifftw!=nullptr)
@@ -135,6 +146,24 @@ void FFT::smp2freq()
     for (int i=1; i < halfsamples;i++)
     {
         freq[i]=sqrt(freq[i]);
+    }
+
+    freq[0] = 0.0;
+
+#elif PS_USE_PFFFT
+    const int halfsamples = nsamples / 2;
+    auto * databuf = data.data();
+
+    pffft_transform_ordered(planpffft, smp.data(), databuf, m_work.data(), PFFFT_FORWARD);
+
+    data[1] = 0.0f;
+
+    // compute magnitude
+
+    FloatVectorOperations::multiply(databuf, databuf, nsamples);
+    
+    for (int k=1, l=2; k < halfsamples; ++k, l+=2) {
+        freq[k] = sqrt(databuf[l] + databuf[l+1]);
     }
 
     freq[0] = 0.0;
@@ -192,7 +221,29 @@ void FFT::freq2smp()
     vDSP_vsmul(data.data(), 1, &scale, smp.data(), 1, nsamples);
 
 
+#elif PS_USE_PFFFT
+    const int halfsamples = nsamples / 2;
+    auto * databuf = data.data();
+
+    for (int i=1; i < halfsamples; ++i)
+    {
+        unsigned int rand = m_randdist(m_randgen);
+        REALTYPE phase=rand*inv_2p15_2pi;
+        data[i*2] = freq[i]*cos(phase);
+        data[i*2+1] = freq[i]*sin(phase);
+
+    };
+    data[0] = data[1] = 0.0;
+
+    pffft_transform_ordered(planpffft, databuf, smp.data(), m_work.data(), PFFFT_BACKWARD);
+
+    // post scale
+    float scale = 1.f / nsamples;
+    FloatVectorOperations::multiply(smp.data(), scale, nsamples);
+
 #else
+
+
     for (int i=1;i<nsamples/2;i++)
     {
         unsigned int rand = m_randdist(m_randgen);
@@ -204,8 +255,11 @@ void FFT::freq2smp()
     data[0]=data[nsamples/2+1]=data[nsamples/2]=0.0;
 
     fftwf_execute(planifftw);
-	for (int i=0;i<nsamples;i++)
-        smp[i]=data[i]/nsamples;
+
+    // post scale
+    float scale = 1.f / nsamples;
+    FloatVectorOperations::multiply(smp.data(), data.data(), scale, nsamples);
+
 #endif
 };
 

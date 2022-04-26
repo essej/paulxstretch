@@ -554,7 +554,7 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
     int prefh = jmin(contentraw->getPreferredHeight(), getHeight() - 10);
 	contentraw->setSize(prefw, prefh);
 	std::unique_ptr<Component> content(contentraw);
-	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
+	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this, false);
     cb.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
 
@@ -1247,7 +1247,11 @@ void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
 void PaulstretchpluginAudioProcessorEditor::showAbout()
 {
     String fftlib;
-#if !PS_USE_VDSP_FFT
+#if PS_USE_VDSP_FFT
+    fftlib = "vDSP";
+#elif PS_USE_PFFFT
+    fftlib = "pffft";
+#else
     fftlib = fftwf_version;
 #endif
 	String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
@@ -1272,11 +1276,17 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
     if (fftlib.isNotEmpty())
         text += String("Using ") + fftlib + String(" for FFT\n\n");
 
+
 #if !JUCE_IOS
-    text += juceversiontxt + String(" used under the GPL license.\n\n");
+    if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_AAX) {
+        text += juceversiontxt + String("\n\n");
+    }
+    else {
+        text += juceversiontxt + String(" used under the GPL license.\n\n");
+    }
 #endif
 
-    // text += String("GPL licensed source code for this plugin at : https://bitbucket.org/xenakios/paulstretchplugin/overview\n");
+    text += String("GPL licensed source code at : https://github.com/essej/paulxstretch\n");
 
     if (host.type != juce::PluginHostType::UnknownHost) {
         text += String("Running in : ") + host.getHostDescription()+ String("\n");
@@ -1300,7 +1310,7 @@ void PaulstretchpluginAudioProcessorEditor::showAbout()
     wrap->setSize(jmin(defWidth, getWidth() - 20), jmin(defHeight, getHeight() - 24));
 
     auto bounds = getLocalArea(nullptr, m_settings_button.getScreenBounds());
-    auto & cb = CallOutBox::launchAsynchronously(std::move(wrap), bounds, this);
+    auto & cb = CallOutBox::launchAsynchronously(std::move(wrap), bounds, this, false);
     cb.setDismissalMouseClicksAreAlwaysConsumed(true);
 
 }
@@ -1496,6 +1506,7 @@ void WaveformComponent::paint(Graphics & g)
 	g.setColour(Colours::white);
 	if (CursorPosCallback)
 	{
+        /*
 		double timediff = (Time::getMillisecondCounterHiRes() - m_last_source_pos_update_time)*(1.0/m_sas->getRate());
 		double curpos = ((double)m_last_source_pos / m_sas->getOutputSamplerate());
 		double prebufoffset = (double)m_sas->m_prebuffersize / m_sas->getOutputSamplerate();
@@ -1503,7 +1514,8 @@ void WaveformComponent::paint(Graphics & g)
 		curpos = 1.0 / m_sas->getInfileLengthSeconds()*(curpos+(timediff / 1000.0));
 		//g.fillRect(normalizedToViewX<int>(curpos), m_topmargin, 1, getHeight() - m_topmargin);
 		//g.drawText(String(curpos), 1, 30, 200,30, Justification::left);
-		g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
+         */
+        g.fillRect(normalizedToViewX<int>(CursorPosCallback()), m_topmargin, 1, getHeight() - m_topmargin);
 	}
 	if (m_rec_pos >= 0.0)
 	{

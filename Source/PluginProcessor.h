@@ -276,6 +276,7 @@ private:
 	double m_smoothed_prebuffer_ready = 0.0;
 	SignalSmoother m_prebufsmoother;
 	int m_fft_size_to_use = 1024;
+    float m_last_fftsizeparamval = -1.0f;
 	double m_last_outpos_pos = 0.0;
 	double m_last_in_pos = 0.0;
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
@@ -283,7 +284,7 @@ private:
     int mPluginWindowWidth = 820;
     int mPluginWindowHeight = 710;
 
-	void setFFTSize(double size, bool force=false);
+	void setFFTSize(float size, bool force=false);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
 	SharedResourcePointer<MyThumbCache> m_thumbcache;
 	AudioParameterInt* m_outchansparam = nullptr;

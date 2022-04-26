@@ -288,7 +288,7 @@ inline String secondsToString2(double secs)
 	result.preallocateBytes(32);
 	bool empty = true;
 	if ((int)rt.inHours()>0)
-		result << String((int)rt.inHours() % 24).paddedLeft('0', empty ? 1 : 2) << ':';
+		result << String((int)rt.inHours()).paddedLeft('0', empty ? 1 : 2) << ':';
 	result << String((int)rt.inMinutes() % 60).paddedLeft('0', 2) << ':';
 	result << String((int)rt.inSeconds() % 60).paddedLeft('0', 2);
 	auto millis = (int)rt.inMilliseconds() % 1000;

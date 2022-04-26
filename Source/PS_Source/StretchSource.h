@@ -100,6 +100,8 @@ public:
 	double getLastSeekPos() const { return m_seekpos; }
 	CriticalSection* getMutex() { return &m_cs; }
 	int64_t getLastSourcePosition() const { return m_last_filepos; }
+    double getLastSourcePositionPercent();
+
 	int m_prebuffersize = 0;
 	void setSpectralOrderPreset(int id);
 	

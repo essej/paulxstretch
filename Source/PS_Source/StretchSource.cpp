@@ -599,6 +599,14 @@ void StretchAudioSource::playDrySound(const AudioSourceChannelInfo & bufferToFil
 			bufs[i][j + bufferToFill.startSample] = maingain * m_resampler_outbuf[j*m_num_outchans + i];
 }
 
+double StretchAudioSource::getLastSourcePositionPercent()
+{
+    if (m_inputfile == nullptr || m_inputfile->info.nsamples == 0)
+        return 0.0;
+    return (1.0/m_inputfile->info.nsamples)*m_last_filepos;
+}
+
+
 double StretchAudioSource::getInfilePositionPercent()
 {
 	if (m_inputfile == nullptr || m_inputfile->info.nsamples == 0)
@@ -686,6 +694,8 @@ void StretchAudioSource::setFFTSize(int size, bool force)
     jassert(size>0);
     if (force || (m_xfadetask.state == 0 && (m_process_fftsize == 0 || size != m_process_fftsize)))
 	{
+        DBG("Using FFT size: " << size);
+
 		ScopedLock locker(m_cs);
 		if (m_xfadetask.buffer.getNumChannels() < m_num_outchans)
 		{
@@ -704,7 +714,8 @@ void StretchAudioSource::setFFTSize(int size, bool force)
 			m_process_fftsize = size;
 			initObjects();
 		}
-		
+
+
 		++m_param_change_count;
 	}
 }

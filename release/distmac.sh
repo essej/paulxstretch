@@ -12,7 +12,7 @@ MAINNAME="PaulXStretch"
 
 #BUILDDIR=../Builds/MacOSX/build/Release
 BUILDDIR=../build/${MAINNAME}_artefacts/Release
-#INSTBUILDDIR=../build/${MAINNAME}Inst_artefacts/Release
+AAXBUILDDIR=../build/${MAINNAME}AAX_artefacts/Release
 
 rm -rf ${MAINNAME}
 
@@ -24,7 +24,8 @@ mkdir -p ${MAINNAME}
 cp -pLRv ${BUILDDIR}/Standalone/${MAINNAME}.app  ${MAINNAME}/
 cp -pLRv ${BUILDDIR}/AU/${MAINNAME}.component  ${MAINNAME}/
 cp -pLRv ${BUILDDIR}/VST3/${MAINNAME}.vst3 ${MAINNAME}/
-cp -pRHv ${BUILDDIR}/AAX/${MAINNAME}.aaxplugin  ${MAINNAME}/
+
+cp -pRHv ${AAXBUILDDIR}/AAX/${MAINNAME}.aaxplugin  ${MAINNAME}/
 
 #cp -pLRv ${BUILDDIR}/${MAINNAME}.app  ${MAINNAME}/
 #cp -pLRv ${BUILDDIR}/${MAINNAME}.component  ${MAINNAME}/

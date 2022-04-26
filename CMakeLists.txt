@@ -100,7 +100,7 @@ if (AAX_SDK_PATH)
     juce_set_aax_sdk_path (${AAX_SDK_PATH})
     
     if (APPLE OR (NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")))
-      list (APPEND FormatsToBuild AAX)
+      list (APPEND AaxFormatsToBuild AAX)
     endif()
 endif()
 
@@ -135,7 +135,7 @@ set (MacPList "<plist version=\"1.0\">
 # the formats specified by the FORMATS arguments. This function accepts many optional arguments.
 # Check the readme at `docs/CMake API.md` in the JUCE repo for the full list.
 
-function(sono_add_custom_plugin_target target_name product_name formats is_instrument plugincode)
+function(sono_add_custom_plugin_target target_name product_name formats is_instrument no_fftw plugincode)
 
    if (is_instrument)
         set (vst3cats Instrument Network)
@@ -197,16 +197,28 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
       )
 
 
+    set (FFTW_DEPLIBS  "")
+
+
     # platform specific stuff
     if (APPLE)
         list (APPEND HEADER_INCLUDES deps/mac/include)
         list (APPEND LIB_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/deps/mac/lib)
         list (APPEND PlatSourceFiles  Source/CrossPlatformUtilsMac.mm)
+
+        if (no_fftw)
+            # use vDSP
+            list (APPEND PLAT_COMPILE_DEFS
+                    PS_USE_VDSP_FFT=1
+            )
+        else()
+            list (APPEND FFTW_DEPLIBS fftw3f)
+        endif()
     elseif (WIN32)
         list (APPEND HEADER_INCLUDES deps/windows ../asiosdk/common)
         list (APPEND PlatSourceFiles  Source/CrossPlatformUtilsWindows.cpp)
 
-	message (STATUS "Win generator platform is: ${CMAKE_VS_PLATFORM_NAME}" )
+	    message (STATUS "Win generator platform is: ${CMAKE_VS_PLATFORM_NAME}" )
         if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
             list (APPEND LIB_PATHS
                 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/deps/windows/Debug32>
@@ -225,11 +237,36 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
             WINVER=0x0601
             _WIN32_WINNT=0x0601
 	    NOMINMAX)
+
+        if (no_fftw)
+            # use pffft
+            list (APPEND PLAT_COMPILE_DEFS
+                    PS_USE_PFFFT=1
+            )
+        else()
+            list (APPEND FFTW_DEPLIBS
+                fftw3f
+                mingwex
+                gcc
+                mingw32
+                msvcrt
+            )
+        endif()
+
     else()
         # Linux
         list (APPEND PlatSourceFiles  Source/CrossPlatformUtilsLinux.cpp)
 	    list ( APPEND PLAT_COMPILE_DEFS
 	        JUCE_USE_MP3AUDIOFORMAT=1 )
+
+        if (no_fftw)
+            # use pffft
+            list (APPEND PLAT_COMPILE_DEFS
+                    PS_USE_PFFFT=1
+            )
+        else()
+            list (APPEND FFTW_DEPLIBS fftw3f)
+        endif()
     endif()
 
 
@@ -277,7 +314,9 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         Source/WDL/resample.cpp
         Source/WDL/wdltypes.h
         Source/WDL/denormal.h
-        Source/WDL/heapbuf.h         
+        Source/WDL/heapbuf.h
+        Source/pffft/pffft.h
+        Source/pffft/pffft.c
             )
 
     target_sources("${target_name}" PRIVATE 
@@ -369,6 +408,8 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
 
     set_target_properties(${target_name}_PSData PROPERTIES FOLDER "Targets")
 
+
+
     if (UNIX AND NOT APPLE)
        target_compile_options("${target_name}_PSData"
          PRIVATE
@@ -413,11 +454,7 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
             
             ${target_name}_PSData
 
-            fftw3f
-	    $<$<PLATFORM_ID:Windows>:mingwex>
-	    $<$<PLATFORM_ID:Windows>:gcc>
-	    $<$<PLATFORM_ID:Windows>:mingw32>
-	    $<$<PLATFORM_ID:Windows>:msvcrt>
+            ${FFTW_DEPLIBS}
 
         PUBLIC
             juce::juce_recommended_config_flags
@@ -428,7 +465,12 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
 endfunction()
 
 # most of the targets
-sono_add_custom_plugin_target(PaulXStretch PaulXStretch "${FormatsToBuild}" FALSE  "Pxst")
+sono_add_custom_plugin_target(PaulXStretch PaulXStretch "${FormatsToBuild}" FALSE FALSE "Pxst")
+
+if (AaxFormatsToBuild)
+  # AAX builds without fftw
+  sono_add_custom_plugin_target(PaulXStretchAAX PaulXStretch "${AaxFormatsToBuild}" FALSE TRUE "Pxst")
+endif()
 
 # Mobile targets
 #sono_add_custom_plugin_target(PaulXStretch "AUv3 Standalone" FALSE "NBus")

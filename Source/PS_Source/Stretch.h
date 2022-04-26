@@ -26,10 +26,18 @@
 #define PS_USE_VDSP_FFT 0
 #endif
 
+#ifndef PS_USE_PFFFT
+#define PS_USE_PFFFT 0
+#endif
+
 #if PS_USE_VDSP_FFT
+#elif PS_USE_PFFFT
+#include "../pffft/pffft.h"
 #else
 #include "fftw3.h"
 #endif
+
+
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <random>
@@ -107,6 +115,11 @@ private:
             buf = (float*)malloc(size*sizeof(float));
         else
             buf = (double*)malloc(size * sizeof(double));
+#elif PS_USE_PFFFT
+        if constexpr (std::is_same<T,float>::value)
+            buf = (float*)pffft_aligned_malloc(size*sizeof(float));
+        else
+            buf = (double*)pffft_aligned_malloc(size * sizeof(double));
 #else
         if constexpr (std::is_same<T,float>::value)
 			buf = (float*)fftwf_malloc(size*sizeof(float));
@@ -123,6 +136,11 @@ private:
 				free(buf);
 			else
 				free(buf);
+#elif PS_USE_PFFFT
+            if constexpr (std::is_same<T, float>::value)
+                pffft_aligned_free(buf);
+            else
+                pffft_aligned_free(buf);
 #else
             if constexpr (std::is_same<T, float>::value)
                 fftwf_free(buf);
@@ -159,6 +177,9 @@ class FFT
         int log2N;
         FFTWBuffer<REALTYPE> m_workReal;
         FFTWBuffer<REALTYPE> m_workImag;
+#elif PS_USE_PFFFT
+        PFFFT_Setup *planpffft = nullptr;
+        FFTWBuffer<REALTYPE> m_work;
 #else
         fftwf_plan planfftw,planifftw;
 #endif

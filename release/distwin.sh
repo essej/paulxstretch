@@ -17,6 +17,7 @@ if [ -z "$CERTFILE" ] ; then
 fi
 
 BUILDDIR="../build/${BASENAME}_artefacts/Release"
+AAXBUILDDIR="../build/${BASENAME}AAX_artefacts/Release"
 BUILDDIR32="../build32/${BASENAME}_artefacts/Release"
 
 #BUILDDIR='../Builds/VisualStudio2019/x64/Release'
@@ -30,7 +31,8 @@ mkdir -p ${BASENAME}/Plugins/AAX
 cp -v ${BUILDDIR}/Standalone/${BASENAME}.exe ${BASENAME}/
 cp -pHLRv ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/VST3/
 #cp -v ${BUILDDIR}/VST/SonoBus.dll ${BASENAME}/Plugins/
-cp -pHLRv ${BUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/AAX/
+
+cp -pHLRv ${AAXBUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/AAX/
 
 
 #mkdir -p SonoBus/Plugins32
