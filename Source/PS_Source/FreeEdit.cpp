@@ -40,6 +40,7 @@ FreeEdit::FreeEdit(){
 			
 			curve.data=NULL;
 			curve.size=0;
+            curve.allocsize = 0;
 };
 
 void FreeEdit::deep_copy_from(const FreeEdit &other){
@@ -55,9 +56,14 @@ void FreeEdit::deep_copy_from(const FreeEdit &other){
 	};
 	curve.size=other.curve.size;
 	if (other.curve.data&&other.curve.size){
-		curve.data=new REALTYPE[curve.size];
+        if (curve.data) delete [] curve.data;
+        curve.data=new REALTYPE[curve.size];
+        curve.allocsize = curve.size;
 		for (int i=0;i<curve.size;i++) curve.data[i]=other.curve.data[i];
-	}else curve.data=NULL;
+    } else {
+        if (curve.data) delete [] curve.data;
+        curve.data=NULL;
+    }
 	extreme_x=other.extreme_x;
 	extreme_y=other.extreme_y;
 };
@@ -140,10 +146,16 @@ void FreeEdit::get_curve(int datasize,REALTYPE *data,bool real_values){
 };
 
 void FreeEdit::update_curve(int size){
-	if (curve.data) delete []curve.data;
 	if (size<2) size=2;
-	curve.size=size;
-	curve.data=new REALTYPE[size];
+
+    if (size > curve.allocsize || !curve.data) {
+        if (curve.data) delete []curve.data;
+        curve.data = new REALTYPE[size];
+        curve.allocsize = size;
+    }
+
+    curve.size = size;
+
 
 	get_curve(curve.size,curve.data,true);
 

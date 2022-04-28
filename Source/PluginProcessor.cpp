@@ -149,8 +149,8 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	m_sm_enab_pars[3] = new AudioParameterBool("enab_specmodule3", "Enable pitch shift", true);
 	m_sm_enab_pars[4] = new AudioParameterBool("enab_specmodule4", "Enable ratios", false);
 	m_sm_enab_pars[5] = new AudioParameterBool("enab_specmodule5", "Enable spread", false);
-	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable filter", true);
-	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable free filter", true);
+	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable filter", false);
+	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable free filter", false);
 	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable compressor", false);
 	
     DBG("making stretch source");
@@ -274,7 +274,17 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	addParameter(new AudioParameterFloat("dryplayrate0", "Dry playrate",
 		NormalisableRange<float>(0.1f, 8.0f,
 			dprate_convertFrom0To1Func, dprate_convertTo0To1Func), 1.0f)); // 62
-	
+
+    addParameter(new AudioParameterBool("binauralbeats", "BinauralBeats Enable", false)); // 63
+    addParameter(new AudioParameterFloat("binauralbeatsmono", "Binaural Beats Power", 0.0, 1.0, 0.5)); // 64
+    //addParameter(new AudioParameterFloat("binauralbeatsfreq", "BinauralBeats Freq", 0.0, 1.0, 0.5)); // 65
+    addParameter(new AudioParameterFloat("binauralbeatsfreq", "Binaural Beats Freq",
+                                         NormalisableRange<float>(0.05f, 50.0f, 0.0f, 0.25f), 4.0f)); // 65
+    addParameter(new AudioParameterChoice  ("binauralbeatsmode", "BinauralBeats Mode", { "Left-Right", "Right-Left", "Symmetric" }, 0)); // 66
+
+    m_bbpar.free_edit.extreme_y.set_min(0.05f);
+    m_bbpar.free_edit.extreme_y.set_max(50.0f);
+
 	auto& pars = getParameters();
 	for (const auto& p : pars)
 		m_reset_pars.push_back(p->getValue());
@@ -586,7 +596,7 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
     }
 	m_stretch_source->setNumOutChannels(numoutchans);
 	m_stretch_source->setFFTSize(m_fft_size_to_use, true);
-	m_stretch_source->setProcessParameters(&m_ppar);
+	m_stretch_source->setProcessParameters(&m_ppar, &m_bbpar);
 	m_stretch_source->m_prebuffersize = bufamt;
 	
 	m_last_outpos_pos = 0.0;
@@ -604,7 +614,7 @@ void PaulstretchpluginAudioProcessor::setParameters(const std::vector<double>& p
 	}
 }
 
-void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameters(ProcessParameters & pars)
+void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameters(ProcessParameters & pars, BinauralBeatsParameters & bbpar)
 {
 	pars.pitch_shift.cents = *getFloatParameter(cpi_pitchshift) * 100.0;
 	pars.freq_shift.Hz = *getFloatParameter(cpi_frequencyshift);
@@ -642,6 +652,21 @@ void PaulstretchpluginAudioProcessor::updateStretchParametersFromPluginParameter
 
 	pars.tonal_vs_noise.bandwidth = *getFloatParameter(cpi_tonalvsnoisebw);
 	pars.tonal_vs_noise.preserve = *getFloatParameter(cpi_tonalvsnoisepreserve);
+
+    bbpar.stereo_mode = (BB_STEREO_MODE) getChoiceParameter(cpi_binauralbeats_mode)->getIndex();
+    bbpar.mono = *getFloatParameter(cpi_binauralbeats_mono);
+    //bbpar.free_edit.set_all_values( *getFloatParameter(cpi_binauralbeats_freq));
+    auto * bbfreqp = getFloatParameter(cpi_binauralbeats_freq);
+    float bbfreq = *bbfreqp;
+    float bbratio = (bbfreq - bbfreqp->getNormalisableRange().getRange().getStart()) / bbfreqp->getNormalisableRange().getRange().getLength();
+    if (bbpar.free_edit.get_posy(0) != bbratio) {
+        bbpar.free_edit.set_posy(0, bbratio);
+        bbpar.free_edit.set_posy(1, bbratio);
+        bbpar.free_edit.update_curve(2);
+    }
+    //bbpar.mono = 0.5f;
+    bbpar.free_edit.set_enabled(*getBoolParameter(cpi_binauralbeats));
+
 }
 
 void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
@@ -746,7 +771,7 @@ String PaulstretchpluginAudioProcessor::offlineRender(OfflineRenderParams render
     sc->setPaused(false);
 
 	processor->setFFTSize(*processor->getFloatParameter(cpi_fftsize), true);
-	processor->updateStretchParametersFromPluginParameters(processor->m_ppar);
+	processor->updateStretchParametersFromPluginParameters(processor->m_ppar, processor->m_bbpar);
 	processor->setPlayConfigDetails(2, numoutchans, outsr, blocksize);
 	processor->prepareToPlay(outsr, blocksize);
 
@@ -865,7 +890,7 @@ void PaulstretchpluginAudioProcessor::prepareToPlay(double sampleRate, int sampl
 	if (m_prebuffering_inited == false)
 	{
 		setFFTSize(*getFloatParameter(cpi_fftsize), true);
-		m_stretch_source->setProcessParameters(&m_ppar);
+		m_stretch_source->setProcessParameters(&m_ppar, &m_bbpar);
 		m_stretch_source->setFFTWindowingType(1);
 		String err;
 		startplay({ *getFloatParameter(cpi_soundstart),*getFloatParameter(cpi_soundend) },
@@ -1144,7 +1169,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_stretch_source->setDryPlayrate(*getFloatParameter(cpi_dryplayrate));
 	setFFTSize(*getFloatParameter(cpi_fftsize));
 	
-	updateStretchParametersFromPluginParameters(m_ppar);
+	updateStretchParametersFromPluginParameters(m_ppar, m_bbpar);
 
 	m_stretch_source->setOnsetDetection(*getFloatParameter(cpi_onsetdetection));
 	m_stretch_source->setLoopXFadeLength(*getFloatParameter(cpi_loopxfadelen));
@@ -1183,7 +1208,7 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		m_ppar.pitch_shift.cents += 100.0*note_offset;
 	}
 	
-	m_stretch_source->setProcessParameters(&m_ppar);
+	m_stretch_source->setProcessParameters(&m_ppar, &m_bbpar);
 	AudioSourceChannelInfo aif(buffer);
 	if (isNonRealtime() || m_use_backgroundbuffering == false)
 	{

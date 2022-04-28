@@ -71,7 +71,7 @@ private:
 };
 
 class ParameterComponent : public Component,
-	public Slider::Listener, public Button::Listener
+public Slider::Listener, public Button::Listener, public ComboBox::Listener
 {
 public:
 	ParameterComponent(AudioProcessorParameter* par, bool notifyOnlyOnRelease, bool useDrawableToggle=false);
@@ -80,6 +80,7 @@ public:
 	void sliderDragStarted(Slider* slid) override;
 	void sliderDragEnded(Slider* slid) override;
 	void buttonClicked(Button* but) override;
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
 	void updateComponent();
 	void setHighLighted(bool b);
 	int m_group_id = -1;
@@ -87,6 +88,7 @@ public:
 
     DrawableButton* getDrawableButton() const { return m_drawtogglebut.get(); }
     ToggleButton* getToggleButton() const { return m_togglebut.get(); }
+    ComboBox* getComboBox() const { return m_combobox.get(); }
 
 private:
 	Label m_label;
@@ -117,11 +119,15 @@ public:
     void setBackgroundColor(Colour col) { m_bgcolor = col; }
     Colour getBackgroundColor() const { return m_bgcolor; }
 
+    void setSelectedBackgroundColor(Colour col) { m_selbgcolor = col; }
+    Colour getSelectedBBackgroundColor() const { return m_selbgcolor; }
+
     void setToggleEnabled(bool flag){ if (m_enableButton)  m_enableButton->setToggleState(flag, dontSendNotification); }
     bool getToggleEnabled() const { if (m_enableButton) return m_enableButton->getToggleState(); return false; }
 
     String name;
     int groupId = -1;
+    bool allowDisableFade = true;
 
     int getMinimumHeight(int forWidth);
 
@@ -558,6 +564,7 @@ private:
     std::map<int, std::unique_ptr<ParameterGroupComponent> > m_pargroups;
     std::unique_ptr<ParameterGroupComponent> m_posgroup;
     std::unique_ptr<ParameterGroupComponent> m_stretchgroup;
+    std::unique_ptr<ParameterGroupComponent> m_binauralgroup;
 
     std::unique_ptr<Viewport> m_groupviewport;
     std::unique_ptr<Component> m_groupcontainer;

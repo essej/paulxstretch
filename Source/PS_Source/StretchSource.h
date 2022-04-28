@@ -7,6 +7,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Input/AInputS.h"
 #include "ProcessedStretch.h"
+#include "BinauralBeats.h"
 #include <mutex>
 #include <array>
 #include "../WDL/resample.h"
@@ -49,7 +50,7 @@ public:
 		return m_playrate; 
 	}
 	double getOutputSamplerate() const { return m_outsr; }
-	void setProcessParameters(ProcessParameters* pars);
+	void setProcessParameters(ProcessParameters* pars, BinauralBeatsParameters * bbpars=0);
 	const ProcessParameters& getProcessParameters();
 	void setFFTSize(int size, bool force=false);
 	int getFFTSize() { return m_process_fftsize; }
@@ -111,7 +112,9 @@ private:
 	LinearSmoothedValue<double> m_vol_smoother;
 	std::unique_ptr<AInputS> m_inputfile;
 	std::vector<std::shared_ptr<ProcessedStretch>> m_stretchers;
-	
+
+    std::unique_ptr<BinauralBeats> m_binaural_beats;
+
 	std::function<void(StretchAudioSource*)> SourceEndedCallback;
 	bool m_firstbuffer = false;
 	bool m_output_has_begun = false;
@@ -122,7 +125,8 @@ private:
 	double m_main_volume = 0.0;
 	double m_loopxfadelen = 0.0;
 	ProcessParameters m_ppar;
-	
+    BinauralBeatsParameters m_bbpar;
+
 	double m_playrate = 1.0;
 	double m_lastplayrate = 0.0;
 	double m_onsetdetection = 0.0;

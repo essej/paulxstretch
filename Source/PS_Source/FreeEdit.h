@@ -152,10 +152,10 @@ class FreeEdit{
 		//void getfromXML(XMLwrapper *xml);
 
 		//Enabled functions
-		bool get_enabled(){
+		bool get_enabled() const{
 			return enabled;
 		};
-		void set_enabled(bool val){			
+		void set_enabled(bool val){
 			enabled=val;
 		};
 
@@ -164,7 +164,7 @@ class FreeEdit{
 		};
 
 		//manipulation functions
-		inline bool is_enabled(int n){
+		inline bool is_enabled(int n) const{
 			if ((n<0)||(n>=npos)) return false;
 			return pos[n].enabled;
 		};
@@ -174,11 +174,11 @@ class FreeEdit{
 		};
 
 
-		inline REALTYPE get_posx(int n){
+		inline REALTYPE get_posx(int n) const{
 			if ((n<0)||(n>=npos)) return 0.0;
 			return pos[n].x;
 		};
-		inline REALTYPE get_posy(int n){
+		inline REALTYPE get_posy(int n) const{
 			if ((n<0)||(n>=npos)) return 0.0;
 			return pos[n].y;
 		};
@@ -198,7 +198,7 @@ class FreeEdit{
 		};
 
 		//interpolation mode
-		INTERP_MODE get_interp_mode(){
+		INTERP_MODE get_interp_mode() const{
 			return interp_mode;
 		};
 		void set_interp_mode(INTERP_MODE interp_mode_){
@@ -206,7 +206,7 @@ class FreeEdit{
 		};
 
 		//smooth
-		REALTYPE get_smooth(){
+		REALTYPE get_smooth() const{
 			return smooth;
 		};
 		void set_smooth(REALTYPE smooth_){
@@ -230,6 +230,7 @@ class FreeEdit{
 		struct{
 			REALTYPE *data;
 			int size;
+            int allocsize;
 		}curve;
 	private:
 		inline REALTYPE clamp1(REALTYPE m){

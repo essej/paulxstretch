@@ -41,7 +41,7 @@ CustomLookAndFeel::CustomLookAndFeel()
     
     //setColour (ComboBox::backgroundColourId, Colour (0xff161616));
     setColour (ComboBox::backgroundColourId, Colour::fromFloatRGBA(0.15, 0.15, 0.15, 0.7));
-    setColour (ComboBox::textColourId, Colour (0xffe9e9e9));
+    setColour (ComboBox::textColourId, Colour (0xdde9e9e9));
     setColour (ComboBox::outlineColourId, Colour::fromFloatRGBA(0.3, 0.3, 0.3, 0.5));
 
     setColour (TextEditor::backgroundColourId, Colour (0xff050505));

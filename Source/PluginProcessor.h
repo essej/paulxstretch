@@ -76,6 +76,10 @@ const int cpi_octaves_ratio7 = 59;
 const int cpi_looping_enabled = 60;
 const int cpi_rewind = 61;
 const int cpi_dryplayrate = 62;
+const int cpi_binauralbeats = 63;
+const int cpi_binauralbeats_mono = 64;
+const int cpi_binauralbeats_freq = 65;
+const int cpi_binauralbeats_mode = 66;
 
 class MyThreadPool : public ThreadPool
 {
@@ -179,6 +183,11 @@ public:
 	{
 		return dynamic_cast<AudioParameterBool*>(getParameters()[index]);
 	}
+    AudioParameterChoice* getChoiceParameter(int index)
+    {
+        return dynamic_cast<AudioParameterChoice*>(getParameters()[index]);
+    }
+
     void setLastPluginBounds(juce::Rectangle<int> bounds) { mPluginWindowWidth = bounds.getWidth(); mPluginWindowHeight = bounds.getHeight();}
     juce::Rectangle<int> getLastPluginBounds() const { return juce::Rectangle<int>(0,0,mPluginWindowWidth, mPluginWindowHeight); }
 
@@ -281,8 +290,9 @@ private:
 	double m_last_in_pos = 0.0;
 	std::vector<int> m_bufamounts{ 4096,8192,16384,32768,65536,262144 };
 	ProcessParameters m_ppar;
-    int mPluginWindowWidth = 820;
-    int mPluginWindowHeight = 710;
+    BinauralBeatsParameters m_bbpar;
+    int mPluginWindowWidth = 810;
+    int mPluginWindowHeight = 745;
 
 	void setFFTSize(float size, bool force=false);
 	void startplay(Range<double> playrange, int numoutchans, int maxBlockSize, String& err);
@@ -297,7 +307,7 @@ private:
 	int m_cur_program = 0;
 	void setParameters(const std::vector<double>& pars);
 	float m_cur_playrangeoffset = 0.0;
-	void updateStretchParametersFromPluginParameters(ProcessParameters& pars);
+	void updateStretchParametersFromPluginParameters(ProcessParameters& pars,BinauralBeatsParameters & bbpar);
 	std::array<AudioParameterBool*, 9> m_sm_enab_pars;
 	bool m_lastrewind = false;
 	AudioFilePreviewComponent* m_previewcomponent = nullptr;

@@ -95,6 +95,18 @@ struct BinauralBeatsParameters{
 	FreeEdit free_edit;
 	//void add2XML(XMLwrapper *xml);
 	//void getfromXML(XMLwrapper *xml);
+
+    bool operator == (const BinauralBeatsParameters& other) const noexcept
+    {
+        return stereo_mode == other.stereo_mode &&
+        mono == other.mono &&
+        free_edit.get_enabled() == other.free_edit.get_enabled() &&
+        // todo proper equality test for filter
+        free_edit.get_posy(0) == other.free_edit.get_posy(0) &&
+        free_edit.get_posy(1) == other.free_edit.get_posy(1)
+
+        ;
+    }
 };
 
 class BinauralBeats{

@@ -240,7 +240,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     addAndMakeVisible(m_groupviewport.get());
 
     m_stretchgroup = std::make_unique<ParameterGroupComponent>("", -1, &processor, true);
-    m_stretchgroup->setBackgroundColor(Colour(0xff332244));
+    m_stretchgroup->setBackgroundColor(Colour(0xcc332244));
+    m_stretchgroup->setSelectedBackgroundColor(Colour(0xff332244));
+    m_stretchgroup->allowDisableFade = false;
     m_stretchgroup->setToggleEnabled( ! *processor.getBoolParameter(cpi_bypass_stretch));
     if (*processor.getBoolParameter(cpi_bypass_stretch)) {
         m_stretchgroup->addParameterComponent(m_parcomps[cpi_dryplayrate].get());
@@ -253,9 +255,28 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     m_stretchgroup->EnabledChangedCallback = [this]() {
         toggleBool(processor.getBoolParameter(cpi_bypass_stretch));
         m_stretchgroup->setToggleEnabled( ! *processor.getBoolParameter(cpi_bypass_stretch));
+        m_stretchgroup->updateParameterComponents();
     };
 
     addAndMakeVisible(m_stretchgroup.get());
+
+
+    m_binauralgroup = std::make_unique<ParameterGroupComponent>("", -1, &processor, true);
+    //m_binauralgroup->setBackgroundColor(Colour(0xff332244));
+    m_binauralgroup->setToggleEnabled( *processor.getBoolParameter(cpi_binauralbeats));
+    m_binauralgroup->addParameterComponent(m_parcomps[cpi_binauralbeats_mono].get());
+    m_binauralgroup->addParameterComponent(m_parcomps[cpi_binauralbeats_mode].get());
+    m_binauralgroup->addParameterComponent(m_parcomps[cpi_binauralbeats_freq].get());
+    m_parcomps[cpi_binauralbeats_freq]->getSlider()->setNumDecimalPlacesToDisplay(2);
+    m_binauralgroup->EnabledChangedCallback = [this]() {
+        toggleBool(processor.getBoolParameter(cpi_binauralbeats));
+        m_binauralgroup->setToggleEnabled( *processor.getBoolParameter(cpi_binauralbeats));
+        m_binauralgroup->updateParameterComponents();
+    };
+
+    m_groupcontainer->addAndMakeVisible(m_binauralgroup.get());
+    removeChildComponent(m_parcomps[cpi_binauralbeats].get());
+
 
 
     m_posgroup = std::make_unique<ParameterGroupComponent>("", -1, &processor, false);
@@ -837,6 +858,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     groupsbox.items.add(FlexItem(minw, minh, *m_pargroups[FilterGroup]).withMargin(groupmargin));
     gheight += minh + 2*groupmargin;
 
+    minh = m_binauralgroup->getMinimumHeight(groupw);
+    groupsbox.items.add(FlexItem(minw, minh, *m_binauralgroup).withMargin(groupmargin));
+    gheight += minh + 2*groupmargin;
+
     minh = m_posgroup->getMinimumHeight(groupw);
     groupsbox.items.add(FlexItem(minw, minh, *m_posgroup).withMargin(groupmargin));
     gheight += minh + 2*groupmargin;
@@ -1111,6 +1136,9 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 
         m_stretchgroup->setToggleEnabled(!*processor.getBoolParameter(cpi_bypass_stretch));
 
+        m_binauralgroup->setToggleEnabled(*processor.getBoolParameter(cpi_binauralbeats));
+        m_binauralgroup->updateParameterComponents();
+
         if (AudioParameterBool* enablepar = dynamic_cast<AudioParameterBool*>(processor.getBoolParameter(cpi_pause_enabled))) {
             m_perfmeter.enabled = !enablepar->get();
         }
@@ -1195,6 +1223,8 @@ bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 	std::function<bool(void)> action;
 	if (press == 'I')
 		action = [this]() { m_import_button.onClick(); ; return true; };
+    else if (press == KeyPress::spaceKey)
+        action = [this]() { toggleBool(processor.getBoolParameter(cpi_pause_enabled)); ; return true; };
 	return action && action();
 }
 
@@ -2110,8 +2140,11 @@ ParameterComponent::ParameterComponent(AudioProcessorParameter * par, bool notif
 	AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(par);
 	if (choicepar)
 	{
-
-	}
+        m_combobox = XenUtils::makeAddAndMakeVisible<ComboBox>(*this);
+        m_combobox->addItemList(choicepar->getAllValueStrings(), 1);
+        m_combobox->setTitle(choicepar->getName(50));
+        m_combobox->addListener(this);
+    }
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(par);
 	if (boolpar)
 	{
@@ -2174,6 +2207,9 @@ void ParameterComponent::resized()
     else if (m_drawtogglebut) {
         m_drawtogglebut->setBounds(1, 0, getWidth() - 1, h);
     }
+    else if (m_combobox) {
+        m_combobox->setBounds(1, 0, getWidth() - 1, h);
+    }
 
 }
 
@@ -2207,6 +2243,15 @@ void ParameterComponent::sliderDragEnded(Slider * slid)
 		*intpar = slid->getValue();
 }
 
+void ParameterComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+{
+    AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(m_par);
+    if (choicepar) {
+        choicepar->setValueNotifyingHost(choicepar->convertTo0to1(m_combobox->getSelectedItemIndex()));
+    }
+}
+
+
 void ParameterComponent::buttonClicked(Button * but)
 {
 	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
@@ -2234,7 +2279,13 @@ void ParameterComponent::updateComponent()
 	{
 		m_slider->setValue(*intpar, dontSendNotification);
 	}
-	AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
+    AudioParameterChoice* choicepar = dynamic_cast<AudioParameterChoice*>(m_par);
+    if (choicepar != nullptr && m_combobox != nullptr && m_combobox->getSelectedItemIndex() != choicepar->getIndex())
+    {
+        m_combobox->setSelectedItemIndex(choicepar->getIndex(), dontSendNotification);
+    }
+
+    AudioParameterBool* boolpar = dynamic_cast<AudioParameterBool*>(m_par);
     if (boolpar!=nullptr) {
         if ( m_togglebut != nullptr)
         {
@@ -2849,6 +2900,7 @@ int ParameterGroupComponent::doLayout(Rectangle<int> bounds)
     int enablew = m_enableButton ? 40 : 0;
     int enablemaxh = 34;
     int minitemw = 260;
+    int choiceminitemw = 110;
     int minitemh = 26;
     int margin = 1;
     int outsidemargin = 4;
@@ -2887,7 +2939,12 @@ int ParameterGroupComponent::doLayout(Rectangle<int> bounds)
 
     for (int i = 0; i < m_parcomps.size(); ++i)
     {
-        contentbox.items.add(FlexItem(minitemw, minitemh, *m_parcomps[i]).withMargin(margin).withFlex(1));
+        if (m_parcomps[i]->getComboBox()) {
+            contentbox.items.add(FlexItem(choiceminitemw, minitemh, *m_parcomps[i]).withMargin(margin).withFlex(0.1));
+        }
+        else {
+            contentbox.items.add(FlexItem(minitemw, minitemh, *m_parcomps[i]).withMargin(margin).withFlex(1));
+        }
     }
 
     mainbox.items.add(FlexItem(minitemw, minitemh, contentbox).withFlex(1).withMargin(outsidemargin));
@@ -2908,7 +2965,7 @@ void ParameterGroupComponent::resized()
 
 void ParameterGroupComponent::paint(Graphics & g)
 {
-    if (m_enableButton && groupId >= 0 && m_enableButton->getToggleState()) {
+    if (m_enableButton && m_enableButton->getToggleState()) {
         g.setColour(m_selbgcolor);
     } else {
         g.setColour(m_bgcolor);
@@ -2932,10 +2989,13 @@ void ParameterGroupComponent::updateParameterComponents()
             }
         }
     }
+    else if (m_enableButton) {
+        enabled = m_enableButton->getToggleState();
+    }
 
     for (auto& e : m_parcomps) {
         e->updateComponent();
-        e->setAlpha(enabled ? 1.0f : 0.5f);
+        e->setAlpha((enabled || !allowDisableFade) ? 1.0f : 0.5f);
     }
     repaint();
 }

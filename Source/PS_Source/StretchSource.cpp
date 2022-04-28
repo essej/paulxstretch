@@ -34,6 +34,7 @@ StretchAudioSource::StretchAudioSource(int initialnumoutchans,
 	setNumOutChannels(initialnumoutchans);
 	m_xfadetask.buffer.setSize(8, 65536);
 	m_xfadetask.buffer.clear();
+
 }
 
 StretchAudioSource::~StretchAudioSource()
@@ -333,7 +334,9 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 		{
 			int readsize = 0;
 			double in_pos = (double)m_inputfile->getCurrentPosition() / (double)m_inputfile->info.nsamples;
-			if (m_firstbuffer)
+            float in_pos_100 = in_pos*100.0;
+
+            if (m_firstbuffer)
 			{
 				readsize = m_stretchers[0]->get_nsamples_for_fill();
 				m_firstbuffer = false;
@@ -375,6 +378,12 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 			for (int i = 0; i < m_stretchers.size(); ++i)
 				m_stretchers[i]->here_is_onset(onset_max);
 			int outbufsize = m_stretchers[0]->get_bufsize();
+
+            if (m_stretchers.size() > 1) {
+                m_binaural_beats->process(m_stretchers[0]->out_buf.data(),m_stretchers[1]->out_buf.data(),
+                                          outbufsize, in_pos_100);
+            }
+
 			int nskip = m_stretchers[0]->get_skip_nsamples();
 			if (nskip > 0)
 				m_inputfile->skip(nskip);
@@ -578,6 +587,9 @@ void StretchAudioSource::initObjects()
 		fill_container(m_stretchers[i]->out_buf, 0.0f);
 		m_stretchers[i]->m_spectrum_processes = m_specproc_order;
 	}
+    m_binaural_beats = std::make_unique<BinauralBeats>(m_inputfile->info.samplerate);
+    m_binaural_beats->pars = m_bbpar;
+
 	m_file_inbuf.setSize(m_num_outchans, 3 * inbufsize);
 }
 
@@ -652,13 +664,18 @@ void StretchAudioSource::setRate(double rate)
 	}
 }
 
-void StretchAudioSource::setProcessParameters(ProcessParameters * pars)
+void StretchAudioSource::setProcessParameters(ProcessParameters * pars, BinauralBeatsParameters * bbpars)
 {
-	if (*pars == m_ppar)
+	if (*pars == m_ppar && (!bbpars || m_bbpar == *bbpars))
 		return;
 	if (m_cs.tryEnter())
 	{
 		m_ppar = *pars;
+        if (bbpars) {
+            m_bbpar = *bbpars;
+            m_binaural_beats->pars = m_bbpar;
+        }
+
 		for (int i = 0; i < m_stretchers.size(); ++i)
 		{
 			m_stretchers[i]->set_parameters(pars);
