@@ -27,6 +27,8 @@
  #include <juce_audio_plugin_client/AAX/juce_AAX_Modifier_Injector.h>
 #endif
 
+#include <utility>
+
 namespace juce
 {
 
