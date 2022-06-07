@@ -77,6 +77,10 @@ option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects
 
 add_subdirectory(deps/juce EXCLUDE_FROM_ALL )
 
+# Extend JUCE with CLAP support from https://github.com/free-audio/clap-juce-extensions
+add_subdirectory(deps/clap-juce-extensions EXCLUDE_FROM_ALL) 
+
+
 
 # juce_add_modules(deps/ff_meters)
 
@@ -168,6 +172,7 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         PLIST_TO_MERGE "${MacPList}"
         AU_MAIN_TYPE "kAudioUnitType_MusicEffect"
         
+        COPY_PLUGIN_AFTER_BUILD FALSE   # Set to TRUE to auto-install
         
         # other settings...
         PLUGIN_MANUFACTURER_CODE Sono
@@ -175,6 +180,11 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         FORMATS ${formats}
         DESCRIPTION "PaulXStretch - Extreme Timestretching"
         PRODUCT_NAME "${product_name}")
+
+    # Configure the CLAP plugin
+    clap_juce_extensions_plugin(TARGET "${target_name}"
+               CLAP_ID "com.sonosaurus.paulstretch.clap"
+               CLAP_FEATURES "audio-effect")
 
     juce_generate_juce_header("${target_name}")
 
