@@ -1,7 +1,9 @@
 [Desktop Entry]
 Name=PaulXStretch
 Comment=Extreme Time Stretching
+Comment[fr]=Étirement temporel extrême
 GenericName=Extreme Time Stretching
+GenericName[fr]=Étirement temporel extrême
 Exec=paulxstretch %u
 Icon=paulxstretch
 Terminal=false
