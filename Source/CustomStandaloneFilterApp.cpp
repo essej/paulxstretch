@@ -131,8 +131,8 @@ public:
             mainWindow->pluginHolder->saveAudioDeviceState();
 
             if (auto * sonoproc = dynamic_cast<PaulstretchpluginAudioProcessor*>(mainWindow->pluginHolder->processor.get())) {
-                if (sonoproc->getBoolParameter(cpi_pause_enabled)->get() && !sonoproc->isRecordingEnabled()
-                    && !mainWindow->pluginHolder->isInterAppAudioConnected()) {
+                if (sonoproc->getBoolParameter(cpi_pause_enabled)->get() && !sonoproc->isInputRecordingEnabled()
+                    && !sonoproc->isRecordingToFile() && !mainWindow->pluginHolder->isInterAppAudioConnected()) {
                     // shutdown audio engine
                     DBG("not active, shutting down audio");
                     mainWindow->getDeviceManager().closeAudioDevice();

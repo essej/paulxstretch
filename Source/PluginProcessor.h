@@ -193,9 +193,33 @@ public:
 
 
 	void setDirty();
-	void setRecordingEnabled(bool b);
-	bool isRecordingEnabled() { return m_is_recording_pending; }
-	double getRecordingPositionPercent();
+
+	void setInputRecordingEnabled(bool b);
+	bool isInputRecordingEnabled() { return m_is_recording_pending; }
+	double getInputRecordingPositionPercent();
+
+    enum RecordFileFormat {
+        FileFormatDefault = 0,
+        FileFormatAuto,
+        FileFormatFLAC,
+        FileFormatWAV,
+        FileFormatOGG
+    };
+    
+    bool startRecordingToFile(File & file, RecordFileFormat fileformat=FileFormatDefault);
+    bool stopRecordingToFile();
+    bool isRecordingToFile();
+    double getElapsedRecordTime() const { return m_elapsedRecordSamples / getSampleRate(); }
+    String getLastErrorMessage() const { return m_lastError; }
+    void setDefaultRecordingDirectory(String recdir)  {
+        m_defaultRecordDir = recdir;
+    }
+    String getDefaultRecordingDirectory() const { return m_defaultRecordDir; }
+    RecordFileFormat getDefaultRecordingFormat() const { return m_defaultRecordingFormat; }
+    void setDefaultRecordingFormat(RecordFileFormat fmt) { m_defaultRecordingFormat = fmt; }
+    int getDefaultRecordingBitsPerSample() const { return m_defaultRecordingBitsPerSample; }
+    void setDefaultRecordingBitsPerSample(int fmt) { m_defaultRecordingBitsPerSample = fmt; }
+
 	String setAudioFile(const URL& url);
 	URL getAudioFile() { return m_current_file; }
 	Range<double> getTimeSelection();
@@ -316,6 +340,23 @@ private:
 	int m_midinote_to_use = -1;
 	ADSR m_adsr;
 	bool m_is_stand_alone_offline = false;
+
+    // recording stuff
+
+    RecordFileFormat m_defaultRecordingFormat = FileFormatFLAC;
+    int m_defaultRecordingBitsPerSample = 24;
+    String m_defaultRecordDir;
+    String m_defaultCaptureDir;
+    String m_lastError;
+
+    std::atomic<bool> m_writingPossible = { false };
+    int m_totalRecordingChannels = 2;
+    int64 m_elapsedRecordSamples = 0;
+    CriticalSection m_writerLock;
+    std::unique_ptr<TimeSliceThread> m_recordingThread;
+    std::unique_ptr<AudioFormatWriter::ThreadedWriter> m_threadedMixWriter;
+    std::atomic<AudioFormatWriter::ThreadedWriter*> m_activeMixWriter { nullptr };
+
 	//==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessor)
 };

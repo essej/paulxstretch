@@ -294,6 +294,20 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
         startTimer(1, 40);
     }
 
+#if (JUCE_IOS)
+    m_defaultRecordDir = File::getSpecialLocation (File::userDocumentsDirectory).getFullPathName();
+#elif (JUCE_ANDROID)
+    auto parentDir = File::getSpecialLocation (File::userApplicationDataDirectory);
+    parentDir = parentDir.getChildFile("Recordings");
+    m_defaultRecordDir = parentDir.getFullPathName();
+#else
+    auto parentDir = File::getSpecialLocation (File::userMusicDirectory);
+    parentDir = parentDir.getChildFile("PaulXStretch");
+    m_defaultRecordDir = parentDir.getFullPathName();
+#endif
+
+    //m_defaultCaptureDir = parentDir.getChildFile("Captures").getFullPathName();
+    
     m_show_technical_info = m_propsfile->m_props_file->getBoolValue("showtechnicalinfo", false);
 
     DBG("Constructed PS plugin");
@@ -398,6 +412,9 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
     storeToTreeProperties(paramtree, nullptr, "restoreplaystate", m_restore_playstate);
     storeToTreeProperties(paramtree, nullptr, "autofinishrecord", m_auto_finish_record);
 
+    paramtree.setProperty("defRecordDir", m_defaultRecordDir, nullptr);
+
+
     return paramtree;
 }
 
@@ -439,7 +456,11 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 			}
 			getFromTreeProperties(tree, "waveviewrange", m_wave_view_range);
 			getFromTreeProperties(tree, getParameters());
-			
+
+#if !(JUCE_IOS || JUCE_ANDROID)
+            setDefaultRecordingDirectory(tree.getProperty("defRecordDir", m_defaultRecordDir));
+#endif
+
         }
 		int prebufamt = tree.getProperty("prebufamount", 2);
 		if (prebufamt == -1)
@@ -676,23 +697,32 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		int inchans = jmin(getMainBusNumInputChannels(), getIntParameter(cpi_num_inchans)->get());
 		if (inchans < 1)
 			return;
-		WavAudioFormat wavformat;
+        
+        std::unique_ptr<AudioFormat> audioFormat;
+        String fextension;
+        int bitsPerSample = std::min(32, m_defaultRecordingBitsPerSample);
+
+        if (m_defaultRecordingFormat == FileFormatWAV) {
+            audioFormat = std::make_unique<WavAudioFormat>();
+            fextension = ".wav";
+        }
+        else {
+            audioFormat = std::make_unique<FlacAudioFormat>();
+            fextension = ".flac";
+            bitsPerSample = std::min(24, bitsPerSample);
+        }
+
+        
         String outfn;
         String filename = String("pxs_") + Time::getCurrentTime().formatted("%Y-%m-%d_%H.%M.%S");
         filename = File::createLegalFileName(filename);
 
         if (m_capture_location.isEmpty()) {
-            File capdir;
-#if JUCE_IOS
-            capdir = File::getSpecialLocation(File::SpecialLocationType::userDocumentsDirectory);
-            outfn = capdir.getChildFile("Captures").getNonexistentChildFile(filename, ".wav").getFullPathName();
-#else
-            capdir = m_propsfile->m_props_file->getFile().getParentDirectory();
-            outfn = capdir.getChildFile("Captures").getNonexistentChildFile(filename, ".wav").getFullPathName();
-#endif
+            File capdir(m_defaultRecordDir);
+            outfn = capdir.getChildFile("Captures").getNonexistentChildFile(filename, fextension).getFullPathName();
         }
         else {
-			outfn = File(m_capture_location).getNonexistentChildFile(filename, ".wav").getFullPathName();
+			outfn = File(m_capture_location).getNonexistentChildFile(filename, fextension).getFullPathName();
         }
 		File outfile(outfn);
 		outfile.create();
@@ -700,8 +730,8 @@ void PaulstretchpluginAudioProcessor::saveCaptureBuffer()
 		{
 			m_capture_save_state = 1;
 			auto outstream = outfile.createOutputStream();
-			auto writer = unique_from_raw(wavformat.createWriterFor(outstream.get(), getSampleRateChecked(),
-				inchans, 32, {}, 0));
+			auto writer = unique_from_raw(audioFormat->createWriterFor(outstream.get(), getSampleRateChecked(),
+				inchans, bitsPerSample, {}, 0));
 			if (writer != nullptr)
 			{
                 outstream.release(); // the writer takes ownership
@@ -1274,6 +1304,19 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 		ed->m_sonogram.addAudioBlock(buffer);
 	}
 	*/
+
+    // output to file writer if necessary
+    if (m_writingPossible.load()) {
+        const ScopedTryLock sl (m_writerLock);
+        if (sl.isLocked())
+        {
+            if (m_activeMixWriter.load() != nullptr) {
+                m_activeMixWriter.load()->write (buffer.getArrayOfReadPointers(), buffer.getNumSamples());
+            }
+
+            m_elapsedRecordSamples += buffer.getNumSamples();
+        }
+    }
 }
 
 //==============================================================================
@@ -1306,7 +1349,7 @@ void PaulstretchpluginAudioProcessor::setDirty()
 	toggleBool(getBoolParameter(cpi_markdirty));
 }
 
-void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
+void PaulstretchpluginAudioProcessor::setInputRecordingEnabled(bool b)
 {
 	ScopedLock locker(m_cs);
 	int lenbufframes = getSampleRateChecked()*m_max_reclen;
@@ -1334,7 +1377,7 @@ void PaulstretchpluginAudioProcessor::setRecordingEnabled(bool b)
 	}
 }
 
-double PaulstretchpluginAudioProcessor::getRecordingPositionPercent()
+double PaulstretchpluginAudioProcessor::getInputRecordingPositionPercent()
 {
 	if (m_is_recording_pending==false)
 		return 0.0;
@@ -1411,13 +1454,13 @@ void PaulstretchpluginAudioProcessor::timerCallback(int id)
 		if (capture == true && m_is_recording_pending == false && !m_is_recording_finished)
 		{
             DBG("start recording");
-			setRecordingEnabled(true);
+			setInputRecordingEnabled(true);
 			return;
 		}
 		if (capture == false && m_is_recording_pending == true && !m_is_recording_finished)
 		{
             DBG("stop recording");
-			setRecordingEnabled(false);
+			setInputRecordingEnabled(false);
 			return;
 		}
 
@@ -1516,6 +1559,145 @@ void PaulstretchpluginAudioProcessor::finishRecording(int lenrecording, bool nos
 		saveCaptureBuffer();
 	}
 }
+
+bool PaulstretchpluginAudioProcessor::startRecordingToFile(File & file, RecordFileFormat fileformat)
+{
+    if (!m_recordingThread) {
+        m_recordingThread = std::make_unique<TimeSliceThread>("Recording Thread");
+        m_recordingThread->startThread();
+    }
+
+    stopRecordingToFile();
+
+    bool ret = false;
+
+    // Now create a WAV writer object that writes to our output stream...
+    //WavAudioFormat audioFormat;
+    std::unique_ptr<AudioFormat> audioFormat;
+    std::unique_ptr<AudioFormat> wavAudioFormat;
+
+    int qualindex = 0;
+
+    int bitsPerSample = std::min(32, m_defaultRecordingBitsPerSample);
+
+    if (getSampleRate() <= 0)
+    {
+        return false;
+    }
+
+    File usefile = file;
+
+    if (fileformat == FileFormatDefault) {
+        fileformat = m_defaultRecordingFormat;
+    }
+
+
+    m_totalRecordingChannels = getMainBusNumOutputChannels();
+    if (m_totalRecordingChannels == 0) {
+        m_totalRecordingChannels = 2;
+    }
+
+    if (fileformat == FileFormatFLAC && m_totalRecordingChannels > 8) {
+        // flac doesn't support > 8 channels
+        fileformat = FileFormatWAV;
+    }
+
+    if (fileformat == FileFormatFLAC || (fileformat == FileFormatAuto && file.getFileExtension().toLowerCase() == ".flac")) {
+        audioFormat = std::make_unique<FlacAudioFormat>();
+        bitsPerSample = std::min(24, bitsPerSample);
+        usefile = file.withFileExtension(".flac");
+    }
+    else if (fileformat == FileFormatWAV || (fileformat == FileFormatAuto && file.getFileExtension().toLowerCase() == ".wav")) {
+        audioFormat = std::make_unique<WavAudioFormat>();
+        usefile = file.withFileExtension(".wav");
+    }
+    else if (fileformat == FileFormatOGG || (fileformat == FileFormatAuto && file.getFileExtension().toLowerCase() == ".ogg")) {
+        audioFormat = std::make_unique<OggVorbisAudioFormat>();
+        qualindex = 8; // 256k
+        usefile = file.withFileExtension(".ogg");
+    }
+    else {
+        m_lastError = TRANS("Could not find format for filename");
+        DBG(m_lastError);
+        return false;
+    }
+
+    bool userwriting = false;
+
+    // Create an OutputStream to write to our destination file...
+    usefile.deleteFile();
+
+    if (auto fileStream = std::unique_ptr<FileOutputStream> (usefile.createOutputStream()))
+    {
+        if (auto writer = audioFormat->createWriterFor (fileStream.get(), getSampleRate(), m_totalRecordingChannels, bitsPerSample, {}, qualindex))
+        {
+            fileStream.release(); // (passes responsibility for deleting the stream to the writer object that is now using it)
+
+            // Now we'll create one of these helper objects which will act as a FIFO buffer, and will
+            // write the data to disk on our background thread.
+            m_threadedMixWriter.reset (new AudioFormatWriter::ThreadedWriter (writer, *m_recordingThread, 65536));
+
+            DBG("Started recording only mix file " << usefile.getFullPathName());
+
+            file = usefile;
+            ret = true;
+        } else {
+            m_lastError.clear();
+            m_lastError << TRANS("Error creating writer for ") << usefile.getFullPathName();
+            DBG(m_lastError);
+        }
+    } else {
+        m_lastError.clear();
+        m_lastError << TRANS("Error creating output file: ") << usefile.getFullPathName();
+        DBG(m_lastError);
+    }
+
+    if (ret) {
+        // And now, swap over our active writer pointers so that the audio callback will start using it..
+        const ScopedLock sl (m_writerLock);
+        m_elapsedRecordSamples = 0;
+        m_activeMixWriter = m_threadedMixWriter.get();
+
+        m_writingPossible.store(m_activeMixWriter);
+
+        //DBG("Started recording file " << usefile.getFullPathName());
+    }
+
+    return ret;
+}
+
+bool PaulstretchpluginAudioProcessor::stopRecordingToFile()
+{
+    // First, clear this pointer to stop the audio callback from using our writer object..
+
+    {
+        const ScopedLock sl (m_writerLock);
+        m_activeMixWriter = nullptr;
+        m_writingPossible.store(false);
+    }
+
+    bool didit = false;
+
+    if (m_threadedMixWriter) {
+
+        // Now we can delete the writer object. It's done in this order because the deletion could
+        // take a little time while remaining data gets flushed to disk, and we can't be blocking
+        // the audio callback while this happens.
+        m_threadedMixWriter.reset();
+
+        DBG("Stopped recording mix file");
+        didit = true;
+    }
+
+    return didit;
+}
+
+bool PaulstretchpluginAudioProcessor::isRecordingToFile()
+{
+    return (m_activeMixWriter.load() != nullptr);
+}
+
+
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

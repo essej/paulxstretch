@@ -281,7 +281,7 @@ inline void callGUI(T* ap, F&& f, bool async)
 	}
 }
 
-inline String secondsToString2(double secs)
+inline String secondsToString2(double secs, bool fractional=true)
 {
 	RelativeTime rt(secs);
 	String result;
@@ -292,7 +292,7 @@ inline String secondsToString2(double secs)
 	result << String((int)rt.inMinutes() % 60).paddedLeft('0', 2) << ':';
 	result << String((int)rt.inSeconds() % 60).paddedLeft('0', 2);
 	auto millis = (int)rt.inMilliseconds() % 1000;
-	if (millis > 0)
+	if (fractional && millis > 0)
 		result << '.' << String(millis).paddedLeft('0', 3);
 	return result.trimEnd();
 }

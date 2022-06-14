@@ -8,11 +8,7 @@
 #include "RenderSettingsComponent.h"
 
 #include "CrossPlatformUtils.h"
-
-static void handleSettingsMenuModalCallback(int choice, PaulstretchpluginAudioProcessorEditor* ed)
-{
-	ed->executeModalMenuAction(0,choice);
-}
+#include "OptionsView.h"
 
 enum ParameterGroupIds
 {
@@ -25,24 +21,6 @@ enum ParameterGroupIds
     FilterGroup = 6,
     FreeFilterGroup = 7,
     CompressGroup = 8
-};
-
-enum SettingsMenuIds
-{
-    SettingsPlayHostTransId = 1,
-    SettingsCaptureHostTransId = 2,
-    SettingsAboutId = 3,
-    SettingsResetParametersId = 4,
-    SettingsLoadFileWithStateId = 5,
-    SettingsDumpPresetClipboardId = 6,
-    SettingsShowTechInfoId = 7,
-    SettingsMutePassthruCaptureId = 8,
-    SettingsSaveCaptureDiskId = 9,
-    SettingsMuteProcessedCaptureId = 10,
-    SettingsAudioSettingsId = 11,
-    SettingsSliderSnapId = 12,
-    SettingsRestorePlayStateId = 13,
-    SettingsAutoEndCaptureId = 14,
 };
 
 
@@ -94,7 +72,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	
 	addAndMakeVisible(&m_settings_button);
 	m_settings_button.setButtonText("Settings...");
-	m_settings_button.onClick = [this]() { showSettingsMenu(); };
+	m_settings_button.onClick = [this]() {
+        showSettings(true);
+    };
 	
 	if (JUCEApplicationBase::isStandaloneApp())
 	{
@@ -124,6 +104,27 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
 	addAndMakeVisible(&m_info_label);
 	m_info_label.setJustificationType(Justification::centredRight);
     m_info_label.setFont(14.0f);
+
+
+    m_recordingButton = std::make_unique<DrawableButton>("rewind", DrawableButton::ButtonStyle::ImageFitted);
+    std::unique_ptr<Drawable> reconimg(Drawable::createFromImageData(BinaryData::record_output_active_svg, BinaryData::record_output_active_svgSize));
+    std::unique_ptr<Drawable> recoffimg(Drawable::createFromImageData(BinaryData::record_output_svg, BinaryData::record_output_svgSize));
+    m_recordingButton->setImages(recoffimg.get(), nullptr, nullptr, nullptr, reconimg.get());
+    m_recordingButton->setColour(DrawableButton::backgroundOnColourId, Colour::fromFloatRGBA(0.6, 0.3, 0.3, 0.5));
+    addAndMakeVisible(m_recordingButton.get());
+    //m_recordingButton->setColour(DrawableButton::backgroundOnColourId, Colours::transparentBlack);
+    m_recordingButton->setTooltip(TRANS("Start/Stop recording output to file"));
+    m_recordingButton->setTitle(TRANS("Record Output"));
+    m_recordingButton->setClickingTogglesState(true);
+    m_recordingButton->onClick = [this]() { toggleOutputRecording(); };
+
+    m_fileRecordingLabel = std::make_unique<Label>("rectime", "");
+    m_fileRecordingLabel->setJustificationType(Justification::centredBottom);
+    m_fileRecordingLabel->setFont(12);
+    m_fileRecordingLabel->setColour(Label::textColourId, Colour(0x88ffbbbb));
+    m_fileRecordingLabel->setAccessible(false);
+
+    addAndMakeVisible(m_fileRecordingLabel.get());
 
 	m_wavecomponent.GetFileCallback = [this]() { return processor.getAudioFile(); };
 	
@@ -206,9 +207,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
     }
 
     if (auto * recbut = m_parcomps[cpi_capture_trigger]->getDrawableButton()) {
-        std::unique_ptr<Drawable> reconimg(Drawable::createFromImageData(BinaryData::record_active_svg, BinaryData::record_active_svgSize));
-        std::unique_ptr<Drawable> recoffimg(Drawable::createFromImageData(BinaryData::record_svg, BinaryData::record_svgSize));
-        recbut->setImages(recoffimg.get(), nullptr, nullptr, nullptr, reconimg.get());
+        std::unique_ptr<Drawable> ireconimg(Drawable::createFromImageData(BinaryData::record_input_active_svg, BinaryData::record_input_active_svgSize));
+        std::unique_ptr<Drawable> irecoffimg(Drawable::createFromImageData(BinaryData::record_input_svg, BinaryData::record_input_svgSize));
+        recbut->setImages(irecoffimg.get(), nullptr, nullptr, nullptr, ireconimg.get());
         recbut->setColour(DrawableButton::backgroundOnColourId, Colour::fromFloatRGBA(0.6, 0.3, 0.3, 0.5));
     }
 
@@ -586,91 +587,87 @@ void PaulstretchpluginAudioProcessorEditor::showAudioSetup()
     }
 }
 
-void PaulstretchpluginAudioProcessorEditor::executeModalMenuAction(int menuid, int r)
+void PaulstretchpluginAudioProcessorEditor::showSettings(bool flag)
 {
-    enum SettingsMenuIds
-    {
-        SettingsPlayHostTransId = 1,
-        SettingsCaptureHostTransId = 2,
-        SettingsAboutId = 3,
-        SettingsResetParametersId = 4,
-        SettingsLoadFileWithStateId = 5,
-        SettingsDumpPresetClipboardId = 6,
-        SettingsShowTechInfoId = 7,
-        SettingsMutePassthruCaptureId = 8,
-        SettingsSaveCaptureDiskId = 9,
-        SettingsMuteProcessedCaptureId = 10,
-    };
+    DBG("Got settings click");
 
-	if (r >= 200 && r < 210)
-	{
-		int caplen = m_capturelens[r - 200];
-		*processor.getFloatParameter(cpi_max_capture_len) = (float)caplen;
-	}
-	else if (r == SettingsPlayHostTransId)
-	{
-		toggleBool(processor.m_play_when_host_plays);
-	}
-	else if (r == SettingsCaptureHostTransId)
-	{
-		toggleBool(processor.m_capture_when_host_plays);
-	}
-	else if (r == SettingsMutePassthruCaptureId)
-	{
-		toggleBool(processor.m_mute_while_capturing);
-	}
-    else if (r == SettingsMuteProcessedCaptureId)
-    {
-        toggleBool(processor.m_mute_processed_while_capturing);
-    }
-	else if (r == SettingsResetParametersId)
-	{
-		processor.resetParameters();
-	}
-	else if (r == SettingsLoadFileWithStateId)
-	{
-		toggleBool(processor.m_load_file_with_state);
-	}
-	else if (r == SettingsSaveCaptureDiskId)
-	{
-		toggleBool(processor.m_save_captured_audio);
-	}
-    else if (r == SettingsSliderSnapId)
-    {
-        toggleBool(processor.m_use_jumpsliders);
-    }
-    else if (r == SettingsAutoEndCaptureId)
-    {
-        toggleBool(processor.m_auto_finish_record);
-    }
-    else if (r == SettingsRestorePlayStateId)
-    {
-        toggleBool(processor.m_restore_playstate);
-    }
-	else if (r == SettingsAboutId)
-	{
-		showAbout();
-	}
-    else if (r == SettingsAudioSettingsId)
-    {
-        showAudioSetup();
-    }
+    if (flag && settingsCalloutBox == nullptr) {
+        
+        //Viewport * wrap = new Viewport();
+        
+        Component* dw = this;
+        
+#if JUCE_IOS || JUCE_ANDROID
+        int defWidth = 320;
+        int defHeight = 420;
+#else
+        int defWidth = 340;
+        int defHeight = 400;
+#endif
+        
 
-	else if (r == SettingsDumpPresetClipboardId)
-	{
-		ValueTree tree = processor.getStateTree(true, true);
-		MemoryBlock destData;
-		MemoryOutputStream stream(destData, true);
-		tree.writeToStream(stream);
-		String txt = Base64::toBase64(destData.getData(), destData.getSize());
-		SystemClipboard::copyTextToClipboard(txt);
-	}
-	else if (r == SettingsShowTechInfoId)
-	{
-		toggleBool(processor.m_show_technical_info);
-		processor.m_propsfile->m_props_file->setValue("showtechnicalinfo", processor.m_show_technical_info);
-	}
+        bool firsttime = false;
+        if (!m_optionsView) {
+            m_optionsView = std::make_unique<OptionsView>(processor, getAudioDeviceManager);
+            m_optionsView->updateSliderSnap = [this]() {  updateAllSliders();  };
+            //m_optionsView->saveSettingsIfNeeded = [this]() {  if (saveSettingsIfNeeded) saveSettingsIfNeeded();  };
+            m_optionsView->addComponentListener(this);
+            firsttime = true;
+        }
+
+        // presize it so the preferred gets calculated
+        m_optionsView->setBounds(Rectangle<int>(0,0,defWidth,defHeight));
+        
+        auto prefbounds = m_optionsView->getPreferredContentBounds();
+
+        defHeight = prefbounds.getHeight();
+
+        defWidth = jmin(defWidth + 8, dw->getWidth() - 30);
+        defHeight = jmin(defHeight + 8, dw->getHeight() - 90); // 24
+
+
+        auto wrap = std::make_unique<Component>();
+
+        wrap->addAndMakeVisible(m_optionsView.get());
+
+        m_optionsView->setBounds(Rectangle<int>(0,0,defWidth,defHeight));
+
+        wrap->setSize(defWidth,defHeight);
+
+        m_optionsView->updateState();        
+       
+        Rectangle<int> bounds =  dw->getLocalArea(nullptr, m_settings_button.getScreenBounds().reduced(10));
+        DBG("callout bounds: " << bounds.toString());
+        settingsCalloutBox = & CallOutBox::launchAsynchronously (std::move(wrap), bounds , dw, false);
+        if (CallOutBox * box = dynamic_cast<CallOutBox*>(settingsCalloutBox.get())) {
+            box->setDismissalMouseClicksAreAlwaysConsumed(true);
+        }
+
+        settingsClosedTimestamp = 0;
+
+        m_optionsView->grabInitialFocus();
+
+    }
+    else {
+        // dismiss it
+        if (CallOutBox * box = dynamic_cast<CallOutBox*>(settingsCalloutBox.get())) {
+            box->dismiss();
+            settingsCalloutBox = nullptr;
+        }
+    }
 }
+
+void PaulstretchpluginAudioProcessorEditor::componentParentHierarchyChanged (Component& component)
+{
+    if (&component == m_optionsView.get()) {
+        if (component.getParentComponent() == nullptr) {
+            DBG("setting parent changed: " << (uint64) component.getParentComponent());
+            settingsClosedTimestamp = Time::getMillisecondCounter();
+        }
+    }
+}
+
+
 
 void PaulstretchpluginAudioProcessorEditor::updateAllSliders()
 {
@@ -765,6 +762,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     //togglesbox.items.add(FlexItem(toggleminw, togglerowheight, *m_parcomps[cpi_bypass_stretch]).withMargin(margin).withFlex(1).withMaxWidth(150));
     togglesbox.items.add(FlexItem(buttminw + 15, buttonrowheight, *m_parcomps[cpi_passthrough]).withMargin(margin).withFlex(1.5).withMaxWidth(85));
+    if (m_recordingButton) {
+        togglesbox.items.add(FlexItem(0, buttonrowheight).withFlex(0.1).withMaxWidth(10));
+        togglesbox.items.add(FlexItem(buttminw, buttonrowheight, *m_recordingButton).withMargin(1).withFlex(1).withMaxWidth(65));
+    }
 
     togglesbox.items.add(FlexItem(2, buttonrowheight));
 
@@ -1057,6 +1058,9 @@ void PaulstretchpluginAudioProcessorEditor::resized()
     m_wavecomponent.setBounds(m_wave_container->getX(), 0, m_wave_container->getWidth(),
 		m_wave_container->getHeight()-zscrollh-1);
 
+    if (m_recordingButton) {
+        m_fileRecordingLabel->setBounds(m_recordingButton->getBounds().removeFromTop(14).translated(0, -9));
+    }
 
 
 	m_zs.setBounds(m_wave_container->getX(), m_wavecomponent.getBottom(), m_wave_container->getWidth(), zscrollh);
@@ -1072,6 +1076,10 @@ void PaulstretchpluginAudioProcessorEditor::resized()
         m_groupcontainer->repaint();
     }
 
+    if (settingsCalloutBox && settingsCalloutBox->isVisible()) {
+        settingsCalloutBox->toFront(false);
+    }
+        
 }
 
 void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
@@ -1091,9 +1099,9 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
 				m_parcomps[i]->updateComponent();
 		}
 		m_free_filter_component.updateParameterComponents();
-		if (processor.isRecordingEnabled())
+		if (processor.isInputRecordingEnabled())
 		{
-			m_wavecomponent.setRecordingPosition(processor.getRecordingPositionPercent());
+			m_wavecomponent.setRecordingPosition(processor.getInputRecordingPositionPercent());
 		} else
 			m_wavecomponent.setRecordingPosition(-1.0);
 		m_wavecomponent.setAudioInfo(processor.getSampleRateChecked(), processor.getStretchSource()->getLastSeekPos(),
@@ -1143,6 +1151,10 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
             m_perfmeter.enabled = !enablepar->get();
         }
 
+        if (m_recordingButton) {
+            m_recordingButton->setToggleState(processor.isRecordingToFile(), dontSendNotification);
+        }
+
 	}
 	if (id == 2)
 	{
@@ -1173,6 +1185,10 @@ void PaulstretchpluginAudioProcessorEditor::timerCallback(int id)
         }
 
         updateAllSliders();
+
+        if (processor.isRecordingToFile() && m_fileRecordingLabel) {
+            m_fileRecordingLabel->setText(secondsToString2(processor.getElapsedRecordTime(), false), dontSendNotification);
+        }
 
 		//m_parcomps[cpi_dryplayrate]->setVisible(*processor.getBoolParameter(cpi_bypass_stretch));
         //m_parcomps[cpi_stretchamount]->setVisible(!*processor.getBoolParameter(cpi_bypass_stretch));
@@ -1228,123 +1244,6 @@ bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 	return action && action();
 }
 
-void PaulstretchpluginAudioProcessorEditor::showSettingsMenu()
-{
-
-
-    PopupMenu m_settings_menu;
-    if (JUCEApplicationBase::isStandaloneApp()) {
-        m_settings_menu.addItem(11, "Audio Setup...", true, false);
-    }
-    m_settings_menu.addItem(SettingsResetParametersId, "Reset parameters", true, false);
-    m_settings_menu.addSeparator();
-	m_settings_menu.addItem(SettingsLoadFileWithStateId, "Load file with plugin state", true, processor.m_load_file_with_state);
-	m_settings_menu.addItem(SettingsPlayHostTransId, "Play when host transport running", true, processor.m_play_when_host_plays);
-	m_settings_menu.addItem(SettingsCaptureHostTransId, "Capture when host transport running", true, processor.m_capture_when_host_plays);
-    m_settings_menu.addItem(SettingsRestorePlayStateId, "Restore playing state", true, processor.m_restore_playstate);
-    m_settings_menu.addSeparator();
-	m_settings_menu.addItem(SettingsMutePassthruCaptureId, "Mute passthrough while capturing", true, processor.m_mute_while_capturing);
-    m_settings_menu.addItem(SettingsMuteProcessedCaptureId, "Mute processed audio output while capturing", true, processor.m_mute_processed_while_capturing);
-	m_settings_menu.addItem(SettingsSaveCaptureDiskId, "Save captured audio to disk", true, processor.m_save_captured_audio);
-	int capturelen = *processor.getFloatParameter(cpi_max_capture_len);
-	PopupMenu capturelenmenu;
-	
-	for (int i=0;i<m_capturelens.size();++i)
-		capturelenmenu.addItem(200+i, String(m_capturelens[i])+" seconds", true, capturelen == m_capturelens[i]);
-	m_settings_menu.addSubMenu("Capture buffer length", capturelenmenu);
-    m_settings_menu.addItem(SettingsAutoEndCaptureId, "End recording after capturing max length", true, processor.m_auto_finish_record);
-
-    m_settings_menu.addSeparator();
-    m_settings_menu.addItem(SettingsSliderSnapId, "Sliders jump to position", true, processor.m_use_jumpsliders);
-#ifdef JUCE_DEBUG
-	m_settings_menu.addItem(SettingsDumpPresetClipboardId, "Dump preset to clipboard", true, false);
-#endif
-	m_settings_menu.addItem(SettingsShowTechInfoId, "Show technical info in waveform", true, processor.m_show_technical_info);
-    m_settings_menu.addSeparator();
-    m_settings_menu.addItem(SettingsAboutId, "About...", true, false);
-
-    auto options = PopupMenu::Options().withTargetComponent(&m_settings_button);
-#if JUCE_IOS
-    options = options.withStandardItemHeight(34);
-#endif
-    if (!JUCEApplicationBase::isStandaloneApp()) {
-        options = options.withParentComponent(this);
-    }
-    m_settings_menu.showMenuAsync(options,
-		ModalCallbackFunction::forComponent(handleSettingsMenuModalCallback, this));
-}
-
-void PaulstretchpluginAudioProcessorEditor::showAbout()
-{
-    String fftlib;
-#if PS_USE_VDSP_FFT
-    fftlib = "vDSP";
-#elif PS_USE_PFFFT
-    fftlib = "pffft";
-#else
-    fftlib = fftwf_version;
-#endif
-	String juceversiontxt = String("JUCE ") + String(JUCE_MAJOR_VERSION) + "." + String(JUCE_MINOR_VERSION);
-	String title = String(JucePlugin_Name) + " " + String(JucePlugin_VersionString);
-#ifdef JUCE_DEBUG
-	title += " (DEBUG)";
-#endif
-	String vstInfo;
-	if (processor.wrapperType == AudioProcessor::wrapperType_VST ||
-		processor.wrapperType == AudioProcessor::wrapperType_VST3)
-		vstInfo = "VST Plug-In Technology by Steinberg.\n\n";
-	PluginHostType host;
-
-    auto * content = new Label();
-    String text = title + "\n\n" +
-    "Plugin/Application for extreme time stretching and other sound processing\nBuilt on " + String(__DATE__) + " " + String(__TIME__) + "\n"
-    "Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania\n"
-    "(C) 2017-2021 Xenakios\n"
-    "(C) 2022 Jesse Chappell\n\n"
-    +vstInfo;
-
-    if (fftlib.isNotEmpty())
-        text += String("Using ") + fftlib + String(" for FFT\n\n");
-
-
-#if !JUCE_IOS
-    if (PluginHostType::getPluginLoadedAs() == AudioProcessor::wrapperType_AAX) {
-        text += juceversiontxt + String("\n\n");
-    }
-    else {
-        text += juceversiontxt + String(" used under the GPL license.\n\n");
-    }
-#endif
-
-    text += String("GPL licensed source code at : https://github.com/essej/paulxstretch\n");
-
-    if (host.type != juce::PluginHostType::UnknownHost) {
-        text += String("Running in : ") + host.getHostDescription()+ String("\n");
-    }
-
-    content->setJustificationType(Justification::centred);
-    content->setText(text, dontSendNotification);
-
-    auto wrap = std::make_unique<Viewport>();
-    wrap->setViewedComponent(content, true); // takes ownership of content
-
-    //std::unique_ptr<SettingsComponent> contptr(content);
-    int defWidth = 450;
-    int defHeight = 350;
-#if JUCE_IOS
-    defWidth = 320;
-    defHeight = 350;
-#endif
-
-    content->setSize (defWidth, defHeight);
-    wrap->setSize(jmin(defWidth, getWidth() - 20), jmin(defHeight, getHeight() - 24));
-
-    auto bounds = getLocalArea(nullptr, m_settings_button.getScreenBounds());
-    auto & cb = CallOutBox::launchAsynchronously(std::move(wrap), bounds, this, false);
-    cb.setDismissalMouseClicksAreAlwaysConsumed(true);
-
-}
-
 void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 {
 #if JUCE_IOS
@@ -1397,6 +1296,93 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 		m_import_button.setButtonText("Show browser");
 #endif
 }
+
+
+void PaulstretchpluginAudioProcessorEditor::toggleOutputRecording()
+{
+    if (processor.isRecordingToFile()) {
+        processor.stopRecordingToFile();
+
+        m_recordingButton->setToggleState(false, dontSendNotification);
+        //updateServerStatusLabel("Stopped Recording");
+
+        String filepath;
+#if (JUCE_IOS || JUCE_ANDROID)
+        filepath = m_lastRecordedFile.getRelativePathFrom(File::getSpecialLocation (File::userDocumentsDirectory));
+        //showPopTip(TRANS("Finished recording to ") + filepath, 4000, mRecordingButton.get(), 130);
+#else
+        filepath = m_lastRecordedFile.getRelativePathFrom(File::getSpecialLocation (File::userHomeDirectory));
+#endif
+
+        m_recordingButton->setTooltip(TRANS("Last recorded file: ") + filepath);
+
+        //mFileRecordingLabel->setText("Total: " + SonoUtility::durationToString(processor.getElapsedRecordTime(), true), dontSendNotification);
+        m_fileRecordingLabel->setText("", dontSendNotification);
+
+        //Timer::callAfterDelay(200, []() {
+        //    AccessibilityHandler::postAnnouncement(TRANS("Recording finished"), AccessibilityHandler::AnnouncementPriority::high);
+        //});
+
+    } else {
+
+        SafePointer<PaulstretchpluginAudioProcessorEditor> safeThis (this);
+
+        if (! RuntimePermissions::isGranted (RuntimePermissions::writeExternalStorage))
+        {
+            RuntimePermissions::request (RuntimePermissions::writeExternalStorage,
+                                         [safeThis] (bool granted) mutable
+                                         {
+                if (granted)
+                    safeThis->toggleOutputRecording();
+            });
+            return;
+        }
+
+        // create new timestamped filename
+        String filename = "PaulXStretchSession" + String("_") + Time::getCurrentTime().formatted("%Y-%m-%d_%H.%M.%S");
+
+        filename = File::createLegalFileName(filename);
+
+        auto parentDir = File(processor.getDefaultRecordingDirectory());
+        parentDir.createDirectory();
+
+        File file (parentDir.getNonexistentChildFile (filename, ".flac"));
+
+        if (processor.startRecordingToFile(file)) {
+            //updateServerStatusLabel("Started recording...");
+            m_lastRecordedFile = file;
+            String filepath;
+
+#if (JUCE_IOS || JUCE_ANDROID)
+            //showPopTip(TRANS("Started recording output"), 2000, mRecordingButton.get());
+#else
+            //Timer::callAfterDelay(200, []() {
+            //    AccessibilityHandler::postAnnouncement(TRANS("Started recording output"), AccessibilityHandler::AnnouncementPriority::high);
+            //});
+#endif
+
+
+#if (JUCE_IOS || JUCE_ANDROID)
+            filepath = m_lastRecordedFile.getRelativePathFrom(File::getSpecialLocation (File::userDocumentsDirectory));
+#else
+            filepath = m_lastRecordedFile.getRelativePathFrom(File::getSpecialLocation (File::userHomeDirectory));
+#endif
+
+            m_recordingButton->setTooltip(TRANS("Recording audio to: ") + filepath);
+        }
+        else {
+            // show error starting record
+            String lasterr = processor.getLastErrorMessage();
+            //showPopTip(lasterr, 0, mRecordingButton.get());
+        }
+
+        m_fileRecordingLabel->setText("", dontSendNotification);
+        m_recordingButton->setToggleState(true, dontSendNotification);
+
+    }
+}
+
+///============================
 
 WaveformComponent::WaveformComponent(AudioFormatManager* afm, AudioThumbnail* thumb, StretchAudioSource* sas)
 	: m_sas(sas)

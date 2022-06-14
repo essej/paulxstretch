@@ -243,10 +243,12 @@ void CustomLookAndFeel::createTabTextLayout (const TabBarButton& button, float l
                                           Colour colour, TextLayout& textLayout)
 {
     float hscale = 0.6f;
+    float xhscale = 0.6f;
 #if JUCE_IOS
     hscale = 0.5f;
+    xhscale = 0.5f;
 #endif
-    float fontsize = button.getExtraComponent() != nullptr ? jmin(depth, 32.0f) * hscale : jmin(depth, 32.0f) * hscale;
+    float fontsize = button.getExtraComponent() != nullptr ? jmin(depth, 32.0f) * xhscale : jmin(depth, 32.0f) * hscale;
     Font font = myFont.withHeight(fontsize * fontScale);
     font.setUnderline (button.hasKeyboardFocus (false));
 
@@ -1174,7 +1176,7 @@ void CustomLookAndFeel::drawDrawableButton (Graphics& g, DrawableButton& button,
     
     int textH = 0;
     int textW = 0;
-    float imageratio = 0.75f;
+    float imageratio = 0.85f;
 
     //if (SonoDrawableButton* const sonobutt = dynamic_cast<SonoDrawableButton*> (&button)) {
     //    imageratio = sonobutt->getForegroundImageRatio();

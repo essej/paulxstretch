@@ -327,7 +327,7 @@ public:
             settings->setValue ("audioSetup", xml.get());
 
            #if ! (JUCE_IOS || JUCE_ANDROID)
-            settings->setValue ("shouldMuteInput", (bool) shouldMuteInput.getValue());
+          //  settings->setValue ("shouldMuteInput", (bool) shouldMuteInput.getValue());
            #endif
         }
     }
@@ -343,7 +343,7 @@ public:
             savedState = settings->getXmlValue ("audioSetup");
 
            #if ! (JUCE_IOS || JUCE_ANDROID)
-            shouldMuteInput.setValue (settings->getBoolValue ("shouldMuteInput", true));
+           // shouldMuteInput.setValue (settings->getBoolValue ("shouldMuteInput", true));
            #endif
         }
 

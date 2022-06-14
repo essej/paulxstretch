@@ -12,6 +12,8 @@
 #include "envelope_component.h"
 #include "CustomLookAndFeel.h"
 
+class OptionsView;
+
 class zoom_scrollbar : public Component
 {
 public:
@@ -510,7 +512,8 @@ private:
 };
 
 class PaulstretchpluginAudioProcessorEditor  : public AudioProcessorEditor, 
-	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer
+	public MultiTimer, public FileDragAndDropTarget, public DragAndDropContainer, public ComponentListener
+
 {
 public:
     PaulstretchpluginAudioProcessorEditor (PaulstretchpluginAudioProcessor&);
@@ -538,10 +541,12 @@ public:
 
 	bool keyPressed(const KeyPress& press) override;
 
+    void componentParentHierarchyChanged (Component& component) override;
+
+    
 	WaveformComponent m_wavecomponent;
 	
 	void showRenderDialog();
-	void executeModalMenuAction(int menuid, int actionid);
 	//SimpleFFTComponent m_sonogram;
 	String m_last_err;
 
@@ -556,6 +561,8 @@ private:
     void setSpectrumProcGroupEnabled(int groupid, bool enabled);
 
     void updateAllSliders();
+
+    void toggleOutputRecording();
 
     CustomLookAndFeel m_lookandfeel;
 
@@ -581,8 +588,15 @@ private:
     double m_lastspec_select_time = 0.0;
     int m_lastspec_select_group = -1;
     bool m_shortMode = false;
+    File m_lastRecordedFile;
+    std::unique_ptr<Label> m_fileRecordingLabel;
+    std::unique_ptr<DrawableButton> m_recordingButton;
 
-	void showSettingsMenu();
+    bool settingsWasShownOnDown = false;
+    uint32 settingsClosedTimestamp = 0;
+    WeakReference<Component> settingsCalloutBox;
+    std::unique_ptr<OptionsView> m_optionsView;
+
     
 	zoom_scrollbar m_zs;
 	RatioMixerEditor m_ratiomixeditor{ 8 };
@@ -591,7 +605,7 @@ private:
 	MyTabComponent m_wavefilter_tab;
 	Component* m_wave_container=nullptr;
     void showAudioSetup();
-	void showAbout();
+    void showSettings(bool flag);
 	void toggleFileBrowser();
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	

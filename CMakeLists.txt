@@ -36,9 +36,9 @@ endif()
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
-project(PaulXStretch VERSION 1.5.4)
+project(PaulXStretch VERSION 1.6.0)
 
-set(BUILDVERSION 111)
+set(BUILDVERSION 112)
 
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
@@ -277,12 +277,20 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         Source/CustomLookAndFeel.h
         Source/CustomStandaloneFilterApp.cpp
         Source/CustomStandaloneFilterWindow.h
+        Source/GenericItemChooser.cpp
+        Source/GenericItemChooser.h
+        Source/SonoChoiceButton.cpp
+        Source/SonoChoiceButton.h
+        Source/SonoTextButton.cpp
+        Source/SonoTextButton.h
         Source/PluginEditor.cpp
         Source/PluginEditor.h
         Source/PluginProcessor.cpp
         Source/PluginProcessor.h
         Source/RenderSettingsComponent.cpp
         Source/RenderSettingsComponent.h
+        Source/OptionsView.cpp
+        Source/OptionsView.h
         Source/envelope_component.cpp
         Source/envelope_component.h
         Source/jcdp_envelope.h
@@ -401,8 +409,10 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         images/play_icon.svg
         images/power.svg
         images/power_sel.svg
-        images/record.svg
-        images/record_active.svg
+        images/record_input.svg
+        images/record_input_active.svg
+        images/record_output.svg
+        images/record_output_active.svg
         images/skipback_icon.svg
     )
 
