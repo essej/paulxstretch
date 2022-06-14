@@ -1,0 +1,6 @@
+[submodule "clap-libs/clap"]
+	path = clap-libs/clap
+	url = https://github.com/free-audio/clap.git
+[submodule "clap-libs/clap-helpers"]
+	path = clap-libs/clap-helpers
+	url = https://github.com/free-audio/clap-helpers.git

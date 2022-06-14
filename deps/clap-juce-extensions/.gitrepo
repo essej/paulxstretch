@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/free-audio/clap-juce-extensions
+	branch = main
+	commit = 6489846d05a3bc0b743c5c0f301ad1858b4dc919
+	parent = 345d5a1d9f1c12303202574c23520c8d1780dd6f
+	method = merge
+	cmdver = 0.4.3
