@@ -413,6 +413,8 @@ ValueTree PaulstretchpluginAudioProcessor::getStateTree(bool ignoreoptions, bool
     storeToTreeProperties(paramtree, nullptr, "autofinishrecord", m_auto_finish_record);
 
     paramtree.setProperty("defRecordDir", m_defaultRecordDir, nullptr);
+    paramtree.setProperty("defRecordFormat", (int)m_defaultRecordingFormat, nullptr);
+    paramtree.setProperty("defRecordBitDepth", (int)m_defaultRecordingBitsPerSample, nullptr);
 
 
     return paramtree;
@@ -460,6 +462,8 @@ void PaulstretchpluginAudioProcessor::setStateFromTree(ValueTree tree)
 #if !(JUCE_IOS || JUCE_ANDROID)
             setDefaultRecordingDirectory(tree.getProperty("defRecordDir", m_defaultRecordDir));
 #endif
+            m_defaultRecordingFormat = (RecordFileFormat) (int) tree.getProperty("defRecordFormat", (int)m_defaultRecordingFormat);
+            m_defaultRecordingBitsPerSample = (int) tree.getProperty("defRecordBitDepth", (int)m_defaultRecordingBitsPerSample);
 
         }
 		int prebufamt = tree.getProperty("prebufamount", 2);
