@@ -25,11 +25,13 @@ BUILDDIR32="../build32/${BASENAME}_artefacts/Release"
 
 rm -rf ${BASENAME}
 mkdir -p ${BASENAME}/Plugins/VST3 
+mkdir -p ${BASENAME}/Plugins/CLAP
 mkdir -p ${BASENAME}/Plugins/AAX
 
 #cp -v ../doc/README_WINDOWS.txt SonoBus/README.txt
 cp -v ${BUILDDIR}/Standalone/${BASENAME}.exe ${BASENAME}/
 cp -pHLRv ${BUILDDIR}/VST3/${BASENAME}.vst3 ${BASENAME}/Plugins/VST3/
+cp -pHLRv ${BUILDDIR}/CLAP/${BASENAME}.clap ${BASENAME}/Plugins/CLAP/
 #cp -v ${BUILDDIR}/VST/SonoBus.dll ${BASENAME}/Plugins/
 
 cp -pHLRv ${AAXBUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/AAX/
