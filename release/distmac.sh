@@ -24,6 +24,10 @@ mkdir -p ${MAINNAME}
 cp -pLRv ${BUILDDIR}/Standalone/${MAINNAME}.app  ${MAINNAME}/
 cp -pLRv ${BUILDDIR}/AU/${MAINNAME}.component  ${MAINNAME}/
 cp -pLRv ${BUILDDIR}/VST3/${MAINNAME}.vst3 ${MAINNAME}/
+cp -pLRv ${BUILDDIR}/CLAP/${MAINNAME}.clap ${MAINNAME}/
+# needed because clap build doesn't make correct ones - ugh
+cp ${MAINNAME}/${MAINNAME}.vst3/Contents/PkgInfo ${MAINNAME}/${MAINNAME}.clap/Contents/
+cp ${MAINNAME}/${MAINNAME}.vst3/Contents/Info.plist ${MAINNAME}/${MAINNAME}.clap/Contents/
 
 cp -pRHv ${AAXBUILDDIR}/AAX/${MAINNAME}.aaxplugin  ${MAINNAME}/
 
