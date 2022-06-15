@@ -526,6 +526,7 @@ String StretchAudioSource::setAudioFile(const URL & url)
 		m_curfile = url;
 		m_firstbuffer = true;
         m_audiobuffer_is_source = false;
+        initObjects();
 		return String();
 	}
 	return "Could not open file";
