@@ -564,6 +564,9 @@ private:
 
     void toggleOutputRecording();
 
+    void showPopTip(const String & message, int timeoutMs, Component * target, int maxwidth=100);
+
+    
     CustomLookAndFeel m_lookandfeel;
 
 	PaulstretchpluginAudioProcessor& processor;
@@ -639,6 +642,10 @@ private:
 
     std::unique_ptr<CustomTooltipWindow> tooltipWindow;
 
+    // keep this down here, so it gets destroyed early
+    std::unique_ptr<BubbleMessageComponent> popTip;
+
+    
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PaulstretchpluginAudioProcessorEditor)
 };
 

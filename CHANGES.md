@@ -1,17 +1,27 @@
 
 ## PaulXStretch Change History
 
-**v1.5.3**  (04-25-2022)
+**v1.6.0**  (2022-06-15)
+ - Added live output recording feature
+ - Added selection of directory for recording/capture audio files, and some format options, now defaulting to FLAC
+ - Added offline render feature to plugin version
+ - Added Binaural Beats feature (from original paulstretch)
+ - Added CLAP plugin support (https://github.com/free-audio/clap for info)
+ - Fixed an initialization bug
+ - Compile fix for gcc12
+
+
+**v1.5.3**  (2022-04-25)
  - Fixed Mac AudioUnit validation error and potentional crash risk when using more than 8 channels.
 
-**v1.5.2**  (04-24-2022)
+**v1.5.2**  (2022-04-24)
  - Increased maximum number of channels to 32
  - Optimized FFTW build to use available hardware
  - Fixed crash issue some people were seeing on older windows systems
  - Added option (now default) to end recording automatically when chosen buffer size is reached.
  - More extremely small window size tweaks
 
-**v1.5.1** (04-22-2022)
+**v1.5.1** (2022-04-22)
  - fixed passthrough when capturing
  - added declicking fades when bypassing input passthrough, playback, and recording
  - layout tweaks for extra small windows
@@ -22,7 +32,7 @@
  - fixed VST3 installation issue on windows 
     (be sure to uninstall first, you may need to manually remove the C:\Program Files\Common Files\VST3\PaulXStretch.vst3)
  
-**v1.5.0** (04-14-2022)
+**v1.5.0** (2022-04-14)
   - UI layout redesign to adapt to different window sizes and changed look
     and feel.
   - Added iOS support for standalone and AUv3

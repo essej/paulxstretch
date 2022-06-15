@@ -284,17 +284,22 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == &buttonSelectFile)
     {
 		File lastexportfolder; // File(g_propsfile->getValue("last_export_file")).getParentDirectory();
-
+        Component * parent = nullptr;
+#if JUCE_IOS
+        parent = JUCEApplication::isStandaloneApp() ? nullptr : getActiveEditor();
+#endif
+        
         m_filechooser = std::make_unique<FileChooser>("Please select audio file to render...",
                                                       lastexportfolder,
-                                                      "*.wav");
+                                                      "*.wav", true, false, parent);
         m_filechooser->launchAsync(FileBrowserComponent::saveMode, [this](const FileChooser &chooser) {
             String newpath = chooser.getResult().getFullPathName();
 #if JUCE_IOS
-            // not actually used here, but just in case for later
             newpath = chooser.getResult().getFileName();
 #endif
-			outfileNameEditor.setText(newpath, dontSendNotification);
+            if (newpath.isNotEmpty()) {
+                outfileNameEditor.setText(newpath, dontSendNotification);
+            }
             if (newpath.isNotEmpty() && pendingRender) {
                 buttonClicked(&buttonRender);
             }

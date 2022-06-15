@@ -80,19 +80,16 @@ Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 # License and 3rd Party Software
 
 Released under GNU General Public License v.3 license with App Store license
-exception. The full license text is in the LICENSE file. Paul Nasca, Xenakios and Jesse Chappell all explicitly permitted the license exception clause.
+exception. The full license text is in the LICENSE file. Paul Nasca, Xenakios and Jesse Chappell all explicitly permitted the license exception clause. The AAX plugin and the version distributed on the iOS App Store by Sonosaurus is not built with FFTW, and the JUCE commercial license applies there.
 
 
 It is built using JUCE 6 (slightly modified on a public fork), I'm using the very handy tool `git-subrepo` to include the source code for my forks of those software libraries in this repository.
 FFTW is required, but statically built libraries are included in `deps` for easier building on Mac and Windows.
 
-My github forks of these that are referenced via `git-subrepo` in this repository are:
+Dependencies that are referenced via `git-subrepo` in this repository are:
 
-> https://github.com/essej/JUCE  in the sono6good branch.
-
-The version distributed on the iOS App Store by Sonosaurus is not built with FFTW, and the JUCE commercial license applies there.
-
-
-
-
+ - ```(deps/juce)  https://github.com/essej/JUCE  in the sono6good branch. ```
+ - ```(deps/clap-juce-extensions)  https://github.com/free-audio/clap-juce-extensions  in the main branch.```
+ - ```(deps/clap-juce-extensions/clap-libs/clap)  https://github.com/free-audio/clap  in the main branch.```
+ - ```(deps/clap-juce-extensions/clap-libs/clap-helpers)  https://github.com/free-audio/clap-helpers  in the main branch.```
 

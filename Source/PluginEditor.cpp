@@ -76,12 +76,9 @@ PaulstretchpluginAudioProcessorEditor::PaulstretchpluginAudioProcessorEditor(Pau
         showSettings(true);
     };
 	
-	if (JUCEApplicationBase::isStandaloneApp())
-	{
-		addAndMakeVisible(&m_render_button);
-		m_render_button.setButtonText("Render...");
-		m_render_button.onClick = [this]() { showRenderDialog(); };
-	}
+    addAndMakeVisible(&m_render_button);
+    m_render_button.setButtonText("Render...");
+    m_render_button.onClick = [this]() { showRenderDialog(); };
 
 
     m_rewind_button = std::make_unique<DrawableButton>("rewind", DrawableButton::ButtonStyle::ImageFitted);
@@ -730,10 +727,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     topbox.items.add(FlexItem(buttw, buttonrowheight, m_import_button).withMargin(1).withFlex(1).withMaxWidth(130));
     topbox.items.add(FlexItem(buttw, buttonrowheight, m_settings_button).withMargin(1).withFlex(1).withMaxWidth(130));
-    if (JUCEApplicationBase::isStandaloneApp())
-    {
-        topbox.items.add(FlexItem(buttw, buttonrowheight, m_render_button).withMargin(1).withFlex(1).withMaxWidth(130));
-    }
+    topbox.items.add(FlexItem(buttw, buttonrowheight, m_render_button).withMargin(1).withFlex(1).withMaxWidth(130));
+
     topbox.items.add(FlexItem(4, 4));
     topbox.items.add(FlexItem(80, buttonrowheight, m_perfmeter).withMargin(1).withFlex(1).withMaxWidth(110).withMaxHeight(24).withAlignSelf(FlexItem::AlignSelf::center));
     topbox.items.add(FlexItem(140, 26, m_info_label).withMargin(1).withFlex(2));
@@ -1298,6 +1293,37 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
 }
 
 
+void PaulstretchpluginAudioProcessorEditor::showPopTip(const String & message, int timeoutMs, Component * target, int maxwidth)
+{
+    popTip.reset(new BubbleMessageComponent());
+    popTip->setAllowedPlacement(BubbleComponent::above);
+    
+    if (target) {
+        if (auto * parent = target->findParentComponentOfClass<AudioProcessorEditor>()) {
+            parent->addChildComponent (popTip.get());
+        } else {
+            addChildComponent(popTip.get());
+        }
+    }
+    else {
+        addChildComponent(popTip.get());
+    }
+    
+    AttributedString text(message);
+    text.setJustification (Justification::centred);
+    text.setColour (findColour (TextButton::textColourOffId));
+    text.setFont(Font(12));
+    if (target) {
+        popTip->showAt(target, text, timeoutMs);
+    }
+    else {
+        Rectangle<int> topbox(getWidth()/2 - maxwidth/2, 0, maxwidth, 2);
+        popTip->showAt(topbox, text, timeoutMs);
+    }
+    popTip->toFront(false);
+    //AccessibilityHandler::postAnnouncement(message, AccessibilityHandler::AnnouncementPriority::high);
+}
+
 void PaulstretchpluginAudioProcessorEditor::toggleOutputRecording()
 {
     if (processor.isRecordingToFile()) {
@@ -1309,10 +1335,10 @@ void PaulstretchpluginAudioProcessorEditor::toggleOutputRecording()
         String filepath;
 #if (JUCE_IOS || JUCE_ANDROID)
         filepath = m_lastRecordedFile.getRelativePathFrom(File::getSpecialLocation (File::userDocumentsDirectory));
-        //showPopTip(TRANS("Finished recording to ") + filepath, 4000, mRecordingButton.get(), 130);
 #else
         filepath = m_lastRecordedFile.getRelativePathFrom(File::getSpecialLocation (File::userHomeDirectory));
 #endif
+        showPopTip(TRANS("Finished recording to ") + filepath, 4000, m_recordingButton.get(), 130);
 
         m_recordingButton->setTooltip(TRANS("Last recorded file: ") + filepath);
 
@@ -1373,7 +1399,7 @@ void PaulstretchpluginAudioProcessorEditor::toggleOutputRecording()
         else {
             // show error starting record
             String lasterr = processor.getLastErrorMessage();
-            //showPopTip(lasterr, 0, mRecordingButton.get());
+            showPopTip(lasterr, 0, m_recordingButton.get());
         }
 
         m_fileRecordingLabel->setText("", dontSendNotification);
