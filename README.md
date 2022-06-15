@@ -76,6 +76,8 @@ Copyright (C) 2017-2018 Xenakios
 
 Copyright (C) 2006-2011 Nasca Octavian Paul, Tg. Mures, Romania
 
+If you would like to contribute anything via pull requests, please do so from the ```develop```
+branch of this repository.
 
 # License and 3rd Party Software
 
