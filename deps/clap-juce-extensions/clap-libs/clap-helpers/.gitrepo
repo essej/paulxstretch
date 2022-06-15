@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/free-audio/clap-helpers.git
+	branch = main
+	commit = 2bb43c18788c689708ead6f127a2d75e772ab389
+	parent = 8bbddf66e9d6b4b8e0a4fb98122ace8d70a5c14d
+	method = merge
+	cmdver = 0.4.3
