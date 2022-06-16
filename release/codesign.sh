@@ -15,9 +15,9 @@ codesign ${POPTS} --entitlements ${MAINNAME}.entitlements ${MAINNAME}/${MAINNAME
 
 
 # AAX is special
-if [ -n "${AAXSIGNCMD}" ]; then
+if [ -n "${PSAAXSIGNCMD}" ]; then
    echo "Signing AAX plugin"
-   ${AAXSIGNCMD}  --in ${MAINNAME}/${MAINNAME}.aaxplugin --out ${MAINNAME}/${MAINNAME}.aaxplugin
+   ${PSAAXSIGNCMD}  --in ${MAINNAME}/${MAINNAME}.aaxplugin --out ${MAINNAME}/${MAINNAME}.aaxplugin
 fi
 
 
