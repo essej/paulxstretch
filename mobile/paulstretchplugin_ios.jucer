@@ -28,14 +28,26 @@
       <FILE id="uGTN39" name="play_icon.svg" compile="0" resource="1" file="../images/play_icon.svg"/>
       <FILE id="OyhaIc" name="power.svg" compile="0" resource="1" file="../images/power.svg"/>
       <FILE id="uMLkyi" name="power_sel.svg" compile="0" resource="1" file="../images/power_sel.svg"/>
-      <FILE id="kOKR8S" name="record.svg" compile="0" resource="1" file="../images/record.svg"/>
       <FILE id="aogj2H" name="record_active.svg" compile="0" resource="1"
             file="../images/record_active.svg"/>
+      <FILE id="sdhUZp" name="record_input.svg" compile="0" resource="1"
+            file="../images/record_input.svg"/>
+      <FILE id="ljzBUV" name="record_input_active.svg" compile="0" resource="1"
+            file="../images/record_input_active.svg"/>
+      <FILE id="CWzK0D" name="record_output.svg" compile="0" resource="1"
+            file="../images/record_output.svg"/>
+      <FILE id="rjOnS4" name="record_output_active.svg" compile="0" resource="1"
+            file="../images/record_output_active.svg"/>
       <FILE id="MKkrTg" name="skipback_icon.svg" compile="0" resource="1"
             file="../images/skipback_icon.svg"/>
     </GROUP>
     <GROUP id="{03DA6B32-F666-FF60-F168-4385D0847058}" name="Source">
       <GROUP id="{3B6D1AF9-E53E-2F78-24A5-D12A34009E6A}" name="PS_Source">
+        <FILE id="F5ZPuM" name="FreeEdit.cpp" compile="1" resource="0" file="../Source/PS_Source/FreeEdit.cpp"/>
+        <FILE id="uHUVmT" name="FreeEdit.h" compile="0" resource="0" file="../Source/PS_Source/FreeEdit.h"/>
+        <FILE id="BRDYVf" name="BinauralBeats.cpp" compile="1" resource="0"
+              file="../Source/PS_Source/BinauralBeats.cpp"/>
+        <FILE id="REl3dN" name="BinauralBeats.h" compile="0" resource="0" file="../Source/PS_Source/BinauralBeats.h"/>
         <FILE id="gDsFRp" name="globals.h" compile="0" resource="0" file="../Source/PS_Source/globals.h"/>
         <FILE id="MOQjrp" name="ProcessedStretch.h" compile="0" resource="0"
               file="../Source/PS_Source/ProcessedStretch.h"/>
@@ -67,7 +79,13 @@
             file="../Source/envelope_component.cpp"/>
       <FILE id="apM6W6" name="envelope_component.h" compile="0" resource="0"
             file="../Source/envelope_component.h"/>
+      <FILE id="JbDTUJ" name="GenericItemChooser.cpp" compile="1" resource="0"
+            file="../Source/GenericItemChooser.cpp"/>
+      <FILE id="TYMQPN" name="GenericItemChooser.h" compile="0" resource="0"
+            file="../Source/GenericItemChooser.h"/>
       <FILE id="qfCc8R" name="jcdp_envelope.h" compile="0" resource="0" file="../Source/jcdp_envelope.h"/>
+      <FILE id="YNkYxK" name="OptionsView.cpp" compile="1" resource="0" file="../Source/OptionsView.cpp"/>
+      <FILE id="JKfJ71" name="OptionsView.h" compile="0" resource="0" file="../Source/OptionsView.h"/>
       <FILE id="lyNyYp" name="PluginEditor.cpp" compile="1" resource="0"
             file="../Source/PluginEditor.cpp"/>
       <FILE id="IO7X2q" name="PluginEditor.h" compile="0" resource="0" file="../Source/PluginEditor.h"/>
@@ -84,6 +102,14 @@
       <FILE id="L4CoFz" name="RenderSettingsComponent.h" compile="0" resource="0"
             file="../Source/RenderSettingsComponent.h"/>
       <FILE id="TDOHpE" name="resample.cpp" compile="1" resource="0" file="../Source/WDL/resample.cpp"/>
+      <FILE id="VxIH1M" name="SonoChoiceButton.cpp" compile="1" resource="0"
+            file="../Source/SonoChoiceButton.cpp"/>
+      <FILE id="GnI2tf" name="SonoChoiceButton.h" compile="0" resource="0"
+            file="../Source/SonoChoiceButton.h"/>
+      <FILE id="XnOwP2" name="SonoTextButton.cpp" compile="1" resource="0"
+            file="../Source/SonoTextButton.cpp"/>
+      <FILE id="Dr6hzX" name="SonoTextButton.h" compile="0" resource="0"
+            file="../Source/SonoTextButton.h"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

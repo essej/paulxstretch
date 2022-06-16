@@ -58,10 +58,12 @@ RenderSettingsComponent::RenderSettingsComponent (PaulstretchpluginAudioProcesso
     label4.setJustificationType(Justification::centredRight);
 
 #if JUCE_IOS
-    addAndMakeVisible(&m_shareAfterRenderToggle);
-    m_shareAfterRenderToggle.setButtonText("Share after render");
-    bool lastshare = m_proc->m_propsfile->m_props_file->getBoolValue(ID_lastrendershare, false);
-    m_shareAfterRenderToggle.setToggleState(lastshare, dontSendNotification);
+    if (JUCEApplication::isStandaloneApp()) {
+        addAndMakeVisible(&m_shareAfterRenderToggle);
+        m_shareAfterRenderToggle.setButtonText("Share after render");
+        bool lastshare = m_proc->m_propsfile->m_props_file->getBoolValue(ID_lastrendershare, false);
+        m_shareAfterRenderToggle.setToggleState(lastshare, dontSendNotification);
+    }
 #endif
 
 	addAndMakeVisible(&outfileNameEditor);
@@ -162,8 +164,10 @@ void RenderSettingsComponent::resized()
     buttonbox.flexDirection = FlexBox::Direction::row;
     buttonbox.items.add(FlexItem(2, itemh).withFlex(1));
 #if JUCE_IOS
-    buttonbox.items.add(FlexItem(labelw, itemh, m_shareAfterRenderToggle).withMargin(margin).withFlex(1));
-    buttonbox.items.add(FlexItem(4, itemh).withFlex(0.1).withMaxWidth(20));
+    if (JUCEApplication::isStandaloneApp()) {
+        buttonbox.items.add(FlexItem(labelw, itemh, m_shareAfterRenderToggle).withMargin(margin).withFlex(1));
+        buttonbox.items.add(FlexItem(4, itemh).withFlex(0.1).withMaxWidth(20));
+    }
 #endif
     buttonbox.items.add(FlexItem(minitemw, itemh, buttonRender).withMargin(margin));
 
@@ -244,7 +248,7 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
         std::function<void(bool,File file)> completion;
 
 #if JUCE_IOS
-        if (m_shareAfterRenderToggle.getToggleState()) {
+        if (JUCEApplication::isStandaloneApp() && m_shareAfterRenderToggle.getToggleState()) {
             completion = [](bool status,File file) {
                 // this completion handler will be called from another thread
                 MessageManager::callAsync([status,file]() {
@@ -286,7 +290,7 @@ void RenderSettingsComponent::buttonClicked (Button* buttonThatWasClicked)
 		File lastexportfolder; // File(g_propsfile->getValue("last_export_file")).getParentDirectory();
         Component * parent = nullptr;
 #if JUCE_IOS
-        parent = JUCEApplication::isStandaloneApp() ? nullptr : getActiveEditor();
+        parent = JUCEApplication::isStandaloneApp() ? nullptr : m_proc->getActiveEditor();
 #endif
         
         m_filechooser = std::make_unique<FileChooser>("Please select audio file to render...",
