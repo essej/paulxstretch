@@ -1,7 +1,7 @@
 
 ## PaulXStretch Change History
 
-**v1.6.0**  (2022-06-15)
+**v1.6.0**  (2022-06-16)
  - Added live output recording feature
  - Added selection of directory for recording/capture audio files, and some format options, now defaulting to FLAC
  - Added offline render feature to plugin version

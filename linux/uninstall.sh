@@ -22,4 +22,13 @@ rm -f ${PREFIX}/pixmaps/paulxstretch.png
 
 rm -rf ${PREFIX}/lib/vst3/PaulXStretch.vst3
 
+if [ x"$SUDO_USER" != x ] ; then
+   CLAPDIR=`eval echo ~$SUDO_USER/.clap`
+   rm -f ${CLAPDIR}/PaulXStretch.clap
+else
+   CLAPDIR=$HOME/.clap
+   rm -f ${CLAPDIR}/PaulXStretch.clap
+fi
+
+
 echo "PaulXStretch uninstalled"
