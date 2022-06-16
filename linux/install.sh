@@ -31,6 +31,23 @@ if [ -d ${BUILDDIR}/VST3/PaulXStretch.vst3 ] ; then
   echo "PaulXStretch VST3 plugin installed"
 fi
 
+if [ -f ${BUILDDIR}/CLAP/PaulXStretch.clap ] ; then
+  #mkdir -p ${PREFIX}/lib/clap
+  if [ x"$SUDO_USER" != x ] ; then
+        CLAPDIR=`eval echo ~$SUDO_USER/.clap`
+	mkdir -p $CLAPDIR
+       	chown $SUDO_USER:$SUDO_GROUP $CLAPDIR
+       	cp -f ${BUILDDIR}/CLAP/PaulXStretch.clap $CLAPDIR/
+  	chown $SUDO_USER:$SUDO_GROUP $CLAPDIR/PaulXStretch.clap
+  else
+  	CLAPDIR=$HOME/.clap
+  	mkdir -p $CLAPDIR
+  	cp -a ${BUILDDIR}/CLAP/PaulXStretch.clap $CLAPDIR/
+  fi
+
+  echo "PaulXStretch CLAP plugin installed in $CLAPDIR"
+fi
+
 
 echo "PaulXStretch application installed"
 
