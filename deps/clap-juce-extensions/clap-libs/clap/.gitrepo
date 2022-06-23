@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/free-audio/clap
 	branch = main
-	commit = 3189bdfaf849eadeb5a0149bf3e2cb9fd0690518
-	parent = 1b743700030422251f8e1b50f094c7a50ffff8fd
+	commit = 55ee06f776669b94d63247a9c1dcb7dfa6056587
+	parent = 8ec191fdd7203354c79391cbc04c9fd83fa30ea0
 	method = merge
 	cmdver = 0.4.3
