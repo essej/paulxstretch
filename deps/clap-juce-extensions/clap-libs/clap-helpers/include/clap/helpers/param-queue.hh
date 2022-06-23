@@ -4,6 +4,7 @@
 #include <atomic>
 #include <cassert>
 #include <cstddef>
+#include <thread>
 
 namespace clap { namespace helpers {
    template <typename T, size_t CAPACITY>
@@ -11,11 +12,13 @@ namespace clap { namespace helpers {
    public:
       using value_type = T;
 
+      static_assert(CAPACITY > 1, "You need at least a capacity of 2");
+
       ParamQueue() = default;
 
       void push(const T &value) {
          while (!tryPush(value))
-            ;
+            std::this_thread::yield();
       }
 
       bool tryPush(const T &value) {
