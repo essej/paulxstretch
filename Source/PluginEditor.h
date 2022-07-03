@@ -496,6 +496,8 @@ public:
 	std::function<void(int, File)> OnAction;
 	void selectionChanged() override;
 
+    void refresh();
+    
 	/** Callback when the user clicks on a file in the browser. */
 	void fileClicked(const File& file, const MouseEvent& e) override;
 
@@ -505,8 +507,13 @@ public:
 	/** Callback when the browser's root folder changes. */
 	void browserRootChanged(const File& newRoot) override;
 private:
+    void updateState();
+    
 	std::unique_ptr<FileBrowserComponent> m_fbcomp;
-	WildcardFileFilter m_filefilter;
+    std::unique_ptr<TextButton> m_deleteButton;
+    std::unique_ptr<TextButton> m_shareButton;
+
+    WildcardFileFilter m_filefilter;
 	PaulstretchpluginAudioProcessor& m_proc;
 	LookAndFeel_V3 m_filebwlookandfeel;
 };
@@ -610,6 +617,10 @@ private:
     void showAudioSetup();
     void showSettings(bool flag);
 	void toggleFileBrowser();
+    void showExternalFileBrowser();
+    void showLocalFileBrowser(bool flag);
+
+    
 	std::vector<int> m_capturelens{ 2,5,10,30,60,120 };
 	
 	std::unique_ptr<MyFileBrowserComponent> m_filechooser;

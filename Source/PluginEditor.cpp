@@ -1239,10 +1239,9 @@ bool PaulstretchpluginAudioProcessorEditor::keyPressed(const KeyPress & press)
 	return action && action();
 }
 
-void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
+void PaulstretchpluginAudioProcessorEditor::showExternalFileBrowser()
 {
-#if JUCE_IOS
-
+    // currently used on iOS only
     String curropendir = processor.m_propsfile->m_props_file->getValue("importfilefolder",
                                                                     File::getSpecialLocation(File::userDocumentsDirectory).getFullPathName());
 
@@ -1275,21 +1274,66 @@ void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
         }
     });
 
+}
 
-#else
+void PaulstretchpluginAudioProcessorEditor::showLocalFileBrowser(bool flag)
+{
     if (m_filechooser == nullptr)
-	{
-		m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
-		addChildComponent(m_filechooser.get());
-	}
+    {
+        m_filechooser = std::make_unique<MyFileBrowserComponent>(processor);
+        addChildComponent(m_filechooser.get());
+    }
     auto bounds = getLocalArea(nullptr, m_import_button.getScreenBounds());
-	m_filechooser->setBounds(0,  bounds.getBottom(), getWidth()/2, getHeight() - 75);
-	m_filechooser->setVisible(!m_filechooser->isVisible());
-	if (m_filechooser->isVisible())
-		m_import_button.setButtonText("Hide browser");
-	else
-		m_import_button.setButtonText("Show browser");
+    m_filechooser->setBounds(0,  bounds.getBottom(), getWidth()/2, getHeight() - 75);
+    m_filechooser->setVisible(flag);
+    m_filechooser->refresh();
+    
+    if (m_filechooser->isVisible())
+        m_import_button.setButtonText("Hide browser");
+    else
+        m_import_button.setButtonText("Show browser");
+}
+
+
+void PaulstretchpluginAudioProcessorEditor::toggleFileBrowser()
+{
+    
+    if (m_filechooser && m_filechooser->isVisible()) {
+        // hide it
+        showLocalFileBrowser(false);
+        return;
+    }
+    
+#if JUCE_IOS
+
+    Array<GenericItemChooserItem> items;
+
+    items.add(GenericItemChooserItem(TRANS("Browse External Files..."), {}, nullptr, false));
+    items.add(GenericItemChooserItem(TRANS("Browse Internal Captures..."), {}, nullptr, false));
+
+    Component* dw = this;
+    Rectangle<int> bounds =  dw->getLocalArea(nullptr, m_import_button.getScreenBounds());
+
+    SafePointer<PaulstretchpluginAudioProcessorEditor> safeThis(this);
+
+    auto callback = [safeThis,dw,bounds](GenericItemChooser* chooser,int index) mutable {
+        if (!safeThis) return;
+
+        if (index == 0) {
+            safeThis->showExternalFileBrowser();
+        } else if (index == 1) {
+            safeThis->showLocalFileBrowser(true);
+        }
+    };
+
+    GenericItemChooser::launchPopupChooser(items, bounds, dw, callback, -1, dw ? dw->getHeight()-30 : 0);
+        
+#else
+    
+    showLocalFileBrowser(true);
+
 #endif
+
 }
 
 
@@ -3026,14 +3070,65 @@ void AudioFilePreviewComponent::processBlock(double sr, AudioBuffer<float>& buf)
 MyFileBrowserComponent::MyFileBrowserComponent(PaulstretchpluginAudioProcessor & p) :
 	 m_filefilter(p.m_afm->getWildcardForAllFormats(),String(),String()), m_proc(p)
 {
-	String initiallocfn = m_proc.m_propsfile->m_props_file->getValue("importfilefolder",
-		File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
-	File initialloc(initiallocfn);
+    // these buttons are only used on ios for now
+    m_deleteButton = std::make_unique<TextButton>();
+    m_deleteButton->setButtonText(TRANS("Delete"));
+    addChildComponent(m_deleteButton.get());
+    
+    m_deleteButton->onClick = [this]() {
+        File selfile = m_fbcomp->getSelectedFile(0);
+        if (selfile.getFullPathName().isNotEmpty()) {
+            selfile.deleteFile();
+            m_fbcomp->deselectAllFiles();
+            m_fbcomp->setFileName("");
+            refresh();
+        }
+    };
+
+    m_shareButton = std::make_unique<TextButton>();
+    m_shareButton->setButtonText(TRANS("Share"));
+    addChildComponent(m_shareButton.get());
+    
+    m_shareButton->onClick = [this]() {
+        File selfile = m_fbcomp->getSelectedFile(0);
+        if (selfile.getFullPathName().isNotEmpty()) {
+            Array<URL> files;
+            files.add(URL(selfile));
+
+            ContentSharer::getInstance()->setParentComponent(m_proc.getActiveEditor(), m_shareButton.get());
+            ContentSharer::getInstance()->shareFiles(files, [](bool status, const String & message) {
+                if (status) {
+                    DBG("Finished share");
+                } else {
+                    DBG("Error sharing: " << message);
+                }
+            });
+        }
+    };
+    
+    String initiallocfn;
+#if JUCE_IOS
+    File docdir = File::getSpecialLocation(File::userDocumentsDirectory);
+    initiallocfn = m_proc.m_propsfile->m_props_file->getValue("importfilefolder", docdir.getFullPathName());
+    File initialloc(initiallocfn);
+    if (initialloc != docdir && !initialloc.isAChildOf(docdir)) {
+        // force it to be docdir
+        initialloc = docdir;
+    }
+#else
+    initiallocfn = m_proc.m_propsfile->m_props_file->getValue("importfilefolder", File::getSpecialLocation(File::userHomeDirectory).getFullPathName());
+    File initialloc(initiallocfn);
+#endif
+    
 	m_fbcomp = std::make_unique<FileBrowserComponent>(FileBrowserComponent::openMode | FileBrowserComponent::canSelectFiles,
 		initialloc, &m_filefilter, nullptr);
 	m_fbcomp->addListener(this);
+    
 	addAndMakeVisible(m_fbcomp.get());
 	//setLookAndFeel(&m_filebwlookandfeel);
+
+   
+    updateState();
 }
 
 MyFileBrowserComponent::~MyFileBrowserComponent()
@@ -3041,9 +3136,34 @@ MyFileBrowserComponent::~MyFileBrowserComponent()
 	setLookAndFeel(nullptr);
 }
 
+void MyFileBrowserComponent::refresh()
+{
+    m_fbcomp->refresh();
+    updateState();
+}
+
+
 void MyFileBrowserComponent::resized()
 {
-	m_fbcomp->setBounds(0, 0, getWidth(), getHeight());
+    auto bounds = getLocalBounds().reduced(2);
+    
+#if JUCE_IOS
+    if (bounds.getWidth() > 100 && bounds.getHeight() > 100) {
+        auto bottom = bounds.removeFromBottom(38);
+        auto delbounds = bottom.removeFromLeft(84).reduced(2);
+        m_deleteButton->setBounds(delbounds);
+        m_deleteButton->setVisible(true);
+        auto shbounds = bottom.removeFromLeft(84).reduced(2);
+        m_shareButton->setBounds(shbounds);
+        m_shareButton->setVisible(true);
+    }
+    else {
+        m_deleteButton->setVisible(false);
+        m_shareButton->setVisible(false);
+    }
+#endif
+    
+	m_fbcomp->setBounds(bounds);
 }
 
 void MyFileBrowserComponent::paint(Graphics & g)
@@ -3051,8 +3171,16 @@ void MyFileBrowserComponent::paint(Graphics & g)
 	g.fillAll(Colours::black.withAlpha(0.9f));
 }
 
+void MyFileBrowserComponent::updateState()
+{
+    auto enabled = m_fbcomp->getNumSelectedFiles() > 0;
+    m_deleteButton->setEnabled(enabled);
+    m_shareButton->setEnabled(enabled);
+}
+
 void MyFileBrowserComponent::selectionChanged()
 {
+    updateState();
 }
 
 void MyFileBrowserComponent::fileClicked(const File & file, const MouseEvent & e)
@@ -3067,5 +3195,15 @@ void MyFileBrowserComponent::fileDoubleClicked(const File & file)
 
 void MyFileBrowserComponent::browserRootChanged(const File & newRoot)
 {
+#if JUCE_IOS
+    // force it to be under documents
+    File docdir = File::getSpecialLocation(File::userDocumentsDirectory);
+    if (newRoot != docdir && !newRoot.isAChildOf(docdir)) {
+        // force it to be docdir
+        m_fbcomp->setRoot(docdir);
+    }
+#endif
+
 	m_proc.m_propsfile->m_props_file->setValue("importfilefolder", newRoot.getFullPathName());
+    
 }
