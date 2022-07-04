@@ -1063,7 +1063,8 @@ void PaulstretchpluginAudioProcessorEditor::resized()
 
     if (m_filechooser && m_filechooser->isVisible()) {
         auto importbounds = getLocalArea(nullptr, m_import_button.getScreenBounds());
-        m_filechooser->setBounds(0,  importbounds.getBottom(), getWidth()/2, getHeight() - 75);
+        auto fwidth = jmin( getWidth() - 40, jmax(getWidth()/2, 300));
+        m_filechooser->setBounds(0,  importbounds.getBottom(), fwidth, getHeight() - 75);
         m_filechooser->toFront(false);
     }
 
@@ -1284,7 +1285,8 @@ void PaulstretchpluginAudioProcessorEditor::showLocalFileBrowser(bool flag)
         addChildComponent(m_filechooser.get());
     }
     auto bounds = getLocalArea(nullptr, m_import_button.getScreenBounds());
-    m_filechooser->setBounds(0,  bounds.getBottom(), getWidth()/2, getHeight() - 75);
+    auto fwidth = jmin( getWidth() - 40, jmax(getWidth()/2, 300));
+    m_filechooser->setBounds(0,  bounds.getBottom(), fwidth, getHeight() - 75);
     m_filechooser->setVisible(flag);
     m_filechooser->refresh();
     
