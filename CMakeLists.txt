@@ -79,7 +79,7 @@ add_subdirectory(deps/juce EXCLUDE_FROM_ALL )
 
 
 # Extend JUCE with CLAP support from https://github.com/free-audio/clap-juce-extensions
-option(PAULXSTRETCH_ENABLE_CLAP "Show all module sources in IDE projects" ON)
+option(PAULXSTRETCH_ENABLE_CLAP "Build clap format plugin " ON)
 if (PAULXSTRETCH_ENABLE_CLAP)
     add_subdirectory(deps/clap-juce-extensions EXCLUDE_FROM_ALL)
 endif()
