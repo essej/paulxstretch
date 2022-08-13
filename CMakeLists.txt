@@ -79,11 +79,16 @@ add_subdirectory(deps/juce EXCLUDE_FROM_ALL )
 
 
 # Extend JUCE with CLAP support from https://github.com/free-audio/clap-juce-extensions
-add_subdirectory(deps/clap-juce-extensions EXCLUDE_FROM_ALL)
+option(PAULXSTRETCH_ENABLE_CLAP "Show all module sources in IDE projects" ON)
+if (PAULXSTRETCH_ENABLE_CLAP)
+    add_subdirectory(deps/clap-juce-extensions EXCLUDE_FROM_ALL)
+endif()
 
 
-
-set (FormatsToBuild VST3 CLAP Standalone)
+set (FormatsToBuild VST3 Standalone)
+if (PAULXSTRETCH_ENABLE_CLAP)
+    list (APPEND FormatsToBuild CLAP)
+endif()
 
 # On Mac, an AU version will be built too
 if (APPLE)
