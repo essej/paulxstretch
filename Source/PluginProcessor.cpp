@@ -987,17 +987,17 @@ static void copyAudioBufferWrappingPosition(const AudioBuffer<float>& src, int n
 
             if (fademode == 0.0f) {
                 dest.copyFrom(i, destbufpos, src, channel_to_copy, 0, partial_len);
-                dest.copyFrom(i, partial_len, src, channel_to_copy, 0, wrappos);
+                dest.copyFrom(i, 0, src, channel_to_copy, partial_len, wrappos);
             } else {
                 //DBG("recfade wrap: " << fademode);
                 if (fademode > 0.0f) {
                     // fade in
                     dest.copyFromWithRamp(i, destbufpos, src.getReadPointer(channel_to_copy), partial_len, fademode > 0.0f ? 0.0f : 1.0f, fademode > 0.0f ? 1.0f : 0.0f);
-                    dest.copyFrom(i, partial_len, src, channel_to_copy, 0, wrappos);
+                    dest.copyFrom(i, 0, src, channel_to_copy, partial_len, wrappos);
                 } else {
                     // fade out
                     dest.copyFrom(i, destbufpos, src, channel_to_copy, 0, partial_len);
-                    dest.copyFromWithRamp(i, partial_len, src.getReadPointer(channel_to_copy), wrappos, fademode > 0.0f ? 0.0f : 1.0f, fademode > 0.0f ? 1.0f : 0.0f);
+                    dest.copyFromWithRamp(i, 0, src.getReadPointer(channel_to_copy) + partial_len, wrappos, fademode > 0.0f ? 0.0f : 1.0f, fademode > 0.0f ? 1.0f : 0.0f);
                 }
             }
 		}
@@ -1048,8 +1048,8 @@ void PaulstretchpluginAudioProcessor::processBlock (AudioSampleBuffer& buffer, M
 	m_prebufsmoother.setSlope(0.9, srtemp / buffer.getNumSamples());
 	m_smoothed_prebuffer_ready = m_prebufsmoother.process(m_buffering_source->getPercentReady());
 
-    if (buffer.getNumSamples() > m_input_buffer.getNumSamples()) {
-        // just in case
+    if (buffer.getNumSamples() > m_input_buffer.getNumSamples() || totalNumInputChannels > m_input_buffer.getNumChannels()) {
+        // just in case, shouldn't really happen
         m_input_buffer.setSize(totalNumInputChannels, buffer.getNumSamples(), false, false, true);
     }
 
@@ -1701,7 +1701,23 @@ bool PaulstretchpluginAudioProcessor::isRecordingToFile()
     return (m_activeMixWriter.load() != nullptr);
 }
 
+bool PaulstretchpluginAudioProcessor::savePresetTo(const File & fileloc)
+{
+    MemoryBlock data;
+    getStateInformation (data);
+    
+    return fileloc.replaceWithData (data.getData(), data.getSize());
+}
 
+bool PaulstretchpluginAudioProcessor::loadPresetFrom(const File & fileloc)
+{
+    MemoryBlock data;
+    if (fileloc.loadFileAsData (data)) {
+        setStateInformation (data.getData(), (int) data.getSize());
+        return true;
+    }
+    return false;
+}
 
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {

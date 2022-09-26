@@ -244,9 +244,15 @@ public:
     void setPreBufferAmount(int x);
 	int getPreBufferAmount();
 	bool m_load_file_with_state = true;
-	ValueTree getStateTree(bool ignoreoptions, bool ignorefile);
+
+    ValueTree getStateTree(bool ignoreoptions, bool ignorefile);
 	void setStateFromTree(ValueTree tree);
 	String offlineRender(OfflineRenderParams renderpars);
+    
+    bool savePresetTo(const File & fileloc);
+    bool loadPresetFrom(const File & fileloc);
+
+    
 	std::atomic<int> m_offline_render_state{ -1 };
 	std::atomic<bool> m_offline_render_cancel_requested{ false };
 	std::atomic<int> m_capture_save_state{ 0 };

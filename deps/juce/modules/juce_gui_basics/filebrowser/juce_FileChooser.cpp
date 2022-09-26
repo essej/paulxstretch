@@ -49,7 +49,7 @@ public:
 
     void launch() override
     {
-        dialogBox.centreWithDefaultSize (nullptr);
+        dialogBox.centreWithDefaultSize (owner.parent);
         dialogBox.enterModalState (true, ModalCallbackFunction::create ([this] (int r) { modalStateFinished (r); }), true);
     }
 

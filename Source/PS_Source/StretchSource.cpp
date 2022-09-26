@@ -563,7 +563,7 @@ void StretchAudioSource::initObjects()
     }
 	m_stretchoutringbuf.clear();
 	m_resampler->Reset();
-	m_resampler->SetRates(m_inputfile->info.samplerate, m_outsr);
+	m_resampler->SetRates(m_inputfile->info.samplerate > 0 ? m_inputfile->info.samplerate : m_outsr, m_outsr);
 	REALTYPE stretchratio = m_playrate;
     FFTWindow windowtype = W_HAMMING;
     if (m_fft_window_type>=0)

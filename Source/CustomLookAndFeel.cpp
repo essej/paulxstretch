@@ -735,7 +735,11 @@ void CustomLookAndFeel::layoutFileBrowserComponent (FileBrowserComponent& browse
 
     int y = 4;
 
+#if JUCE_IOS
+    const int controlsHeight = 28;
+#else
     const int controlsHeight = 22;
+#endif
     const int bottomSectionHeight = controlsHeight + 8;
     const int upButtonWidth = 50;
 
@@ -744,13 +748,17 @@ void CustomLookAndFeel::layoutFileBrowserComponent (FileBrowserComponent& browse
 
     y += controlsHeight + 4;
 
+    filenameBox->setBounds (x + 50, y, w - 50, controlsHeight);
+    y += controlsHeight + 4;
+    
     if (Component* const listAsComp = dynamic_cast <Component*> (fileListComponent))
     {
-        listAsComp->setBounds (x, y, w, browserComp.getHeight() - y - bottomSectionHeight);
+        //listAsComp->setBounds (x, y, w, browserComp.getHeight() - y - bottomSectionHeight);
+        listAsComp->setBounds (x, y, w, browserComp.getHeight() - y - 8);
         y = listAsComp->getBottom() + 4;
     }
 
-    filenameBox->setBounds (x + 50, y, w - 50, controlsHeight);
+    //filenameBox->setBounds (x + 50, y, w - 50, controlsHeight);
 }
 
 

@@ -53,8 +53,8 @@ public:
 	void setProcessParameters(ProcessParameters* pars, BinauralBeatsParameters * bbpars=0);
 	const ProcessParameters& getProcessParameters();
 	void setFFTSize(int size, bool force=false);
-	int getFFTSize() { return m_process_fftsize; }
-	
+	int getFFTSize() const { return m_process_fftsize; }
+
 	double getFreezePos() const { return m_freeze_pos; }
 	void setFreezing(bool b) { m_freezing = b; }
 	bool isFreezing() { return m_freezing; }
