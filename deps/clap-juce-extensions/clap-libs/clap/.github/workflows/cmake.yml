@@ -1,0 +1,45 @@
+# Copyright (c) 2021 Luca Cappa
+# Released under the term specified in file LICENSE.txt
+# SPDX short identifier: MIT
+#
+# The peculiarity of this workflow is that assumes vcpkg stored as a submodule of this repository.
+# This workflow does the following:
+# - Restores vcpkg artifacts from cache.
+# - Sets up vcpkg if needed, then run CMake with CMakePreset.json using a configuration
+#   that leverages the vcpkg's toolchain file. This will automatically run vcpkg to install dependencies
+#   described by the vcpkg.json manifest file. It will be a no-op if those are restored from cache.
+# - Finally builds the sources with Ninja.
+name: build
+on: [push, workflow_dispatch]
+
+jobs:
+  VCPKG:
+    name: ${{ matrix.os }}-${{ github.workflow }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Setup MacOS
+        if: startsWith(matrix.os, 'macOS')
+        run: brew install automake autoconf ninja cmake
+
+      - name: Setup Ubuntu
+        if: startsWith(matrix.os, 'ubuntu')
+        run: sudo apt install ninja-build cmake
+
+      - name: Run CMake+Ninja+CTest to generate/build/test.
+        uses: lukka/run-cmake@v10
+        id: runcmake
+        with:
+          configurePreset: 'ninja'
+          buildPreset: 'ninja-release'
+          testPreset: 'ninja-release'
