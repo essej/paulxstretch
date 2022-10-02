@@ -1,3 +1,26 @@
+# Changes in 1.1.1
+
+* [clap.h](include/clap/clap.h): missing include for [state-context.h](include/clap/ext/draft/state-context.h).
+
+# Changes in 1.1.0
+
+* [state-context.h](include/clap/ext/draft/state-context.h): save/load state for duplicate or preset.
+* [std.h](include/clap/private/std.h): fix compatibility with C++98.
+* [note-name.h](include/clap/ext/note-name.h): missing typedef `clap_plugin_note_name_t`.
+* [params.h](include/clap/ext/params.h): clarify `request_flush()` documentation.
+* [thread-check.h](include/clap/ext/thread-check.h): clarify documentation.
+* [voice-info.h](include/clap/ext/voice-info.h): promote `voice-info` out of draft.
+
+# Changes in 1.0.3
+
+* [plugin.h](include/clap/plugin.h): fix an inconsistency in `clap_plugin->destroy()` documentation:
+  it is now **required** to deactivate the plugin before destroying it.
+* [params.h](include/clap/ext/params.h): improve documentation for `clap_host_params->request_flush()`.
+* [entry.h](include/clap/entry.h): improve documentation regarding `init()`, `deinit()` and CLAP search path.
+* [gui.h](inclued/clap/gui.h): fix typo `clap_gui_resize_hints.preserve_aspect_ratio`
+* [plugin-template](src/plugin-template.c): missing impl of plugin destroy.
+* various documentation improvements
+
 # Changes in 1.0.2
 
 * CMake: add `CLAP_BUILD_TESTS` which enables the tests.

@@ -24,10 +24,10 @@ typedef struct clap_plugin_note_name {
    // Returns true on success and stores the result into note_name
    // [main-thread]
    bool (*get)(const clap_plugin_t *plugin, uint32_t index, clap_note_name_t *note_name);
-} clap_plugin_note_name;
+} clap_plugin_note_name_t;
 
 typedef struct clap_host_note_name {
-   // Informs the host that the note names has changed.
+   // Informs the host that the note names have changed.
    // [main-thread]
    void (*changed)(const clap_host_t *host);
 } clap_host_note_name_t;

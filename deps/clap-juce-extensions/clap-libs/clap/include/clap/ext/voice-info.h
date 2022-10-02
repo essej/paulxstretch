@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../../plugin.h"
+#include "../plugin.h"
 
-// This extensions indicates the number of voices the synthesizer.
+// This extension indicates the number of voices the synthesizer has.
 // It is useful for the host when performing polyphonic modulations,
 // because the host needs its own voice management and should try to follow
 // what the plugin is doing:
 // - make the host's voice pool coherent with what the plugin has
 // - turn the host's voice management to mono when the plugin is mono
 
-static const char CLAP_EXT_VOICE_INFO[] = "clap.voice-info.draft/0";
+static const char CLAP_EXT_VOICE_INFO[] = "clap.voice-info";
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +46,7 @@ typedef struct clap_plugin_voice_info {
 } clap_plugin_voice_info_t;
 
 typedef struct clap_host_voice_info {
-   // informs the host that the voice info have changed
+   // informs the host that the voice info has changed
    // [main-thread]
    void (*changed)(const clap_host_t *host);
 } clap_host_voice_info_t;
