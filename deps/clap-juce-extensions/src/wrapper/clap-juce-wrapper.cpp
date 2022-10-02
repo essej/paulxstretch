@@ -195,7 +195,7 @@ class ClapJuceWrapper : public clap::helpers::Plugin<
         }
 
         for (auto *juceParam :
-#if JUCE_VERSION >= 0x060103
+#if JUCE_VERSION >= 0x060102
              juceParameters
 #else
              juceParameters.params
