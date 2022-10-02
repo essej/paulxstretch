@@ -46,9 +46,9 @@ cp -pHLRv ${AAXBUILDDIR}/AAX/${BASENAME}.aaxplugin ${BASENAME}/Plugins/AAX/
 
 
 # sign AAX
-if [ -n "${AAXSIGNCMD}" ]; then
+if [ -n "${PSAAXSIGNCMD}" ]; then
   echo "Signing AAX plugin"
-  ${AAXSIGNCMD} --keypassword "${CERTPASS}"  --in ${BASENAME}'\Plugins\AAX\'${BASENAME}.aaxplugin --out ${BASENAME}'\Plugins\AAX\'${BASENAME}.aaxplugin
+  ${PSAAXSIGNCMD} --keypassword "${CERTPASS}"  --in ${BASENAME}'\Plugins\AAX\'${BASENAME}.aaxplugin --out ${BASENAME}'\Plugins\AAX\'${BASENAME}.aaxplugin
 fi
 
 

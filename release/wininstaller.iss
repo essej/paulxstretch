@@ -44,7 +44,7 @@ Name: "aax_64"; Description: "64-bit AAX Plugin (.aaxplugin)"; Types: full custo
 Source: "PaulXStretch\PaulXStretch.exe";  DestDir: "{app}" ; Check: Is64BitInstallMode; Components:app; Flags: ignoreversion signonce;
 ;Source: "SonoBus\Plugins\PaulXStretch.dll"; DestDir: {code:GetVST2Dir|0}; Check: Is64BitInstallMode; Components:vst2_64; Flags: ignoreversion signonce;
 Source: "PaulXStretch\Plugins\VST3\PaulXStretch.vst3"; DestDir: "{commoncf64}\VST3\"; Check: Is64BitInstallMode; Components:vst3_64; Flags: ignoreversion recursesubdirs createallsubdirs ;
-Source: "PaulXStretch\Plugins\CLAP\PaulXStretch.clap"; DestDir: "{commoncf64}\CLAP\"; Check: Is64BitInstallMode; Components:clap_64; Flags: ignoreversion recursesubdirs createallsubdirs ;
+Source: "PaulXStretch\Plugins\CLAP\PaulXStretch.clap"; DestDir: "{commoncf64}\CLAP\"; Check: Is64BitInstallMode; Components:clap_64; Flags: ignoreversion  ;
 Source: "PaulXStretch\Plugins\AAX\PaulXStretch.aaxplugin"; DestDir: "{commoncf64}\Avid\Audio\Plug-Ins\"; Check: Is64BitInstallMode; Components:aax_64; Flags: ignoreversion recursesubdirs createallsubdirs ;
 
 ;Source: "SonoBus\SonoBus32.exe"; DestDir: "{app}" ;  DestName:"SonoBus.exe"; Check: not Is64BitInstallMode;  Components:app32; Flags: ignoreversion signonce;
