@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="luqvtz" name="GainPlugin" projectType="audioplug" useAppConfig="0"
+              jucerFormatVersion="1" headerPath="../../../../include&#10;../../../../clap-libs/clap/include&#10;../../../../clap-libs/clap-helpers/include"
+              cppLanguageStandard="17" defines="HAS_CLAP_JUCE_EXTENSIONS=1"
+              addUsingNamespaceToJuceHeader="0">
+  <MAINGROUP id="YenzOu" name="GainPlugin">
+    <GROUP id="{38320511-2ECE-0246-11DC-4FBB99C5617C}" name="CLAP">
+      <FILE id="i719ku" name="clap-juce-extensions.cpp" compile="1" resource="0"
+            file="../../src/extensions/clap-juce-extensions.cpp"/>
+    </GROUP>
+    <GROUP id="{422CF038-C3ED-FE29-2115-57EAEE923726}" name="Source">
+      <FILE id="sfdoog" name="GainPlugin.cpp" compile="1" resource="0" file="GainPlugin.cpp"/>
+      <FILE id="CwQ2Yq" name="GainPlugin.h" compile="0" resource="0" file="GainPlugin.h"/>
+      <FILE id="fADOqj" name="ModulatableFloatParameter.h" compile="0" resource="0"
+            file="ModulatableFloatParameter.h"/>
+      <FILE id="R7b3jn" name="PluginEditor.cpp" compile="1" resource="0"
+            file="PluginEditor.cpp"/>
+      <FILE id="ehXQhT" name="PluginEditor.h" compile="0" resource="0" file="PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"
+               FOLEYS_SHOW_GUI_EDITOR_PALLETTE="0" FOLEYS_ENABLE_BINARY_DATA="1"
+               JUCE_USE_CURL="0" JUCE_WEB_BROWSER="0"/>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="GainPlugin"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="GainPlugin"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_events" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="chowdsp_plugin_base"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <VS2019 targetFolder="Builds/VisualStudio2019">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="GainPlugin"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="GainPlugin"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_events" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="chowdsp_plugin_base"/>
+      </MODULEPATHS>
+    </VS2019>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="GainPlugin" enablePluginBinaryCopyStep="0"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="GainPlugin" enablePluginBinaryCopyStep="0"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_events" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../build/_deps/juce-src/modules"/>
+        <MODULEPATH id="chowdsp_plugin_base"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="0"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+  </MODULES>
+</JUCERPROJECT>

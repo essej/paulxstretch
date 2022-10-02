@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/free-audio/clap-juce-extensions
 	branch = main
-	commit = 6489846d05a3bc0b743c5c0f301ad1858b4dc919
-	parent = 345d5a1d9f1c12303202574c23520c8d1780dd6f
+	commit = 3579128ba2fb465bd14e948b9838d0382ce203bb
+	parent = 12e57f22bfe6c7c5073e2061371b36768d12c2c8
 	method = merge
 	cmdver = 0.4.3

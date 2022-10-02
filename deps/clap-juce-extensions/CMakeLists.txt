@@ -8,19 +8,47 @@
 #          CLAP_ID "com.my-cool-plugs.my-target")
 # 4. Reload your CMAKe file and my-target_CLAP will be a buildable target
 
-cmake_minimum_required (VERSION 3.15 FATAL_ERROR)
+# The INTERFACE targets to transmit CXX_STANDARD and POSITION INDEPENDENT
+# require at least CMAKE 3.21
+cmake_minimum_required (VERSION 3.21 FATAL_ERROR)
 
-project(clap-juce-extensions VERSION 0.1 LANGUAGES C CXX)
+get_directory_property(parent_dir PARENT_DIRECTORY)
+if ("${parent_dir}" STREQUAL "")
+    # OSX deployment target needs to be set before the `project()` call
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment target")
+    set(is_toplevel 1)
+else ()
+    set(is_toplevel 0)
+endif ()
 
+project(clap-juce-extensions VERSION 0.1.0 LANGUAGES C CXX)
+
+if (CMAKE_CXX_STANDARD)
+  set(CLAP_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+else()
+  set(CLAP_CXX_STANDARD 14)
+endif()
+if (${CLAP_CXX_STANDARD} LESS 14)
+  set(CLAP_CXX_STANDARD 14)
+endif()
+
+message( STATUS "Building CLAP with CLAP_CXX_STANDARD=${CLAP_CXX_STANDARD}")
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 14)
 
+option(CLAP_JUCE_EXTENSIONS_BUILD_EXAMPLES "Add targets for building and running clap-juce-extensions examples" ${is_toplevel})
+if(CLAP_JUCE_EXTENSIONS_BUILD_EXAMPLES)
+    # The examples need JUCE to be imported before the CLAP helper targets
+    set(CLAP_JUCE_VERSION "6.1.5" CACHE STRING "Version of JUCE to use for building example plugins")
+    message(STATUS "Building examples with JUCE version: ${CLAP_JUCE_VERSION}")
+    include(examples/cmake/CPM.cmake)
+    CPMAddPackage("gh:juce-framework/JUCE#${CLAP_JUCE_VERSION}")
+endif()
 
 add_subdirectory(clap-libs/clap clapjuceext_clap EXCLUDE_FROM_ALL)
 add_subdirectory(clap-libs/clap-helpers clapjuceext_claphelpers EXCLUDE_FROM_ALL)
 
 add_library(clap_juce_extensions STATIC src/extensions/clap-juce-extensions.cpp)
-set_property(TARGET clap_juce_extensions PROPERTY CXX_STANDARD 14)
+set_property(TARGET clap_juce_extensions PROPERTY CXX_STANDARD ${CLAP_CXX_STANDARD})
 target_include_directories(clap_juce_extensions PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_definitions(clap_juce_extensions PUBLIC
         HAS_CLAP_JUCE_EXTENSIONS=1)
@@ -34,105 +62,16 @@ set_target_properties(clap_juce_extensions PROPERTIES
 )
 
 add_library(clap_juce_sources INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/wrapper/clap-juce-wrapper.cpp)
-set_property(TARGET clap_juce_sources PROPERTY CXX_STANDARD 14)
+set_property(TARGET clap_juce_sources PROPERTY CXX_STANDARD ${CLAP_CXX_STANDARD})
+set_property(TARGET clap_juce_sources PROPERTY CLAP_JUCE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 if (APPLE)
   target_sources(clap_juce_sources INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src/wrapper/clap-juce-mac.mm)
 endif()
 target_include_directories(clap_juce_sources INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-function(clap_juce_extensions_plugin)
-  set(oneValueArgs TARGET)
-  set(multiValueArgs CLAP_ID CLAP_FEATURES CLAP_MANUAL_URL CLAP_SUPPORT_URL)
+include(cmake/ClapTargetHelpers.cmake)
 
-  cmake_parse_arguments(CJA "" "${oneValueArgs}"
-          "${multiValueArgs}" ${ARGN} )
-  set(target ${CJA_TARGET})
-  set(claptarget ${target}_CLAP)
-
-  message(STATUS "Creating CLAP ${claptarget} from ${target}")
-
-  if ("${CJA_CLAP_ID}" STREQUAL "")
-    message(FATAL_ERROR "You must specify CLAP_ID to add a clap" )
-  endif()
-
-  if ("${CJA_CLAP_FEATURES}" STREQUAL "")
-    message(WARNING "No CLAP_FEATURES were specified! Using \"instrument\" by default.")
-    set(CJA_CLAP_FEATURES instrument)
-  endif()
-
-  # we need the list of features as comma separated quoted strings
-  foreach(feature IN LISTS CJA_CLAP_FEATURES)
-    list (APPEND CJA_CLAP_FEATURES_PARSED "\"${feature}\"")
-  endforeach()
-  list (JOIN CJA_CLAP_FEATURES_PARSED ", " CJA_CLAP_FEATURES_PARSED)
-
-  get_property(SRC TARGET clap_juce_sources PROPERTY SOURCES)
-  add_library(${claptarget} MODULE ${SRC})
-
-  set_target_properties(${claptarget} PROPERTIES
-          CXX_STANDARD 14
-          ARCHIVE_OUTPUT_DIRECTORY "$<GENEX_EVAL:$<TARGET_PROPERTY:${target},ARCHIVE_OUTPUT_DIRECTORY>>/CLAP"
-          LIBRARY_OUTPUT_DIRECTORY "$<GENEX_EVAL:$<TARGET_PROPERTY:${target},LIBRARY_OUTPUT_DIRECTORY>>/CLAP"
-          RUNTIME_OUTPUT_DIRECTORY "$<GENEX_EVAL:$<TARGET_PROPERTY:${target},RUNTIME_OUTPUT_DIRECTORY>>/CLAP")
-
-  get_target_property(products_folder ${claptarget} LIBRARY_OUTPUT_DIRECTORY)
-  set(product_name $<TARGET_PROPERTY:${target},JUCE_PRODUCT_NAME>)
-
-  if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-    set_target_properties(${claptarget} PROPERTIES
-            BUNDLE True
-            BUNDLE_EXTENSION clap
-            PREFIX ""
-            OUTPUT_NAME "${product_name}"
-            MACOSX_BUNDLE TRUE
-            )
-  else()
-    set_target_properties(${claptarget} PROPERTIES
-            PREFIX ""
-            SUFFIX ".clap"
-            OUTPUT_NAME "${product_name}"
-            )
-  endif()
-
-  target_include_directories(${claptarget} PRIVATE
-          $<TARGET_PROPERTY:${target},INCLUDE_DIRECTORIES>)
-
-  target_compile_definitions(${claptarget} PRIVATE
-          CLAP_ID="${CJA_CLAP_ID}"
-          CLAP_FEATURES=${CJA_CLAP_FEATURES_PARSED}
-          CLAP_MANUAL_URL="${CJA_CLAP_MANUAL_URL}"
-          CLAP_SUPPORT_URL="${CJA_CLAP_SUPPORT_URL}")
-
-  target_link_libraries(${target} PUBLIC clap_juce_extensions)
-
-  target_link_libraries(${claptarget} PUBLIC clap-core clap-helpers clap_juce_sources ${target})
-  set_property(TARGET ${claptarget} PROPERTY C_VISIBILITY_PRESET hidden)
-  set_property(TARGET ${claptarget} PROPERTY VISIBILITY_INLINES_HIDDEN ON)
-
-  set_target_properties(${claptarget} PROPERTIES
-      POSITION_INDEPENDENT_CODE TRUE
-      VISIBILITY_INLINES_HIDDEN TRUE
-      C_VISBILITY_PRESET hidden
-      CXX_VISIBILITY_PRESET hidden
-  )
-
-  get_target_property(docopy "${target}" JUCE_COPY_PLUGIN_AFTER_BUILD)
-
-  if(docopy)
-    message(STATUS "Copy After Build" )
-    if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-      add_custom_command(TARGET ${claptarget} POST_BUILD
-              COMMAND ${CMAKE_COMMAND} -E echo "Installing ${products_folder}/${product_name}.clap to ~/Library/Audio/Plug-Ins/CLAP/"
-              COMMAND ${CMAKE_COMMAND} -E make_directory "~/Library/Audio/Plug-Ins/CLAP"
-              COMMAND ${CMAKE_COMMAND} -E copy_directory "${products_folder}/${product_name}.clap" "~/Library/Audio/Plug-Ins/CLAP/${product_name}.clap"
-              )
-    endif()
-    if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-      add_custom_command(TARGET ${claptarget} POST_BUILD
-              COMMAND ${CMAKE_COMMAND} -E echo "Installing ${products_folder}/${product_name}.clap"
-              COMMAND ${CMAKE_COMMAND} -E make_directory "~/.clap"
-              COMMAND ${CMAKE_COMMAND} -E copy "${products_folder}/${product_name}.clap" "~/.clap/"
-              )
-    endif()
-  endif()
-endfunction()
+if(CLAP_JUCE_EXTENSIONS_BUILD_EXAMPLES)
+    message(STATUS "Configuring clap-juce-extensions examples")
+    add_subdirectory(examples)
+endif()
