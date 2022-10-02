@@ -66,7 +66,7 @@ namespace clap { namespace helpers {
       // clap_plugin_tail //
       //------------------//
       virtual bool implementsTail() const noexcept { return false; }
-      virtual uint32_t tailGet(const clap_plugin_t *plugin) const noexcept { return 0; }
+      virtual uint32_t tailGet() const noexcept { return 0; }
 
       //--------------------//
       // clap_plugin_render //
@@ -87,6 +87,17 @@ namespace clap { namespace helpers {
       virtual bool implementsState() const noexcept { return false; }
       virtual bool stateSave(const clap_ostream *stream) noexcept { return false; }
       virtual bool stateLoad(const clap_istream *stream) noexcept { return false; }
+
+      //---------------------------//
+      // clap_plugin_state_context //
+      //---------------------------//
+      virtual bool implementsStateContext() const noexcept { return false; }
+      virtual bool stateContextSave(const clap_ostream *stream, uint32_t context) noexcept {
+         return stateSave(stream);
+      }
+      virtual bool stateContextLoad(const clap_istream *stream, uint32_t context) noexcept {
+         return stateLoad(stream);
+      }
 
       //-------------------------//
       // clap_plugin_preset_load //
@@ -109,6 +120,12 @@ namespace clap { namespace helpers {
       audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept {
          return false;
       }
+
+      //--------------------------------//
+      // clap_plugin_audio_ports_config //
+      //--------------------------------//
+
+      virtual bool  implementsAudioPortsConfig() const noexcept { return false; }
       virtual uint32_t audioPortsConfigCount() const noexcept { return 0; }
       virtual bool audioPortsGetConfig(uint32_t index,
                                        clap_audio_ports_config *config) const noexcept {
@@ -241,10 +258,6 @@ namespace clap { namespace helpers {
       // This actually runs callbacks on the main thread, you should not need to call it
       void runCallbacksOnMainThread();
 
-      template <typename T>
-      void initInterface(const T *&ptr, const char *id) noexcept;
-      void initInterfaces() noexcept;
-
       static uint32_t compareAudioPortsInfo(const clap_audio_port_info &a,
                                             const clap_audio_port_info &b) noexcept;
 
@@ -265,6 +278,8 @@ namespace clap { namespace helpers {
       HostProxy<h, l> _host;
 
    private:
+      void ensureInitialized(const char *method) const noexcept;
+
       /////////////////////
       // CLAP Interfaces //
       /////////////////////
@@ -303,6 +318,14 @@ namespace clap { namespace helpers {
       // clap_plugin_state
       static bool clapStateSave(const clap_plugin *plugin, const clap_ostream *stream) noexcept;
       static bool clapStateLoad(const clap_plugin *plugin, const clap_istream *stream) noexcept;
+
+      // clap_plugin_state_context
+      static bool clapStateContextSave(const clap_plugin *plugin,
+                                       const clap_ostream *stream,
+                                       uint32_t context) noexcept;
+      static bool clapStateContextLoad(const clap_plugin *plugin,
+                                       const clap_istream *stream,
+                                       uint32_t context) noexcept;
 
       // clap_plugin_preset
       static bool clapPresetLoadFromFile(const clap_plugin *plugin, const char *path) noexcept;
@@ -401,6 +424,7 @@ namespace clap { namespace helpers {
       static const clap_plugin_render _pluginRender;
       static const clap_plugin_thread_pool _pluginThreadPool;
       static const clap_plugin_state _pluginState;
+      static const clap_plugin_state_context _pluginStateContext;
       static const clap_plugin_preset_load _pluginPresetLoad;
       static const clap_plugin_track_info _pluginTrackInfo;
       static const clap_plugin_audio_ports _pluginAudioPorts;

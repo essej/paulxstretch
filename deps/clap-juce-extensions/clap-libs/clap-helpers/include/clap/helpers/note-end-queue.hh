@@ -21,15 +21,17 @@ namespace clap { namespace helpers {
          _voicesToKill.insert(Entry(noteId, port, channel, key));
       }
 
-      void flush(const clap_output_events *out) {
+      void flush(const clap_process *p) {
          clap_event_note ev;
          ev.velocity = 0;
          ev.header.flags = 0;
          ev.header.size = sizeof(ev);
          ev.header.space_id = CLAP_CORE_EVENT_SPACE_ID;
-         ev.header.time = 0; // time is irrelevant here
+         // time is irrelevant here, just make it at end so we preserve the list order
+         ev.header.time = p->frames_count > 0 ? p->frames_count - 1 : 0;
          ev.header.type = CLAP_EVENT_NOTE_END;
 
+         auto out = p->out_events;
          for (auto &e : _voicesToKill) {
             ev.port_index = e._port;
             ev.channel = e._channel;

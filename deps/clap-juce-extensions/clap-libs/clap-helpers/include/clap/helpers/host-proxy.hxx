@@ -269,7 +269,7 @@ namespace clap { namespace helpers {
       if (!_hostTail)
          return false;
 
-      if (_hostLatency->changed)
+      if (_hostTail->changed)
          return true;
 
       hostMisbehaving("clap_host_tail is partially implemented");

@@ -12,8 +12,8 @@ target_include_directories(clap-helpers INTERFACE include)
 target_link_libraries(clap-helpers INTERFACE clap-core)
 
 # CLAP_BUILD_TESTS is inherited from clap
-if (Catch2_FOUND AND CLAP_BUILD_TESTS)
-    add_executable(clap-helpers-tests
+if (Catch2_FOUND)
+    add_executable(clap-helpers-tests EXCLUDE_FROM_ALL
         tests/plugin.cc
         tests/param-queue-tests.cc
         tests/main.cc)
