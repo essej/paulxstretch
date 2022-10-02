@@ -1406,7 +1406,7 @@ String PaulstretchpluginAudioProcessor::setAudioFile(const URL & url)
 			return "Too high bit depth in file " + file.getFullPathName();
 		}
 		if (m_thumb)
-			m_thumb->setSource(new FileInputSource(file));
+			m_thumb->setSource(new FileInputSource(file, true));
 
 
         // lets not lock
