@@ -593,7 +593,7 @@ void PaulstretchpluginAudioProcessorEditor::savePresetInteractive()
 
 #endif
     
-    bool native = false; // JUCEApplication::isStandaloneApp();
+    bool native = true; // JUCEApplication::isStandaloneApp();
     Component * parent = JUCEApplication::isStandaloneApp() ? nullptr : this;
 #if JUCE_IOS
     native = true; // false
@@ -1387,7 +1387,7 @@ void PaulstretchpluginAudioProcessorEditor::showExternalFileBrowser()
 
     Component * parent = JUCEApplication::isStandaloneApp() ? nullptr : this;
 
-    bool usenative = JUCEApplication::isStandaloneApp();
+    bool usenative = true; // JUCEApplication::isStandaloneApp();
 #if JUCE_IOS
     usenative = true;
 #endif
