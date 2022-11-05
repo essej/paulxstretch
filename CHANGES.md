@@ -1,5 +1,13 @@
 
 ## PaulXStretch Change History
+**v1.6.1** (2022-11-06)
+ - Added support for saving/loading preset files, both in standalone and plugin
+ - Use native open/save file browsers even with plugins... in addition to existing browser 
+ - CLAP plugin building now optional with cmake option
+ - Thumbnail waveform should update if source file was changed since last load
+ - Updated JUCE to latest v7
+ - Renamed internal ratio levels parameter labels exposed to plugins to make more sense
+ - Some bugfixes
 
 **v1.6.0**  (2022-06-16)
  - Added live output recording feature
