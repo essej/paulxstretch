@@ -177,7 +177,7 @@ public:
 	MyThumbCache() : AudioThumbnailCache(200) 
 	{ 
 		// The default priority of 2 is a bit too low in some cases, it seems...
-		getTimeSliceThread().setPriority(3);
+		// getTimeSliceThread().setPriority(3);
 	}
 	~MyThumbCache() {}
 };

@@ -179,12 +179,12 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	addParameter(make_floatpar("harmonicsfreq0", "Harmonics base freq", 1.0, 5000.0, 128.0, 0.1, 0.5));
 	addParameter(make_floatpar("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f, 0.01, 1.0)); // 13
 	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
-	addParameter(make_floatpar("octavemixm2_0", "2 octaves down level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 15
-	addParameter(make_floatpar("octavemixm1_0", "Octave down level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 16
-	addParameter(make_floatpar("octavemix0_0", "Normal pitch level", 0.0f, 1.0f, 1.0f, 0.001, 1.0)); // 17
-	addParameter(make_floatpar("octavemix1_0", "1 octave up level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 18
-	addParameter(make_floatpar("octavemix15_0", "1 octave and fifth up level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 19
-	addParameter(make_floatpar("octavemix2_0", "2 octaves up level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 20
+	addParameter(make_floatpar("octavemixm2_0", "Ratio mix level 1", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 15
+	addParameter(make_floatpar("octavemixm1_0", "Ratio mix level 2", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 16
+	addParameter(make_floatpar("octavemix0_0", "Ratio mix level 3", 0.0f, 1.0f, 1.0f, 0.001, 1.0)); // 17
+	addParameter(make_floatpar("octavemix1_0", "Ratio mix level 4", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 18
+	addParameter(make_floatpar("octavemix15_0", "Ratio mix level 5", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 19
+	addParameter(make_floatpar("octavemix2_0", "Ratio mix level 6", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 20
 	addParameter(make_floatpar("tonalvsnoisebw_0", "Tonal vs Noise BW", 0.74f, 1.0f, 0.74f, 0.001, 1.0)); // 21
 	addParameter(make_floatpar("tonalvsnoisepreserve_0", "Tonal vs Noise preserve", -1.0f, 1.0f, 0.5f, 0.001, 1.0)); // 22
 	auto filt_convertFrom0To1Func = [](float rangemin, float rangemax, float value) 
@@ -229,8 +229,8 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 		m_sm_enab_pars[i]->addListener(this);
 	}
 
-	addParameter(make_floatpar("octavemix_extra0_0", "Ratio mix 7 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 50
-	addParameter(make_floatpar("octavemix_extra1_0", "Ratio mix 8 level", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 51
+	addParameter(make_floatpar("octavemix_extra0_0", "Ratio mix level 7", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 50
+	addParameter(make_floatpar("octavemix_extra1_0", "Ratio mix level 8", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 51
 
 	std::array<double,8> initialratios{ 0.25,0.5,1.0,2.0,3.0,4.0,1.5,1.0 / 1.5 };
 	// 52-59
@@ -616,8 +616,9 @@ void PaulstretchpluginAudioProcessor::startplay(Range<double> playrange, int num
 		m_recreate_buffering_source = false;
 	}
     if (m_bufferingthread.isThreadRunning() == false) {
-        m_bufferingthread.setPriority(8);
-        m_bufferingthread.startThread();
+        Thread::RealtimeOptions options;
+        options.priority = 8;
+        m_bufferingthread.startRealtimeThread(options);
     }
 	m_stretch_source->setNumOutChannels(numoutchans);
 	m_stretch_source->setFFTSize(m_fft_size_to_use, true);

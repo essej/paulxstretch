@@ -7,7 +7,6 @@
 
 #include "juce_audio_plugin_client/utility/juce_IncludeSystemHeaders.h"
 #include "juce_audio_plugin_client/utility/juce_IncludeModuleHeaders.h"
-#include "juce_audio_plugin_client/utility/juce_FakeMouseMoveGenerator.h"
 #include "juce_audio_plugin_client/utility/juce_WindowsHooks.h"
 
 #include <juce_audio_devices/juce_audio_devices.h>
