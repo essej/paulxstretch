@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/essej/JUCE.git
 	branch = sono7good
-	commit = e181e981176bb184303b23667801efa59cc0bf38
-	parent = 6fdd7f360341d8604e585eb6cf2e452fba285e0f
+	commit = 002d9519287dc570ad1004a03aa8ae369dbf8e42
+	parent = 74cf4c4cd7f49570dce2eed4b200d50ae28c5070
 	method = merge
 	cmdver = 0.4.3
