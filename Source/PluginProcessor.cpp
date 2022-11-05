@@ -47,9 +47,11 @@ int optimizebufsize(int n) {
 	else return n2;
 };
 
+#define PARAM_VERSION_HINT 1
+
 inline AudioParameterFloat* make_floatpar(String id, String name, float minv, float maxv, float defv, float step, float skew)
 {
-	return new AudioParameterFloat(id, name, NormalisableRange<float>(minv, maxv, step, skew), defv);
+	return new AudioParameterFloat(ParameterID(id,PARAM_VERSION_HINT), name, NormalisableRange<float>(minv, maxv, step, skew), defv);
 }
 
 #if JUCE_IOS
@@ -143,15 +145,15 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 
     DBG("making bool pars");
 
-	m_sm_enab_pars[0] = new AudioParameterBool("enab_specmodule0", "Enable harmonics", false);
-	m_sm_enab_pars[1] = new AudioParameterBool("enab_specmodule1", "Enable tonal vs noise", false);
-	m_sm_enab_pars[2] = new AudioParameterBool("enab_specmodule2", "Enable frequency shift", true);
-	m_sm_enab_pars[3] = new AudioParameterBool("enab_specmodule3", "Enable pitch shift", true);
-	m_sm_enab_pars[4] = new AudioParameterBool("enab_specmodule4", "Enable ratios", false);
-	m_sm_enab_pars[5] = new AudioParameterBool("enab_specmodule5", "Enable spread", false);
-	m_sm_enab_pars[6] = new AudioParameterBool("enab_specmodule6", "Enable filter", false);
-	m_sm_enab_pars[7] = new AudioParameterBool("enab_specmodule7", "Enable free filter", false);
-	m_sm_enab_pars[8] = new AudioParameterBool("enab_specmodule8", "Enable compressor", false);
+	m_sm_enab_pars[0] = new AudioParameterBool(ParameterID("enab_specmodule0",PARAM_VERSION_HINT), "Enable harmonics", false);
+	m_sm_enab_pars[1] = new AudioParameterBool(ParameterID("enab_specmodule1",PARAM_VERSION_HINT), "Enable tonal vs noise", false);
+	m_sm_enab_pars[2] = new AudioParameterBool(ParameterID("enab_specmodule2",PARAM_VERSION_HINT), "Enable frequency shift", true);
+	m_sm_enab_pars[3] = new AudioParameterBool(ParameterID("enab_specmodule3",PARAM_VERSION_HINT), "Enable pitch shift", true);
+	m_sm_enab_pars[4] = new AudioParameterBool(ParameterID("enab_specmodule4",PARAM_VERSION_HINT), "Enable ratios", false);
+	m_sm_enab_pars[5] = new AudioParameterBool(ParameterID("enab_specmodule5",PARAM_VERSION_HINT), "Enable spread", false);
+	m_sm_enab_pars[6] = new AudioParameterBool(ParameterID("enab_specmodule6",PARAM_VERSION_HINT), "Enable filter", false);
+	m_sm_enab_pars[7] = new AudioParameterBool(ParameterID("enab_specmodule7",PARAM_VERSION_HINT), "Enable free filter", false);
+	m_sm_enab_pars[8] = new AudioParameterBool(ParameterID("enab_specmodule8",PARAM_VERSION_HINT), "Enable compressor", false);
 	
     DBG("making stretch source");
 
@@ -171,14 +173,14 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 	addParameter(make_floatpar("freqshift0", "Frequency shift", -1000.0f, 1000.0f, 0.0f, 1.0, 1.0)); // 4
 	addParameter(make_floatpar("playrange_start0", "Sound start", 0.0f, 1.0f, 0.0f, 0.0001,1.0)); // 5
 	addParameter(make_floatpar("playrange_end0", "Sound end", 0.0f, 1.0f, 1.0f, 0.0001,1.0)); // 6
-	addParameter(new AudioParameterBool("freeze0", "Freeze", false)); // 7
+	addParameter(new AudioParameterBool(ParameterID("freeze0",PARAM_VERSION_HINT), "Freeze", false)); // 7
 	addParameter(make_floatpar("spread0", "Frequency spread", 0.0f, 1.0f, 0.0f, 0.001,1.0)); // 8
 	addParameter(make_floatpar("compress0", "Compress", 0.0f, 1.0f, 0.0f, 0.001,1.0)); // 9
 	addParameter(make_floatpar("loopxfadelen0", "Loop xfade length", 0.0f, 1.0f, 0.01f, 0.001, 1.0)); // 10
-    addParameter(new AudioParameterInt("numharmonics0", "Num harmonics", 1, 100, 10)); // 11
+    addParameter(new AudioParameterInt(ParameterID("numharmonics0",PARAM_VERSION_HINT), "Num harmonics", 1, 100, 10)); // 11
 	addParameter(make_floatpar("harmonicsfreq0", "Harmonics base freq", 1.0, 5000.0, 128.0, 0.1, 0.5));
 	addParameter(make_floatpar("harmonicsbw0", "Harmonics bandwidth", 0.1f, 200.0f, 25.0f, 0.01, 1.0)); // 13
-	addParameter(new AudioParameterBool("harmonicsgauss0", "Gaussian harmonics", false)); // 14
+	addParameter(new AudioParameterBool(ParameterID("harmonicsgauss0",PARAM_VERSION_HINT), "Gaussian harmonics", false)); // 14
 	addParameter(make_floatpar("octavemixm2_0", "Ratio mix level 1", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 15
 	addParameter(make_floatpar("octavemixm1_0", "Ratio mix level 2", 0.0f, 1.0f, 0.0f, 0.001, 1.0)); // 16
 	addParameter(make_floatpar("octavemix0_0", "Ratio mix level 3", 0.0f, 1.0f, 1.0f, 0.001, 1.0)); // 17
@@ -199,30 +201,30 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 			return jmap<float>(value, 20.0f, 1000.0f, 0.0f, 0.5f);
 		return jmap<float>(value, 1000.0f, 20000.0f, 0.5f, 1.0f);
 	};
-	addParameter(new AudioParameterFloat("filter_low_0", "Filter low",
+	addParameter(new AudioParameterFloat(ParameterID("filter_low_0",PARAM_VERSION_HINT), "Filter low",
                                          NormalisableRange<float>(20.0f, 20000.0f, 
 											 filt_convertFrom0To1Func, filt_convertTo0To1Func), 20.0f)); // 23
-	addParameter(new AudioParameterFloat("filter_high_0", "Filter high",
+	addParameter(new AudioParameterFloat(ParameterID("filter_high_0",PARAM_VERSION_HINT), "Filter high",
                                          NormalisableRange<float>(20.0f, 20000.0f, 
 											 filt_convertFrom0To1Func,filt_convertTo0To1Func), 20000.0f));; // 24
 	addParameter(make_floatpar("onsetdetect_0", "Onset detection", 0.0f, 1.0f, 0.0f, 0.01, 1.0)); // 25
-	addParameter(new AudioParameterBool("capture_enabled0", "Capture", false)); // 26
-	m_outchansparam = new AudioParameterInt("numoutchans0", "Num outs", 1, 32, 2); // 27
+	addParameter(new AudioParameterBool(ParameterID("capture_enabled0",PARAM_VERSION_HINT), "Capture", false)); // 26
+	m_outchansparam = new AudioParameterInt(ParameterID("numoutchans0",PARAM_VERSION_HINT), "Num outs", 1, 32, 2); // 27
 	addParameter(m_outchansparam); // 27
-	addParameter(new AudioParameterBool("pause_enabled0", "Pause", true)); // 28
-	addParameter(new AudioParameterFloat("maxcapturelen_0", "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
-	addParameter(new AudioParameterBool("passthrough0", "Pass input through", false)); // 30
-	addParameter(new AudioParameterBool("markdirty0", "Internal (don't use)", false)); // 31
-	m_inchansparam = new AudioParameterInt("numinchans0", "Num ins", 1, 32, 2); // 32
+	addParameter(new AudioParameterBool(ParameterID("pause_enabled0",PARAM_VERSION_HINT), "Pause", true)); // 28
+	addParameter(new AudioParameterFloat(ParameterID("maxcapturelen_0",PARAM_VERSION_HINT), "Max capture length", 1.0f, 120.0f, 10.0f)); // 29
+	addParameter(new AudioParameterBool(ParameterID("passthrough0",PARAM_VERSION_HINT), "Pass input through", false)); // 30
+	addParameter(new AudioParameterBool(ParameterID("markdirty0",PARAM_VERSION_HINT), "Internal (don't use)", false)); // 31
+	m_inchansparam = new AudioParameterInt(ParameterID("numinchans0",PARAM_VERSION_HINT), "Num ins", 1, 32, 2); // 32
 	addParameter(m_inchansparam); // 32
-	addParameter(new AudioParameterBool("bypass_stretch0", "Bypass stretch", false)); // 33
-	addParameter(new AudioParameterFloat("freefilter_shiftx_0", "Free filter shift X", -1.0f, 1.0f, 0.0f)); // 34
-	addParameter(new AudioParameterFloat("freefilter_shifty_0", "Free filter shift Y", -1.0f, 1.0f, 0.0f)); // 35
-	addParameter(new AudioParameterFloat("freefilter_scaley_0", "Free filter scale Y", -1.0f, 1.0f, 1.0f)); // 36
-	addParameter(new AudioParameterFloat("freefilter_tilty_0", "Free filter tilt Y", -1.0f, 1.0f, 0.0f)); // 37
-	addParameter(new AudioParameterInt("freefilter_randomybands0", "Random bands", 2, 128, 16)); // 38
-	addParameter(new AudioParameterInt("freefilter_randomyrate0", "Random rate", 1, 32, 2)); // 39
-	addParameter(new AudioParameterFloat("freefilter_randomyamount0", "Random amount", 0.0, 1.0, 0.0)); // 40
+	addParameter(new AudioParameterBool(ParameterID("bypass_stretch0",PARAM_VERSION_HINT), "Bypass stretch", false)); // 33
+	addParameter(new AudioParameterFloat(ParameterID("freefilter_shiftx_0",PARAM_VERSION_HINT), "Free filter shift X", -1.0f, 1.0f, 0.0f)); // 34
+	addParameter(new AudioParameterFloat(ParameterID("freefilter_shifty_0",PARAM_VERSION_HINT), "Free filter shift Y", -1.0f, 1.0f, 0.0f)); // 35
+	addParameter(new AudioParameterFloat(ParameterID("freefilter_scaley_0",PARAM_VERSION_HINT), "Free filter scale Y", -1.0f, 1.0f, 1.0f)); // 36
+	addParameter(new AudioParameterFloat(ParameterID("freefilter_tilty_0",PARAM_VERSION_HINT), "Free filter tilt Y", -1.0f, 1.0f, 0.0f)); // 37
+	addParameter(new AudioParameterInt(ParameterID("freefilter_randomybands0",PARAM_VERSION_HINT), "Random bands", 2, 128, 16)); // 38
+	addParameter(new AudioParameterInt(ParameterID("freefilter_randomyrate0",PARAM_VERSION_HINT), "Random rate", 1, 32, 2)); // 39
+	addParameter(new AudioParameterFloat(ParameterID("freefilter_randomyamount0",PARAM_VERSION_HINT), "Random amount", 0.0, 1.0, 0.0)); // 40
 	for (int i = 0; i < 9; ++i) // 41-49
 	{
 		addParameter(m_sm_enab_pars[i]);
@@ -242,11 +244,11 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 			1.0)); 
 	}
 
-	addParameter(new AudioParameterBool("loop_enabled0", "Loop", true)); // 60
+	addParameter(new AudioParameterBool(ParameterID("loop_enabled0",PARAM_VERSION_HINT), "Loop", true)); // 60
 
     //addParameter(new AudioParameterBool("rewind0", "Rewind", false)); // 61
     // have to add it this way to specify rewind as a Meta parameter, so that Apple auval will pass it
-    addParameter(new AudioProcessorValueTreeState::Parameter ("rewind0",
+    addParameter(new AudioProcessorValueTreeState::Parameter (ParameterID("rewind0",PARAM_VERSION_HINT),
                                                                          "Rewind",
                                                                          "",
                                                                          NormalisableRange<float>(0.0f, 1.0f),
@@ -271,16 +273,16 @@ m_bufferingthread("pspluginprebufferthread"), m_is_stand_alone_offline(is_stand_
 			return jmap<float>(value, 0.1f, 1.0f, 0.0f, 0.5f);
 		return jmap<float>(value, 1.0f, 8.0f, 0.5f, 1.0f);
 	};
-	addParameter(new AudioParameterFloat("dryplayrate0", "Dry playrate",
+	addParameter(new AudioParameterFloat(ParameterID("dryplayrate0",PARAM_VERSION_HINT), "Dry playrate",
 		NormalisableRange<float>(0.1f, 8.0f,
 			dprate_convertFrom0To1Func, dprate_convertTo0To1Func), 1.0f)); // 62
 
-    addParameter(new AudioParameterBool("binauralbeats", "BinauralBeats Enable", false)); // 63
-    addParameter(new AudioParameterFloat("binauralbeatsmono", "Binaural Beats Power", 0.0, 1.0, 0.5)); // 64
+    addParameter(new AudioParameterBool(ParameterID("binauralbeats",PARAM_VERSION_HINT), "BinauralBeats Enable", false)); // 63
+    addParameter(new AudioParameterFloat(ParameterID("binauralbeatsmono",PARAM_VERSION_HINT), "Binaural Beats Power", 0.0, 1.0, 0.5)); // 64
     //addParameter(new AudioParameterFloat("binauralbeatsfreq", "BinauralBeats Freq", 0.0, 1.0, 0.5)); // 65
-    addParameter(new AudioParameterFloat("binauralbeatsfreq", "Binaural Beats Freq",
+    addParameter(new AudioParameterFloat(ParameterID("binauralbeatsfreq",PARAM_VERSION_HINT), "Binaural Beats Freq",
                                          NormalisableRange<float>(0.05f, 50.0f, 0.0f, 0.25f), 4.0f)); // 65
-    addParameter(new AudioParameterChoice  ("binauralbeatsmode", "BinauralBeats Mode", { "Left-Right", "Right-Left", "Symmetric" }, 0)); // 66
+    addParameter(new AudioParameterChoice  (ParameterID("binauralbeatsmode",PARAM_VERSION_HINT), "BinauralBeats Mode", { "Left-Right", "Right-Left", "Symmetric" }, 0)); // 66
 
     m_bbpar.free_edit.extreme_y.set_min(0.05f);
     m_bbpar.free_edit.extreme_y.set_max(50.0f);

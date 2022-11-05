@@ -1392,7 +1392,7 @@ void PaulstretchpluginAudioProcessorEditor::showExternalFileBrowser()
     usenative = true;
 #endif
     
-    fileChooser.reset(new FileChooser("Choose an audio file to open...",
+    fileChooser.reset(new FileChooser(TRANS("Choose an audio or preset file to open..."),
                     curropendir,
                     "*.wav;*.mp3;*.m4a;*.aif;*.aiff;*.caf;*.ogg;*.flac;*.pxs",
                     usenative, false, parent));

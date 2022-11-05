@@ -38,7 +38,7 @@ endif()
 
 project(PaulXStretch VERSION 1.6.1)
 
-set(BUILDVERSION 115)
+set(BUILDVERSION 116)
 
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
