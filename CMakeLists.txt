@@ -30,8 +30,6 @@ endif()
 
 
 
-
-
 # The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
@@ -40,6 +38,8 @@ project(PaulXStretch VERSION 1.6.1)
 
 set(BUILDVERSION 116)
 
+
+set(CMAKE_CXX_STANDARD 17)
 
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
