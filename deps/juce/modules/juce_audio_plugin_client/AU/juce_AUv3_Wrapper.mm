@@ -1527,11 +1527,11 @@ private:
             }
            #endif
         }
-        else {
-            // now copy the next bus data to the other output buffer
-            audioBuffer.pop (*outputData,
-                             mapper.get (false, (int) outputBusNumber));
-        }
+        //else {
+        //    // now copy the next bus data to the other output buffer
+        //    audioBuffer.pop (*outputData,
+        //                     mapper.get (false, (int) outputBusNumber));
+        //}
 
 
         // copy back
