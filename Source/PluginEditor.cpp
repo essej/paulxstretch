@@ -573,7 +573,7 @@ void PaulstretchpluginAudioProcessorEditor::showRenderDialog()
     int prefh = jmin(contentraw->getPreferredHeight(), getHeight() - 10);
 	contentraw->setSize(prefw, prefh);
 	std::unique_ptr<Component> content(contentraw);
-	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this, false);
+	auto & cb = CallOutBox::launchAsynchronously(std::move(content), m_render_button.getBounds(), this);
     cb.setDismissalMouseClicksAreAlwaysConsumed(true);
 }
 
@@ -635,7 +635,7 @@ void PaulstretchpluginAudioProcessorEditor::showSettings(bool flag)
        
         Rectangle<int> bounds =  dw->getLocalArea(nullptr, m_settings_button.getScreenBounds().reduced(10));
         DBG("callout bounds: " << bounds.toString());
-        settingsCalloutBox = & CallOutBox::launchAsynchronously (std::move(wrap), bounds , dw, false);
+        settingsCalloutBox = & CallOutBox::launchAsynchronously (std::move(wrap), bounds , dw);
         if (CallOutBox * box = dynamic_cast<CallOutBox*>(settingsCalloutBox.get())) {
             box->setDismissalMouseClicksAreAlwaysConsumed(true);
         }

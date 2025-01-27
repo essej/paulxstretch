@@ -1,0 +1,3 @@
+[submodule "deps/juce"]
+	path = deps/juce
+	url = https://github.com/kcoul/JUCE.git

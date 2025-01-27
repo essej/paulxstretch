@@ -316,7 +316,7 @@ void StretchAudioSource::getNextAudioBlock(const AudioSourceChannelInfo & buffer
 	if (m_vol_smoother.getTargetValue() != maingain)
 		m_vol_smoother.setTargetValue(maingain);
 	FloatVectorOperations::disableDenormalisedNumberSupport();
-	float** outarrays = bufferToFill.buffer->getArrayOfWritePointers();
+	float* const* outarrays = bufferToFill.buffer->getArrayOfWritePointers();
 	int outbufchans = jmin(m_num_outchans, bufferToFill.buffer->getNumChannels());
 	int offset = bufferToFill.startSample;
 	if (m_stretchers.size() == 0)

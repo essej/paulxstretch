@@ -154,7 +154,7 @@ public:
 			++m_silenceoutputted;
 			return 0.0f;
 		};
-		float** smps = abuf.getArrayOfWritePointers();
+		float* const* smps = abuf.getArrayOfWritePointers();
 		int readinc = 1;
 		if (m_reverseplay)
 			readinc = -1;

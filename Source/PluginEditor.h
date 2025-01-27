@@ -177,7 +177,8 @@ public:
 	MyThumbCache() : AudioThumbnailCache(200) 
 	{ 
 		// The default priority of 2 is a bit too low in some cases, it seems...
-		getTimeSliceThread().setPriority(3);
+		//TODO: It's unclear if the thread inside the ThumbCache can have its priority manipulated in JUCE8...
+		//getTimeSliceThread().setPriority(Thread::Priority::high);
 	}
 	~MyThumbCache() {}
 };

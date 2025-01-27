@@ -208,6 +208,7 @@ Rectangle<int> CustomLookAndFeel::getTabButtonExtraComponentBounds (const TabBar
             default:                             jassertfalse; break;
         }
     }
+    /*
     else if (button.getExtraComponentPlacement() == TabBarButton::aboveText)
     {
         switch (orientation)
@@ -235,7 +236,7 @@ Rectangle<int> CustomLookAndFeel::getTabButtonExtraComponentBounds (const TabBar
             default:                             jassertfalse; break;
         }
     }
-    
+    */
     return extraComp;
 }
 
@@ -1182,12 +1183,12 @@ void CustomLookAndFeel::drawDrawableButton (Graphics& g, DrawableButton& button,
     //    imageratio = sonobutt->getForegroundImageRatio();
     //}
 
-    if (button.getStyle() == DrawableButton::ImageAboveTextLabel || button.getStyle() == DrawableButton::ImageBelowTextLabel) {
+    if (button.getStyle() == DrawableButton::ImageAboveTextLabel /*|| button.getStyle() == DrawableButton::ImageBelowTextLabel*/) {
         textH = jmin (14, button.proportionOfHeight (0.2f));
-    } else if (button.getStyle() == DrawableButton::ImageLeftOfTextLabel || button.getStyle() == DrawableButton::ImageRightOfTextLabel) {
+    } /*else if (button.getStyle() == DrawableButton::ImageLeftOfTextLabel || button.getStyle() == DrawableButton::ImageRightOfTextLabel) {
         textH = jmin (14, button.proportionOfHeight (0.8f));
         textW = jmax (20, button.proportionOfWidth (1.0f - imageratio));
-    }
+    }*/
 
 
     if (textH > 0)
@@ -1205,7 +1206,7 @@ void CustomLookAndFeel::drawDrawableButton (Graphics& g, DrawableButton& button,
                               button.getWidth() - 4, textH,
                               Justification::centred, 1);
         }
-        else if (button.getStyle() == DrawableButton::ImageBelowTextLabel) {
+        /*else if (button.getStyle() == DrawableButton::ImageBelowTextLabel) {
             g.drawFittedText (button.getButtonText(),
                               2, 1,
                               button.getWidth() - 4, textH,
@@ -1222,7 +1223,7 @@ void CustomLookAndFeel::drawDrawableButton (Graphics& g, DrawableButton& button,
                               button.getWidth() - textW - 4 , 1,
                               textW , button.getHeight() - 2,
                               Justification::centred, 2, 0.6f);
-        }
+        }*/
     }
 }
 
